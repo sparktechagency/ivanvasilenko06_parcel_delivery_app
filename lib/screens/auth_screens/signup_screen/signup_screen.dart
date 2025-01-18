@@ -1,0 +1,101 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:parcel_delivery_app/constants/app_colors.dart';
+import 'package:parcel_delivery_app/utils/app_size.dart';
+import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
+
+import '../../../constants/app_strings.dart';
+import '../../../routes/app_routes.dart';
+import '../../../widgets/phone_field_widget/phone_field_widget.dart';
+import '../../../widgets/space_widget/space_widget.dart';
+import '../../../widgets/text_field_widget/text_field_widget.dart';
+import '../../../widgets/text_widget/text_widgets.dart';
+
+class SignupScreen extends StatelessWidget {
+  final nameController = TextEditingController();
+  final phoneController = TextEditingController();
+  String fullPhoneNumber = '';
+
+  SignupScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SpaceWidget(spaceHeight: 48),
+              const TextWidget(
+                text: AppStrings.getStarted,
+                fontSize: 30,
+                fontWeight: FontWeight.w500,
+                fontColor: AppColors.black,
+                fontStyle: FontStyle.italic,
+              ),
+              const SpaceWidget(spaceHeight: 10),
+              const TextWidget(
+                text: AppStrings.signupDesc,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                fontColor: AppColors.black,
+                fontStyle: FontStyle.italic,
+                textAlignment: TextAlign.left,
+              ),
+              const SpaceWidget(spaceHeight: 24),
+              TextFieldWidget(
+                controller: nameController,
+                hintText: 'Enter your name',
+                maxLines: 1,
+              ),
+              const SpaceWidget(spaceHeight: 16),
+              IntlPhoneFieldWidget(
+                controller: phoneController,
+                hintText: 'Enter your phone number',
+                onChanged: (phone) {
+                  fullPhoneNumber = phone.completeNumber;
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            InkWell(
+              onTap: () {
+                Get.back();
+              },
+              borderRadius: BorderRadius.circular(100),
+              child: CircleAvatar(
+                backgroundColor: AppColors.grey,
+                radius: ResponsiveUtils.width(30),
+                child: const Icon(
+                  Icons.arrow_back,
+                  color: AppColors.black,
+                ),
+              ),
+            ),
+            ButtonWidget(
+              onPressed: () {
+                final phoneNumber = phoneController.text;
+                Get.toNamed(AppRoutes.verifyPhoneScreen,
+                    arguments: phoneNumber);
+              },
+              label: AppStrings.next,
+              icon: Icons.arrow_forward,
+              buttonWidth: 120,
+              buttonHeight: 50,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

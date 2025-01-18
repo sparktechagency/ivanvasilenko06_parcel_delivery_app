@@ -1,0 +1,112 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:parcel_delivery_app/constants/app_colors.dart';
+import 'package:parcel_delivery_app/routes/app_routes.dart';
+import 'package:parcel_delivery_app/screens/auth_screens/login_screen/widgets/customInkWellWidget.dart';
+import 'package:parcel_delivery_app/screens/auth_screens/login_screen/widgets/or_widget.dart';
+import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
+import 'package:parcel_delivery_app/widgets/text_button_widget/text_button_widget.dart';
+
+import '../../../constants/app_icons_path.dart';
+import '../../../constants/app_strings.dart';
+import '../../../widgets/phone_field_widget/phone_field_widget.dart';
+import '../../../widgets/space_widget/space_widget.dart';
+import '../../../widgets/text_widget/text_widgets.dart';
+
+class LoginScreen extends StatelessWidget {
+  final phoneController = TextEditingController();
+
+  LoginScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SpaceWidget(spaceHeight: 48),
+              const TextWidget(
+                text: AppStrings.welcome,
+                fontSize: 30,
+                fontWeight: FontWeight.w500,
+                fontColor: AppColors.black,
+                fontStyle: FontStyle.italic,
+              ),
+              const SpaceWidget(spaceHeight: 10),
+              const TextWidget(
+                text: AppStrings.enterNumber,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                fontColor: AppColors.black,
+                fontStyle: FontStyle.italic,
+                textAlignment: TextAlign.left,
+              ),
+              const SpaceWidget(spaceHeight: 24),
+              IntlPhoneFieldWidget(
+                controller: phoneController,
+                hintText: 'Enter your phone number',
+              ),
+              const SpaceWidget(spaceHeight: 24),
+              ButtonWidget(
+                onPressed: () {},
+                label: AppStrings.login,
+                buttonHeight: 50,
+                buttonWidth: double.infinity,
+              ),
+              const SpaceWidget(spaceHeight: 16),
+              const OrWidget(),
+              const SpaceWidget(spaceHeight: 16),
+              CustomInkWellButton(
+                onTap: () {},
+                icon: AppIconsPath.emailIcon,
+                text: AppStrings.continueWithEmail,
+              ),
+              const SpaceWidget(spaceHeight: 16),
+              CustomInkWellButton(
+                onTap: () {},
+                icon: AppIconsPath.googleIcon,
+                text: AppStrings.continueWithGoogle,
+              ),
+              const SpaceWidget(spaceHeight: 16),
+              CustomInkWellButton(
+                onTap: () {},
+                icon: AppIconsPath.appleIcon,
+                text: AppStrings.continueWithApple,
+              ),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const TextWidget(
+              text: AppStrings.dontHaveAccount,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              fontColor: AppColors.greyDark,
+              fontStyle: FontStyle.italic,
+            ),
+            const SpaceWidget(spaceWidth: 4),
+            TextButtonWidget(
+              onPressed: () {
+                Get.offAllNamed(AppRoutes.loginScreen);
+              },
+              text: AppStrings.signUp,
+              textColor: AppColors.greyDark,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              fontStyle: FontStyle.italic,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
