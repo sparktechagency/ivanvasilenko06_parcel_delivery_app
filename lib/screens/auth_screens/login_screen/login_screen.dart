@@ -61,7 +61,9 @@ class LoginScreen extends StatelessWidget {
               const OrWidget(),
               const SpaceWidget(spaceHeight: 16),
               CustomInkWellButton(
-                onTap: () {},
+                onTap: () {
+                  Get.toNamed(AppRoutes.emailLoginScreen);
+                },
                 icon: AppIconsPath.emailIcon,
                 text: AppStrings.continueWithEmail,
               ),

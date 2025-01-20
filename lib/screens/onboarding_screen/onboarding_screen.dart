@@ -100,7 +100,9 @@ class OnboardingScreen extends GetView<OnboardingController> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               ButtonWidget(
-                onPressed: () {},
+                onPressed: () {
+                  Get.toNamed(AppRoutes.loginScreen);
+                },
                 label: AppStrings.login,
                 textColor: AppColors.black,
                 fontSize: 16,

@@ -36,4 +36,8 @@ class AppStrings {
   static const String continueWithGoogle = "Continue with Google";
   static const String continueWithApple = "Continue with Apple";
   static const String dontHaveAccount = "Don’t have an account?";
+  static const String loginWithEmail = "Login with Email";
+  static const String emailLoginDesc =
+      "Enter your email. We will send you a confirmation code there.";
+  static const String verifyEmail = "Verify Email";
 }
