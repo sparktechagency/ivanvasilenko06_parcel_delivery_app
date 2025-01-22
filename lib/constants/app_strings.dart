@@ -40,4 +40,8 @@ class AppStrings {
   static const String emailLoginDesc =
       "Enter your email. We will send you a confirmation code there.";
   static const String verifyEmail = "Verify Email";
+  static const String home = "Home";
+  static const String services = "Services";
+  static const String bookings = "Bookings";
+  static const String profile = "Profile";
 }

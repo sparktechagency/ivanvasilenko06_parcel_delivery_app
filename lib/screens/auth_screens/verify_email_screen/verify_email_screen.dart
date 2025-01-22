@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:parcel_delivery_app/screens/bottom_nav_bar/bottom_nav_bar.dart';
 
 import '../../../constants/app_colors.dart';
 import '../../../constants/app_strings.dart';
@@ -72,7 +73,7 @@ class VerifyEmailScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: ButtonWidget(
           onPressed: () {
-            // Get.toNamed(AppRoutes.loginScreen);
+            Get.offAll(() => const BottomNavScreen());
           },
           label: AppStrings.verify,
           buttonWidth: double.infinity,

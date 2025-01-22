@@ -3,6 +3,7 @@ class AppImagePath {
 
   // Splash Image
   static const String splashImage = "assets/images/splashImage.png";
+  static const String appLogo = "assets/images/appLogo.png";
 
   // Onboarding Images
   static const String onboardingImage1 = "assets/images/onboardingImage1.png";
@@ -11,6 +12,5 @@ class AppImagePath {
   static const String onboardingImage4 = "assets/images/onboardingImage4.png";
 
   // Dev Images
-  static const String creatorBriefImage1 =
-      "assets/dev_images/creatorBriefImage1.png";
+  static const String profileImage = "assets/dev_images/profileImage.png";
 }
