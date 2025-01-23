@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
-
-import '../../../routes/app_routes.dart';
+import 'package:parcel_delivery_app/screens/bottom_nav_bar/bottom_nav_bar.dart';
 
 class SplashController extends GetxController {
   @override
@@ -8,8 +7,8 @@ class SplashController extends GetxController {
     super.onInit();
     // Wait for 3 seconds before navigating to the HomeScreen
     Future.delayed(const Duration(seconds: 3)).then((_) {
-      Get.offAllNamed(AppRoutes.onboardingScreen);
-      //Get.to(() => BottomNavBar());
+      //Get.offAllNamed(AppRoutes.onboardingScreen);
+      Get.to(() => BottomNavScreen());
     });
   }
 

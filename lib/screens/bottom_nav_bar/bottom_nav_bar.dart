@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:parcel_delivery_app/screens/bottom_nav_bar/widgets/bottom_nav_bar_item_widget.dart';
+import 'package:parcel_delivery_app/screens/services_screen/services_screen.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_icons_path.dart';
 import '../../constants/app_strings.dart';
+import '../booking_screen/booking_screen.dart';
 import '../home_screen/home_screen.dart';
 
 class BottomNavScreen extends StatefulWidget {
@@ -21,9 +23,9 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
   @override
   void initState() {
     tabs = [
-      HomeScreen(),
-      Container(),
-      Container(),
+      const HomeScreen(),
+      ServicesScreen(),
+      BookingScreen(),
       Container(),
     ];
     super.initState();

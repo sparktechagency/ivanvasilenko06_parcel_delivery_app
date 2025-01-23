@@ -11,6 +11,15 @@ class AppImagePath {
   static const String onboardingImage3 = "assets/images/onboardingImage3.png";
   static const String onboardingImage4 = "assets/images/onboardingImage4.png";
 
+  // Home Screen Images
+  static const String deliverParcel = "assets/images/deliverParcel.png";
+  static const String sendParcel = "assets/images/sendParcel.png";
+  static const String reserve = "assets/images/reserve.png";
+  static const String earnMoney = "assets/images/earnMoney.png";
+
+  // Services Screen Images
+  static const String servicesImage = "assets/images/servicesImage.png";
+
   // Dev Images
   static const String profileImage = "assets/dev_images/profileImage.png";
 }

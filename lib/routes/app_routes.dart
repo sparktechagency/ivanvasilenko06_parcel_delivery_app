@@ -8,4 +8,7 @@ class AppRoutes {
   static const loginScreen = '/loginScreen';
   static const emailLoginScreen = '/emailLoginScreen';
   static const verifyEmailScreen = '/verifyEmailScreen';
+  static const homeScreen = '/homeScreen';
+  static const servicesScreen = '/servicesScreen';
+  static const bookingScreen = '/bookingScreen';
 }

@@ -44,4 +44,28 @@ class AppStrings {
   static const String services = "Services";
   static const String bookings = "Bookings";
   static const String profile = "Profile";
+  static const String suggestions = "Suggestions";
+  static const String deliverParcel = "Deliver Parcel";
+  static const String sendParcel = "Send Parcel";
+  static const String reserve = "Reserve";
+  static const String earnMoney = "Earn Money Delivering in Your Area";
+  static const String earnMoneyDesc =
+      "Work on your schedule, set your delivery radius, and start earning today—take local orders and grow your income from your phone";
+  static const String earnMoneyInYourRadius = "Earn Money in your radius";
+  static const String recentPublishedOrders = "Recent Published Orders";
+  static const String viewAll = "View all";
+  static const String currency = "₪";
+  static const String seeDetails = "See Details";
+  static const String currentOrders = "Current Orders";
+  static const String newBookings = "New Bookings";
+  static const String parcel = "Parcel";
+  static const String joshua = "Joshua";
+  static const String parcelDetails = "Parcel Details";
+  static const String viewDetails = "View Details";
+  static const String waiting = "Waiting";
+  static const String inTransit = "In-Transit";
+  static const String removeFromMap = "Remove From Map";
+  static const String cancelDelivery = "Cancel Delivery";
+  static const String deliveryManDetails = "Delivery Man Details";
+  static const String ratings = "4.5";
 }
