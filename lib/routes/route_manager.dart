@@ -6,6 +6,7 @@ import '../screens/auth_screens/login_screen/login_screen.dart';
 import '../screens/auth_screens/signup_screen/signup_screen.dart';
 import '../screens/auth_screens/verify_email_screen/verify_email_screen.dart';
 import '../screens/auth_screens/verify_phone_screen/verify_phone_screen.dart';
+import '../screens/booking_parcel_details_screen/booking_parcel_details_screen.dart';
 import '../screens/booking_screen/booking_screen.dart';
 import '../screens/onboarding_screen/onboarding_screen.dart';
 import '../screens/profile_screen/profile_screen.dart';
@@ -75,13 +76,19 @@ class RouteManager {
       ),
       GetPage(
         name: AppRoutes.bookingScreen,
-        page: () => BookingScreen(),
+        page: () => const BookingScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
       GetPage(
         name: AppRoutes.profileScreen,
-        page: () => ProfileScreen(),
+        page: () => const ProfileScreen(),
+        transition: Transition.rightToLeft,
+        // binding: GeneralBindings(),
+      ),
+      GetPage(
+        name: AppRoutes.bookingParcelDetailsScreen,
+        page: () => const BookingParcelDetailsScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),

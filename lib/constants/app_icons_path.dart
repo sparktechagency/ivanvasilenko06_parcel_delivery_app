@@ -14,4 +14,11 @@ class AppIconsPath {
   static const String basicInfoIcon2 = "assets/icons/basicInfoIcon2.svg";
   static const String basicInfoIcon3 = "assets/icons/basicInfoIcon3.svg";
   static const String badgeIcon = "assets/icons/badgeIcon.svg";
+  static const String ratingIcon = "assets/icons/starIcon.svg";
+  static const String callIcon = "assets/icons/callIcon.svg";
+  static const String deliveryTimeIcon = "assets/icons/deliveryTimeIcon.svg";
+  static const String currentLocationIcon = "assets/icons/destinationIcon.svg";
+  static const String destinationIcon = "assets/icons/currentLocationIcon.svg";
+  static const String priceIcon = "assets/icons/priceIcon.svg";
+  static const String descriptionIcon = "assets/icons/descriptionIcon.svg";
 }

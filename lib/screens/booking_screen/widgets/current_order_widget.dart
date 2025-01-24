@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../constants/app_colors.dart';
 import '../../../constants/app_icons_path.dart';
 import '../../../constants/app_image_path.dart';
 import '../../../constants/app_strings.dart';
+import '../../../routes/app_routes.dart';
 import '../../../widgets/icon_widget/icon_widget.dart';
 import '../../../widgets/image_widget/image_widget.dart';
 import '../../../widgets/space_widget/space_widget.dart';
@@ -301,7 +303,15 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              if (details[index] == AppStrings.parcelDetails) {
+                                Get.toNamed(
+                                    AppRoutes.bookingParcelDetailsScreen);
+                              } else {
+                                // Get.toNamed(
+                                //     AppRoutes.bookingParcelDetailsScreen);
+                              }
+                            },
                             splashColor: Colors.transparent,
                             highlightColor: Colors.transparent,
                             child: Row(

@@ -12,4 +12,5 @@ class AppRoutes {
   static const servicesScreen = '/servicesScreen';
   static const bookingScreen = '/bookingScreen';
   static const profileScreen = '/profileScreen';
+  static const bookingParcelDetailsScreen = '/bookingParcelDetailsScreen';
 }

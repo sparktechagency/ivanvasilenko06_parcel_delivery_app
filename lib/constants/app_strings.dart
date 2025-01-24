@@ -89,4 +89,21 @@ class AppStrings {
   static const String instagram = "Instagram";
   static const String instagramId = "Ivan_028somer";
   static const String whatsapp = "Whatsapp";
+  static const String summary = "Summary";
+  static const String parcel1 = "Parcel 1";
+  static const String sendersName = "Sender's Name";
+  static const String ratingsText = "Ratings";
+  static const String receiversName = "Receiver's Name";
+  static const String arial = "Arial";
+  static const String receiversNumber = "Receiver's Number";
+  static const String deliveryTimeText = "Delivery Time";
+  static const String deliveryTime = "12:08 PM, Fri 8 Nov";
+  static const String currentLocationText = "Current Location";
+  static const String currentLocation = "4 Lebri Mark, Petah Tikva";
+  static const String destinationText = "Destination";
+  static const String destination = "3 Kafrisin, Tel Aviv";
+  static const String price = "Price";
+  static const String descriptionText = "Description";
+  static const String description =
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor";
 }
