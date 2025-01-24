@@ -68,4 +68,25 @@ class AppStrings {
   static const String cancelDelivery = "Cancel Delivery";
   static const String deliveryManDetails = "Delivery Man Details";
   static const String ratings = "4.5";
+  static const String reject = "Reject";
+  static const String view = "View";
+  static const String accept = "Accept";
+  static const String basicInfo = "Basic Info";
+  static const String orderCompleted = "15+ orders";
+  static const String orderDelivered = "12 Delivered";
+  static const String orderReceived = "03 Received";
+  static const String name = "Name";
+  static const String ivan = "Ivan Somerhalder";
+  static const String credits = "Credits";
+  static const String yourEarning = "Your Earning";
+  static const String yourEarningAmount = "150.23";
+  static const String phoneNumber = "Phone Number";
+  static const String number = "+972-505-559-730";
+  static const String verifiedEmail = "Verified Email";
+  static const String emailId = "ivansomerhalder123@gmail.com";
+  static const String addTrustOverYou = "Add trust over you";
+  static const String facebook = "Facebook";
+  static const String instagram = "Instagram";
+  static const String instagramId = "Ivan_028somer";
+  static const String whatsapp = "Whatsapp";
 }

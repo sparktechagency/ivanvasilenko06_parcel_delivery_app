@@ -11,4 +11,5 @@ class AppRoutes {
   static const homeScreen = '/homeScreen';
   static const servicesScreen = '/servicesScreen';
   static const bookingScreen = '/bookingScreen';
+  static const profileScreen = '/profileScreen';
 }

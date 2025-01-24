@@ -8,6 +8,7 @@ import '../../constants/app_icons_path.dart';
 import '../../constants/app_strings.dart';
 import '../booking_screen/booking_screen.dart';
 import '../home_screen/home_screen.dart';
+import '../profile_screen/profile_screen.dart';
 
 class BottomNavScreen extends StatefulWidget {
   const BottomNavScreen({super.key});
@@ -25,8 +26,8 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
     tabs = [
       const HomeScreen(),
       ServicesScreen(),
-      BookingScreen(),
-      Container(),
+      const BookingScreen(),
+      ProfileScreen(),
     ];
     super.initState();
   }

@@ -9,4 +9,9 @@ class AppIconsPath {
   static const String bookingIcon = "assets/icons/bookingIcon.svg";
   static const String profileIcon = "assets/icons/profileIcon.svg";
   static const String notificationIcon = "assets/icons/notificationIcon.svg";
+  static const String menuIcon = "assets/icons/menuIcon.svg";
+  static const String basicInfoIcon1 = "assets/icons/basicInfoIcon1.svg";
+  static const String basicInfoIcon2 = "assets/icons/basicInfoIcon2.svg";
+  static const String basicInfoIcon3 = "assets/icons/basicInfoIcon3.svg";
+  static const String badgeIcon = "assets/icons/badgeIcon.svg";
 }
