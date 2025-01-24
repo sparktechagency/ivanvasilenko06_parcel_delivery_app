@@ -8,6 +8,7 @@ import '../screens/auth_screens/verify_email_screen/verify_email_screen.dart';
 import '../screens/auth_screens/verify_phone_screen/verify_phone_screen.dart';
 import '../screens/booking_parcel_details_screen/booking_parcel_details_screen.dart';
 import '../screens/booking_screen/booking_screen.dart';
+import '../screens/booking_view_details_screen/booking_view_details_screen.dart';
 import '../screens/onboarding_screen/onboarding_screen.dart';
 import '../screens/profile_screen/profile_screen.dart';
 import '../screens/services_screen/services_screen.dart';
@@ -89,6 +90,12 @@ class RouteManager {
       GetPage(
         name: AppRoutes.bookingParcelDetailsScreen,
         page: () => const BookingParcelDetailsScreen(),
+        transition: Transition.rightToLeft,
+        // binding: GeneralBindings(),
+      ),
+      GetPage(
+        name: AppRoutes.bookingViewDetailsScreen,
+        page: () => const BookingViewDetailsScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),

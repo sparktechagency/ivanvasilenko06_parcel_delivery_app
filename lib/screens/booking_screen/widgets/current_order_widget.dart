@@ -308,8 +308,7 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
                                 Get.toNamed(
                                     AppRoutes.bookingParcelDetailsScreen);
                               } else {
-                                // Get.toNamed(
-                                //     AppRoutes.bookingParcelDetailsScreen);
+                                Get.toNamed(AppRoutes.bookingViewDetailsScreen);
                               }
                             },
                             splashColor: Colors.transparent,
