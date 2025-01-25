@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../constants/app_colors.dart';
 import '../../../constants/app_image_path.dart';
@@ -33,68 +32,6 @@ class _NewBookingWidgetState extends State<NewBookingWidget> {
     AppStrings.viewDetails,
     AppStrings.parcelDetails,
   ];
-
-  final List<String> status = [
-    AppStrings.waiting,
-    "",
-    AppStrings.inTransit,
-  ];
-
-  final List<String> progress = [
-    AppStrings.removeFromMap,
-    AppStrings.cancelDelivery,
-    AppStrings.deliveryManDetails,
-  ];
-
-  // Function to make a phone call
-  final String phoneNumber = '+1234567890';
-
-  // Replace with actual phone number
-  final String message = 'Hello, this is a test message';
-
-  Future<void> _makePhoneCall() async {
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
-
-    try {
-      if (await canLaunchUrl(launchUri)) {
-        await launchUrl(launchUri);
-      } else {
-        _showErrorSnackBar('Could not launch phone call');
-      }
-    } catch (e) {
-      _showErrorSnackBar('An error occurred: $e');
-    }
-  }
-
-  // Function to send a message
-  Future<void> _sendMessage() async {
-    final Uri launchUri = Uri(
-      scheme: 'sms',
-      path: phoneNumber,
-      queryParameters: {'body': message},
-    );
-
-    try {
-      if (await canLaunchUrl(launchUri)) {
-        await launchUrl(launchUri);
-      } else {
-        _showErrorSnackBar('Could not launch messaging app');
-      }
-    } catch (e) {
-      _showErrorSnackBar('An error occurred: $e');
-      print('An error occurred: $e');
-    }
-  }
-
-  // Helper method to show error messages
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
