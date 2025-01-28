@@ -19,4 +19,5 @@ class AppRoutes {
   static const radiusMapScreen = '/radiusMapScreen';
   static const parcelForDeliveryScreen = '/parcelForDeliveryScreen';
   static const contactUsScreen = '/contactUsScreen';
+  static const historyScreen = '/historyScreen';
 }

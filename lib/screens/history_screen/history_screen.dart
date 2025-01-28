@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:parcel_delivery_app/screens/booking_screen/widgets/current_order_widget.dart';
+import 'package:get/get.dart';
 import 'package:parcel_delivery_app/screens/booking_screen/widgets/new_booking_widget.dart';
+import 'package:parcel_delivery_app/screens/history_screen/widgets/history_order_widget.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 
 import '../../constants/app_colors.dart';
@@ -8,14 +9,14 @@ import '../../constants/app_strings.dart';
 import '../../widgets/space_widget/space_widget.dart';
 import '../../widgets/text_widget/text_widgets.dart';
 
-class BookingScreen extends StatefulWidget {
-  const BookingScreen({super.key});
+class HistoryScreen extends StatefulWidget {
+  const HistoryScreen({super.key});
 
   @override
-  State<BookingScreen> createState() => _BookingScreenState();
+  State<HistoryScreen> createState() => _HistoryScreenState();
 }
 
-class _BookingScreenState extends State<BookingScreen> {
+class _HistoryScreenState extends State<HistoryScreen> {
   int _currentIndex = 0;
   final PageController _pageController = PageController();
 
@@ -27,14 +28,28 @@ class _BookingScreenState extends State<BookingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SpaceWidget(spaceHeight: 48),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: TextWidget(
-              text: AppStrings.bookings,
-              fontSize: 24,
-              fontWeight: FontWeight.w500,
-              fontColor: AppColors.black,
-              fontStyle: FontStyle.italic,
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  icon: const Icon(
+                    Icons.arrow_back,
+                    color: AppColors.black,
+                    size: 22,
+                  ),
+                ),
+                const TextWidget(
+                  text: AppStrings.history,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w500,
+                  fontColor: AppColors.black,
+                  fontStyle: FontStyle.italic,
+                ),
+              ],
             ),
           ),
           const SpaceWidget(spaceHeight: 24),
@@ -45,7 +60,7 @@ class _BookingScreenState extends State<BookingScreen> {
               children: [
                 Column(
                   children: [
-                    _buildTabItem(AppStrings.currentOrders, 0),
+                    _buildTabItem(AppStrings.orders, 0),
                     const SpaceWidget(spaceHeight: 4),
                     Container(
                       height: ResponsiveUtils.height(3),
@@ -61,7 +76,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
                 Column(
                   children: [
-                    _buildTabItem(AppStrings.newBookings, 1),
+                    _buildTabItem(AppStrings.bookings, 1),
                     const SpaceWidget(spaceHeight: 4),
                     Container(
                       height: ResponsiveUtils.height(3),
@@ -88,7 +103,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 });
               },
               children: const [
-                CurrentOrderWidget(),
+                HistoryOrderWidget(),
                 NewBookingWidget(),
               ],
             ),

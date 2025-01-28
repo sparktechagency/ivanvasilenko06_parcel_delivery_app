@@ -134,71 +134,77 @@ class ProfileScreen extends StatelessWidget {
                     fontStyle: FontStyle.italic,
                   ),
                   const SpaceWidget(spaceHeight: 12),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
-                      border: Border.all(
-                        color: AppColors.greyLight,
-                        width: 1.5,
+                  InkWell(
+                    onTap: () {
+                      Get.toNamed(AppRoutes.historyScreen);
+                    },
+                    borderRadius: BorderRadius.circular(100),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        border: Border.all(
+                          color: AppColors.greyLight,
+                          width: 1.5,
+                        ),
                       ),
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            IconWidget(
-                              height: 14,
-                              width: 14,
-                              icon: AppIconsPath.basicInfoIcon1,
-                            ),
-                            SpaceWidget(spaceWidth: 6),
-                            TextWidget(
-                              text: AppStrings.orderCompleted,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              fontColor: AppColors.greyDark2,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            IconWidget(
-                              height: 14,
-                              width: 14,
-                              icon: AppIconsPath.basicInfoIcon2,
-                            ),
-                            SpaceWidget(spaceWidth: 6),
-                            TextWidget(
-                              text: AppStrings.orderDelivered,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              fontColor: AppColors.greyDark2,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            IconWidget(
-                              height: 14,
-                              width: 14,
-                              icon: AppIconsPath.basicInfoIcon3,
-                            ),
-                            SpaceWidget(spaceWidth: 6),
-                            TextWidget(
-                              text: AppStrings.orderReceived,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              fontColor: AppColors.greyDark2,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ],
-                        ),
-                      ],
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              IconWidget(
+                                height: 14,
+                                width: 14,
+                                icon: AppIconsPath.basicInfoIcon1,
+                              ),
+                              SpaceWidget(spaceWidth: 6),
+                              TextWidget(
+                                text: AppStrings.orderCompleted,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                fontColor: AppColors.greyDark2,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              IconWidget(
+                                height: 14,
+                                width: 14,
+                                icon: AppIconsPath.basicInfoIcon2,
+                              ),
+                              SpaceWidget(spaceWidth: 6),
+                              TextWidget(
+                                text: AppStrings.orderDelivered,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                fontColor: AppColors.greyDark2,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              IconWidget(
+                                height: 14,
+                                width: 14,
+                                icon: AppIconsPath.basicInfoIcon3,
+                              ),
+                              SpaceWidget(spaceWidth: 6),
+                              TextWidget(
+                                text: AppStrings.orderReceived,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                fontColor: AppColors.greyDark2,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SpaceWidget(spaceHeight: 8),

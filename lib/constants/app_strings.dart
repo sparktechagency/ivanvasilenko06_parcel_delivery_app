@@ -116,4 +116,9 @@ class AppStrings {
   static const String forAnySupport =
       "For any support please drop a mail to our Email";
   static const String mailUs = "Mail us";
+  static const String orders = "Orders";
+  static const String history = "History";
+  static const String cancelled = "Cancelled";
+  static const String received = "Received";
+  static const String republish = "Republish";
 }

@@ -11,6 +11,7 @@ import '../screens/booking_screen/booking_screen.dart';
 import '../screens/booking_view_details_screen/booking_view_details_screen.dart';
 import '../screens/contact_us_screen/contact_us_screen.dart';
 import '../screens/delivery_parcel_screens/delivery_type_screen/delivery_type_screen.dart';
+import '../screens/history_screen/history_screen.dart';
 import '../screens/notification_screen/notification_screen.dart';
 import '../screens/onboarding_screen/onboarding_screen.dart';
 import '../screens/parcel_for_delivery_screen/parcel_for_delivery_screen.dart';
@@ -131,6 +132,12 @@ class RouteManager {
       GetPage(
         name: AppRoutes.contactUsScreen,
         page: () => ContactUsScreen(),
+        transition: Transition.rightToLeft,
+        // binding: GeneralBindings(),
+      ),
+      GetPage(
+        name: AppRoutes.historyScreen,
+        page: () => HistoryScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
