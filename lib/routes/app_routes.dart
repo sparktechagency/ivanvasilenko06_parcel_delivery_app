@@ -16,4 +16,7 @@ class AppRoutes {
   static const bookingViewDetailsScreen = '/bookingViewDetailsScreen';
   static const deliveryTypeScreen = '/deliveryTypeScreen';
   static const notificationScreen = '/notificationScreen';
+  static const radiusMapScreen = '/radiusMapScreen';
+  static const parcelForDeliveryScreen = '/parcelForDeliveryScreen';
+  static const contactUsScreen = '/contactUsScreen';
 }

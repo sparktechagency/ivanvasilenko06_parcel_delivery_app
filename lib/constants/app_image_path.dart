@@ -22,4 +22,5 @@ class AppImagePath {
 
   // Dev Images
   static const String profileImage = "assets/dev_images/profileImage.png";
+  static const String radiusMapBg = "assets/dev_images/radiusMapBg.png";
 }

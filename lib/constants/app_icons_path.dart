@@ -21,4 +21,5 @@ class AppIconsPath {
   static const String destinationIcon = "assets/icons/currentLocationIcon.svg";
   static const String priceIcon = "assets/icons/priceIcon.svg";
   static const String descriptionIcon = "assets/icons/descriptionIcon.svg";
+  static const String contactUsIcon = "assets/icons/contactUsIcon.svg";
 }

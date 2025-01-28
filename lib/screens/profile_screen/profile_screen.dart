@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
+import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/profile_screen/widgets/profile_card_widget.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
-import 'package:parcel_delivery_app/widgets/icon_button_widget/icon_button_widget.dart';
 import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
 
 import '../../constants/app_colors.dart';
@@ -24,22 +25,41 @@ class ProfileScreen extends StatelessWidget {
         children: [
           const SpaceWidget(spaceHeight: 48),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.only(left: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const TextWidget(
                   text: AppStrings.profile,
-                  fontSize: 30,
+                  fontSize: 24,
                   fontWeight: FontWeight.w500,
                   fontColor: AppColors.black,
                   fontStyle: FontStyle.italic,
                 ),
-                IconButtonWidget(
-                  onTap: () {},
-                  icon: AppIconsPath.menuIcon,
-                  color: AppColors.black,
-                  size: 24,
+                PopupMenuButton<int>(
+                  icon: const Icon(
+                    Icons.more_vert,
+                    color: AppColors.black,
+                    size: 24,
+                  ),
+                  color: AppColors.white,
+                  onSelected: (value) {
+                    if (value == 1) {
+                      Get.toNamed(AppRoutes.contactUsScreen);
+                    } else if (value == 2) {
+                      // Handle "About" action
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 1,
+                      child: Text(AppStrings.contactUs),
+                    ),
+                    // const PopupMenuItem(
+                    //   value: 2,
+                    //   child: Text("About"),
+                    // ),
+                  ],
                 ),
               ],
             ),

@@ -11,6 +11,7 @@ import 'package:parcel_delivery_app/screens/home_screen/widgets/suggestionCardWi
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 
 import '../../utils/app_size.dart';
+import '../../widgets/button_widget/button_widget.dart';
 import '../../widgets/space_widget/space_widget.dart';
 import '../../widgets/text_widget/text_widgets.dart';
 
@@ -40,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               width: double.infinity,
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,23 +76,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const SpaceWidget(spaceWidth: 8),
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextWidget(
-                            text: AppStrings.orderName,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            fontColor: AppColors.black,
-                            fontStyle: FontStyle.italic,
-                          ),
-                          TextWidget(
-                            text: "${AppStrings.currency} 150",
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            fontColor: AppColors.green,
-                          ),
-                        ],
+                      const TextWidget(
+                        text: AppStrings.orderName,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        fontColor: AppColors.black,
+                        fontStyle: FontStyle.italic,
                       ),
                     ],
                   ),
@@ -108,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   activeTrackColor: Colors.black,
                                   inactiveTrackColor: Colors.grey.shade300,
                                   thumbColor: Colors.black,
-                                  thumbShape: RoundSliderThumbShape(
+                                  thumbShape: const RoundSliderThumbShape(
                                       enabledThumbRadius: 12),
                                   overlayColor: Colors.black.withOpacity(0.2),
                                   trackHeight: 6.0,
@@ -130,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 top: 0,
                                 child: Text(
                                   '${_currentValue.round()} Km',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -138,11 +128,52 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ],
                           ),
-                          Row(
+                          const Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text('0km'),
                               Text('50km'),
+                            ],
+                          ),
+                          const SpaceWidget(spaceHeight: 32),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  Get.back();
+                                },
+                                borderRadius: BorderRadius.circular(100),
+                                child: Card(
+                                  color: AppColors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(100),
+                                  ),
+                                  elevation: 3,
+                                  child: CircleAvatar(
+                                    backgroundColor: AppColors.white,
+                                    radius: ResponsiveUtils.width(30),
+                                    child: const Icon(
+                                      Icons.arrow_back,
+                                      color: AppColors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              ButtonWidget(
+                                onPressed: () {
+                                  Get.toNamed(AppRoutes.radiusMapScreen);
+                                },
+                                label: AppStrings.next,
+                                textColor: AppColors.white,
+                                buttonWidth: 100,
+                                buttonHeight: 50,
+                                icon: Icons.arrow_forward,
+                                iconColor: AppColors.white,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16,
+                                iconSize: 20,
+                              ),
                             ],
                           ),
                         ],

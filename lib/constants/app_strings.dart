@@ -109,5 +109,11 @@ class AppStrings {
   static const String deliveryType = "Delivery Type";
   static const String notification = "Notification";
   static const String chooseRadius = "Choose Radius";
-  static const String orderName = "Financing offered tailored to this vehicle";
+  static const String orderName = "Select the delivery radius that suits you.";
+  static const String parcelForDelivery = "Parcel for Delivery";
+  static const String backToHome = "Back to Home";
+  static const String contactUs = "Contact us";
+  static const String forAnySupport =
+      "For any support please drop a mail to our Email";
+  static const String mailUs = "Mail us";
 }
