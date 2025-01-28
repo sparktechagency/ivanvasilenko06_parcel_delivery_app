@@ -20,7 +20,16 @@ class AppImagePath {
   // Services Screen Images
   static const String servicesImage = "assets/images/servicesImage.png";
 
+  static const String cycleImage = "assets/images/cycleImage.png";
+  static const String personImage = "assets/images/personImage.png";
+  static const String bikeImage = "assets/images/bikeImage.png";
+  static const String carImage = "assets/images/carImage.png";
+  static const String truckImage = "assets/images/truckImage.png";
+
   // Dev Images
   static const String profileImage = "assets/dev_images/profileImage.png";
   static const String radiusMapBg = "assets/dev_images/radiusMapBg.png";
+  static const String image = "assets/dev_images/image.png";
+  static const String selectParcelForDeliveryImage =
+      "assets/dev_images/selectParcelForDeliveryImage.png";
 }

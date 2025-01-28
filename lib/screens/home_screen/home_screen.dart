@@ -7,6 +7,7 @@ import 'package:parcel_delivery_app/constants/app_strings.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/home_screen/widgets/earn_money_card_widget.dart';
 import 'package:parcel_delivery_app/screens/home_screen/widgets/home_screen_appbar.dart';
+import 'package:parcel_delivery_app/screens/home_screen/widgets/reserve_bottom_sheet_widget.dart';
 import 'package:parcel_delivery_app/screens/home_screen/widgets/suggestionCardWidget.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 
@@ -236,7 +237,27 @@ class _HomeScreenState extends State<HomeScreen> {
                           imagePath: AppImagePath.sendParcel,
                         ),
                         SuggestionCardWidget(
-                          onTap: () {},
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              backgroundColor: Colors.transparent,
+                              builder: (BuildContext context) {
+                                return Container(
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.white,
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(24),
+                                      topRight: Radius.circular(24),
+                                    ),
+                                  ),
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 24, horizontal: 32),
+                                  child: ReserveBottomSheetWidget(),
+                                );
+                              },
+                            );
+                          },
                           text: AppStrings.reserve,
                           imagePath: AppImagePath.reserve,
                         ),

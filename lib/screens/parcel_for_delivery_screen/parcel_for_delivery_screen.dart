@@ -5,6 +5,7 @@ import 'package:parcel_delivery_app/screens/bottom_nav_bar/bottom_nav_bar.dart';
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_strings.dart';
+import '../../routes/app_routes.dart';
 import '../../utils/app_size.dart';
 import '../../widgets/button_widget/button_widget.dart';
 import '../../widgets/image_widget/image_widget.dart';
@@ -258,7 +259,11 @@ class ParcelItem extends StatelessWidget {
                     ),
                   ),
                   InkWell(
-                    onTap: isRequestSent ? null : () {},
+                    onTap: isRequestSent
+                        ? null
+                        : () {
+                            Get.toNamed(AppRoutes.summaryOfParcelScreen);
+                          },
                     splashColor: Colors.transparent,
                     highlightColor: Colors.transparent,
                     child: const Row(

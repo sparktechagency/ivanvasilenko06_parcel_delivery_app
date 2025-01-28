@@ -10,7 +10,10 @@ import '../screens/booking_parcel_details_screen/booking_parcel_details_screen.d
 import '../screens/booking_screen/booking_screen.dart';
 import '../screens/booking_view_details_screen/booking_view_details_screen.dart';
 import '../screens/contact_us_screen/contact_us_screen.dart';
+import '../screens/delivery_parcel_screens/choose_parcel_for_delivery_screen/choose_parcel_for_delivery_screen.dart';
 import '../screens/delivery_parcel_screens/delivery_type_screen/delivery_type_screen.dart';
+import '../screens/delivery_parcel_screens/select_delivery_location_screen/select_delevery_location_screen.dart';
+import '../screens/delivery_parcel_screens/summary_of_parcel_screen/summary_of_parcel_screen.dart';
 import '../screens/history_screen/history_screen.dart';
 import '../screens/notification_screen/notification_screen.dart';
 import '../screens/onboarding_screen/onboarding_screen.dart';
@@ -138,6 +141,24 @@ class RouteManager {
       GetPage(
         name: AppRoutes.historyScreen,
         page: () => HistoryScreen(),
+        transition: Transition.rightToLeft,
+        // binding: GeneralBindings(),
+      ),
+      GetPage(
+        name: AppRoutes.selectDeliveryLocationScreen,
+        page: () => SelectDeliveryLocationScreen(),
+        transition: Transition.rightToLeft,
+        // binding: GeneralBindings(),
+      ),
+      GetPage(
+        name: AppRoutes.chooseParcelForDeliveryScreen,
+        page: () => ChooseParcelForDeliveryScreen(),
+        transition: Transition.rightToLeft,
+        // binding: GeneralBindings(),
+      ),
+      GetPage(
+        name: AppRoutes.summaryOfParcelScreen,
+        page: () => SummaryOfParcelScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),

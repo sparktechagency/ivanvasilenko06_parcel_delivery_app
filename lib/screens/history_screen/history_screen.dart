@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:parcel_delivery_app/screens/booking_screen/widgets/new_booking_widget.dart';
+import 'package:parcel_delivery_app/screens/history_screen/widgets/history_booking_widget.dart';
 import 'package:parcel_delivery_app/screens/history_screen/widgets/history_order_widget.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 
@@ -104,7 +104,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               },
               children: const [
                 HistoryOrderWidget(),
-                NewBookingWidget(),
+                HistoryBookingWidget(),
               ],
             ),
           ),

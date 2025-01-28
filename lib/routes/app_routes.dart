@@ -20,4 +20,7 @@ class AppRoutes {
   static const parcelForDeliveryScreen = '/parcelForDeliveryScreen';
   static const contactUsScreen = '/contactUsScreen';
   static const historyScreen = '/historyScreen';
+  static const selectDeliveryLocationScreen = '/selectDeliveryLocationScreen';
+  static const chooseParcelForDeliveryScreen = '/chooseParcelForDeliveryScreen';
+  static const summaryOfParcelScreen = '/summaryOfParcelScreen';
 }

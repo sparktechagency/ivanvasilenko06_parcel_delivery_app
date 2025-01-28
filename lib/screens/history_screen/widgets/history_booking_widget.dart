@@ -16,12 +16,12 @@ class HistoryBookingWidget extends StatefulWidget {
 
 class _HistoryBookingWidgetState extends State<HistoryBookingWidget> {
   final List<String> images = [
-    AppImagePath.sendParcel,
-    AppImagePath.sendParcel,
-    AppImagePath.sendParcel,
-    AppImagePath.sendParcel,
-    AppImagePath.sendParcel,
-    AppImagePath.sendParcel,
+    AppImagePath.image,
+    AppImagePath.image,
+    AppImagePath.image,
+    AppImagePath.image,
+    AppImagePath.image,
+    AppImagePath.image,
   ];
 
   final List<String> names = [
@@ -45,10 +45,10 @@ class _HistoryBookingWidgetState extends State<HistoryBookingWidget> {
   final List<String> status = [
     AppStrings.cancelled,
     AppStrings.received,
-    AppStrings.republish,
+    AppStrings.received,
     AppStrings.cancelled,
     AppStrings.received,
-    AppStrings.republish,
+    AppStrings.received,
   ];
 
   @override
@@ -96,6 +96,31 @@ class _HistoryBookingWidgetState extends State<HistoryBookingWidget> {
                               fontWeight: FontWeight.w500,
                               fontColor: AppColors.black,
                             ),
+                            const SpaceWidget(spaceWidth: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.yellow,
+                                borderRadius: BorderRadius.circular(100),
+                              ),
+                              child: const Row(
+                                children: [
+                                  Icon(
+                                    Icons.star_rounded,
+                                    color: AppColors.white,
+                                    size: 10,
+                                  ),
+                                  TextWidget(
+                                    text: AppStrings.ratings,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                    fontColor: AppColors.white,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ],
+                              ),
+                            )
                           ],
                         ),
                         const SpaceWidget(spaceHeight: 8),
