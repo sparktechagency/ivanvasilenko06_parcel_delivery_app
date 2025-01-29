@@ -25,6 +25,7 @@ class AppImagePath {
   static const String bikeImage = "assets/images/bikeImage.png";
   static const String carImage = "assets/images/carImage.png";
   static const String truckImage = "assets/images/truckImage.png";
+  static const String hurrahImage = "assets/images/hurrahImage.png";
 
   // Dev Images
   static const String profileImage = "assets/dev_images/profileImage.png";

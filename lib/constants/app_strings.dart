@@ -133,4 +133,16 @@ class AppStrings {
       "Enter your Delivery Time on which you want to deliver the Item";
   static const String enterDescription = "Enter Description";
   static const String enterDescriptionDesc = "Enter Parcel Title";
+  static const String enterPrice = "Enter Price";
+  static const String enterPriceDesc = "Add Your Price for Delivering Parcel";
+  static const String enterReceiversDetails = "Enter Receiver's Details";
+  static const String enterReceiversDetailsDesc =
+      "Add our Contact Details and name of the receiver";
+  static const String finish = "Finish";
+  static const String hurray = "Hurray!";
+  static const String hurrayDesc = "You Succesfully Finished Publishing";
+  static const String experience = "How was your Experience?";
+  static const String veryBad = "Very bad";
+  static const String veryGood = "Very Good";
+  static const String submit = "Submit";
 }

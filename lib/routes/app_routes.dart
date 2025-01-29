@@ -24,4 +24,7 @@ class AppRoutes {
   static const chooseParcelForDeliveryScreen = '/chooseParcelForDeliveryScreen';
   static const summaryOfParcelScreen = '/summaryOfParcelScreen';
   static const senderDeliveryTypeScreen = '/senderDeliveryTypeScreen';
+  static const senderSummaryOfParcelScreen = '/senderSummaryOfParcelScreen';
+  static const hurrahScreen = '/hurrahScreen';
+  static const cancelDeliveryScreen = '/cancelDeliveryScreen';
 }

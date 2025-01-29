@@ -332,7 +332,9 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
                             ),
                           ),
                           InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              Get.toNamed(AppRoutes.cancelDeliveryScreen);
+                            },
                             splashColor: Colors.transparent,
                             highlightColor: Colors.transparent,
                             child: Row(

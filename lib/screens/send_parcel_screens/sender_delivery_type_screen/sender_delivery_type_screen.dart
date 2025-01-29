@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
+import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/page_five.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/page_four.dart';
+import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/page_six.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/page_three.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/page_two.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
@@ -74,8 +76,8 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                 const PageTwo(),
                 const PageThree(),
                 PageFour(),
-                _buildPage5(),
-                _buildPage6(),
+                PageFive(),
+                PageSix(),
               ],
             ),
           ),
@@ -124,7 +126,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                         _pageController.jumpToPage(_currentStep);
                       });
                     } else {
-                      Get.toNamed(AppRoutes.selectDeliveryLocationScreen);
+                      Get.toNamed(AppRoutes.senderSummaryOfParcelScreen);
                     }
                   },
                   label: _currentStep == 5 ? AppStrings.next : AppStrings.next,

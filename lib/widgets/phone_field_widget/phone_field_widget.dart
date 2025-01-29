@@ -9,6 +9,8 @@ class IntlPhoneFieldWidget extends StatelessWidget {
   final String initialCountryCode;
   final String hintText;
   final ValueChanged<PhoneNumber>? onChanged;
+  final Color? borderColor;
+  final Color? fillColor;
 
   const IntlPhoneFieldWidget({
     super.key,
@@ -16,10 +18,16 @@ class IntlPhoneFieldWidget extends StatelessWidget {
     this.initialCountryCode = 'US',
     this.hintText = '',
     this.onChanged,
+    this.borderColor, // Optional border color
+    this.fillColor, // Optional fill color
   });
 
   @override
   Widget build(BuildContext context) {
+    Color effectiveBorderColor =
+        borderColor ?? AppColors.grey; // Default to grey if not provided
+    Color effectiveFillColor =
+        fillColor ?? AppColors.grey; // Default to transparent if not provided
     return IntlPhoneField(
       controller: controller,
       flagsButtonPadding: const EdgeInsets.only(left: 10),
@@ -35,7 +43,7 @@ class IntlPhoneFieldWidget extends StatelessWidget {
       decoration: InputDecoration(
         filled: true,
         contentPadding: const EdgeInsets.all(16),
-        fillColor: AppColors.grey,
+        fillColor: effectiveFillColor,
         hintText: hintText,
         counterStyle: const TextStyle(color: AppColors.black),
         hintStyle: const TextStyle(
@@ -44,15 +52,15 @@ class IntlPhoneFieldWidget extends StatelessWidget {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(
-            color: AppColors.grey,
+          borderSide: BorderSide(
+            color: effectiveBorderColor,
             width: 1,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(
-            color: AppColors.grey,
+          borderSide: BorderSide(
+            color: effectiveBorderColor,
             width: 1,
           ),
         ),
