@@ -124,4 +124,13 @@ class AppStrings {
   static const String select = "Select";
   static const String summaryOfParcel = "Summary of Parcel";
   static const String sendRequest = "Send Request";
+  static const String nonProfessional = "Non-Professional";
+  static const String professional = "Professional";
+  static const String senderDeliveryType = "What type of delivery do you need?";
+  static const String enterDeliveryLocation = "Enter Delivery Location";
+  static const String enterDeliveryTime = "Enter Delivery Time";
+  static const String enterDeliveryTimeDesc =
+      "Enter your Delivery Time on which you want to deliver the Item";
+  static const String enterDescription = "Enter Description";
+  static const String enterDescriptionDesc = "Enter Parcel Title";
 }

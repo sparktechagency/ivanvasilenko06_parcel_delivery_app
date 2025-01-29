@@ -141,10 +141,8 @@ class _ReserveBottomSheetWidgetState extends State<ReserveBottomSheetWidget> {
                       if (selectedOption == 'Deliver Parcel') {
                         Get.toNamed(AppRoutes.deliveryTypeScreen);
                       } else if (selectedOption == 'Send Parcel') {
-                        // Add navigation for Send Parcel if needed
-                        // Get.toNamed(AppRoutes.sendParcelScreen);
+                        Get.toNamed(AppRoutes.senderDeliveryTypeScreen);
                       }
-
                       print('Selected Option: $selectedOption');
                     },
               label: AppStrings.next,

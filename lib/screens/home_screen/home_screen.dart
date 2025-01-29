@@ -232,7 +232,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           imagePath: AppImagePath.deliverParcel,
                         ),
                         SuggestionCardWidget(
-                          onTap: () {},
+                          onTap: () {
+                            Get.toNamed(AppRoutes.senderDeliveryTypeScreen);
+                          },
                           text: AppStrings.sendParcel,
                           imagePath: AppImagePath.sendParcel,
                         ),

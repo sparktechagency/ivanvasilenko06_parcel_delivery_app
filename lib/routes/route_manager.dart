@@ -20,6 +20,7 @@ import '../screens/onboarding_screen/onboarding_screen.dart';
 import '../screens/parcel_for_delivery_screen/parcel_for_delivery_screen.dart';
 import '../screens/profile_screen/profile_screen.dart';
 import '../screens/radius_map_screen/radius_map_screen.dart';
+import '../screens/send_parcel_screens/sender_delivery_type_screen/sender_delivery_type_screen.dart';
 import '../screens/services_screen/services_screen.dart';
 import '../screens/splash_screen/splash_screen.dart';
 import 'app_routes.dart';
@@ -159,6 +160,12 @@ class RouteManager {
       GetPage(
         name: AppRoutes.summaryOfParcelScreen,
         page: () => SummaryOfParcelScreen(),
+        transition: Transition.rightToLeft,
+        // binding: GeneralBindings(),
+      ),
+      GetPage(
+        name: AppRoutes.senderDeliveryTypeScreen,
+        page: () => SenderDeliveryTypeScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
