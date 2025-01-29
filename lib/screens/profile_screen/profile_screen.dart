@@ -3,12 +3,12 @@ import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/profile_screen/widgets/profile_card_widget.dart';
-import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_image_path.dart';
 import '../../constants/app_strings.dart';
+import '../../utils/app_size.dart';
 import '../../widgets/image_widget/image_widget.dart';
 import '../../widgets/space_widget/space_widget.dart';
 import '../../widgets/text_widget/text_widgets.dart';
@@ -92,9 +92,9 @@ class ProfileScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Positioned(
+                        Positioned(
+                          child: Align(
+                            alignment: Alignment.bottomCenter,
                             child: Container(
                               width: ResponsiveUtils.width(45),
                               padding: const EdgeInsets.symmetric(
