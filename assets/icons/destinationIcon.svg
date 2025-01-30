@@ -1,1 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-locate-fixed"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <g id="Group_47214" data-name="Group 47214" transform="translate(4095 1000)">
+    <circle id="Ellipse_34" data-name="Ellipse 34" cx="8" cy="8" r="8" transform="translate(-4095 -1000)" fill="#121212"/>
+    <circle id="Ellipse_68" data-name="Ellipse 68" cx="4" cy="4" r="4" transform="translate(-4091 -996)" fill="#fff"/>
+  </g>
+</svg>

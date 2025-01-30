@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
+import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
 
 import '../../../constants/app_colors.dart';
+import '../../../widgets/space_widget/space_widget.dart';
 import '../../../widgets/text_widget/text_widgets.dart';
 
 class SelectDeliveryLocationScreen extends StatefulWidget {
@@ -60,9 +63,8 @@ class _SelectDeliveryLocationScreenState
                         TextWidget(
                           text: "Enter Delivery Location",
                           fontSize: 24,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                           fontColor: AppColors.black,
-                          fontStyle: FontStyle.italic,
                         ),
                       ],
                     ),
@@ -72,66 +74,75 @@ class _SelectDeliveryLocationScreenState
             ),
 
             // Location input container
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.black, width: 2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  // Current Location Input
-                  Row(
-                    children: [
-                      Container(
-                        width: 12,
-                        height: 12,
-                        decoration: const BoxDecoration(
-                          color: Colors.black,
-                          shape: BoxShape.rectangle,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: TextField(
+            Row(
+              children: [
+                const SizedBox(width: 24),
+                Column(
+                  children: [
+                    const IconWidget(
+                      height: 15,
+                      width: 15,
+                      icon: AppIconsPath.destinationIcon,
+                    ),
+                    Container(
+                      width: 1,
+                      height: 30,
+                      color: AppColors.greyLight2,
+                    ),
+                    const IconWidget(
+                      height: 15,
+                      width: 15,
+                      icon: AppIconsPath.currentLocationIcon,
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.only(
+                        left: 12, right: 24, top: 16, bottom: 16),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.black, width: 2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        // Current Location Input
+                        TextFormField(
                           controller: _currentLocationController,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.black,
+                          ),
                           decoration: const InputDecoration(
                             hintText: "Current Location",
                             border: InputBorder.none,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const Divider(height: 20),
-                  // Destination Input
-                  Row(
-                    children: [
-                      Container(
-                        width: 12,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black, width: 2),
-                          shape: BoxShape.circle,
+                        const Divider(
+                          height: 2,
+                          color: AppColors.blackLighter,
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: TextField(
+                        // Destination Input
+                        TextFormField(
                           controller: _destinationController,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.black,
+                          ),
                           decoration: const InputDecoration(
                             hintText: "Destination",
                             border: InputBorder.none,
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-
+            const SpaceWidget(spaceHeight: 24),
             // Suggested Destinations title
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 24),
@@ -139,11 +150,11 @@ class _SelectDeliveryLocationScreenState
                 "Suggested Destinations",
                 style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-
+            const SpaceWidget(spaceHeight: 16),
             // Suggested Destinations list
             Expanded(
               child: ListView.separated(
@@ -154,11 +165,12 @@ class _SelectDeliveryLocationScreenState
                 itemBuilder: (context, index) {
                   return ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.location_on, color: Colors.black),
+                    leading: const Icon(Icons.location_on_rounded,
+                        color: Colors.black),
                     title: Text(
                       suggestedLocations[index]["name"]!,
                       style: const TextStyle(
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     subtitle: Text(

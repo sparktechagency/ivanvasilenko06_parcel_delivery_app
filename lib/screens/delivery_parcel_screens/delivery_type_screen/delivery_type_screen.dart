@@ -45,9 +45,8 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
             child: TextWidget(
               text: AppStrings.deliveryType,
               fontSize: 24,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
-              fontStyle: FontStyle.italic,
             ),
           ),
           const SpaceWidget(spaceHeight: 24),
@@ -59,14 +58,14 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
                 child: CarouselSlider(
                   carouselController: _carouselController,
                   options: CarouselOptions(
-                    height: ResponsiveUtils.height(100),
-                    enlargeCenterPage: false,
+                    height: ResponsiveUtils.height(150),
+                    enlargeCenterPage: true,
                     autoPlay: false,
                     aspectRatio: 16 / 9,
                     viewportFraction: 0.35,
-                    enableInfiniteScroll: false,
+                    enableInfiniteScroll: true,
                     autoPlayAnimationDuration:
-                        const Duration(milliseconds: 800),
+                        const Duration(milliseconds: 1000),
                     onPageChanged: (index, reason) {
                       setState(() {
                         _currentIndex = index;
@@ -92,10 +91,10 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
                             const SizedBox(height: 2),
                             TextWidget(
                               text: title,
-                              fontSize: 14,
+                              fontSize: isCentered ? 15 : 14,
                               fontWeight: isCentered
                                   ? FontWeight.w600
-                                  : FontWeight.w600,
+                                  : FontWeight.w500,
                               fontColor: isCentered
                                   ? AppColors.black
                                   : AppColors.greyDarkLight,
@@ -167,7 +166,7 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
               },
               label: AppStrings.next,
               textColor: AppColors.white,
-              buttonWidth: 100,
+              buttonWidth: 105,
               buttonHeight: 50,
               icon: Icons.arrow_forward,
               iconColor: AppColors.white,

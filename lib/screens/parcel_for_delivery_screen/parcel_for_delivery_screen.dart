@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/screens/bottom_nav_bar/bottom_nav_bar.dart';
 
@@ -8,6 +9,7 @@ import '../../constants/app_strings.dart';
 import '../../routes/app_routes.dart';
 import '../../utils/app_size.dart';
 import '../../widgets/button_widget/button_widget.dart';
+import '../../widgets/icon_widget/icon_widget.dart';
 import '../../widgets/image_widget/image_widget.dart';
 import '../../widgets/space_widget/space_widget.dart';
 import '../../widgets/text_widget/text_widgets.dart';
@@ -28,9 +30,8 @@ class ParcelForDeliveryScreen extends StatelessWidget {
             child: TextWidget(
               text: AppStrings.parcelForDelivery,
               fontSize: 24,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
-              fontStyle: FontStyle.italic,
             ),
           ),
           const SpaceWidget(spaceHeight: 16),
@@ -88,13 +89,11 @@ class ParcelForDeliveryScreen extends StatelessWidget {
               },
               label: AppStrings.backToHome,
               textColor: AppColors.white,
-              buttonWidth: 175,
+              buttonWidth: 180,
               buttonHeight: 50,
-              icon: Icons.arrow_forward,
-              iconColor: AppColors.white,
               fontWeight: FontWeight.w500,
               fontSize: 16,
-              iconSize: 20,
+              prefixIcon: AppIconsPath.homeOutlinedIcon,
             ),
           ],
         ),
@@ -149,8 +148,8 @@ class ParcelItem extends StatelessWidget {
                     const SpaceWidget(spaceWidth: 12),
                     TextWidget(
                       text: parcelName,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 15.5,
+                      fontWeight: FontWeight.w600,
                       fontColor: AppColors.black,
                     ),
                     const SpaceWidget(spaceWidth: 12),
@@ -166,14 +165,13 @@ class ParcelItem extends StatelessWidget {
                           Icon(
                             Icons.star_rounded,
                             color: AppColors.white,
-                            size: 10,
+                            size: 12,
                           ),
                           TextWidget(
                             text: AppStrings.ratings,
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: FontWeight.w500,
                             fontColor: AppColors.white,
-                            fontStyle: FontStyle.italic,
                           ),
                         ],
                       ),
@@ -202,7 +200,6 @@ class ParcelItem extends StatelessWidget {
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                   fontColor: AppColors.greyDark2,
-                  fontStyle: FontStyle.italic,
                 ),
               ],
             ),
@@ -220,7 +217,6 @@ class ParcelItem extends StatelessWidget {
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                   fontColor: AppColors.greyDark2,
-                  fontStyle: FontStyle.italic,
                 ),
               ],
             ),
@@ -230,7 +226,7 @@ class ParcelItem extends StatelessWidget {
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: AppColors.whiteLight,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(100),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.max,
@@ -242,21 +238,26 @@ class ParcelItem extends StatelessWidget {
                     highlightColor: Colors.transparent,
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.person_2_outlined,
-                          color: isRequestSent ? Colors.grey : Colors.black,
-                          size: 14,
+                        IconWidget(
+                          icon: AppIconsPath.personAddIcon,
+                          color: isRequestSent ? Colors.grey : AppColors.black,
+                          width: 14,
+                          height: 14,
                         ),
                         const SpaceWidget(spaceWidth: 8),
                         TextWidget(
                           text: isRequestSent ? 'Request Sent' : 'Send Request',
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          fontColor: AppColors.greyDark2,
-                          fontStyle: FontStyle.italic,
+                          fontColor: AppColors.black,
                         ),
                       ],
                     ),
+                  ),
+                  Container(
+                    width: 1,
+                    height: 18,
+                    color: AppColors.blackLighter,
                   ),
                   InkWell(
                     onTap: isRequestSent
@@ -278,8 +279,7 @@ class ParcelItem extends StatelessWidget {
                           text: 'View Summary',
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          fontColor: AppColors.greyDark2,
-                          fontStyle: FontStyle.italic,
+                          fontColor: AppColors.black,
                         ),
                       ],
                     ),
