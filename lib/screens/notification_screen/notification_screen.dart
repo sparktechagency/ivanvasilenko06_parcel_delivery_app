@@ -52,9 +52,8 @@ class NotificationScreen extends StatelessWidget {
             child: TextWidget(
               text: AppStrings.notification,
               fontSize: 24,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
-              fontStyle: FontStyle.italic,
             ),
           ),
           const SpaceWidget(spaceHeight: 24),
@@ -68,227 +67,232 @@ class NotificationScreen extends StatelessWidget {
                     children: [
                       const SpaceWidget(spaceHeight: 8),
                       ...List.generate(images.length, (index) {
-                        return Card(
-                          color: AppColors.white,
-                          shape: RoundedRectangleBorder(
+                        return
+                            // Card(
+                            // color: AppColors.white,
+                            // shape: RoundedRectangleBorder(
+                            //   borderRadius: BorderRadius.circular(12),
+                            // ),
+                            // margin: const EdgeInsets.only(
+                            //     left: 20, right: 20, bottom: 16),
+                            // elevation: 3,
+                            // child:
+                            Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.only(
+                              left: 0, right: 0, bottom: 0),
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          margin: const EdgeInsets.only(
-                              left: 20, right: 20, bottom: 16),
-                          elevation: 3,
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              children: [
-                                Row(
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(100),
+                                            child: ImageWidget(
+                                              height: 40,
+                                              width: 40,
+                                              imagePath: images[index],
+                                            ),
+                                          ),
+                                          const SpaceWidget(spaceWidth: 8),
+                                          TextWidget(
+                                            text: names[index],
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            fontColor: AppColors.black,
+                                          ),
+                                          names[index] == AppStrings.joshua
+                                              ? const SpaceWidget(spaceWidth: 8)
+                                              : const SizedBox.shrink(),
+                                          names[index] == AppStrings.joshua
+                                              ? Container(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 6,
+                                                      vertical: 2),
+                                                  decoration: BoxDecoration(
+                                                    color: AppColors.yellow,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            100),
+                                                  ),
+                                                  child: const Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.star_rounded,
+                                                        color: AppColors.white,
+                                                        size: 10,
+                                                      ),
+                                                      TextWidget(
+                                                        text:
+                                                            AppStrings.ratings,
+                                                        fontSize: 10,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        fontColor:
+                                                            AppColors.white,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                )
+                                              : const SizedBox.shrink(),
+                                        ],
+                                      ),
+                                      const SpaceWidget(spaceHeight: 8),
+                                      const Row(
+                                        children: [
+                                          Icon(
+                                            Icons.location_on_rounded,
+                                            color: AppColors.black,
+                                            size: 12,
+                                          ),
+                                          SpaceWidget(spaceWidth: 8),
+                                          TextWidget(
+                                            text:
+                                                'Western Wall to 4 lebri street',
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            fontColor: AppColors.greyDark2,
+                                          ),
+                                        ],
+                                      ),
+                                      const SpaceWidget(spaceHeight: 8),
+                                      const Row(
+                                        children: [
+                                          Icon(
+                                            Icons.calendar_month,
+                                            color: AppColors.black,
+                                            size: 12,
+                                          ),
+                                          SpaceWidget(spaceWidth: 8),
+                                          TextWidget(
+                                            text: '24-04-2024',
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            fontColor: AppColors.greyDark2,
+                                          ),
+                                        ],
+                                      ),
+                                      const SpaceWidget(spaceHeight: 16),
+                                    ],
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 8),
+                                    child: TextWidget(
+                                      text: "${AppStrings.currency} 150",
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      fontColor: AppColors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: AppColors.whiteLight,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(100),
-                                              child: ImageWidget(
-                                                height: 40,
-                                                width: 40,
-                                                imagePath: images[index],
-                                              ),
-                                            ),
-                                            const SpaceWidget(spaceWidth: 8),
-                                            TextWidget(
-                                              text: names[index],
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
-                                              fontColor: AppColors.black,
-                                            ),
-                                            names[index] == AppStrings.joshua
-                                                ? const SpaceWidget(
-                                                    spaceWidth: 8)
-                                                : const SizedBox.shrink(),
-                                            names[index] == AppStrings.joshua
-                                                ? Container(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 6,
-                                                        vertical: 2),
-                                                    decoration: BoxDecoration(
-                                                      color: AppColors.yellow,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              100),
-                                                    ),
-                                                    child: const Row(
-                                                      children: [
-                                                        Icon(
-                                                          Icons.star_rounded,
-                                                          color:
-                                                              AppColors.white,
-                                                          size: 10,
-                                                        ),
-                                                        TextWidget(
-                                                          text: AppStrings
-                                                              .ratings,
-                                                          fontSize: 10,
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                          fontColor:
-                                                              AppColors.white,
-                                                          fontStyle:
-                                                              FontStyle.italic,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  )
-                                                : const SizedBox.shrink(),
-                                          ],
-                                        ),
-                                        const SpaceWidget(spaceHeight: 8),
-                                        const Row(
-                                          children: [
-                                            Icon(
-                                              Icons.location_on_rounded,
-                                              color: AppColors.black,
-                                              size: 12,
-                                            ),
-                                            SpaceWidget(spaceWidth: 8),
-                                            TextWidget(
-                                              text:
-                                                  'Western Wall to 4 lebri street',
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w500,
-                                              fontColor: AppColors.greyDark2,
-                                              fontStyle: FontStyle.italic,
-                                            ),
-                                          ],
-                                        ),
-                                        const SpaceWidget(spaceHeight: 8),
-                                        const Row(
-                                          children: [
-                                            Icon(
-                                              Icons.calendar_month,
-                                              color: AppColors.black,
-                                              size: 12,
-                                            ),
-                                            SpaceWidget(spaceWidth: 8),
-                                            TextWidget(
-                                              text: '24-04-2024',
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w500,
-                                              fontColor: AppColors.greyDark2,
-                                              fontStyle: FontStyle.italic,
-                                            ),
-                                          ],
-                                        ),
-                                        const SpaceWidget(spaceHeight: 16),
-                                      ],
+                                    InkWell(
+                                      onTap: () {},
+                                      splashColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      child: const Row(
+                                        children: [
+                                          Icon(
+                                            Icons.close,
+                                            color: AppColors.red,
+                                            size: 16,
+                                          ),
+                                          SpaceWidget(spaceWidth: 4),
+                                          TextWidget(
+                                            text: AppStrings.reject,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            fontColor: AppColors.red,
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    const Padding(
-                                      padding: EdgeInsets.only(top: 8),
-                                      child: TextWidget(
-                                        text: "${AppStrings.currency} 150",
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        fontColor: AppColors.black,
+                                    Container(
+                                      width: 1,
+                                      height: 24,
+                                      color: AppColors.blackLighter,
+                                    ),
+                                    InkWell(
+                                      onTap: () {},
+                                      splashColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      child: const Row(
+                                        children: [
+                                          Icon(
+                                            Icons.remove_red_eye_outlined,
+                                            color: AppColors.black,
+                                            size: 14,
+                                          ),
+                                          SpaceWidget(spaceWidth: 4),
+                                          TextWidget(
+                                            text: AppStrings.view,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            fontColor: AppColors.greyDark2,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      width: 1,
+                                      height: 24,
+                                      color: AppColors.blackLighter,
+                                    ),
+                                    InkWell(
+                                      onTap: () {},
+                                      splashColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      child: const Row(
+                                        children: [
+                                          Icon(
+                                            Icons.check,
+                                            color: AppColors.green,
+                                            size: 14,
+                                          ),
+                                          SpaceWidget(spaceWidth: 4),
+                                          TextWidget(
+                                            text: AppStrings.accept,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            fontColor: AppColors.green,
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],
                                 ),
-                                Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.all(14),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.whiteLight,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      InkWell(
-                                        onTap: () {},
-                                        splashColor: Colors.transparent,
-                                        highlightColor: Colors.transparent,
-                                        child: const Row(
-                                          children: [
-                                            Icon(
-                                              Icons.close,
-                                              color: AppColors.red,
-                                              size: 16,
-                                            ),
-                                            SpaceWidget(spaceWidth: 4),
-                                            TextWidget(
-                                              text: AppStrings.reject,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              fontColor: AppColors.red,
-                                              fontStyle: FontStyle.italic,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      InkWell(
-                                        onTap: () {},
-                                        splashColor: Colors.transparent,
-                                        highlightColor: Colors.transparent,
-                                        child: const Row(
-                                          children: [
-                                            Icon(
-                                              Icons.remove_red_eye_outlined,
-                                              color: AppColors.black,
-                                              size: 14,
-                                            ),
-                                            SpaceWidget(spaceWidth: 4),
-                                            TextWidget(
-                                              text: AppStrings.view,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              fontColor: AppColors.greyDark2,
-                                              fontStyle: FontStyle.italic,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      InkWell(
-                                        onTap: () {},
-                                        splashColor: Colors.transparent,
-                                        highlightColor: Colors.transparent,
-                                        child: const Row(
-                                          children: [
-                                            Icon(
-                                              Icons.check,
-                                              color: AppColors.green,
-                                              size: 14,
-                                            ),
-                                            SpaceWidget(spaceWidth: 4),
-                                            TextWidget(
-                                              text: AppStrings.accept,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              fontColor: AppColors.green,
-                                              fontStyle: FontStyle.italic,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         );
+                        // );
                       }),
                       const SpaceWidget(spaceHeight: 16),
                     ],

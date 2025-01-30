@@ -45,9 +45,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 const TextWidget(
                   text: AppStrings.history,
                   fontSize: 24,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                   fontColor: AppColors.black,
-                  fontStyle: FontStyle.italic,
                 ),
               ],
             ),
@@ -127,9 +126,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
         text: label,
         fontColor:
             _currentIndex == index ? AppColors.black : AppColors.greyDarkLight,
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-        fontStyle: FontStyle.italic,
+        fontSize: 14,
+        fontWeight: _currentIndex == index ? FontWeight.w600 : FontWeight.w400,
       ),
     );
   }

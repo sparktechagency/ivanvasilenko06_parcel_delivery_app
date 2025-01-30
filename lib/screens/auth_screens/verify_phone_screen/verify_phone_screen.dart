@@ -31,9 +31,8 @@ class VerifyPhoneScreen extends StatelessWidget {
               const TextWidget(
                 text: AppStrings.verifyPhone,
                 fontSize: 30,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 fontColor: AppColors.black,
-                fontStyle: FontStyle.italic,
               ),
               const SpaceWidget(spaceHeight: 16),
               TextFieldWidget(
@@ -48,7 +47,6 @@ class VerifyPhoneScreen extends StatelessWidget {
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 fontColor: AppColors.greyDarkLight,
-                fontStyle: FontStyle.italic,
                 textAlignment: TextAlign.left,
               ),
               Obx(() => TextButtonWidget(
@@ -63,7 +61,6 @@ class VerifyPhoneScreen extends StatelessWidget {
                         : AppColors.black,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    fontStyle: FontStyle.italic,
                   )),
             ],
           ),

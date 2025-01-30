@@ -122,174 +122,176 @@ class ParcelItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: AppColors.white,
-      margin: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(100),
-                      child: const ImageWidget(
-                        imagePath: AppImagePath.sendParcel,
-                        width: 40,
-                        height: 40,
-                      ),
-                    ),
-                    const SpaceWidget(spaceWidth: 12),
-                    TextWidget(
-                      text: parcelName,
-                      fontSize: 15.5,
-                      fontWeight: FontWeight.w600,
-                      fontColor: AppColors.black,
-                    ),
-                    const SpaceWidget(spaceWidth: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.yellow,
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      child: const Row(
-                        children: [
-                          Icon(
-                            Icons.star_rounded,
-                            color: AppColors.white,
-                            size: 12,
-                          ),
-                          TextWidget(
-                            text: AppStrings.ratings,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            fontColor: AppColors.white,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const TextWidget(
-                  text: "${AppStrings.currency} 150",
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  fontColor: AppColors.black,
-                ),
-              ],
-            ),
-            const SpaceWidget(spaceHeight: 8),
-            const Row(
-              children: [
-                Icon(
-                  Icons.location_on_rounded,
-                  color: AppColors.black,
-                  size: 12,
-                ),
-                SpaceWidget(spaceWidth: 8),
-                TextWidget(
-                  text: 'Western Wall to 4 lebri street',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  fontColor: AppColors.greyDark2,
-                ),
-              ],
-            ),
-            const SpaceWidget(spaceHeight: 8),
-            const Row(
-              children: [
-                Icon(
-                  Icons.calendar_month,
-                  color: AppColors.black,
-                  size: 12,
-                ),
-                SpaceWidget(spaceWidth: 8),
-                TextWidget(
-                  text: '24-04-2024',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  fontColor: AppColors.greyDark2,
-                ),
-              ],
-            ),
-            const SpaceWidget(spaceHeight: 12),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: AppColors.whiteLight,
-                borderRadius: BorderRadius.circular(100),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return
+        // Card(
+        // color: AppColors.white,
+        // margin: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
+        // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        // elevation: 3,
+        // child:
+        Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
                 children: [
-                  InkWell(
-                    onTap: isRequestSent ? null : () {},
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    child: Row(
-                      children: [
-                        IconWidget(
-                          icon: AppIconsPath.personAddIcon,
-                          color: isRequestSent ? Colors.grey : AppColors.black,
-                          width: 14,
-                          height: 14,
-                        ),
-                        const SpaceWidget(spaceWidth: 8),
-                        TextWidget(
-                          text: isRequestSent ? 'Request Sent' : 'Send Request',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          fontColor: AppColors.black,
-                        ),
-                      ],
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(100),
+                    child: const ImageWidget(
+                      imagePath: AppImagePath.sendParcel,
+                      width: 40,
+                      height: 40,
                     ),
                   ),
-                  Container(
-                    width: 1,
-                    height: 18,
-                    color: AppColors.blackLighter,
+                  const SpaceWidget(spaceWidth: 12),
+                  TextWidget(
+                    text: parcelName,
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.w600,
+                    fontColor: AppColors.black,
                   ),
-                  InkWell(
-                    onTap: isRequestSent
-                        ? null
-                        : () {
-                            Get.toNamed(AppRoutes.summaryOfParcelScreen);
-                          },
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
+                  const SpaceWidget(spaceWidth: 12),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppColors.yellow,
+                      borderRadius: BorderRadius.circular(100),
+                    ),
                     child: const Row(
                       children: [
                         Icon(
-                          Icons.visibility_outlined,
-                          color: Colors.black,
-                          size: 14,
+                          Icons.star_rounded,
+                          color: AppColors.white,
+                          size: 12,
                         ),
-                        SpaceWidget(spaceWidth: 8),
                         TextWidget(
-                          text: 'View Summary',
-                          fontSize: 14,
+                          text: AppStrings.ratings,
+                          fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          fontColor: AppColors.black,
+                          fontColor: AppColors.white,
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
-            )
-          ],
-        ),
+              const TextWidget(
+                text: "${AppStrings.currency} 150",
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                fontColor: AppColors.black,
+              ),
+            ],
+          ),
+          const SpaceWidget(spaceHeight: 8),
+          const Row(
+            children: [
+              Icon(
+                Icons.location_on_rounded,
+                color: AppColors.black,
+                size: 12,
+              ),
+              SpaceWidget(spaceWidth: 8),
+              TextWidget(
+                text: 'Western Wall to 4 lebri street',
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                fontColor: AppColors.greyDark2,
+              ),
+            ],
+          ),
+          const SpaceWidget(spaceHeight: 8),
+          const Row(
+            children: [
+              Icon(
+                Icons.calendar_month,
+                color: AppColors.black,
+                size: 12,
+              ),
+              SpaceWidget(spaceWidth: 8),
+              TextWidget(
+                text: '24-04-2024',
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                fontColor: AppColors.greyDark2,
+              ),
+            ],
+          ),
+          const SpaceWidget(spaceHeight: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AppColors.whiteLight,
+              borderRadius: BorderRadius.circular(100),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                InkWell(
+                  onTap: isRequestSent ? null : () {},
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  child: Row(
+                    children: [
+                      IconWidget(
+                        icon: AppIconsPath.personAddIcon,
+                        color: isRequestSent ? Colors.grey : AppColors.black,
+                        width: 14,
+                        height: 14,
+                      ),
+                      const SpaceWidget(spaceWidth: 8),
+                      TextWidget(
+                        text: isRequestSent ? 'Request Sent' : 'Send Request',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontColor: AppColors.black,
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  width: 1,
+                  height: 18,
+                  color: AppColors.blackLighter,
+                ),
+                InkWell(
+                  onTap: isRequestSent
+                      ? null
+                      : () {
+                          Get.toNamed(AppRoutes.summaryOfParcelScreen);
+                        },
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Icons.visibility_outlined,
+                        color: Colors.black,
+                        size: 14,
+                      ),
+                      SpaceWidget(spaceWidth: 8),
+                      TextWidget(
+                        text: 'View Summary',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontColor: AppColors.black,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
       ),
     );
+    // );
   }
 }

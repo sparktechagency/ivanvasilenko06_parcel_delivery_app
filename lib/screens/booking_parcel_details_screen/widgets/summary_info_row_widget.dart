@@ -31,17 +31,16 @@ class SummaryInfoRowWidget extends StatelessWidget {
       leadingWidget = ClipRRect(
         borderRadius: BorderRadius.circular(100),
         child: ImageWidget(
-          height: 25,
-          width: 25,
+          height: 22,
+          width: 22,
           imagePath: image!,
         ),
       );
     } else if (icon != null) {
       leadingWidget = IconWidget(
         icon: icon!,
-        width: 20,
-        height: 20,
-        color: AppColors.black,
+        width: 18,
+        height: 18,
       );
     } else {
       throw Exception("Either imagePath or iconData must be provided.");
@@ -62,10 +61,9 @@ class SummaryInfoRowWidget extends StatelessWidget {
                 width: ResponsiveUtils.width(140),
                 child: TextWidget(
                   text: label,
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.w500,
                   fontColor: AppColors.greyDark,
-                  fontStyle: FontStyle.italic,
                   overflow: TextOverflow.ellipsis,
                   textAlignment: TextAlign.start,
                 ),
@@ -75,10 +73,9 @@ class SummaryInfoRowWidget extends StatelessWidget {
                 width: ResponsiveUtils.width(150),
                 child: TextWidget(
                   text: value,
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.w500,
                   fontColor: AppColors.blackLight,
-                  fontStyle: FontStyle.italic,
                   overflow: TextOverflow.ellipsis,
                   textAlignment: TextAlign.start,
                   maxLines: 4,

@@ -58,7 +58,7 @@ class AppStrings {
   static const String seeDetails = "See Details";
   static const String currentOrders = "Current Orders";
   static const String newBookings = "New Bookings";
-  static const String parcel = "Parcel";
+  static const String parcel = "Parcel 1";
   static const String joshua = "Joshua";
   static const String parcelDetails = "Parcel Details";
   static const String viewDetails = "View Details";

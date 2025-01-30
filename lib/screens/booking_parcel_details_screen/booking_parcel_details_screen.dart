@@ -27,9 +27,8 @@ class BookingParcelDetailsScreen extends StatelessWidget {
             child: TextWidget(
               text: AppStrings.summary,
               fontSize: 24,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
-              fontStyle: FontStyle.italic,
             ),
           ),
           const SpaceWidget(spaceHeight: 40),
@@ -94,13 +93,13 @@ class BookingParcelDetailsScreen extends StatelessWidget {
                   ),
                   const SpaceWidget(spaceHeight: 8),
                   const SummaryInfoRowWidget(
-                    icon: AppIconsPath.currentLocationIcon,
+                    icon: AppIconsPath.destinationIcon,
                     label: AppStrings.currentLocationText,
                     value: AppStrings.currentLocation,
                   ),
                   const SpaceWidget(spaceHeight: 8),
                   const SummaryInfoRowWidget(
-                    icon: AppIconsPath.destinationIcon,
+                    icon: AppIconsPath.currentLocationIcon,
                     label: AppStrings.destinationText,
                     value: AppStrings.destination,
                   ),

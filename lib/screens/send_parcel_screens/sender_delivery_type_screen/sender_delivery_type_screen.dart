@@ -289,6 +289,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
         Expanded(
           child: PageView(
             controller: _tabController,
+            physics: const NeverScrollableScrollPhysics(),
             onPageChanged: (index) {
               setState(() {
                 _currentIndexTab = index;

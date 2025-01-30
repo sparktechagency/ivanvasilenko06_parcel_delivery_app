@@ -16,7 +16,7 @@ class PageThree extends StatefulWidget {
 class _PageThreeState extends State<PageThree> {
   DateTime? _fromDateTime;
   DateTime? _toDateTime;
-  bool _isSelectingFromDate = false;
+  bool _isSelectingFromDate = true;
 
   @override
   Widget build(BuildContext context) {
@@ -63,9 +63,11 @@ class _PageThreeState extends State<PageThree> {
                     ? "From Date"
                     : _formatDate(_fromDateTime!),
                 style: TextStyle(
-                    fontSize: 16,
-                    color:
-                        _isSelectingFromDate ? Colors.black : AppColors.grey),
+                  fontSize: 16,
+                  color: _fromDateTime != null
+                      ? Colors.black
+                      : (_isSelectingFromDate ? Colors.black : AppColors.grey),
+                ),
               ),
             ),
           ),
@@ -92,9 +94,11 @@ class _PageThreeState extends State<PageThree> {
               child: Text(
                 _toDateTime == null ? "To Date" : _formatDate(_toDateTime!),
                 style: TextStyle(
-                    fontSize: 16,
-                    color:
-                        !_isSelectingFromDate ? Colors.black : AppColors.grey),
+                  fontSize: 16,
+                  color: _toDateTime != null
+                      ? Colors.black
+                      : (!_isSelectingFromDate ? Colors.black : AppColors.grey),
+                ),
               ),
             ),
           ),

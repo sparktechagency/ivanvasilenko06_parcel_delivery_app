@@ -31,9 +31,8 @@ class VerifyEmailScreen extends StatelessWidget {
               const TextWidget(
                 text: AppStrings.verifyEmail,
                 fontSize: 30,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 fontColor: AppColors.black,
-                fontStyle: FontStyle.italic,
               ),
               const SpaceWidget(spaceHeight: 16),
               TextFieldWidget(
@@ -48,23 +47,23 @@ class VerifyEmailScreen extends StatelessWidget {
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 fontColor: AppColors.greyDarkLight,
-                fontStyle: FontStyle.italic,
                 textAlignment: TextAlign.left,
               ),
-              Obx(() => TextButtonWidget(
-                    onPressed: controller.isButtonDisabled.value
-                        ? () {}
-                        : controller.resendCode,
-                    text: controller.isButtonDisabled.value
-                        ? "Send a repeat SMS in ${controller.start.value} sec"
-                        : "Resend Code",
-                    textColor: controller.isButtonDisabled.value
-                        ? AppColors.greyDarkLight
-                        : AppColors.black,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    fontStyle: FontStyle.italic,
-                  )),
+              Obx(
+                () => TextButtonWidget(
+                  onPressed: controller.isButtonDisabled.value
+                      ? () {}
+                      : controller.resendCode,
+                  text: controller.isButtonDisabled.value
+                      ? "Send a repeat SMS in ${controller.start.value} sec"
+                      : "Resend Code",
+                  textColor: controller.isButtonDisabled.value
+                      ? AppColors.greyDarkLight
+                      : AppColors.black,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ],
           ),
         ),

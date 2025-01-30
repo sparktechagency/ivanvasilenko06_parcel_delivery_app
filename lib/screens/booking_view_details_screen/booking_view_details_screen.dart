@@ -7,6 +7,7 @@ import '../../constants/app_icons_path.dart';
 import '../../constants/app_image_path.dart';
 import '../../constants/app_strings.dart';
 import '../../utils/app_size.dart';
+import '../../widgets/icon_widget/icon_widget.dart';
 import '../../widgets/image_widget/image_widget.dart';
 import '../../widgets/space_widget/space_widget.dart';
 import '../../widgets/text_widget/text_widgets.dart';
@@ -84,9 +85,8 @@ class _BookingViewDetailsScreenState extends State<BookingViewDetailsScreen> {
             child: TextWidget(
               text: AppStrings.summary,
               fontSize: 24,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
-              fontStyle: FontStyle.italic,
             ),
           ),
           const SpaceWidget(spaceHeight: 40),
@@ -125,10 +125,10 @@ class _BookingViewDetailsScreenState extends State<BookingViewDetailsScreen> {
                             child: const CircleAvatar(
                               backgroundColor: AppColors.whiteDark,
                               radius: 18,
-                              child: Icon(
-                                Icons.message,
-                                color: AppColors.black,
-                                size: 18,
+                              child: IconWidget(
+                                icon: AppIconsPath.whatsAppIcon,
+                                height: 18,
+                                width: 18,
                               ),
                             ),
                           ),
@@ -187,13 +187,13 @@ class _BookingViewDetailsScreenState extends State<BookingViewDetailsScreen> {
                   ),
                   const SpaceWidget(spaceHeight: 8),
                   const SummaryInfoRowWidget(
-                    icon: AppIconsPath.currentLocationIcon,
+                    icon: AppIconsPath.destinationIcon,
                     label: AppStrings.currentLocationText,
                     value: AppStrings.currentLocation,
                   ),
                   const SpaceWidget(spaceHeight: 8),
                   const SummaryInfoRowWidget(
-                    icon: AppIconsPath.destinationIcon,
+                    icon: AppIconsPath.currentLocationIcon,
                     label: AppStrings.destinationText,
                     value: AppStrings.destination,
                   ),

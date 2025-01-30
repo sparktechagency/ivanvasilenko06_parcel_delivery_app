@@ -61,7 +61,7 @@ class RadiusMapScreen extends StatelessWidget {
                     },
                     label: AppStrings.next,
                     textColor: AppColors.white,
-                    buttonWidth: 100,
+                    buttonWidth: 105,
                     buttonHeight: 50,
                     icon: Icons.arrow_forward,
                     iconColor: AppColors.white,

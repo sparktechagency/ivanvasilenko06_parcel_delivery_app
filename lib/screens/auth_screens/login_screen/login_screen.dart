@@ -12,6 +12,7 @@ import '../../../constants/app_strings.dart';
 import '../../../widgets/phone_field_widget/phone_field_widget.dart';
 import '../../../widgets/space_widget/space_widget.dart';
 import '../../../widgets/text_widget/text_widgets.dart';
+import '../../bottom_nav_bar/bottom_nav_bar.dart';
 
 class LoginScreen extends StatelessWidget {
   final phoneController = TextEditingController();
@@ -32,9 +33,8 @@ class LoginScreen extends StatelessWidget {
               const TextWidget(
                 text: AppStrings.welcome,
                 fontSize: 30,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 fontColor: AppColors.black,
-                fontStyle: FontStyle.italic,
               ),
               const SpaceWidget(spaceHeight: 10),
               const TextWidget(
@@ -42,7 +42,6 @@ class LoginScreen extends StatelessWidget {
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 fontColor: AppColors.black,
-                fontStyle: FontStyle.italic,
                 textAlignment: TextAlign.left,
               ),
               const SpaceWidget(spaceHeight: 24),
@@ -52,7 +51,9 @@ class LoginScreen extends StatelessWidget {
               ),
               const SpaceWidget(spaceHeight: 24),
               ButtonWidget(
-                onPressed: () {},
+                onPressed: () {
+                  Get.offAll(() => const BottomNavScreen());
+                },
                 label: AppStrings.login,
                 buttonHeight: 50,
                 buttonWidth: double.infinity,
@@ -69,13 +70,17 @@ class LoginScreen extends StatelessWidget {
               ),
               const SpaceWidget(spaceHeight: 16),
               CustomInkWellButton(
-                onTap: () {},
+                onTap: () {
+                  Get.offAll(() => const BottomNavScreen());
+                },
                 icon: AppIconsPath.googleIcon,
                 text: AppStrings.continueWithGoogle,
               ),
               const SpaceWidget(spaceHeight: 16),
               CustomInkWellButton(
-                onTap: () {},
+                onTap: () {
+                  Get.offAll(() => const BottomNavScreen());
+                },
                 icon: AppIconsPath.appleIcon,
                 text: AppStrings.continueWithApple,
               ),
@@ -93,7 +98,6 @@ class LoginScreen extends StatelessWidget {
               fontSize: 14,
               fontWeight: FontWeight.w500,
               fontColor: AppColors.greyDark,
-              fontStyle: FontStyle.italic,
             ),
             const SpaceWidget(spaceWidth: 4),
             TextButtonWidget(
@@ -104,7 +108,6 @@ class LoginScreen extends StatelessWidget {
               textColor: AppColors.greyDark,
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              fontStyle: FontStyle.italic,
             ),
           ],
         ),

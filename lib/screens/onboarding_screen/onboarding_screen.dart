@@ -55,9 +55,8 @@ class OnboardingScreen extends GetView<OnboardingController> {
                             child: TextWidget(
                               text: contents[i].title,
                               fontSize: 27,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w600,
                               fontColor: AppColors.black,
-                              fontStyle: FontStyle.italic,
                             ),
                           ),
                           const SpaceWidget(spaceHeight: 14),
@@ -68,7 +67,6 @@ class OnboardingScreen extends GetView<OnboardingController> {
                               fontSize: 16,
                               fontWeight: FontWeight.w400,
                               fontColor: AppColors.black,
-                              fontStyle: FontStyle.italic,
                               textAlignment: TextAlign.left,
                             ),
                           ),

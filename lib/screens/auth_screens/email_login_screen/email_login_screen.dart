@@ -29,9 +29,8 @@ class EmailLoginScreen extends StatelessWidget {
               const TextWidget(
                 text: AppStrings.loginWithEmail,
                 fontSize: 30,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
                 fontColor: AppColors.black,
-                fontStyle: FontStyle.italic,
               ),
               const SpaceWidget(spaceHeight: 10),
               const TextWidget(
@@ -39,7 +38,6 @@ class EmailLoginScreen extends StatelessWidget {
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 fontColor: AppColors.black,
-                fontStyle: FontStyle.italic,
                 textAlignment: TextAlign.left,
               ),
               const SpaceWidget(spaceHeight: 24),
