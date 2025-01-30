@@ -27,6 +27,13 @@ class AppImagePath {
   static const String truckImage = "assets/images/truckImage.png";
   static const String hurrahImage = "assets/images/hurrahImage.png";
 
+  static const String stepper1 = "assets/images/stepper1.png";
+  static const String stepper2 = "assets/images/stepper2.png";
+  static const String stepper3 = "assets/images/stepper3.png";
+  static const String stepper4 = "assets/images/stepper4.png";
+  static const String stepper5 = "assets/images/stepper5.png";
+  static const String stepper6 = "assets/images/stepper6.png";
+
   // Dev Images
   static const String profileImage = "assets/dev_images/profileImage.png";
   static const String radiusMapBg = "assets/dev_images/radiusMapBg.png";

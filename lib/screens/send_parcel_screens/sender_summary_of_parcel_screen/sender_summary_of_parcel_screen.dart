@@ -27,11 +27,10 @@ class SenderSummaryOfParcelScreen extends StatelessWidget {
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: TextWidget(
-              text: AppStrings.summaryOfParcel,
+              text: AppStrings.summaryOfYourParcel,
               fontSize: 24,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
-              fontStyle: FontStyle.italic,
             ),
           ),
           const SpaceWidget(spaceHeight: 40),

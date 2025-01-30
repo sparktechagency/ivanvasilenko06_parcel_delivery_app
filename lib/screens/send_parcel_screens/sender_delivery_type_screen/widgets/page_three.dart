@@ -29,9 +29,8 @@ class _PageThreeState extends State<PageThree> {
           const TextWidget(
             text: AppStrings.enterDeliveryTime,
             fontSize: 24,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
             fontColor: AppColors.black,
-            fontStyle: FontStyle.italic,
             textAlignment: TextAlign.start,
           ),
           const SpaceWidget(spaceHeight: 8),
@@ -40,7 +39,6 @@ class _PageThreeState extends State<PageThree> {
             fontSize: 14,
             fontWeight: FontWeight.w500,
             fontColor: AppColors.black,
-            fontStyle: FontStyle.italic,
             textAlignment: TextAlign.start,
           ),
           const SpaceWidget(spaceHeight: 24),
@@ -56,14 +54,18 @@ class _PageThreeState extends State<PageThree> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 border: Border.all(
-                    color: _isSelectingFromDate ? Colors.black : Colors.grey),
+                    color: _isSelectingFromDate ? Colors.black : AppColors.grey,
+                    width: 1.5),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 _fromDateTime == null
                     ? "From Date"
                     : _formatDate(_fromDateTime!),
-                style: const TextStyle(fontSize: 16),
+                style: TextStyle(
+                    fontSize: 16,
+                    color:
+                        _isSelectingFromDate ? Colors.black : AppColors.grey),
               ),
             ),
           ),
@@ -82,17 +84,29 @@ class _PageThreeState extends State<PageThree> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 border: Border.all(
-                    color: !_isSelectingFromDate ? Colors.black : Colors.grey),
+                    color:
+                        !_isSelectingFromDate ? Colors.black : AppColors.grey,
+                    width: 1.5),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 _toDateTime == null ? "To Date" : _formatDate(_toDateTime!),
-                style: const TextStyle(fontSize: 16),
+                style: TextStyle(
+                    fontSize: 16,
+                    color:
+                        !_isSelectingFromDate ? Colors.black : AppColors.grey),
               ),
             ),
           ),
 
           const SpaceWidget(spaceHeight: 16),
+          const TextWidget(
+            text: "Choose Your date",
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            fontColor: AppColors.black,
+            textAlignment: TextAlign.start,
+          ),
 
           // Cupertino Date Picker
           Expanded(

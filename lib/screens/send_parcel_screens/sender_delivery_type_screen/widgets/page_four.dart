@@ -48,9 +48,8 @@ class _PageFourState extends State<PageFour> {
           const TextWidget(
             text: AppStrings.enterDescription,
             fontSize: 24,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
             fontColor: AppColors.black,
-            fontStyle: FontStyle.italic,
             textAlignment: TextAlign.start,
           ),
           const SpaceWidget(spaceHeight: 8),
@@ -59,7 +58,6 @@ class _PageFourState extends State<PageFour> {
             fontSize: 14,
             fontWeight: FontWeight.w500,
             fontColor: AppColors.black,
-            fontStyle: FontStyle.italic,
             textAlignment: TextAlign.start,
           ),
           Expanded(
@@ -76,7 +74,7 @@ class _PageFourState extends State<PageFour> {
                   SenderTextFieldWidget(
                     controller: descriptionController,
                     hintText: 'Write Something for description',
-                    maxLines: 5,
+                    maxLines: 4,
                   ),
                   const SpaceWidget(spaceHeight: 16),
                   GestureDetector(

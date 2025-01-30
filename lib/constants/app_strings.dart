@@ -123,6 +123,7 @@ class AppStrings {
   static const String republish = "Republish";
   static const String select = "Select";
   static const String summaryOfParcel = "Summary of Parcel";
+  static const String summaryOfYourParcel = "Summary of Your Parcel";
   static const String sendRequest = "Send Request";
   static const String nonProfessional = "Non-Professional";
   static const String professional = "Professional";

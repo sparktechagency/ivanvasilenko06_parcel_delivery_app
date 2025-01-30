@@ -37,6 +37,14 @@ class SenderDeliveryTypeScreen extends StatefulWidget {
     "Price",
     "Phone",
   ];
+  final List<String> images = [
+    AppImagePath.stepper1,
+    AppImagePath.stepper2,
+    AppImagePath.stepper3,
+    AppImagePath.stepper4,
+    AppImagePath.stepper5,
+    AppImagePath.stepper6,
+  ];
 
   @override
   State<SenderDeliveryTypeScreen> createState() =>
@@ -131,7 +139,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                   },
                   label: _currentStep == 5 ? AppStrings.next : AppStrings.next,
                   textColor: AppColors.white,
-                  buttonWidth: 100,
+                  buttonWidth: 105,
                   buttonHeight: 50,
                   icon: Icons.arrow_forward,
                   iconColor: AppColors.white,
@@ -149,28 +157,74 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
 
   Widget _buildStep(int index) {
     return Expanded(
-      child: Column(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            height: 10,
-            width: 10,
-            margin: const EdgeInsets.symmetric(horizontal: 2),
-            decoration: BoxDecoration(
-              color:
-                  _currentStep >= index ? AppColors.black : AppColors.greyLight,
-              borderRadius: BorderRadius.circular(100),
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                //This is the stepper desig
+                _currentStep >= index
+                    ? Image.asset(
+                        height: 15,
+                        width: 15,
+                        widget.images[index],
+                      )
+                    : Image.asset(
+                        height: 15,
+                        width: 15,
+                        widget.images[index],
+                        color: AppColors.white,
+                      ),
+                const SizedBox(height: 4),
+                Container(
+                  height: 10,
+                  width: 10,
+                  margin: const EdgeInsets.symmetric(horizontal: 0),
+                  decoration: BoxDecoration(
+                    color: _currentStep >= index
+                        ? AppColors.black
+                        : AppColors.greyLight,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  widget.texts[index],
+                  maxLines: 1,
+                  style: TextStyle(
+                      color: _currentStep >= index
+                          ? AppColors.black
+                          : AppColors.white,
+                      fontWeight: _currentStep >= index
+                          ? FontWeight.normal
+                          : FontWeight.normal,
+                      fontSize: 8,
+                      overflow: TextOverflow.ellipsis),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            widget.texts[index],
-            style: TextStyle(
-              color: _currentStep >= index ? AppColors.black : AppColors.grey,
-              fontWeight:
-                  _currentStep >= index ? FontWeight.normal : FontWeight.normal,
-              fontSize: 9,
-            ),
-          ),
+          if (index < widget.texts.length - 1)
+            Expanded(
+              flex: 2,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                margin: const EdgeInsets.only(top: 4),
+                height: 1,
+                decoration: BoxDecoration(
+                  color: _currentStep >= index
+                      ? AppColors.black
+                      : AppColors.greyLight,
+                  borderRadius: BorderRadius.circular(100),
+                ),
+              ),
+            )
         ],
       ),
     );
@@ -185,9 +239,8 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
           child: TextWidget(
             text: AppStrings.senderDeliveryType,
             fontSize: 24,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
             fontColor: AppColors.black,
-            fontStyle: FontStyle.italic,
             textAlignment: TextAlign.start,
           ),
         ),
@@ -232,7 +285,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
             ],
           ),
         ),
-        const SpaceWidget(spaceHeight: 12),
+        const SpaceWidget(spaceHeight: 24),
         Expanded(
           child: PageView(
             controller: _tabController,
@@ -252,12 +305,12 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                         child: CarouselSlider(
                           carouselController: _carouselController,
                           options: CarouselOptions(
-                            height: ResponsiveUtils.height(100),
-                            enlargeCenterPage: false,
+                            height: ResponsiveUtils.height(150),
+                            enlargeCenterPage: true,
                             autoPlay: false,
                             aspectRatio: 16 / 9,
                             viewportFraction: 0.35,
-                            enableInfiniteScroll: false,
+                            enableInfiniteScroll: true,
                             autoPlayAnimationDuration:
                                 const Duration(milliseconds: 800),
                             onPageChanged: (index, reason) {
@@ -348,8 +401,8 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                         child: CarouselSlider(
                           carouselController: _carouselController,
                           options: CarouselOptions(
-                            height: ResponsiveUtils.height(100),
-                            enlargeCenterPage: false,
+                            height: ResponsiveUtils.height(150),
+                            enlargeCenterPage: true,
                             autoPlay: false,
                             aspectRatio: 16 / 9,
                             viewportFraction: 0.35,
@@ -436,36 +489,6 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
     );
   }
 
-  Widget _buildPage2() {
-    return Center(
-      child: Text('Page 2 Content'),
-    );
-  }
-
-  Widget _buildPage3() {
-    return Center(
-      child: Text('Page 3 Content'),
-    );
-  }
-
-  Widget _buildPage4() {
-    return Center(
-      child: Text('Page 4 Content'),
-    );
-  }
-
-  Widget _buildPage5() {
-    return Center(
-      child: Text('Page 5 Content'),
-    );
-  }
-
-  Widget _buildPage6() {
-    return Center(
-      child: Text('Page 6 Content'),
-    );
-  }
-
   Widget _buildTabItem(String label, int index) {
     return InkWell(
       onTap: () {
@@ -478,12 +501,10 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
       highlightColor: Colors.transparent,
       child: TextWidget(
         text: label,
-        fontColor: _currentIndexTab == index
-            ? AppColors.black
-            : AppColors.greyDarkLight,
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-        fontStyle: FontStyle.italic,
+        fontColor:
+            _currentIndex == index ? AppColors.black : AppColors.greyDarkLight,
+        fontSize: 14,
+        fontWeight: _currentIndex == index ? FontWeight.w600 : FontWeight.w400,
       ),
     );
   }

@@ -3,7 +3,10 @@ import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 
 import '../../../../constants/app_colors.dart';
+import '../../../../constants/app_icons_path.dart';
 import '../../../../constants/app_strings.dart';
+import '../../../../utils/app_size.dart';
+import '../../../../widgets/icon_widget/icon_widget.dart';
 import '../../../../widgets/space_widget/space_widget.dart';
 import '../../../../widgets/text_widget/text_widgets.dart';
 
@@ -38,75 +41,102 @@ class _PageTwoState extends State<PageTwo> {
             child: TextWidget(
               text: AppStrings.enterDeliveryLocation,
               fontSize: 24,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
-              fontStyle: FontStyle.italic,
               textAlignment: TextAlign.start,
             ),
           ),
           const SpaceWidget(spaceHeight: 24),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 24),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.black, width: 2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              children: [
-                // Current Location Input
-                Row(
+          Row(
+            children: [
+              const SizedBox(width: 24),
+              Column(
+                children: [
+                  const IconWidget(
+                    height: 15,
+                    width: 15,
+                    icon: AppIconsPath.destinationIcon,
+                  ),
+                  Container(
+                    width: 1,
+                    height: 50,
+                    color: AppColors.greyLight2,
+                  ),
+                  const IconWidget(
+                    height: 15,
+                    width: 15,
+                    icon: AppIconsPath.currentLocationIcon,
+                  ),
+                ],
+              ),
+              const SpaceWidget(spaceWidth: 12),
+              Expanded(
+                child: Column(
                   children: [
-                    Container(
-                      width: 12,
-                      height: 12,
-                      decoration: const BoxDecoration(
-                        color: Colors.black,
-                        shape: BoxShape.rectangle,
+                    // Current Location Input
+                    TextFormField(
+                      controller: _currentLocationController,
+                      style: const TextStyle(
+                        color: AppColors.black,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: "Current Location",
+                        hintStyle: const TextStyle(
+                          color: AppColors.grey,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            color: AppColors.grey,
+                            width: ResponsiveUtils.width(1.5),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            color: AppColors.black,
+                            width: ResponsiveUtils.width(1.5),
+                          ),
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: TextField(
-                        controller: _currentLocationController,
-                        decoration: const InputDecoration(
-                          hintText: "Current Location",
-                          border: InputBorder.none,
+                    const SpaceWidget(spaceHeight: 12),
+                    // Destination Input
+                    TextFormField(
+                      controller: _destinationController,
+                      style: const TextStyle(
+                        color: AppColors.black,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: "Destination",
+                        hintStyle: const TextStyle(
+                          color: AppColors.grey,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            color: AppColors.grey,
+                            width: ResponsiveUtils.width(1.5),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            color: AppColors.black,
+                            width: ResponsiveUtils.width(1.5),
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
-                const Divider(height: 20),
-                // Destination Input
-                Row(
-                  children: [
-                    Container(
-                      width: 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black, width: 2),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: TextField(
-                        controller: _destinationController,
-                        decoration: const InputDecoration(
-                          hintText: "Destination",
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              ),
+              const SpaceWidget(spaceWidth: 16),
+            ],
           ),
           const SpaceWidget(spaceHeight: 24),
           const ImageWidget(
-            height: 400,
+            height: 500,
             width: double.infinity,
             imagePath: AppImagePath.senderLocationImage,
           ),

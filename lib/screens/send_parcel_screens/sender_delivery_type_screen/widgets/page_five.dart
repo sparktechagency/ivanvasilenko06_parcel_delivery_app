@@ -22,9 +22,8 @@ class PageFive extends StatelessWidget {
           const TextWidget(
             text: AppStrings.enterPrice,
             fontSize: 24,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
             fontColor: AppColors.black,
-            fontStyle: FontStyle.italic,
             textAlignment: TextAlign.start,
           ),
           const SpaceWidget(spaceHeight: 8),
@@ -33,7 +32,6 @@ class PageFive extends StatelessWidget {
             fontSize: 14,
             fontWeight: FontWeight.w500,
             fontColor: AppColors.black,
-            fontStyle: FontStyle.italic,
             textAlignment: TextAlign.start,
           ),
           const SpaceWidget(spaceHeight: 24),

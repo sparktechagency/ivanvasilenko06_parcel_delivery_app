@@ -25,9 +25,8 @@ class PageSix extends StatelessWidget {
           const TextWidget(
             text: AppStrings.enterReceiversDetails,
             fontSize: 24,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
             fontColor: AppColors.black,
-            fontStyle: FontStyle.italic,
             textAlignment: TextAlign.start,
           ),
           const SpaceWidget(spaceHeight: 8),
@@ -36,7 +35,6 @@ class PageSix extends StatelessWidget {
             fontSize: 14,
             fontWeight: FontWeight.w500,
             fontColor: AppColors.black,
-            fontStyle: FontStyle.italic,
             textAlignment: TextAlign.start,
           ),
           const SpaceWidget(spaceHeight: 24),

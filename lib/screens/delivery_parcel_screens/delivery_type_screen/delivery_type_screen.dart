@@ -65,7 +65,7 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
                     viewportFraction: 0.35,
                     enableInfiniteScroll: true,
                     autoPlayAnimationDuration:
-                        const Duration(milliseconds: 1000),
+                        const Duration(milliseconds: 800),
                     onPageChanged: (index, reason) {
                       setState(() {
                         _currentIndex = index;
