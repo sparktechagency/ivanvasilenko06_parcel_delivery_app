@@ -22,7 +22,7 @@ class CurrentOrderWidget extends StatefulWidget {
 class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
   final List<String> images = [
     AppImagePath.sendParcel,
-    AppImagePath.profileImage,
+    AppImagePath.joshuaImage,
     AppImagePath.sendParcel,
   ];
 
@@ -108,268 +108,270 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
         children: [
           const SpaceWidget(spaceHeight: 8),
           ...List.generate(images.length, (index) {
-            return Card(
-              color: AppColors.white,
-              shape: RoundedRectangleBorder(
+            return
+                // Card(
+                // color: AppColors.white,
+                // shape: RoundedRectangleBorder(
+                //   borderRadius: BorderRadius.circular(12),
+                // ),
+                // margin: const EdgeInsets.only(left: 20, right: 20, bottom: 16),
+                // elevation: 3,
+                // child:
+                Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(left: 8, right: 8, bottom: 0),
+              decoration: BoxDecoration(
+                color: AppColors.white,
                 borderRadius: BorderRadius.circular(12),
               ),
-              margin: const EdgeInsets.only(left: 20, right: 20, bottom: 16),
-              elevation: 3,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  children: [
-                    Row(
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(100),
+                                child: ImageWidget(
+                                  height: 40,
+                                  width: 40,
+                                  imagePath: images[index],
+                                ),
+                              ),
+                              const SpaceWidget(spaceWidth: 8),
+                              TextWidget(
+                                text: names[index],
+                                fontSize: 15.5,
+                                fontWeight: FontWeight.w500,
+                                fontColor: AppColors.black,
+                              ),
+                              names[index] == AppStrings.joshua
+                                  ? const SpaceWidget(spaceWidth: 8)
+                                  : const SizedBox.shrink(),
+                              names[index] == AppStrings.joshua
+                                  ? Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.yellow,
+                                        borderRadius:
+                                            BorderRadius.circular(100),
+                                      ),
+                                      child: const Row(
+                                        children: [
+                                          Icon(
+                                            Icons.star_rounded,
+                                            color: AppColors.white,
+                                            size: 10,
+                                          ),
+                                          TextWidget(
+                                            text: AppStrings.ratings,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w500,
+                                            fontColor: AppColors.white,
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : const SizedBox.shrink(),
+                            ],
+                          ),
+                          const SpaceWidget(spaceHeight: 8),
+                          const Row(
+                            children: [
+                              Icon(
+                                Icons.location_on_rounded,
+                                color: AppColors.black,
+                                size: 12,
+                              ),
+                              SpaceWidget(spaceWidth: 8),
+                              TextWidget(
+                                text: 'Western Wall to 4 lebri street',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                fontColor: AppColors.greyDark2,
+                              ),
+                            ],
+                          ),
+                          const SpaceWidget(spaceHeight: 8),
+                          const Row(
+                            children: [
+                              Icon(
+                                Icons.call,
+                                color: AppColors.black,
+                                size: 12,
+                              ),
+                              SpaceWidget(spaceWidth: 8),
+                              TextWidget(
+                                text: '+375 292316347',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                fontColor: AppColors.greyDark2,
+                              ),
+                            ],
+                          ),
+                          const SpaceWidget(spaceHeight: 8),
+                          const Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_month,
+                                color: AppColors.black,
+                                size: 12,
+                              ),
+                              SpaceWidget(spaceWidth: 8),
+                              TextWidget(
+                                text: '24-04-2024',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                fontColor: AppColors.greyDark2,
+                              ),
+                            ],
+                          ),
+                          const SpaceWidget(spaceHeight: 16),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          const TextWidget(
+                            text: "${AppStrings.currency} 150",
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            fontColor: AppColors.black,
+                          ),
+                          const SpaceWidget(spaceHeight: 20),
+                          TextWidget(
+                            text: status[index],
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            fontColor: status[index] == AppStrings.inTransit
+                                ? AppColors.green
+                                : AppColors.red,
+                          ),
+                          const SpaceWidget(spaceHeight: 12),
+                          Row(
+                            children: [
+                              InkWell(
+                                onTap: _sendMessage,
+                                borderRadius: BorderRadius.circular(100),
+                                child: const CircleAvatar(
+                                  backgroundColor: AppColors.whiteDark,
+                                  radius: 18,
+                                  child: IconWidget(
+                                    icon: AppIconsPath.whatsAppIcon,
+                                    color: AppColors.black,
+                                    width: 18,
+                                    height: 18,
+                                  ),
+                                ),
+                              ),
+                              const SpaceWidget(spaceWidth: 8),
+                              InkWell(
+                                onTap: _makePhoneCall,
+                                borderRadius: BorderRadius.circular(100),
+                                child: const CircleAvatar(
+                                  backgroundColor: AppColors.whiteDark,
+                                  radius: 18,
+                                  child: Icon(
+                                    Icons.call,
+                                    color: AppColors.black,
+                                    size: 18,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SpaceWidget(spaceHeight: 8),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.whiteLight,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(100),
-                                  child: ImageWidget(
-                                    height: 40,
-                                    width: 40,
-                                    imagePath: images[index],
-                                  ),
-                                ),
-                                const SpaceWidget(spaceWidth: 8),
-                                TextWidget(
-                                  text: names[index],
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: AppColors.black,
-                                ),
-                                names[index] == AppStrings.joshua
-                                    ? const SpaceWidget(spaceWidth: 8)
-                                    : const SizedBox.shrink(),
-                                names[index] == AppStrings.joshua
-                                    ? Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.yellow,
-                                          borderRadius:
-                                              BorderRadius.circular(100),
-                                        ),
-                                        child: const Row(
-                                          children: [
-                                            Icon(
-                                              Icons.star_rounded,
-                                              color: AppColors.white,
-                                              size: 10,
-                                            ),
-                                            TextWidget(
-                                              text: AppStrings.ratings,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w500,
-                                              fontColor: AppColors.white,
-                                              fontStyle: FontStyle.italic,
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    : const SizedBox.shrink(),
-                              ],
-                            ),
-                            const SpaceWidget(spaceHeight: 8),
-                            const Row(
-                              children: [
-                                Icon(
-                                  Icons.location_on_rounded,
-                                  color: AppColors.black,
-                                  size: 12,
-                                ),
-                                SpaceWidget(spaceWidth: 8),
-                                TextWidget(
-                                  text: 'Western Wall to 4 lebri street',
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: AppColors.greyDark2,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ],
-                            ),
-                            const SpaceWidget(spaceHeight: 8),
-                            const Row(
-                              children: [
-                                Icon(
-                                  Icons.call,
-                                  color: AppColors.black,
-                                  size: 12,
-                                ),
-                                SpaceWidget(spaceWidth: 8),
-                                TextWidget(
-                                  text: '+375 292316347',
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: AppColors.greyDark2,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ],
-                            ),
-                            const SpaceWidget(spaceHeight: 8),
-                            const Row(
-                              children: [
-                                Icon(
-                                  Icons.calendar_month,
-                                  color: AppColors.black,
-                                  size: 12,
-                                ),
-                                SpaceWidget(spaceWidth: 8),
-                                TextWidget(
-                                  text: '24-04-2024',
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: AppColors.greyDark2,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ],
-                            ),
-                            const SpaceWidget(spaceHeight: 16),
-                          ],
+                        InkWell(
+                          onTap: () {
+                            if (details[index] == AppStrings.parcelDetails) {
+                              Get.toNamed(AppRoutes.bookingParcelDetailsScreen);
+                            } else {
+                              Get.toNamed(AppRoutes.bookingViewDetailsScreen);
+                            }
+                          },
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.remove_red_eye_outlined,
+                                color: AppColors.black,
+                                size: 16,
+                              ),
+                              const SpaceWidget(spaceWidth: 8),
+                              TextWidget(
+                                text: details[index],
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                fontColor: AppColors.greyDark2,
+                              ),
+                            ],
+                          ),
                         ),
-                        Column(
-                          children: [
-                            const TextWidget(
-                              text: "${AppStrings.currency} 150",
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              fontColor: AppColors.black,
-                            ),
-                            const SpaceWidget(spaceHeight: 20),
-                            TextWidget(
-                              text: status[index],
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              fontColor: status[index] == AppStrings.inTransit
-                                  ? AppColors.green
-                                  : AppColors.red,
-                              fontStyle: FontStyle.italic,
-                            ),
-                            const SpaceWidget(spaceHeight: 8),
-                            Row(
-                              children: [
-                                InkWell(
-                                  onTap: _sendMessage,
-                                  borderRadius: BorderRadius.circular(100),
-                                  child: const CircleAvatar(
-                                    backgroundColor: AppColors.whiteDark,
-                                    radius: 20,
-                                    child: Icon(
-                                      Icons.message,
-                                      color: AppColors.black,
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
-                                const SpaceWidget(spaceWidth: 8),
-                                InkWell(
-                                  onTap: _makePhoneCall,
-                                  borderRadius: BorderRadius.circular(100),
-                                  child: const CircleAvatar(
-                                    backgroundColor: AppColors.whiteDark,
-                                    radius: 20,
-                                    child: Icon(
-                                      Icons.call,
-                                      color: AppColors.black,
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SpaceWidget(spaceHeight: 8),
-                          ],
+                        Container(
+                          width: 1,
+                          height: 24,
+                          color: AppColors.blackLighter,
+                        ),
+                        InkWell(
+                          onTap: () {
+                            Get.toNamed(AppRoutes.cancelDeliveryScreen);
+                          },
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          child: Row(
+                            children: [
+                              progress[index] == AppStrings.deliveryManDetails
+                                  ? const IconWidget(
+                                      icon: AppIconsPath.deliverymanIcon,
+                                      color: AppColors.greyDark2,
+                                      width: 14,
+                                      height: 14,
+                                    )
+                                  : const SizedBox.shrink(),
+                              progress[index] == AppStrings.deliveryManDetails
+                                  ? const SpaceWidget(spaceWidth: 8)
+                                  : const SpaceWidget(spaceWidth: 0),
+                              TextWidget(
+                                text: progress[index],
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                fontColor: progress[index] ==
+                                        AppStrings.deliveryManDetails
+                                    ? AppColors.greyDark2
+                                    : AppColors.red,
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: AppColors.whiteLight,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              if (details[index] == AppStrings.parcelDetails) {
-                                Get.toNamed(
-                                    AppRoutes.bookingParcelDetailsScreen);
-                              } else {
-                                Get.toNamed(AppRoutes.bookingViewDetailsScreen);
-                              }
-                            },
-                            splashColor: Colors.transparent,
-                            highlightColor: Colors.transparent,
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.remove_red_eye_outlined,
-                                  color: AppColors.black,
-                                  size: 14,
-                                ),
-                                const SpaceWidget(spaceWidth: 8),
-                                TextWidget(
-                                  text: details[index],
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: AppColors.greyDark2,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ],
-                            ),
-                          ),
-                          InkWell(
-                            onTap: () {
-                              Get.toNamed(AppRoutes.cancelDeliveryScreen);
-                            },
-                            splashColor: Colors.transparent,
-                            highlightColor: Colors.transparent,
-                            child: Row(
-                              children: [
-                                progress[index] == AppStrings.deliveryManDetails
-                                    ? const IconWidget(
-                                        icon: AppIconsPath.profileIcon,
-                                        color: AppColors.greyDark2,
-                                        width: 12,
-                                        height: 12,
-                                      )
-                                    : const SizedBox.shrink(),
-                                progress[index] == AppStrings.deliveryManDetails
-                                    ? const SpaceWidget(spaceWidth: 8)
-                                    : const SpaceWidget(spaceWidth: 0),
-                                TextWidget(
-                                  text: progress[index],
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: progress[index] ==
-                                          AppStrings.deliveryManDetails
-                                      ? AppColors.greyDark2
-                                      : AppColors.red,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             );
+            // );
           }),
           const SpaceWidget(spaceHeight: 80),
         ],

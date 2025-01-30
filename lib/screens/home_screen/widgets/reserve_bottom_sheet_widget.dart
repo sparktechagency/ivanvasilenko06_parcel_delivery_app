@@ -43,87 +43,91 @@ class _ReserveBottomSheetWidgetState extends State<ReserveBottomSheetWidget> {
             const SpaceWidget(spaceHeight: 20),
             const TextWidget(
               text: AppStrings.select,
-              fontSize: 22,
-              fontWeight: FontWeight.w500,
+              fontSize: 23,
+              fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
-              fontStyle: FontStyle.italic,
             ),
             const SpaceWidget(spaceHeight: 8),
             // Deliver Parcel Option
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selectedOption = 'Deliver Parcel';
-                    });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.greyLightest,
-                      border: Border.all(
-                        color: selectedOption == 'Deliver Parcel'
-                            ? AppColors.black
-                            : Colors.transparent,
-                        width: 2,
+                Expanded(
+                  flex: 1,
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedOption = 'Deliver Parcel';
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.greyLightest,
+                        border: Border.all(
+                          color: selectedOption == 'Deliver Parcel'
+                              ? AppColors.black
+                              : Colors.transparent,
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Column(
-                      children: [
-                        ImageWidget(
-                          height: 76,
-                          width: 115,
-                          imagePath: AppImagePath.deliverParcel,
-                        ),
-                        SpaceWidget(spaceHeight: 2),
-                        TextWidget(
-                          text: AppStrings.deliverParcel,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          fontColor: AppColors.black,
-                        ),
-                      ],
+                      child: const Column(
+                        children: [
+                          ImageWidget(
+                            height: 76,
+                            width: 115,
+                            imagePath: AppImagePath.deliverParcel,
+                          ),
+                          SpaceWidget(spaceHeight: 2),
+                          TextWidget(
+                            text: AppStrings.deliverParcel,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            fontColor: AppColors.black,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
                 const SpaceWidget(spaceWidth: 16),
                 // Send Parcel Option
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selectedOption = 'Send Parcel';
-                    });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.greyLightest,
-                      border: Border.all(
-                        color: selectedOption == 'Send Parcel'
-                            ? AppColors.black
-                            : Colors.transparent,
-                        width: 2,
+                Expanded(
+                  flex: 1,
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedOption = 'Send Parcel';
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.greyLightest,
+                        border: Border.all(
+                          color: selectedOption == 'Send Parcel'
+                              ? AppColors.black
+                              : Colors.transparent,
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Column(
-                      children: [
-                        ImageWidget(
-                          height: 76,
-                          width: 115,
-                          imagePath: AppImagePath.sendParcel,
-                        ),
-                        SpaceWidget(spaceHeight: 2),
-                        TextWidget(
-                          text: AppStrings.sendParcel,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          fontColor: AppColors.black,
-                        ),
-                      ],
+                      child: const Column(
+                        children: [
+                          ImageWidget(
+                            height: 76,
+                            width: 115,
+                            imagePath: AppImagePath.sendParcel,
+                          ),
+                          SpaceWidget(spaceHeight: 2),
+                          TextWidget(
+                            text: AppStrings.sendParcel,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            fontColor: AppColors.black,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -146,9 +150,11 @@ class _ReserveBottomSheetWidgetState extends State<ReserveBottomSheetWidget> {
                       print('Selected Option: $selectedOption');
                     },
               label: AppStrings.next,
+              fontWeight: FontWeight.w500,
               buttonWidth: double.infinity,
               buttonHeight: 50,
             ),
+            const SpaceWidget(spaceHeight: 15),
           ],
         );
       },

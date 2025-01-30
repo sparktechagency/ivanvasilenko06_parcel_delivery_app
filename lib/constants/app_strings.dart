@@ -2,7 +2,7 @@ class AppStrings {
   AppStrings._();
 
   static const String appName = "Deliverly";
-  static const String fontFamilyName = "AeonikTRIAL";
+  static const String fontFamilyName = "Poppins";
 
   // Onboarding Screen
   static const String login = "Log in";

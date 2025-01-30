@@ -96,6 +96,10 @@ flutter:
     - family: AeonikTRIAL
       fonts:
         - asset: assets/fonts/AeonikTRIAL-Regular.otf
+
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro

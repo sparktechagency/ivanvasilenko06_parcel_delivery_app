@@ -23,7 +23,7 @@ class ProfileCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -34,10 +34,9 @@ class ProfileCardWidget extends StatelessWidget {
                 children: [
                   TextWidget(
                     text: titleText,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
                     fontColor: AppColors.black,
-                    fontStyle: FontStyle.italic,
                   ),
                   if (badgeIcon != null) const SpaceWidget(spaceWidth: 8),
                   if (badgeIcon != null)
@@ -53,7 +52,6 @@ class ProfileCardWidget extends StatelessWidget {
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
                 fontColor: AppColors.greyDarkLight,
-                fontStyle: FontStyle.italic,
               ),
             ],
           ),
@@ -62,7 +60,7 @@ class ProfileCardWidget extends StatelessWidget {
               if (additionalText != null)
                 TextWidget(
                   text: "${AppStrings.currency} ${additionalText!}",
-                  fontSize: 20,
+                  fontSize: 16,
                   fontWeight: FontWeight.w600,
                   fontColor: Colors.black,
                 ),
@@ -70,7 +68,7 @@ class ProfileCardWidget extends StatelessWidget {
               const Icon(
                 Icons.arrow_forward_ios_rounded,
                 color: AppColors.greyDark2,
-                size: 18,
+                size: 16,
               ),
             ],
           ),

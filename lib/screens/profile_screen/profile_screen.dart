@@ -32,9 +32,8 @@ class ProfileScreen extends StatelessWidget {
                 const TextWidget(
                   text: AppStrings.profile,
                   fontSize: 24,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                   fontColor: AppColors.black,
-                  fontStyle: FontStyle.italic,
                 ),
                 PopupMenuButton<int>(
                   icon: const Icon(
@@ -46,8 +45,6 @@ class ProfileScreen extends StatelessWidget {
                   onSelected: (value) {
                     if (value == 1) {
                       Get.toNamed(AppRoutes.contactUsScreen);
-                    } else if (value == 2) {
-                      // Handle "About" action
                     }
                   },
                   itemBuilder: (context) => [
@@ -55,10 +52,6 @@ class ProfileScreen extends StatelessWidget {
                       value: 1,
                       child: Text(AppStrings.contactUs),
                     ),
-                    // const PopupMenuItem(
-                    //   value: 2,
-                    //   child: Text("About"),
-                    // ),
                   ],
                 ),
               ],
@@ -115,7 +108,6 @@ class ProfileScreen extends StatelessWidget {
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                     fontColor: AppColors.white,
-                                    fontStyle: FontStyle.italic,
                                   ),
                                 ],
                               ),
@@ -128,10 +120,9 @@ class ProfileScreen extends StatelessWidget {
                   const SpaceWidget(spaceHeight: 16),
                   const TextWidget(
                     text: AppStrings.basicInfo,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                    fontColor: AppColors.greyDark2,
-                    fontStyle: FontStyle.italic,
+                    fontSize: 21,
+                    fontWeight: FontWeight.w600,
+                    fontColor: AppColors.black,
                   ),
                   const SpaceWidget(spaceHeight: 12),
                   InkWell(
@@ -141,7 +132,8 @@ class ProfileScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(100),
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 6),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(100),
                         border: Border.all(
@@ -149,10 +141,10 @@ class ProfileScreen extends StatelessWidget {
                           width: 1.5,
                         ),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
+                          const Row(
                             children: [
                               IconWidget(
                                 height: 14,
@@ -163,13 +155,17 @@ class ProfileScreen extends StatelessWidget {
                               TextWidget(
                                 text: AppStrings.orderCompleted,
                                 fontSize: 14,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w400,
                                 fontColor: AppColors.greyDark2,
-                                fontStyle: FontStyle.italic,
                               ),
                             ],
                           ),
-                          Row(
+                          Container(
+                            width: 1,
+                            height: 20,
+                            color: AppColors.blackLighter,
+                          ),
+                          const Row(
                             children: [
                               IconWidget(
                                 height: 14,
@@ -180,13 +176,17 @@ class ProfileScreen extends StatelessWidget {
                               TextWidget(
                                 text: AppStrings.orderDelivered,
                                 fontSize: 14,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w400,
                                 fontColor: AppColors.greyDark2,
-                                fontStyle: FontStyle.italic,
                               ),
                             ],
                           ),
-                          Row(
+                          Container(
+                            width: 1,
+                            height: 20,
+                            color: AppColors.blackLighter,
+                          ),
+                          const Row(
                             children: [
                               IconWidget(
                                 height: 14,
@@ -197,9 +197,8 @@ class ProfileScreen extends StatelessWidget {
                               TextWidget(
                                 text: AppStrings.orderReceived,
                                 fontSize: 14,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w400,
                                 fontColor: AppColors.greyDark2,
-                                fontStyle: FontStyle.italic,
                               ),
                             ],
                           ),
@@ -249,11 +248,11 @@ class ProfileScreen extends StatelessWidget {
                   const SpaceWidget(spaceHeight: 16),
                   const TextWidget(
                     text: AppStrings.addTrustOverYou,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                    fontColor: AppColors.greyDark2,
-                    fontStyle: FontStyle.italic,
+                    fontSize: 21,
+                    fontWeight: FontWeight.w600,
+                    fontColor: AppColors.black,
                   ),
+                  const SpaceWidget(spaceHeight: 4),
                   const ProfileCardWidget(
                     titleText: AppStrings.facebook,
                     subtitleText: AppStrings.emailId,
@@ -274,7 +273,7 @@ class ProfileScreen extends StatelessWidget {
                     titleText: AppStrings.whatsapp,
                     subtitleText: AppStrings.number,
                   ),
-                  const SpaceWidget(spaceHeight: 80),
+                  const SpaceWidget(spaceHeight: 90),
                 ],
               ),
             ),

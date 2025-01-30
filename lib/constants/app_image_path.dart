@@ -35,4 +35,5 @@ class AppImagePath {
       "assets/dev_images/selectParcelForDeliveryImage.png";
   static const String senderLocationImage =
       "assets/dev_images/senderLocationImage.png";
+  static const String joshuaImage = "assets/dev_images/joshuaImage.png";
 }

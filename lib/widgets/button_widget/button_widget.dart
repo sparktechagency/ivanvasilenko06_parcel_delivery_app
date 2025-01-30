@@ -3,10 +3,12 @@ import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 
 import '../../constants/app_colors.dart';
 import '../../utils/app_size.dart';
+import '../icon_widget/icon_widget.dart';
 import '../text_widget/text_widgets.dart';
 
 class ButtonWidget extends StatelessWidget {
   final String label;
+  final String? prefixIcon;
   final IconData? icon;
   final double? iconHeight;
   final double? iconWidth;
@@ -27,6 +29,7 @@ class ButtonWidget extends StatelessWidget {
     super.key,
     required this.label,
     this.icon,
+    this.prefixIcon,
     this.iconHeight,
     this.iconWidth,
     this.textColor = AppColors.white,
@@ -65,13 +68,21 @@ class ButtonWidget extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            if (prefixIcon != null)
+              IconWidget(
+                icon: prefixIcon!,
+                color: AppColors.white ?? textColor,
+                height: 22,
+                width: 22,
+              ),
+            if (prefixIcon != null) const SpaceWidget(spaceWidth: 12),
             TextWidget(
               text: label,
               fontColor: textColor,
               fontSize: ResponsiveUtils.width(fontSize),
               fontWeight: fontWeight,
             ),
-            if (icon != null) const SpaceWidget(spaceWidth: 8),
+            if (icon != null) const SpaceWidget(spaceWidth: 12),
             if (icon != null)
               Icon(
                 icon,

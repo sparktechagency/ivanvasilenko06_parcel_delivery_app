@@ -32,9 +32,8 @@ class _BookingScreenState extends State<BookingScreen> {
             child: TextWidget(
               text: AppStrings.bookings,
               fontSize: 24,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
-              fontStyle: FontStyle.italic,
             ),
           ),
           const SpaceWidget(spaceHeight: 24),
@@ -58,6 +57,11 @@ class _BookingScreenState extends State<BookingScreen> {
                       ),
                     ),
                   ],
+                ),
+                Container(
+                  width: 1,
+                  height: 24,
+                  color: AppColors.greyDarkLight,
                 ),
                 Column(
                   children: [
@@ -112,9 +116,8 @@ class _BookingScreenState extends State<BookingScreen> {
         text: label,
         fontColor:
             _currentIndex == index ? AppColors.black : AppColors.greyDarkLight,
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-        fontStyle: FontStyle.italic,
+        fontSize: 14,
+        fontWeight: _currentIndex == index ? FontWeight.w600 : FontWeight.w400,
       ),
     );
   }

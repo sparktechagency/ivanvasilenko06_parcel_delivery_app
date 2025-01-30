@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 26),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,13 +57,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  const SpaceWidget(spaceHeight: 20),
+                  const SpaceWidget(spaceHeight: 23),
                   const TextWidget(
                     text: AppStrings.chooseRadius,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 23,
+                    fontWeight: FontWeight.w600,
                     fontColor: AppColors.black,
-                    fontStyle: FontStyle.italic,
                   ),
                   const SpaceWidget(spaceHeight: 12),
                   Row(
@@ -71,70 +70,66 @@ class _HomeScreenState extends State<HomeScreen> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(100),
                         child: const ImageWidget(
-                          height: 40,
-                          width: 40,
+                          height: 50,
+                          width: 50,
                           imagePath: AppImagePath.sendParcel,
                         ),
                       ),
                       const SpaceWidget(spaceWidth: 8),
                       const TextWidget(
                         text: AppStrings.orderName,
-                        fontSize: 16,
+                        fontSize: 13,
                         fontWeight: FontWeight.w500,
                         fontColor: AppColors.black,
-                        fontStyle: FontStyle.italic,
                       ),
                     ],
                   ),
+                  const SpaceWidget(spaceWidth: 16),
                   // Local state for slider value
                   StatefulBuilder(
                     builder: (context, sliderSetState) {
                       return Column(
                         children: [
-                          Stack(
-                            alignment: AlignmentDirectional.topCenter,
-                            children: [
-                              SliderTheme(
-                                data: SliderTheme.of(context).copyWith(
-                                  activeTrackColor: Colors.black,
-                                  inactiveTrackColor: Colors.grey.shade300,
-                                  thumbColor: Colors.black,
-                                  thumbShape: const RoundSliderThumbShape(
-                                      enabledThumbRadius: 12),
-                                  overlayColor: Colors.black.withOpacity(0.2),
-                                  trackHeight: 6.0,
-                                ),
-                                child: Slider(
-                                  value: _currentValue,
-                                  min: 0,
-                                  max: 50,
-                                  divisions: 50,
-                                  label: '${_currentValue.round()} Km',
-                                  onChanged: (value) {
-                                    sliderSetState(() {
-                                      _currentValue = value;
-                                    });
-                                  },
-                                ),
-                              ),
-                              Positioned(
-                                top: 0,
-                                child: Text(
-                                  '${_currentValue.round()} Km',
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
+                          Text(
+                            '${_currentValue.round()} Km',
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                          const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('0km'),
-                              Text('50km'),
-                            ],
+                          const SpaceWidget(spaceWidth: 0),
+                          SliderTheme(
+                            data: SliderTheme.of(context).copyWith(
+                              activeTrackColor: Colors.black,
+                              inactiveTrackColor: Colors.grey.shade200,
+                              thumbColor: Colors.black,
+                              thumbShape: const RoundSliderThumbShape(
+                                  enabledThumbRadius: 12),
+                              overlayColor: Colors.black.withOpacity(0.2),
+                              trackHeight: 6.0,
+                            ),
+                            child: Slider(
+                              value: _currentValue,
+                              min: 0,
+                              max: 50,
+                              divisions: 50,
+                              // label: '${_currentValue.round()} Km',
+                              onChanged: (value) {
+                                sliderSetState(() {
+                                  _currentValue = value;
+                                });
+                              },
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('0km'),
+                                Text('50km'),
+                              ],
+                            ),
                           ),
                           const SpaceWidget(spaceHeight: 32),
                           Row(
@@ -167,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 },
                                 label: AppStrings.next,
                                 textColor: AppColors.white,
-                                buttonWidth: 100,
+                                buttonWidth: 105,
                                 buttonHeight: 50,
                                 icon: Icons.arrow_forward,
                                 iconColor: AppColors.white,
@@ -177,6 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ],
                           ),
+                          const SpaceWidget(spaceHeight: 32),
                         ],
                       );
                     },
@@ -215,63 +211,71 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     const TextWidget(
                       text: AppStrings.suggestions,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
                       fontColor: AppColors.black,
-                      fontStyle: FontStyle.italic,
                     ),
                     const SpaceWidget(spaceHeight: 16),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SuggestionCardWidget(
-                          onTap: () {
-                            Get.toNamed(AppRoutes.deliveryTypeScreen);
-                          },
-                          text: AppStrings.deliverParcel,
-                          imagePath: AppImagePath.deliverParcel,
+                        Expanded(
+                          flex: 1,
+                          child: SuggestionCardWidget(
+                            onTap: () {
+                              Get.toNamed(AppRoutes.deliveryTypeScreen);
+                            },
+                            text: AppStrings.deliverParcel,
+                            imagePath: AppImagePath.deliverParcel,
+                          ),
                         ),
-                        SuggestionCardWidget(
-                          onTap: () {
-                            Get.toNamed(AppRoutes.senderDeliveryTypeScreen);
-                          },
-                          text: AppStrings.sendParcel,
-                          imagePath: AppImagePath.sendParcel,
+                        const SpaceWidget(spaceWidth: 16),
+                        Expanded(
+                          flex: 1,
+                          child: SuggestionCardWidget(
+                            onTap: () {
+                              Get.toNamed(AppRoutes.senderDeliveryTypeScreen);
+                            },
+                            text: AppStrings.sendParcel,
+                            imagePath: AppImagePath.sendParcel,
+                          ),
                         ),
-                        SuggestionCardWidget(
-                          onTap: () {
-                            showModalBottomSheet(
-                              context: context,
-                              backgroundColor: Colors.transparent,
-                              builder: (BuildContext context) {
-                                return Container(
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.white,
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(24),
-                                      topRight: Radius.circular(24),
+                        const SpaceWidget(spaceWidth: 16),
+                        Expanded(
+                          flex: 1,
+                          child: SuggestionCardWidget(
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                backgroundColor: Colors.transparent,
+                                builder: (BuildContext context) {
+                                  return Container(
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.white,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(24),
+                                        topRight: Radius.circular(24),
+                                      ),
                                     ),
-                                  ),
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 24, horizontal: 32),
-                                  child: ReserveBottomSheetWidget(),
-                                );
-                              },
-                            );
-                          },
-                          text: AppStrings.reserve,
-                          imagePath: AppImagePath.reserve,
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 15, horizontal: 26),
+                                    child: const ReserveBottomSheetWidget(),
+                                  );
+                                },
+                              );
+                            },
+                            text: AppStrings.reserve,
+                            imagePath: AppImagePath.reserve,
+                          ),
                         ),
                       ],
                     ),
                     const SpaceWidget(spaceHeight: 24),
                     const TextWidget(
                       text: AppStrings.earnMoney,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
                       fontColor: AppColors.black,
-                      fontStyle: FontStyle.italic,
                     ),
                     const SpaceWidget(spaceHeight: 16),
                     EarnMoneyCardWidget(

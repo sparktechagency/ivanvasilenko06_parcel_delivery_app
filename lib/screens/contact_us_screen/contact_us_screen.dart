@@ -49,9 +49,8 @@ class ContactUsScreen extends StatelessWidget {
             const TextWidget(
               text: AppStrings.contactUs,
               fontSize: 24,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
-              fontStyle: FontStyle.italic,
             ),
             const SpaceWidget(spaceHeight: 24),
             const TextWidget(
@@ -59,7 +58,6 @@ class ContactUsScreen extends StatelessWidget {
               fontSize: 14,
               fontWeight: FontWeight.w500,
               fontColor: AppColors.greyDarkLight,
-              fontStyle: FontStyle.italic,
             ),
             const SpaceWidget(spaceHeight: 2),
             TextButtonWidget(
@@ -67,10 +65,10 @@ class ContactUsScreen extends StatelessWidget {
                 _sendEmail();
               },
               text: 'Loremipsum@123gmail.com',
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               fontSize: 14,
               textColor: AppColors.black,
-              fontStyle: FontStyle.italic,
+              decoration: TextDecoration.underline,
             ),
             const SpaceWidget(spaceHeight: 150),
             const Center(
@@ -115,7 +113,7 @@ class ContactUsScreen extends StatelessWidget {
               },
               label: AppStrings.mailUs,
               textColor: AppColors.white,
-              buttonWidth: 120,
+              buttonWidth: 125,
               buttonHeight: 50,
               icon: Icons.arrow_forward,
               iconColor: AppColors.white,

@@ -20,7 +20,7 @@ class AppColors {
   static const Color yellow = Color(0xffFFB400);
   static const Color green = Color(0xff27973E);
 
-  static const Color blackLighter = Color(0xff333333);
+  static const Color blackLighter = Color(0xffd9d9d9);
   static const Color authBg = Color(0xffF4E4DA);
   static const Color blueLight = Color(0xff4A93FF);
 }

@@ -22,4 +22,8 @@ class AppIconsPath {
   static const String priceIcon = "assets/icons/priceIcon.svg";
   static const String descriptionIcon = "assets/icons/descriptionIcon.svg";
   static const String contactUsIcon = "assets/icons/contactUsIcon.svg";
+  static const String earnMoneyRadiusIcon =
+      "assets/icons/earnMoneyRadiusIcon.svg";
+  static const String whatsAppIcon = "assets/icons/whatsAppIcon.svg";
+  static const String deliverymanIcon = "assets/icons/deliverymanIcon.svg";
 }
