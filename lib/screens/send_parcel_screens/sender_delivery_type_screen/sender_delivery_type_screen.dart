@@ -107,7 +107,14 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
               children: [
                 InkWell(
                   onTap: () {
-                    Get.back();
+                    if (_currentStep == 0) {
+                      Get.back();
+                    } else {
+                      setState(() {
+                        _currentStep--;
+                        _pageController.jumpToPage(_currentStep);
+                      });
+                    }
                   },
                   borderRadius: BorderRadius.circular(100),
                   child: Card(
@@ -118,7 +125,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                     elevation: 3,
                     child: CircleAvatar(
                       backgroundColor: AppColors.white,
-                      radius: ResponsiveUtils.width(30),
+                      radius: ResponsiveUtils.width(25),
                       child: const Icon(
                         Icons.arrow_back,
                         color: AppColors.black,
@@ -502,10 +509,12 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
       highlightColor: Colors.transparent,
       child: TextWidget(
         text: label,
-        fontColor:
-            _currentIndex == index ? AppColors.black : AppColors.greyDarkLight,
+        fontColor: _currentIndexTab == index
+            ? AppColors.black
+            : AppColors.greyDarkLight,
         fontSize: 14,
-        fontWeight: _currentIndex == index ? FontWeight.w600 : FontWeight.w400,
+        fontWeight:
+            _currentIndexTab == index ? FontWeight.w600 : FontWeight.w400,
       ),
     );
   }

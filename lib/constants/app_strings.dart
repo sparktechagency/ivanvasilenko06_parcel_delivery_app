@@ -106,7 +106,7 @@ class AppStrings {
   static const String descriptionText = "Description";
   static const String description =
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor";
-  static const String deliveryType = "Delivery Type";
+  static const String deliveryType = "Choose Your Transport";
   static const String notification = "Notification";
   static const String chooseRadius = "Choose Radius";
   static const String orderName = "Select the delivery radius that suits you.";

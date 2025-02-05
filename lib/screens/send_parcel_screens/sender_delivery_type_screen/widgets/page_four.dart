@@ -52,14 +52,6 @@ class _PageFourState extends State<PageFour> {
             fontColor: AppColors.black,
             textAlignment: TextAlign.start,
           ),
-          const SpaceWidget(spaceHeight: 8),
-          const TextWidget(
-            text: AppStrings.enterDescriptionDesc,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            fontColor: AppColors.black,
-            textAlignment: TextAlign.start,
-          ),
           Expanded(
             child: SingleChildScrollView(
               child: Column(

@@ -82,12 +82,12 @@ class _PageTwoState extends State<PageTwo> {
                       decoration: InputDecoration(
                         hintText: "Current Location",
                         hintStyle: const TextStyle(
-                          color: AppColors.grey,
+                          color: AppColors.greyDarkLight2,
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(
-                            color: AppColors.grey,
+                            color: AppColors.greyDarkLight2,
                             width: ResponsiveUtils.width(1.5),
                           ),
                         ),
@@ -110,12 +110,12 @@ class _PageTwoState extends State<PageTwo> {
                       decoration: InputDecoration(
                         hintText: "Destination",
                         hintStyle: const TextStyle(
-                          color: AppColors.grey,
+                          color: AppColors.greyDarkLight2,
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(
-                            color: AppColors.grey,
+                            color: AppColors.greyDarkLight2,
                             width: ResponsiveUtils.width(1.5),
                           ),
                         ),

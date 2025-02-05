@@ -73,7 +73,7 @@ class SignupScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(100),
               child: CircleAvatar(
                 backgroundColor: AppColors.grey,
-                radius: ResponsiveUtils.width(30),
+                radius: ResponsiveUtils.width(25),
                 child: const Icon(
                   Icons.arrow_back,
                   color: AppColors.black,

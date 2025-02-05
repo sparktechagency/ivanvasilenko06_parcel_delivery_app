@@ -75,7 +75,7 @@ class ParcelForDeliveryScreen extends StatelessWidget {
                 elevation: 3,
                 child: CircleAvatar(
                   backgroundColor: AppColors.white,
-                  radius: ResponsiveUtils.width(30),
+                  radius: ResponsiveUtils.width(25),
                   child: const Icon(
                     Icons.arrow_back,
                     color: AppColors.black,

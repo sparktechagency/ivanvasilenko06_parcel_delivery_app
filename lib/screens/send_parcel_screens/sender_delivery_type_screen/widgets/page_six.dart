@@ -40,13 +40,13 @@ class PageSix extends StatelessWidget {
           const SpaceWidget(spaceHeight: 24),
           SenderTextFieldWidget(
             controller: nameController,
-            hintText: 'Enter your name',
+            hintText: "Enter receiver's name",
             maxLines: 1,
           ),
           const SpaceWidget(spaceHeight: 16),
           IntlPhoneFieldWidget(
             controller: phoneController,
-            hintText: 'Enter your phone number',
+            hintText: "Enter receiver's number",
             onChanged: (phone) {
               fullPhoneNumber = phone.completeNumber;
             },
