@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:parcel_delivery_app/screens/bottom_nav_bar/bottom_nav_bar.dart';
 
 import '../../../constants/app_colors.dart';
-import '../../../constants/app_strings.dart';
 import '../../../widgets/button_widget/button_widget.dart';
 import '../../../widgets/space_widget/space_widget.dart';
 import '../../../widgets/text_button_widget/text_button_widget.dart';
@@ -28,8 +27,8 @@ class VerifyEmailScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SpaceWidget(spaceHeight: 48),
-              const TextWidget(
-                text: AppStrings.verifyEmail,
+              TextWidget(
+                text: "verifyEmail".tr,
                 fontSize: 30,
                 fontWeight: FontWeight.w600,
                 fontColor: AppColors.black,
@@ -42,8 +41,7 @@ class VerifyEmailScreen extends StatelessWidget {
               ),
               const SpaceWidget(spaceHeight: 16),
               TextWidget(
-                text:
-                    "${AppStrings.codeHasSendTo} $email. ${AppStrings.usually}",
+                text: "${"codeHasSendTo".tr} $email. ${"usually".tr}",
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 fontColor: AppColors.greyDarkLight,
@@ -55,8 +53,8 @@ class VerifyEmailScreen extends StatelessWidget {
                       ? () {}
                       : controller.resendCode,
                   text: controller.isButtonDisabled.value
-                      ? "Send a repeat SMS in ${controller.start.value} sec"
-                      : "Resend Code",
+                      ? "${"sendRepeatSMS".tr} ${controller.start.value} ${"sec".tr}"
+                      : "resendCode".tr,
                   textColor: controller.isButtonDisabled.value
                       ? AppColors.greyDarkLight
                       : AppColors.black,
@@ -74,7 +72,7 @@ class VerifyEmailScreen extends StatelessWidget {
           onPressed: () {
             Get.offAll(() => const BottomNavScreen());
           },
-          label: AppStrings.verify,
+          label: "verify".tr,
           buttonWidth: double.infinity,
           buttonHeight: 50,
         ),

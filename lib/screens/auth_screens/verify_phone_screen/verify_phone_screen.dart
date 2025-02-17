@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 
-import '../../../constants/app_strings.dart';
 import '../../../routes/app_routes.dart';
 import '../../../widgets/space_widget/space_widget.dart';
 import '../../../widgets/text_button_widget/text_button_widget.dart';
@@ -28,8 +27,8 @@ class VerifyPhoneScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SpaceWidget(spaceHeight: 48),
-              const TextWidget(
-                text: AppStrings.verifyPhone,
+              TextWidget(
+                text: "verifyPhone".tr,
                 fontSize: 30,
                 fontWeight: FontWeight.w600,
                 fontColor: AppColors.black,
@@ -42,26 +41,27 @@ class VerifyPhoneScreen extends StatelessWidget {
               ),
               const SpaceWidget(spaceHeight: 16),
               TextWidget(
-                text:
-                    "${AppStrings.codeHasSendTo} $phoneNumber. ${AppStrings.usually}",
+                text: "${"codeHasSendTo".tr} $phoneNumber. ${"usually".tr}",
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 fontColor: AppColors.greyDarkLight,
                 textAlignment: TextAlign.left,
               ),
-              Obx(() => TextButtonWidget(
-                    onPressed: controller.isButtonDisabled.value
-                        ? () {}
-                        : controller.resendCode,
-                    text: controller.isButtonDisabled.value
-                        ? "Send a repeat SMS in ${controller.start.value} sec"
-                        : "Resend Code",
-                    textColor: controller.isButtonDisabled.value
-                        ? AppColors.greyDarkLight
-                        : AppColors.black,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  )),
+              Obx(
+                () => TextButtonWidget(
+                  onPressed: controller.isButtonDisabled.value
+                      ? () {}
+                      : controller.resendCode,
+                  text: controller.isButtonDisabled.value
+                      ? "${"sendRepeatSMS".tr} ${controller.start.value} ${"sec".tr}"
+                      : "resendCode".tr,
+                  textColor: controller.isButtonDisabled.value
+                      ? AppColors.greyDarkLight
+                      : AppColors.black,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ],
           ),
         ),
@@ -72,7 +72,7 @@ class VerifyPhoneScreen extends StatelessWidget {
           onPressed: () {
             Get.toNamed(AppRoutes.loginScreen);
           },
-          label: AppStrings.verify,
+          label: "verify".tr,
           buttonWidth: double.infinity,
           buttonHeight: 50,
         ),

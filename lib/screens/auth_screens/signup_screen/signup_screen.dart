@@ -4,7 +4,6 @@ import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 
-import '../../../constants/app_strings.dart';
 import '../../../routes/app_routes.dart';
 import '../../../widgets/phone_field_widget/phone_field_widget.dart';
 import '../../../widgets/space_widget/space_widget.dart';
@@ -20,6 +19,7 @@ class SignupScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isRTL = Get.locale?.languageCode == 'he';
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
@@ -29,15 +29,15 @@ class SignupScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SpaceWidget(spaceHeight: 48),
-              const TextWidget(
-                text: AppStrings.getStarted,
+              TextWidget(
+                text: "getStarted".tr,
                 fontSize: 30,
                 fontWeight: FontWeight.w600,
                 fontColor: AppColors.black,
               ),
               const SpaceWidget(spaceHeight: 10),
-              const TextWidget(
-                text: AppStrings.signupDesc,
+              TextWidget(
+                text: "signupDesc".tr,
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 fontColor: AppColors.black,
@@ -46,13 +46,13 @@ class SignupScreen extends StatelessWidget {
               const SpaceWidget(spaceHeight: 24),
               TextFieldWidget(
                 controller: nameController,
-                hintText: 'Enter your name',
+                hintText: "enterYourName".tr,
                 maxLines: 1,
               ),
               const SpaceWidget(spaceHeight: 16),
               IntlPhoneFieldWidget(
                 controller: phoneController,
-                hintText: 'Enter your phone number',
+                hintText: "enterYourPhoneNumber".tr,
                 onChanged: (phone) {
                   fullPhoneNumber = phone.completeNumber;
                 },
@@ -86,7 +86,7 @@ class SignupScreen extends StatelessWidget {
                 Get.toNamed(AppRoutes.verifyPhoneScreen,
                     arguments: phoneNumber);
               },
-              label: AppStrings.next,
+              label: "next".tr,
               icon: Icons.arrow_forward,
               buttonWidth: 120,
               buttonHeight: 50,

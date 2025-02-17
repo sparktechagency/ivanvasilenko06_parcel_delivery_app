@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../constants/app_colors.dart';
-import '../../../constants/app_strings.dart';
 import '../../../routes/app_routes.dart';
 import '../../../widgets/button_widget/button_widget.dart';
 import '../../../widgets/space_widget/space_widget.dart';
@@ -26,15 +25,15 @@ class EmailLoginScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SpaceWidget(spaceHeight: 48),
-              const TextWidget(
-                text: AppStrings.loginWithEmail,
+              TextWidget(
+                text: "loginWithEmail".tr,
                 fontSize: 30,
                 fontWeight: FontWeight.w600,
                 fontColor: AppColors.black,
               ),
               const SpaceWidget(spaceHeight: 10),
-              const TextWidget(
-                text: AppStrings.emailLoginDesc,
+              TextWidget(
+                text: "emailLoginDesc".tr,
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 fontColor: AppColors.black,
@@ -43,13 +42,13 @@ class EmailLoginScreen extends StatelessWidget {
               const SpaceWidget(spaceHeight: 24),
               TextFieldWidget(
                 controller: emailController,
-                hintText: 'Enter email',
+                hintText: "enterEmail".tr,
                 maxLines: 1,
               ),
               const SpaceWidget(spaceHeight: 16),
               TextFieldWidget(
                 controller: passwordController,
-                hintText: 'Enter password',
+                hintText: "enterPassword".tr,
                 maxLines: 1,
               ),
               const SpaceWidget(spaceHeight: 16),
@@ -67,7 +66,7 @@ class EmailLoginScreen extends StatelessWidget {
               arguments: email,
             );
           },
-          label: AppStrings.login,
+          label: "login".tr,
           buttonWidth: double.infinity,
           buttonHeight: 50,
         ),

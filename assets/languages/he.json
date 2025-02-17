@@ -12,6 +12,7 @@
   "onboardingDesc4": "תיהנו מהשירותים שלנו לחלוטין בחינם – בלי עמלות, בלי תשלומים נסתרים",
   "getStarted": "בואו נתחיל",
   "signupDesc": "הזינו את מספר הטלפון שלכם. נשלח לכם קוד אישור שם.",
+  "enterYourName": "הזן את שמך",
   "next": "הבא",
   "verifyPhone": "אמתו את הטלפון",
   "codeHasSendTo": "הקוד נשלח ל",
@@ -129,5 +130,10 @@
   "experience": "איך היה הניסיון שלך?",
   "veryBad": "מאוד רע",
   "veryGood": "מאוד טוב",
-  "submit": "שלח"
+  "submit": "שלח",
+  "resendCode": "שליחה חוזרת של קוד",
+  "sendRepeatSMS": "שליחת SMS חוזר פנימה",
+  "sec": "שניה",
+  "enterEmail": "הזן אימייל",
+  "enterPassword": "הזן סיסמה"
 }

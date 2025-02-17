@@ -12,6 +12,7 @@
   "onboardingDesc4": "Enjoy Our Services Completely Free – No Fees , No hidden charges",
   "getStarted": "Let’s get Started",
   "signupDesc": "Enter your phone number. We will send you a confirmation code there.",
+  "enterYourName": "Enter your name",
   "next": "Next",
   "verifyPhone": "Verify Phone",
   "codeHasSendTo": "Code has been send to",
@@ -129,5 +130,10 @@
   "experience": "How was your Experience?",
   "veryBad": "Very bad",
   "veryGood": "Very Good",
-  "submit": "Submit"
+  "submit": "Submit",
+  "resendCode": "Resend Code",
+  "sendRepeatSMS": "Send a repeat SMS in",
+  "sec": "sec",
+  "enterEmail": "Enter email",
+  "enterPassword": "Enter password"
 }
