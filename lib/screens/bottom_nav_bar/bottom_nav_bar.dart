@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:parcel_delivery_app/screens/bottom_nav_bar/widgets/bottom_nav_bar_item_widget.dart';
 import 'package:parcel_delivery_app/screens/services_screen/services_screen.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_icons_path.dart';
-import '../../constants/app_strings.dart';
 import '../booking_screen/booking_screen.dart';
 import '../home_screen/home_screen.dart';
 import '../profile_screen/profile_screen.dart';
@@ -27,7 +27,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       const HomeScreen(),
       ServicesScreen(),
       const BookingScreen(),
-      ProfileScreen(),
+      const ProfileScreen(),
     ];
     super.initState();
   }
@@ -66,22 +66,22 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
           items: [
             BottomNavBarItemWidget(
               icon: AppIconsPath.homeIcon,
-              label: AppStrings.home,
+              label: "home".tr,
               isSelected: _currentIndex == 0,
             ),
             BottomNavBarItemWidget(
               icon: AppIconsPath.servicesIcon,
-              label: AppStrings.services,
+              label: "services".tr,
               isSelected: _currentIndex == 1,
             ),
             BottomNavBarItemWidget(
               icon: AppIconsPath.bookingIcon,
-              label: AppStrings.bookings,
+              label: "bookings".tr,
               isSelected: _currentIndex == 2,
             ),
             BottomNavBarItemWidget(
               icon: AppIconsPath.profileIcon,
-              label: AppStrings.profile,
+              label: "profile".tr,
               isSelected: _currentIndex == 3,
             ),
           ],

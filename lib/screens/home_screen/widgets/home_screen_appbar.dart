@@ -26,7 +26,7 @@ class HomeScreenAppBar extends StatelessWidget {
     return Container(
       width: double.infinity,
       color: AppColors.white,
-      padding: const EdgeInsets.only(left: 0, right: 16, top: 60, bottom: 16),
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 60, bottom: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,

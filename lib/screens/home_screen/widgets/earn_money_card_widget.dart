@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../constants/app_colors.dart';
 import '../../../constants/app_image_path.dart';
-import '../../../constants/app_strings.dart';
 import '../../../widgets/button_widget/button_widget.dart';
 import '../../../widgets/image_widget/image_widget.dart';
 import '../../../widgets/space_widget/space_widget.dart';
@@ -39,8 +39,8 @@ class EarnMoneyCardWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const TextWidget(
-                  text: AppStrings.earnMoneyDesc,
+                TextWidget(
+                  text: "earnMoneyDesc".tr,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                   fontColor: AppColors.black,
@@ -49,7 +49,7 @@ class EarnMoneyCardWidget extends StatelessWidget {
                 const SpaceWidget(spaceHeight: 12),
                 ButtonWidget(
                   onPressed: onTap,
-                  label: AppStrings.earnMoneyInYourRadius,
+                  label: "earnMoneyInYourRadius".tr,
                   buttonWidth: 270,
                   buttonHeight: 50,
                   fontSize: 15.5,

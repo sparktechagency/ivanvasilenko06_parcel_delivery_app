@@ -10,7 +10,6 @@ import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
 
-import '../../constants/app_strings.dart';
 import 'controller/onboarding_controller.dart';
 
 class OnboardingScreen extends GetView<OnboardingController> {
@@ -20,6 +19,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
 
   @override
   Widget build(BuildContext context) {
+    final isRTL = Get.locale?.languageCode == 'he';
     return AnnotatedRegion(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
@@ -67,7 +67,8 @@ class OnboardingScreen extends GetView<OnboardingController> {
                               fontSize: 16,
                               fontWeight: FontWeight.w400,
                               fontColor: AppColors.black,
-                              textAlignment: TextAlign.left,
+                              textAlignment:
+                                  isRTL ? TextAlign.right : TextAlign.left,
                             ),
                           ),
                         ],
@@ -76,19 +77,33 @@ class OnboardingScreen extends GetView<OnboardingController> {
                   },
                 ),
               ),
-              Positioned(
-                bottom: ResponsiveUtils.height(200),
-                left: ResponsiveUtils.width(24),
-                child: GetX<OnboardingController>(
-                  builder: (controller) => Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      contents.length,
-                      (index) => _buildDot(index, controller),
+              isRTL
+                  ? Positioned(
+                      bottom: ResponsiveUtils.height(200),
+                      right: ResponsiveUtils.width(24),
+                      child: GetX<OnboardingController>(
+                        builder: (controller) => Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            contents.length,
+                            (index) => _buildDot(index, controller),
+                          ),
+                        ),
+                      ),
+                    )
+                  : Positioned(
+                      bottom: ResponsiveUtils.height(200),
+                      left: ResponsiveUtils.width(24),
+                      child: GetX<OnboardingController>(
+                        builder: (controller) => Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            contents.length,
+                            (index) => _buildDot(index, controller),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
             ],
           ),
         ),
@@ -101,7 +116,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
                 onPressed: () {
                   Get.toNamed(AppRoutes.loginScreen);
                 },
-                label: AppStrings.login,
+                label: "login".tr,
                 textColor: AppColors.black,
                 fontSize: 16,
                 buttonRadius: BorderRadius.circular(100),
@@ -115,7 +130,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
                 onPressed: () {
                   Get.toNamed(AppRoutes.signupScreen);
                 },
-                label: AppStrings.signUp,
+                label: "signUp".tr,
                 textColor: AppColors.white,
                 fontSize: 16,
                 buttonWidth: 155,

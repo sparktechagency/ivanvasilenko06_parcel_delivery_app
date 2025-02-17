@@ -8,7 +8,6 @@ import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_button_widget/text_button_widget.dart';
 
 import '../../../constants/app_icons_path.dart';
-import '../../../constants/app_strings.dart';
 import '../../../widgets/phone_field_widget/phone_field_widget.dart';
 import '../../../widgets/space_widget/space_widget.dart';
 import '../../../widgets/text_widget/text_widgets.dart';
@@ -30,15 +29,15 @@ class LoginScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SpaceWidget(spaceHeight: 48),
-              const TextWidget(
-                text: AppStrings.welcome,
+              TextWidget(
+                text: "welcome".tr,
                 fontSize: 30,
                 fontWeight: FontWeight.w600,
                 fontColor: AppColors.black,
               ),
               const SpaceWidget(spaceHeight: 10),
-              const TextWidget(
-                text: AppStrings.enterNumber,
+              TextWidget(
+                text: "enterNumber".tr,
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 fontColor: AppColors.black,
@@ -47,14 +46,14 @@ class LoginScreen extends StatelessWidget {
               const SpaceWidget(spaceHeight: 24),
               IntlPhoneFieldWidget(
                 controller: phoneController,
-                hintText: 'Enter your phone number',
+                hintText: "enterYourPhoneNumber".tr,
               ),
               const SpaceWidget(spaceHeight: 24),
               ButtonWidget(
                 onPressed: () {
                   Get.offAll(() => const BottomNavScreen());
                 },
-                label: AppStrings.login,
+                label: "login".tr,
                 buttonHeight: 50,
                 buttonWidth: double.infinity,
               ),
@@ -66,7 +65,7 @@ class LoginScreen extends StatelessWidget {
                   Get.toNamed(AppRoutes.emailLoginScreen);
                 },
                 icon: AppIconsPath.emailIcon,
-                text: AppStrings.continueWithEmail,
+                text: "continueWithEmail".tr,
               ),
               const SpaceWidget(spaceHeight: 16),
               CustomInkWellButton(
@@ -74,7 +73,7 @@ class LoginScreen extends StatelessWidget {
                   Get.offAll(() => const BottomNavScreen());
                 },
                 icon: AppIconsPath.googleIcon,
-                text: AppStrings.continueWithGoogle,
+                text: "continueWithGoogle".tr,
               ),
               const SpaceWidget(spaceHeight: 16),
               CustomInkWellButton(
@@ -82,7 +81,7 @@ class LoginScreen extends StatelessWidget {
                   Get.offAll(() => const BottomNavScreen());
                 },
                 icon: AppIconsPath.appleIcon,
-                text: AppStrings.continueWithApple,
+                text: "continueWithApple".tr,
               ),
             ],
           ),
@@ -93,8 +92,8 @@ class LoginScreen extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const TextWidget(
-              text: AppStrings.dontHaveAccount,
+            TextWidget(
+              text: "dontHaveAccount".tr,
               fontSize: 14,
               fontWeight: FontWeight.w500,
               fontColor: AppColors.greyDark,
@@ -104,7 +103,7 @@ class LoginScreen extends StatelessWidget {
               onPressed: () {
                 Get.offAllNamed(AppRoutes.loginScreen);
               },
-              text: AppStrings.signUp,
+              text: "signUp".tr,
               textColor: AppColors.greyDark,
               fontSize: 14,
               fontWeight: FontWeight.w600,

@@ -209,8 +209,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const TextWidget(
-                      text: AppStrings.suggestions,
+                    TextWidget(
+                      text: "suggestions".tr,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       fontColor: AppColors.black,
@@ -224,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             onTap: () {
                               Get.toNamed(AppRoutes.deliveryTypeScreen);
                             },
-                            text: AppStrings.deliverParcel,
+                            text: "deliverParcel".tr,
                             imagePath: AppImagePath.deliverParcel,
                           ),
                         ),
@@ -235,7 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             onTap: () {
                               Get.toNamed(AppRoutes.senderDeliveryTypeScreen);
                             },
-                            text: AppStrings.sendParcel,
+                            text: "sendParcel".tr,
                             imagePath: AppImagePath.sendParcel,
                           ),
                         ),
@@ -264,15 +264,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                 },
                               );
                             },
-                            text: AppStrings.reserve,
+                            text: "reserve".tr,
                             imagePath: AppImagePath.reserve,
                           ),
                         ),
                       ],
                     ),
                     const SpaceWidget(spaceHeight: 24),
-                    const TextWidget(
-                      text: AppStrings.earnMoney,
+                    TextWidget(
+                      text: "earnMoney".tr,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       fontColor: AppColors.black,

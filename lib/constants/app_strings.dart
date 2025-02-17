@@ -113,6 +113,7 @@ class AppStrings {
   static const String parcelForDelivery = "Parcel for Delivery";
   static const String backToHome = "Back to Home";
   static const String contactUs = "Contact us";
+  static const String changeLanguage = "Change language";
   static const String forAnySupport =
       "For any support please drop a mail to our Email";
   static const String mailUs = "Mail us";

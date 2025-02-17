@@ -5,7 +5,6 @@ import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 
 import '../../../constants/app_colors.dart';
-import '../../../constants/app_strings.dart';
 import '../../../routes/app_routes.dart';
 import '../../../utils/app_size.dart';
 import '../../../widgets/space_widget/space_widget.dart';
@@ -41,8 +40,8 @@ class _ReserveBottomSheetWidgetState extends State<ReserveBottomSheetWidget> {
               ),
             ),
             const SpaceWidget(spaceHeight: 20),
-            const TextWidget(
-              text: AppStrings.select,
+            TextWidget(
+              text: "select".tr,
               fontSize: 23,
               fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
@@ -71,16 +70,16 @@ class _ReserveBottomSheetWidgetState extends State<ReserveBottomSheetWidget> {
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Column(
+                      child: Column(
                         children: [
-                          ImageWidget(
+                          const ImageWidget(
                             height: 76,
                             width: 115,
                             imagePath: AppImagePath.deliverParcel,
                           ),
-                          SpaceWidget(spaceHeight: 2),
+                          const SpaceWidget(spaceHeight: 2),
                           TextWidget(
-                            text: AppStrings.deliverParcel,
+                            text: "deliverParcel".tr,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             fontColor: AppColors.black,
@@ -112,16 +111,16 @@ class _ReserveBottomSheetWidgetState extends State<ReserveBottomSheetWidget> {
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Column(
+                      child: Column(
                         children: [
-                          ImageWidget(
+                          const ImageWidget(
                             height: 76,
                             width: 115,
                             imagePath: AppImagePath.sendParcel,
                           ),
-                          SpaceWidget(spaceHeight: 2),
+                          const SpaceWidget(spaceHeight: 2),
                           TextWidget(
-                            text: AppStrings.sendParcel,
+                            text: "sendParcel".tr,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             fontColor: AppColors.black,
@@ -149,7 +148,7 @@ class _ReserveBottomSheetWidgetState extends State<ReserveBottomSheetWidget> {
                       }
                       print('Selected Option: $selectedOption');
                     },
-              label: AppStrings.next,
+              label: "next".tr,
               fontWeight: FontWeight.w500,
               buttonWidth: double.infinity,
               buttonHeight: 50,
