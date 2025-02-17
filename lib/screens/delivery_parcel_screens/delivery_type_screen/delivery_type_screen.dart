@@ -7,7 +7,6 @@ import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 
 import '../../../constants/app_colors.dart';
-import '../../../constants/app_strings.dart';
 import '../../../widgets/button_widget/button_widget.dart';
 import '../../../widgets/space_widget/space_widget.dart';
 import '../../../widgets/text_widget/text_widgets.dart';
@@ -40,10 +39,10 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SpaceWidget(spaceHeight: 48),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextWidget(
-              text: AppStrings.deliveryType,
+              text: "deliveryType".tr,
               fontSize: 24,
               fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
@@ -75,8 +74,13 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
                   items: widget.images.asMap().entries.map((entry) {
                     int index = entry.key;
                     String imagePath = entry.value;
-                    String title =
-                        ["Bicycle", "Person", "Bike", "Car", "Truck"][index];
+                    String title = [
+                      "bicycle".tr,
+                      "person".tr,
+                      "bike".tr,
+                      "car".tr,
+                      "truck".tr
+                    ][index];
                     bool isCentered = index == _currentIndex;
 
                     return Builder(
@@ -164,7 +168,7 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
               onPressed: () {
                 Get.toNamed(AppRoutes.selectDeliveryLocationScreen);
               },
-              label: AppStrings.next,
+              label: "next".tr,
               textColor: AppColors.white,
               buttonWidth: 105,
               buttonHeight: 50,

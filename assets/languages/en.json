@@ -135,5 +135,12 @@
   "sendRepeatSMS": "Send a repeat SMS in",
   "sec": "sec",
   "enterEmail": "Enter email",
-  "enterPassword": "Enter password"
+  "enterPassword": "Enter password",
+  "km": "Km",
+  "bicycle": "Bicycle",
+  "person": "Person",
+  "bike": "Bike",
+  "car": "Car",
+  "truck": "Truck",
+  "suggestedDestinations": "Suggested Destinations"
 }

@@ -56,12 +56,12 @@ class _SelectDeliveryLocationScreenState
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.arrow_back, size: 28),
-                        SizedBox(width: 8),
+                        const Icon(Icons.arrow_back, size: 28),
+                        const SizedBox(width: 8),
                         TextWidget(
-                          text: "Enter Delivery Location",
+                          text: "enterDeliveryLocation".tr,
                           fontSize: 24,
                           fontWeight: FontWeight.w600,
                           fontColor: AppColors.black,
@@ -115,8 +115,8 @@ class _SelectDeliveryLocationScreenState
                             fontWeight: FontWeight.w500,
                             color: AppColors.black,
                           ),
-                          decoration: const InputDecoration(
-                            hintText: "Current Location",
+                          decoration: InputDecoration(
+                            hintText: "currentLocationText".tr,
                             border: InputBorder.none,
                           ),
                         ),
@@ -131,8 +131,8 @@ class _SelectDeliveryLocationScreenState
                             fontWeight: FontWeight.w500,
                             color: AppColors.black,
                           ),
-                          decoration: const InputDecoration(
-                            hintText: "Destination",
+                          decoration: InputDecoration(
+                            hintText: "destinationText".tr,
                             border: InputBorder.none,
                           ),
                         ),
@@ -144,11 +144,11 @@ class _SelectDeliveryLocationScreenState
             ),
             const SpaceWidget(spaceHeight: 24),
             // Suggested Destinations title
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Text(
-                "Suggested Destinations",
-                style: TextStyle(
+                "suggestedDestinations".tr,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                 ),

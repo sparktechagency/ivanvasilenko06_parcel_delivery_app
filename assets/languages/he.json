@@ -135,5 +135,12 @@
   "sendRepeatSMS": "שליחת SMS חוזר פנימה",
   "sec": "שניה",
   "enterEmail": "הזן אימייל",
-  "enterPassword": "הזן סיסמה"
+  "enterPassword": "הזן סיסמה",
+  "km": "קילומטר",
+  "bicycle": "אופניים",
+  "person": "אדם",
+  "bike": "אופניים",
+  "car": "מכונית",
+  "truck": "משאית",
+  "suggestedDestinations": "יעדים מוצעים"
 }

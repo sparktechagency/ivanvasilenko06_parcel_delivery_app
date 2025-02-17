@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
-import 'package:parcel_delivery_app/constants/app_strings.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/home_screen/widgets/earn_money_card_widget.dart';
 import 'package:parcel_delivery_app/screens/home_screen/widgets/home_screen_appbar.dart';
@@ -58,8 +57,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SpaceWidget(spaceHeight: 23),
-                  const TextWidget(
-                    text: AppStrings.chooseRadius,
+                  TextWidget(
+                    text: "chooseRadius".tr,
                     fontSize: 23,
                     fontWeight: FontWeight.w600,
                     fontColor: AppColors.black,
@@ -76,8 +75,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const SpaceWidget(spaceWidth: 8),
-                      const TextWidget(
-                        text: AppStrings.orderName,
+                      TextWidget(
+                        text: "orderName".tr,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                         fontColor: AppColors.black,
@@ -91,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       return Column(
                         children: [
                           Text(
-                            '${_currentValue.round()} Km',
+                            '${_currentValue.round()} ${"km".tr}',
                             style: const TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
@@ -121,13 +120,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               },
                             ),
                           ),
-                          const Padding(
+                          Padding(
                             padding: EdgeInsets.symmetric(horizontal: 8.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('0km'),
-                                Text('50km'),
+                                Text("0${"km".tr}"),
+                                Text("50${"km".tr}"),
                               ],
                             ),
                           ),
@@ -160,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 onPressed: () {
                                   Get.toNamed(AppRoutes.radiusMapScreen);
                                 },
-                                label: AppStrings.next,
+                                label: "next".tr,
                                 textColor: AppColors.white,
                                 buttonWidth: 105,
                                 buttonHeight: 50,
