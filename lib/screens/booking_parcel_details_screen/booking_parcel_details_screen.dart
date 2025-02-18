@@ -22,10 +22,10 @@ class BookingParcelDetailsScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SpaceWidget(spaceHeight: 48),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextWidget(
-              text: AppStrings.summary,
+              text: "summary".tr,
               fontSize: 24,
               fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
@@ -62,9 +62,9 @@ class BookingParcelDetailsScreen extends StatelessWidget {
                     thickness: 1,
                   ),
                   const SpaceWidget(spaceHeight: 16),
-                  const SummaryInfoRowWidget(
+                  SummaryInfoRowWidget(
                     image: AppImagePath.profileImage,
-                    label: AppStrings.sendersName,
+                    label: "sendersName".tr,
                     value: AppStrings.joshua,
                   ),
                   const SpaceWidget(spaceHeight: 8),
@@ -122,7 +122,7 @@ class BookingParcelDetailsScreen extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(left: 16, bottom: 24),
+        padding: const EdgeInsets.only(left: 16, bottom: 24, right: 16),
         child: Row(
           children: [
             InkWell(

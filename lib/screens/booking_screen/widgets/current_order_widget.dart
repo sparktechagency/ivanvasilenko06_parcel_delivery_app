@@ -33,21 +33,21 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
   ];
 
   final List<String> details = [
-    AppStrings.parcelDetails,
-    AppStrings.viewDetails,
-    AppStrings.parcelDetails,
+    "parcelDetails".tr,
+    "viewDetails".tr,
+    "parcelDetails".tr,
   ];
 
   final List<String> status = [
-    AppStrings.waiting,
+    "waiting".tr,
     "",
-    AppStrings.inTransit,
+    "inTransit".tr,
   ];
 
   final List<String> progress = [
-    AppStrings.removeFromMap,
-    AppStrings.cancelDelivery,
-    AppStrings.deliveryManDetails,
+    "removeFromMap".tr,
+    "cancelDelivery".tr,
+    "deliveryManDetails".tr,
   ];
 
   // Function to make a phone call

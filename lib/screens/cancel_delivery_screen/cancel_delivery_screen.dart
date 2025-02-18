@@ -54,9 +54,9 @@ class _CancelDeliveryScreenState extends State<CancelDeliveryScreen> {
                     ),
                   ),
                   const SpaceWidget(spaceHeight: 32),
-                  const Center(
+                  Center(
                     child: TextWidget(
-                      text: AppStrings.experience,
+                      text: "experience".tr,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                       fontColor: AppColors.black,
@@ -106,7 +106,7 @@ class _CancelDeliveryScreenState extends State<CancelDeliveryScreen> {
                     onPressed: () {
                       Get.offAll(const BottomNavScreen());
                     },
-                    label: AppStrings.submit,
+                    label: "submit".tr,
                     buttonWidth: double.infinity,
                     buttonHeight: 50,
                     fontWeight: FontWeight.w500,
@@ -128,10 +128,10 @@ class _CancelDeliveryScreenState extends State<CancelDeliveryScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SpaceWidget(spaceHeight: 48),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextWidget(
-              text: AppStrings.summary,
+              text: "summary".tr,
               fontSize: 24,
               fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
@@ -168,57 +168,57 @@ class _CancelDeliveryScreenState extends State<CancelDeliveryScreen> {
                     thickness: 1,
                   ),
                   const SpaceWidget(spaceHeight: 16),
-                  const SummaryInfoRowWidget(
+                  SummaryInfoRowWidget(
                     image: AppImagePath.profileImage,
-                    label: AppStrings.sendersName,
+                    label: "sendersName".tr,
                     value: AppStrings.joshua,
                   ),
                   const SpaceWidget(spaceHeight: 8),
-                  const SummaryInfoRowWidget(
+                  SummaryInfoRowWidget(
                     icon: AppIconsPath.ratingIcon,
-                    label: AppStrings.ratingsText,
+                    label: "ratingsText".tr,
                     value: AppStrings.ratings,
                   ),
                   const SpaceWidget(spaceHeight: 8),
-                  const SummaryInfoRowWidget(
+                  SummaryInfoRowWidget(
                     icon: AppIconsPath.profileIcon,
-                    label: AppStrings.receiversName,
+                    label: "receiversName".tr,
                     value: AppStrings.arial,
                   ),
                   const SpaceWidget(spaceHeight: 8),
-                  const SummaryInfoRowWidget(
+                  SummaryInfoRowWidget(
                     icon: AppIconsPath.callIcon,
-                    label: AppStrings.receiversNumber,
+                    label: "receiversNumber".tr,
                     value: AppStrings.number,
                   ),
                   const SpaceWidget(spaceHeight: 8),
-                  const SummaryInfoRowWidget(
+                  SummaryInfoRowWidget(
                     icon: AppIconsPath.deliveryTimeIcon,
-                    label: AppStrings.deliveryTimeText,
+                    label: "deliveryTimeText".tr,
                     value: AppStrings.deliveryTime,
                   ),
                   const SpaceWidget(spaceHeight: 8),
-                  const SummaryInfoRowWidget(
+                  SummaryInfoRowWidget(
                     icon: AppIconsPath.destinationIcon,
-                    label: AppStrings.currentLocationText,
+                    label: "currentLocationText".tr,
                     value: AppStrings.currentLocation,
                   ),
                   const SpaceWidget(spaceHeight: 8),
-                  const SummaryInfoRowWidget(
+                  SummaryInfoRowWidget(
                     icon: AppIconsPath.currentLocationIcon,
-                    label: AppStrings.destinationText,
+                    label: "destinationText".tr,
                     value: AppStrings.destination,
                   ),
                   const SpaceWidget(spaceHeight: 8),
-                  const SummaryInfoRowWidget(
+                  SummaryInfoRowWidget(
                     icon: AppIconsPath.priceIcon,
-                    label: AppStrings.price,
+                    label: "price".tr,
                     value: "${AppStrings.currency} 150",
                   ),
                   const SpaceWidget(spaceHeight: 8),
-                  const SummaryInfoRowWidget(
+                  SummaryInfoRowWidget(
                     icon: AppIconsPath.descriptionIcon,
-                    label: AppStrings.descriptionText,
+                    label: "descriptionText".tr,
                     value: AppStrings.description,
                   ),
                 ],
@@ -257,7 +257,7 @@ class _CancelDeliveryScreenState extends State<CancelDeliveryScreen> {
               onPressed: () {
                 _openBottomSheet(context);
               },
-              label: AppStrings.cancelDelivery,
+              label: "cancelDelivery".tr,
               textColor: AppColors.white,
               buttonWidth: 200,
               buttonHeight: 50,

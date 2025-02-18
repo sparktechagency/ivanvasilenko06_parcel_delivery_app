@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../constants/app_colors.dart';
 import '../../../constants/app_image_path.dart';
@@ -171,19 +172,19 @@ class _NewBookingWidgetState extends State<NewBookingWidget> {
                           const SpaceWidget(spaceHeight: 16),
                         ],
                       ),
-                      const Column(
+                      Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          TextWidget(
+                          const TextWidget(
                             text: "${AppStrings.currency} 150",
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             fontColor: AppColors.black,
                           ),
-                          SpaceWidget(spaceHeight: 60),
+                          const SpaceWidget(spaceHeight: 60),
                           TextWidget(
-                            text: 'Recently Published',
+                            text: "recentlyPublished".tr,
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                             fontColor: AppColors.greyDark2,
@@ -207,16 +208,16 @@ class _NewBookingWidgetState extends State<NewBookingWidget> {
                           onTap: () {},
                           splashColor: Colors.transparent,
                           highlightColor: Colors.transparent,
-                          child: const Row(
+                          child: Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.close,
                                 color: AppColors.red,
                                 size: 18,
                               ),
-                              SpaceWidget(spaceWidth: 4),
+                              const SpaceWidget(spaceWidth: 4),
                               TextWidget(
-                                text: AppStrings.reject,
+                                text: "reject".tr,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                                 fontColor: AppColors.red,
@@ -233,16 +234,16 @@ class _NewBookingWidgetState extends State<NewBookingWidget> {
                           onTap: () {},
                           splashColor: Colors.transparent,
                           highlightColor: Colors.transparent,
-                          child: const Row(
+                          child: Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.remove_red_eye_outlined,
                                 color: AppColors.black,
                                 size: 18,
                               ),
-                              SpaceWidget(spaceWidth: 4),
+                              const SpaceWidget(spaceWidth: 4),
                               TextWidget(
-                                text: AppStrings.view,
+                                text: "view".tr,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                                 fontColor: AppColors.greyDark2,
@@ -259,16 +260,16 @@ class _NewBookingWidgetState extends State<NewBookingWidget> {
                           onTap: () {},
                           splashColor: Colors.transparent,
                           highlightColor: Colors.transparent,
-                          child: const Row(
+                          child: Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.check,
                                 color: AppColors.green,
                                 size: 18,
                               ),
-                              SpaceWidget(spaceWidth: 4),
+                              const SpaceWidget(spaceWidth: 4),
                               TextWidget(
-                                text: AppStrings.accept,
+                                text: "accept".tr,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                                 fontColor: AppColors.green,

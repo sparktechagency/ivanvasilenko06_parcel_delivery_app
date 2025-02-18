@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:parcel_delivery_app/screens/booking_screen/widgets/current_order_widget.dart';
 import 'package:parcel_delivery_app/screens/booking_screen/widgets/new_booking_widget.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 
 import '../../constants/app_colors.dart';
-import '../../constants/app_strings.dart';
 import '../../widgets/space_widget/space_widget.dart';
 import '../../widgets/text_widget/text_widgets.dart';
 
@@ -27,10 +27,10 @@ class _BookingScreenState extends State<BookingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SpaceWidget(spaceHeight: 48),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextWidget(
-              text: AppStrings.bookings,
+              text: "bookings".tr,
               fontSize: 24,
               fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
@@ -44,7 +44,7 @@ class _BookingScreenState extends State<BookingScreen> {
               children: [
                 Column(
                   children: [
-                    _buildTabItem(AppStrings.currentOrders, 0),
+                    _buildTabItem("currentOrders".tr, 0),
                     const SpaceWidget(spaceHeight: 4),
                     Container(
                       height: ResponsiveUtils.height(3),
@@ -65,7 +65,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
                 Column(
                   children: [
-                    _buildTabItem(AppStrings.newBookings, 1),
+                    _buildTabItem("newBookings".tr, 1),
                     const SpaceWidget(spaceHeight: 4),
                     Container(
                       height: ResponsiveUtils.height(3),

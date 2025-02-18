@@ -80,10 +80,10 @@ class _BookingViewDetailsScreenState extends State<BookingViewDetailsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SpaceWidget(spaceHeight: 48),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextWidget(
-              text: AppStrings.summary,
+              text: "summary".tr,
               fontSize: 24,
               fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
@@ -156,57 +156,57 @@ class _BookingViewDetailsScreenState extends State<BookingViewDetailsScreen> {
                     thickness: 1,
                   ),
                   const SpaceWidget(spaceHeight: 16),
-                  const SummaryInfoRowWidget(
+                  SummaryInfoRowWidget(
                     image: AppImagePath.profileImage,
-                    label: AppStrings.sendersName,
+                    label: "sendersName".tr,
                     value: AppStrings.joshua,
                   ),
                   const SpaceWidget(spaceHeight: 8),
-                  const SummaryInfoRowWidget(
+                  SummaryInfoRowWidget(
                     icon: AppIconsPath.ratingIcon,
-                    label: AppStrings.ratingsText,
+                    label: "ratingsText".tr,
                     value: AppStrings.ratings,
                   ),
                   const SpaceWidget(spaceHeight: 8),
-                  const SummaryInfoRowWidget(
+                  SummaryInfoRowWidget(
                     icon: AppIconsPath.profileIcon,
-                    label: AppStrings.receiversName,
+                    label: "receiversName".tr,
                     value: AppStrings.arial,
                   ),
                   const SpaceWidget(spaceHeight: 8),
-                  const SummaryInfoRowWidget(
+                  SummaryInfoRowWidget(
                     icon: AppIconsPath.callIcon,
-                    label: AppStrings.receiversNumber,
+                    label: "receiversNumber".tr,
                     value: AppStrings.number,
                   ),
                   const SpaceWidget(spaceHeight: 8),
-                  const SummaryInfoRowWidget(
+                  SummaryInfoRowWidget(
                     icon: AppIconsPath.deliveryTimeIcon,
-                    label: AppStrings.deliveryTimeText,
+                    label: "deliveryTimeText".tr,
                     value: AppStrings.deliveryTime,
                   ),
                   const SpaceWidget(spaceHeight: 8),
-                  const SummaryInfoRowWidget(
+                  SummaryInfoRowWidget(
                     icon: AppIconsPath.destinationIcon,
-                    label: AppStrings.currentLocationText,
+                    label: "currentLocationText".tr,
                     value: AppStrings.currentLocation,
                   ),
                   const SpaceWidget(spaceHeight: 8),
-                  const SummaryInfoRowWidget(
+                  SummaryInfoRowWidget(
                     icon: AppIconsPath.currentLocationIcon,
-                    label: AppStrings.destinationText,
+                    label: "destinationText".tr,
                     value: AppStrings.destination,
                   ),
                   const SpaceWidget(spaceHeight: 8),
-                  const SummaryInfoRowWidget(
+                  SummaryInfoRowWidget(
                     icon: AppIconsPath.priceIcon,
-                    label: AppStrings.price,
+                    label: "price".tr,
                     value: "${AppStrings.currency} 150",
                   ),
                   const SpaceWidget(spaceHeight: 8),
-                  const SummaryInfoRowWidget(
+                  SummaryInfoRowWidget(
                     icon: AppIconsPath.descriptionIcon,
-                    label: AppStrings.descriptionText,
+                    label: "descriptionText".tr,
                     value: AppStrings.description,
                   ),
                 ],
@@ -216,7 +216,7 @@ class _BookingViewDetailsScreenState extends State<BookingViewDetailsScreen> {
         ],
       ),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(left: 16, bottom: 24),
+        padding: const EdgeInsets.only(left: 16, bottom: 24, right: 16),
         child: Row(
           children: [
             InkWell(
