@@ -47,10 +47,10 @@ class NotificationScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SpaceWidget(spaceHeight: 48),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextWidget(
-              text: AppStrings.notification,
+              text: "notification".tr,
               fontSize: 24,
               fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
@@ -217,16 +217,16 @@ class NotificationScreen extends StatelessWidget {
                                       onTap: () {},
                                       splashColor: Colors.transparent,
                                       highlightColor: Colors.transparent,
-                                      child: const Row(
+                                      child: Row(
                                         children: [
-                                          Icon(
+                                          const Icon(
                                             Icons.close,
                                             color: AppColors.red,
                                             size: 16,
                                           ),
-                                          SpaceWidget(spaceWidth: 4),
+                                          const SpaceWidget(spaceWidth: 4),
                                           TextWidget(
-                                            text: AppStrings.reject,
+                                            text: "reject".tr,
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,
                                             fontColor: AppColors.red,
@@ -243,16 +243,16 @@ class NotificationScreen extends StatelessWidget {
                                       onTap: () {},
                                       splashColor: Colors.transparent,
                                       highlightColor: Colors.transparent,
-                                      child: const Row(
+                                      child: Row(
                                         children: [
-                                          Icon(
+                                          const Icon(
                                             Icons.remove_red_eye_outlined,
                                             color: AppColors.black,
                                             size: 14,
                                           ),
-                                          SpaceWidget(spaceWidth: 4),
+                                          const SpaceWidget(spaceWidth: 4),
                                           TextWidget(
-                                            text: AppStrings.view,
+                                            text: "view".tr,
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,
                                             fontColor: AppColors.greyDark2,
@@ -269,16 +269,16 @@ class NotificationScreen extends StatelessWidget {
                                       onTap: () {},
                                       splashColor: Colors.transparent,
                                       highlightColor: Colors.transparent,
-                                      child: const Row(
+                                      child: Row(
                                         children: [
-                                          Icon(
+                                          const Icon(
                                             Icons.check,
                                             color: AppColors.green,
                                             size: 14,
                                           ),
-                                          SpaceWidget(spaceWidth: 4),
+                                          const SpaceWidget(spaceWidth: 4),
                                           TextWidget(
-                                            text: AppStrings.accept,
+                                            text: "accept".tr,
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,
                                             fontColor: AppColors.green,

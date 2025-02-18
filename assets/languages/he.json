@@ -155,5 +155,7 @@
   "addPhotos": "+ הוסף תמונות",
   "enterYourPrice": "₪ הזן את המחיר שלך",
   "enterReceiversName": "הזן את שם הנמען",
-  "enterReceiversNumber": "הזן את מספר המקלט"
+  "enterReceiversNumber": "הזן את מספר המקלט",
+  "requestSent": "הבקשה נשלחה",
+  "viewSummary": "צפה בתקציר"
 }

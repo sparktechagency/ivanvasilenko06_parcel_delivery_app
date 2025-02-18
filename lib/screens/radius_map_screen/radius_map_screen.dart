@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
 
-import '../../constants/app_strings.dart';
 import '../../routes/app_routes.dart';
 import '../../utils/app_size.dart';
 import '../../widgets/button_widget/button_widget.dart';
@@ -59,7 +58,7 @@ class RadiusMapScreen extends StatelessWidget {
                     onPressed: () {
                       Get.toNamed(AppRoutes.parcelForDeliveryScreen);
                     },
-                    label: AppStrings.next,
+                    label: "next".tr,
                     textColor: AppColors.white,
                     buttonWidth: 105,
                     buttonHeight: 50,

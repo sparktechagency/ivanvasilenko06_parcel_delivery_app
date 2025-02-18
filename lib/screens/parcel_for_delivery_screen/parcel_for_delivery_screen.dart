@@ -248,7 +248,8 @@ class ParcelItem extends StatelessWidget {
                       ),
                       const SpaceWidget(spaceWidth: 8),
                       TextWidget(
-                        text: isRequestSent ? 'Request Sent' : 'Send Request',
+                        text:
+                            isRequestSent ? "requestSent".tr : "sendRequest".tr,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         fontColor: AppColors.black,
@@ -269,16 +270,16 @@ class ParcelItem extends StatelessWidget {
                         },
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.visibility_outlined,
                         color: Colors.black,
                         size: 14,
                       ),
-                      SpaceWidget(spaceWidth: 8),
+                      const SpaceWidget(spaceWidth: 8),
                       TextWidget(
-                        text: 'View Summary',
+                        text: "viewSummary".tr,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         fontColor: AppColors.black,

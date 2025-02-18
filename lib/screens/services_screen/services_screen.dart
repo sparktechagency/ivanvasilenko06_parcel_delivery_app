@@ -75,8 +75,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     ),
                   ),
                   const SpaceWidget(spaceHeight: 23),
-                  const TextWidget(
-                    text: AppStrings.chooseRadius,
+                  TextWidget(
+                    text: "chooseRadius".tr,
                     fontSize: 23,
                     fontWeight: FontWeight.w600,
                     fontColor: AppColors.black,
@@ -93,8 +93,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         ),
                       ),
                       const SpaceWidget(spaceWidth: 8),
-                      const TextWidget(
-                        text: AppStrings.orderName,
+                      TextWidget(
+                        text: "orderName".tr,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                         fontColor: AppColors.black,
@@ -108,7 +108,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       return Column(
                         children: [
                           Text(
-                            '${_currentValue.round()} Km',
+                            '${_currentValue.round()} ${"km".tr}',
                             style: const TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
@@ -138,13 +138,14 @@ class _ServicesScreenState extends State<ServicesScreen> {
                               },
                             ),
                           ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8.0),
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('0km'),
-                                Text('50km'),
+                                Text('0${"km".tr}'),
+                                Text('50${"km".tr}'),
                               ],
                             ),
                           ),
@@ -177,7 +178,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                 onPressed: () {
                                   Get.toNamed(AppRoutes.radiusMapScreen);
                                 },
-                                label: AppStrings.next,
+                                label: "next".tr,
                                 textColor: AppColors.white,
                                 buttonWidth: 105,
                                 buttonHeight: 50,
@@ -216,8 +217,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const TextWidget(
-                  text: AppStrings.services,
+                TextWidget(
+                  text: "services".tr,
                   fontSize: 24,
                   fontWeight: FontWeight.w600,
                   fontColor: AppColors.black,
@@ -266,7 +267,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                             onTap: () {
                               Get.toNamed(AppRoutes.deliveryTypeScreen);
                             },
-                            text: AppStrings.deliverParcel,
+                            text: "deliverParcel".tr,
                             imagePath: AppImagePath.deliverParcel,
                           ),
                         ),
@@ -277,7 +278,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                             onTap: () {
                               Get.toNamed(AppRoutes.senderDeliveryTypeScreen);
                             },
-                            text: AppStrings.sendParcel,
+                            text: "sendParcel".tr,
                             imagePath: AppImagePath.sendParcel,
                           ),
                         ),
@@ -306,7 +307,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                 },
                               );
                             },
-                            text: AppStrings.reserve,
+                            text: "reserve".tr,
                             imagePath: AppImagePath.reserve,
                           ),
                         ),
@@ -316,15 +317,15 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const TextWidget(
-                          text: AppStrings.recentPublishedOrders,
+                        TextWidget(
+                          text: "recentPublishedOrders".tr,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           fontColor: AppColors.black,
                         ),
                         TextButtonWidget(
                           onPressed: () {},
-                          text: AppStrings.viewAll,
+                          text: "viewAll".tr,
                           textColor: AppColors.black,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -377,7 +378,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                 ),
                                 TextButtonWidget(
                                   onPressed: () {},
-                                  text: AppStrings.seeDetails,
+                                  text: "seeDetails".tr,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w400,
                                   textColor: AppColors.greyDark2,
@@ -402,7 +403,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       onPressed: () {
                         _openBottomSheet(context);
                       },
-                      label: AppStrings.earnMoneyInYourRadius,
+                      label: "earnMoneyInYourRadius".tr,
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
                       buttonWidth: double.infinity,

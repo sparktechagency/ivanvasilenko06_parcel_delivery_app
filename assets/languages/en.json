@@ -155,5 +155,7 @@
   "addPhotos": "+ Add Photos",
   "enterYourPrice": "₪ Enter Your Price",
   "enterReceiversName": "Enter receiver's name",
-  "enterReceiversNumber": "Enter receiver's number"
+  "enterReceiversNumber": "Enter receiver's number",
+  "requestSent": "Request Sent",
+  "viewSummary": "View Summary"
 }
