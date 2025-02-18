@@ -5,7 +5,6 @@ import 'package:parcel_delivery_app/screens/history_screen/widgets/history_order
 import 'package:parcel_delivery_app/utils/app_size.dart';
 
 import '../../constants/app_colors.dart';
-import '../../constants/app_strings.dart';
 import '../../widgets/space_widget/space_widget.dart';
 import '../../widgets/text_widget/text_widgets.dart';
 
@@ -42,8 +41,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     size: 22,
                   ),
                 ),
-                const TextWidget(
-                  text: AppStrings.history,
+                TextWidget(
+                  text: "history".tr,
                   fontSize: 24,
                   fontWeight: FontWeight.w600,
                   fontColor: AppColors.black,
@@ -59,7 +58,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               children: [
                 Column(
                   children: [
-                    _buildTabItem(AppStrings.orders, 0),
+                    _buildTabItem("orders".tr, 0),
                     const SpaceWidget(spaceHeight: 4),
                     Container(
                       height: ResponsiveUtils.height(3),
@@ -75,7 +74,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
                 Column(
                   children: [
-                    _buildTabItem(AppStrings.bookings, 1),
+                    _buildTabItem("bookings".tr, 1),
                     const SpaceWidget(spaceHeight: 4),
                     Container(
                       height: ResponsiveUtils.height(3),

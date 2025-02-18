@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../constants/app_colors.dart';
 import '../../../constants/app_image_path.dart';
@@ -43,12 +44,12 @@ class _HistoryBookingWidgetState extends State<HistoryBookingWidget> {
   ];
 
   final List<String> status = [
-    AppStrings.cancelled,
-    AppStrings.received,
-    AppStrings.received,
-    AppStrings.cancelled,
-    AppStrings.received,
-    AppStrings.received,
+    "cancelled".tr,
+    "received".tr,
+    "republish".tr,
+    "cancelled".tr,
+    "received".tr,
+    "republish".tr,
   ];
 
   @override
@@ -194,11 +195,11 @@ class _HistoryBookingWidgetState extends State<HistoryBookingWidget> {
                             text: status[index],
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
-                            fontColor: status[index] == AppStrings.cancelled
+                            fontColor: status[index] == "cancelled".tr
                                 ? AppColors.red
-                                : status[index] == AppStrings.received
+                                : status[index] == "received".tr
                                     ? AppColors.green
-                                    : status[index] == AppStrings.republish
+                                    : status[index] == "republish".tr
                                         ? AppColors.greyDark2
                                         : AppColors.black,
                             // Default color if none of the conditions match
