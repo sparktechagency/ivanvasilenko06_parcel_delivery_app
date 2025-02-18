@@ -1,16 +1,16 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/sender_text_field_widget/sender_text_field_widget.dart';
 
 import '../../../../constants/app_colors.dart';
-import '../../../../constants/app_strings.dart';
 import '../../../../widgets/space_widget/space_widget.dart';
 import '../../../../widgets/text_widget/text_widgets.dart';
 
 class PageFour extends StatefulWidget {
-  PageFour({super.key});
+  const PageFour({super.key});
 
   @override
   State<PageFour> createState() => _PageFourState();
@@ -45,8 +45,8 @@ class _PageFourState extends State<PageFour> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SpaceWidget(spaceHeight: 32),
-          const TextWidget(
-            text: AppStrings.enterDescription,
+          TextWidget(
+            text: "enterDescription".tr,
             fontSize: 24,
             fontWeight: FontWeight.w600,
             fontColor: AppColors.black,
@@ -59,13 +59,13 @@ class _PageFourState extends State<PageFour> {
                   const SpaceWidget(spaceHeight: 24),
                   SenderTextFieldWidget(
                     controller: titleController,
-                    hintText: 'Enter Parcel Title',
+                    hintText: "enterParcelTitle".tr,
                     maxLines: 1,
                   ),
                   const SpaceWidget(spaceHeight: 12),
                   SenderTextFieldWidget(
                     controller: descriptionController,
-                    hintText: 'Write Something for description',
+                    hintText: "WriteSomethingForDescription".tr,
                     maxLines: 4,
                   ),
                   const SpaceWidget(spaceHeight: 16),
@@ -82,10 +82,10 @@ class _PageFourState extends State<PageFour> {
                           width: 2,
                         ),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Text(
-                          '+ Add Photos',
-                          style: TextStyle(
+                          "addPhotos".tr,
+                          style: const TextStyle(
                             color: AppColors.greyLight2,
                             fontWeight: FontWeight.w600,
                           ),
@@ -94,7 +94,7 @@ class _PageFourState extends State<PageFour> {
                     ),
                   ),
                   if (selectedImages.isNotEmpty)
-                    Container(
+                    SizedBox(
                       height: 300,
                       child: GridView.builder(
                         gridDelegate:

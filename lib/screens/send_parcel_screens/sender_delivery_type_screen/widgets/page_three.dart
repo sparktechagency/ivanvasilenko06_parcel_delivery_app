@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../../constants/app_colors.dart';
-import '../../../../constants/app_strings.dart';
 import '../../../../widgets/space_widget/space_widget.dart';
 import '../../../../widgets/text_widget/text_widgets.dart';
 
@@ -26,16 +26,16 @@ class _PageThreeState extends State<PageThree> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SpaceWidget(spaceHeight: 32),
-          const TextWidget(
-            text: AppStrings.enterDeliveryTime,
+          TextWidget(
+            text: "enterDeliveryTime".tr,
             fontSize: 24,
             fontWeight: FontWeight.w600,
             fontColor: AppColors.black,
             textAlignment: TextAlign.start,
           ),
           const SpaceWidget(spaceHeight: 8),
-          const TextWidget(
-            text: AppStrings.enterDeliveryTimeDesc,
+          TextWidget(
+            text: "enterDeliveryTimeDesc".tr,
             fontSize: 14,
             fontWeight: FontWeight.w500,
             fontColor: AppColors.black,
@@ -60,7 +60,7 @@ class _PageThreeState extends State<PageThree> {
               ),
               child: Text(
                 _fromDateTime == null
-                    ? "From Date"
+                    ? "fromDate".tr
                     : _formatDate(_fromDateTime!),
                 style: TextStyle(
                   fontSize: 16,
@@ -92,7 +92,7 @@ class _PageThreeState extends State<PageThree> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                _toDateTime == null ? "To Date" : _formatDate(_toDateTime!),
+                _toDateTime == null ? "toDate".tr : _formatDate(_toDateTime!),
                 style: TextStyle(
                   fontSize: 16,
                   color: _toDateTime != null
@@ -104,8 +104,8 @@ class _PageThreeState extends State<PageThree> {
           ),
 
           const SpaceWidget(spaceHeight: 16),
-          const TextWidget(
-            text: "Choose Your date",
+          TextWidget(
+            text: "chooseYourDate".tr,
             fontSize: 14,
             fontWeight: FontWeight.w500,
             fontColor: AppColors.black,

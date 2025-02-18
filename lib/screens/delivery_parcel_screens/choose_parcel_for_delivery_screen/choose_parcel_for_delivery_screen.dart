@@ -5,7 +5,6 @@ import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 
 import '../../../constants/app_colors.dart';
-import '../../../constants/app_strings.dart';
 import '../../../routes/app_routes.dart';
 import '../../../utils/app_size.dart';
 import '../../../widgets/button_widget/button_widget.dart';
@@ -72,9 +71,9 @@ class _ChooseParcelForDeliveryScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 8),
-                      const Text(
-                        'Choose parcel for delivery',
-                        style: TextStyle(
+                      Text(
+                        "chooseParcelForDelivery".tr,
+                        style: const TextStyle(
                           fontSize: 23,
                           fontWeight: FontWeight.w600,
                         ),
@@ -205,7 +204,7 @@ class _ChooseParcelForDeliveryScreenState
               onPressed: () {
                 Get.toNamed(AppRoutes.parcelForDeliveryScreen);
               },
-              label: AppStrings.next,
+              label: "next".tr,
               textColor: AppColors.white,
               buttonWidth: 105,
               buttonHeight: 50,

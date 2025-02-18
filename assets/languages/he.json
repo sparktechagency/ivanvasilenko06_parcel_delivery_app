@@ -142,5 +142,18 @@
   "bike": "אופניים",
   "car": "מכונית",
   "truck": "משאית",
-  "suggestedDestinations": "יעדים מוצעים"
+  "suggestedDestinations": "יעדים מוצעים",
+  "chooseParcelForDelivery": "בחר חבילה למשלוח",
+  "vehicleType": "סוג רכב",
+  "location": "מקום",
+  "phone": "טלפון",
+  "fromDate": "מתאריך",
+  "toDate": "נכון להיום",
+  "chooseYourDate": "בחר את התאריך שלך",
+  "enterParcelTitle": "הזן כותרת חבילה",
+  "WriteSomethingForDescription": "כתוב משהו לתיאור",
+  "addPhotos": "+ הוסף תמונות",
+  "enterYourPrice": "₪ הזן את המחיר שלך",
+  "enterReceiversName": "הזן את שם הנמען",
+  "enterReceiversNumber": "הזן את מספר המקלט"
 }

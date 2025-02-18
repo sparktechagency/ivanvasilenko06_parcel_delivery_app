@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/sender_text_field_widget/sender_text_field_widget.dart';
 
 import '../../../../constants/app_colors.dart';
-import '../../../../constants/app_strings.dart';
 import '../../../../widgets/space_widget/space_widget.dart';
 import '../../../../widgets/text_widget/text_widgets.dart';
 
@@ -19,16 +19,16 @@ class PageFive extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SpaceWidget(spaceHeight: 32),
-          const TextWidget(
-            text: AppStrings.enterPrice,
+          TextWidget(
+            text: "enterPrice".tr,
             fontSize: 24,
             fontWeight: FontWeight.w600,
             fontColor: AppColors.black,
             textAlignment: TextAlign.start,
           ),
           const SpaceWidget(spaceHeight: 8),
-          const TextWidget(
-            text: AppStrings.enterPriceDesc,
+          TextWidget(
+            text: "enterPriceDesc".tr,
             fontSize: 14,
             fontWeight: FontWeight.w500,
             fontColor: AppColors.black,
@@ -37,7 +37,7 @@ class PageFive extends StatelessWidget {
           const SpaceWidget(spaceHeight: 24),
           SenderTextFieldWidget(
             controller: priceController,
-            hintText: '₪ Enter Your Price',
+            hintText: "enterYourPrice".tr,
             maxLines: 1,
             keyboardType: TextInputType.number,
           ),

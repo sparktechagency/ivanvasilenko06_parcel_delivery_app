@@ -25,10 +25,10 @@ class ParcelForDeliveryScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SpaceWidget(spaceHeight: 48),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextWidget(
-              text: AppStrings.parcelForDelivery,
+              text: "parcelForDelivery".tr,
               fontSize: 24,
               fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
@@ -87,7 +87,7 @@ class ParcelForDeliveryScreen extends StatelessWidget {
               onPressed: () {
                 Get.offAll(() => const BottomNavScreen());
               },
-              label: AppStrings.backToHome,
+              label: "backToHome".tr,
               textColor: AppColors.white,
               buttonWidth: 180,
               buttonHeight: 50,

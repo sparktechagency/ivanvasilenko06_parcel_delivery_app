@@ -142,5 +142,18 @@
   "bike": "Bike",
   "car": "Car",
   "truck": "Truck",
-  "suggestedDestinations": "Suggested Destinations"
+  "suggestedDestinations": "Suggested Destinations",
+  "chooseParcelForDelivery": "Choose parcel for delivery",
+  "vehicleType": "Vehicle Type",
+  "location": "Location",
+  "phone": "Phone",
+  "fromDate": "From Date",
+  "toDate": "To Date",
+  "chooseYourDate": "Choose Your date",
+  "enterParcelTitle": "Enter Parcel Title",
+  "WriteSomethingForDescription": "Write Something for description",
+  "addPhotos": "+ Add Photos",
+  "enterYourPrice": "₪ Enter Your Price",
+  "enterReceiversName": "Enter receiver's name",
+  "enterReceiversNumber": "Enter receiver's number"
 }

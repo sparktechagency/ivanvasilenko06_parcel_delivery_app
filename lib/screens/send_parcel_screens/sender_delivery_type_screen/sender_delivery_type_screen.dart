@@ -12,7 +12,6 @@ import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 
 import '../../../constants/app_colors.dart';
-import '../../../constants/app_strings.dart';
 import '../../../widgets/button_widget/button_widget.dart';
 import '../../../widgets/space_widget/space_widget.dart';
 import '../../../widgets/text_widget/text_widgets.dart';
@@ -30,12 +29,12 @@ class SenderDeliveryTypeScreen extends StatefulWidget {
     AppImagePath.truckImage,
   ];
   final List<String> texts = [
-    "Vehicle Type",
-    "Location",
-    "Delivery Time",
-    "Description",
-    "Price",
-    "Phone",
+    "vehicleType".tr,
+    "location".tr,
+    "deliveryTimeText".tr,
+    "descriptionText".tr,
+    "price".tr,
+    "phone".tr,
   ];
   final List<String> images = [
     AppImagePath.stepper1,
@@ -65,6 +64,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isRTL = Get.locale?.languageCode == 'he';
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Column(
@@ -144,7 +144,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                       Get.toNamed(AppRoutes.senderSummaryOfParcelScreen);
                     }
                   },
-                  label: _currentStep == 5 ? AppStrings.next : AppStrings.next,
+                  label: _currentStep == 5 ? "next".tr : "next".tr,
                   textColor: AppColors.white,
                   buttonWidth: 105,
                   buttonHeight: 50,
@@ -238,17 +238,18 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
   }
 
   Widget _buildPage1() {
+    final isRTL = Get.locale?.languageCode == 'he';
     return Column(
       children: [
         const SpaceWidget(spaceHeight: 48),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: TextWidget(
-            text: AppStrings.senderDeliveryType,
+            text: "senderDeliveryType".tr,
             fontSize: 24,
             fontWeight: FontWeight.w600,
             fontColor: AppColors.black,
-            textAlignment: TextAlign.start,
+            textAlignment: isRTL ? TextAlign.right : TextAlign.left,
           ),
         ),
         const SpaceWidget(spaceHeight: 24),
@@ -259,7 +260,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
             children: [
               Column(
                 children: [
-                  _buildTabItem(AppStrings.nonProfessional, 0),
+                  _buildTabItem("nonProfessional".tr, 0),
                   const SpaceWidget(spaceHeight: 4),
                   Container(
                     height: ResponsiveUtils.height(3),
@@ -275,7 +276,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
               ),
               Column(
                 children: [
-                  _buildTabItem(AppStrings.professional, 1),
+                  _buildTabItem("professional".tr, 1),
                   const SpaceWidget(spaceHeight: 4),
                   Container(
                     height: ResponsiveUtils.height(3),
@@ -334,10 +335,10 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                             int index = entry.key;
                             String imagePath = entry.value;
                             String title = [
-                              "Bicycle",
-                              "Person",
-                              "Bike",
-                              "Car",
+                              "bicycle".tr,
+                              "person".tr,
+                              "bike".tr,
+                              "car".tr,
                             ][index];
                             bool isCentered = index == _currentIndexNP;
 
@@ -429,7 +430,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                               .map((entry) {
                             int index = entry.key;
                             String imagePath = entry.value;
-                            String title = ["Truck"][index];
+                            String title = ["truck".tr][index];
                             bool isCentered = index == _currentIndexP;
 
                             return Builder(

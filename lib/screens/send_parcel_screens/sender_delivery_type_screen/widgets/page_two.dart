@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 
 import '../../../../constants/app_colors.dart';
 import '../../../../constants/app_icons_path.dart';
-import '../../../../constants/app_strings.dart';
 import '../../../../utils/app_size.dart';
 import '../../../../widgets/icon_widget/icon_widget.dart';
 import '../../../../widgets/space_widget/space_widget.dart';
@@ -36,10 +36,10 @@ class _PageTwoState extends State<PageTwo> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SpaceWidget(spaceHeight: 48),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextWidget(
-              text: AppStrings.enterDeliveryLocation,
+              text: "enterDeliveryLocation".tr,
               fontSize: 24,
               fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
@@ -80,7 +80,7 @@ class _PageTwoState extends State<PageTwo> {
                         color: AppColors.black,
                       ),
                       decoration: InputDecoration(
-                        hintText: "Current Location",
+                        hintText: "currentLocationText".tr,
                         hintStyle: const TextStyle(
                           color: AppColors.greyDarkLight2,
                         ),
@@ -108,7 +108,7 @@ class _PageTwoState extends State<PageTwo> {
                         color: AppColors.black,
                       ),
                       decoration: InputDecoration(
-                        hintText: "Destination",
+                        hintText: "destinationText".tr,
                         hintStyle: const TextStyle(
                           color: AppColors.greyDarkLight2,
                         ),

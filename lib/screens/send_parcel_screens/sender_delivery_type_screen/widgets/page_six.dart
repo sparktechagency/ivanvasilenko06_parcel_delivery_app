@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/sender_text_field_widget/sender_text_field_widget.dart';
 
 import '../../../../constants/app_colors.dart';
-import '../../../../constants/app_strings.dart';
 import '../../../../widgets/phone_field_widget/phone_field_widget.dart';
 import '../../../../widgets/space_widget/space_widget.dart';
 import '../../../../widgets/text_widget/text_widgets.dart';
@@ -22,16 +22,16 @@ class PageSix extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SpaceWidget(spaceHeight: 32),
-          const TextWidget(
-            text: AppStrings.enterReceiversDetails,
+          TextWidget(
+            text: "enterReceiversDetails".tr,
             fontSize: 24,
             fontWeight: FontWeight.w600,
             fontColor: AppColors.black,
             textAlignment: TextAlign.start,
           ),
           const SpaceWidget(spaceHeight: 8),
-          const TextWidget(
-            text: AppStrings.enterReceiversDetailsDesc,
+          TextWidget(
+            text: "enterReceiversDetailsDesc".tr,
             fontSize: 14,
             fontWeight: FontWeight.w500,
             fontColor: AppColors.black,
@@ -40,13 +40,13 @@ class PageSix extends StatelessWidget {
           const SpaceWidget(spaceHeight: 24),
           SenderTextFieldWidget(
             controller: nameController,
-            hintText: "Enter receiver's name",
+            hintText: "enterReceiversName".tr,
             maxLines: 1,
           ),
           const SpaceWidget(spaceHeight: 16),
           IntlPhoneFieldWidget(
             controller: phoneController,
-            hintText: "Enter receiver's number",
+            hintText: "enterReceiversNumber".tr,
             onChanged: (phone) {
               fullPhoneNumber = phone.completeNumber;
             },
