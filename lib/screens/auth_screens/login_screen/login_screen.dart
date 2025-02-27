@@ -6,7 +6,6 @@ import 'package:parcel_delivery_app/screens/auth_screens/login_screen/widgets/cu
 import 'package:parcel_delivery_app/screens/auth_screens/login_screen/widgets/or_widget.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_button_widget/text_button_widget.dart';
-
 import '../../../constants/app_icons_path.dart';
 import '../../../widgets/phone_field_widget/phone_field_widget.dart';
 import '../../../widgets/space_widget/space_widget.dart';

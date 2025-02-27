@@ -69,6 +69,8 @@ class OnboardingScreen extends GetView<OnboardingController> {
                               fontColor: AppColors.black,
                               textAlignment:
                                   isRTL ? TextAlign.right : TextAlign.left,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
                             ),
                           ),
                         ],

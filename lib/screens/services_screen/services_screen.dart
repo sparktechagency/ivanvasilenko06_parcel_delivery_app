@@ -410,6 +410,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       buttonHeight: 50,
                       prefixIcon: AppIconsPath.earnMoneyRadiusIcon,
                     ),
+                    const SpaceWidget(spaceHeight: 80),
                   ],
                 ),
               ),
