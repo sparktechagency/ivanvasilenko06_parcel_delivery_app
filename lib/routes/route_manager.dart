@@ -1,4 +1,6 @@
 import 'package:get/get.dart';
+import 'package:parcel_delivery_app/screens/before_signups/country_select_page.dart';
+import 'package:parcel_delivery_app/screens/before_signups/language_select_page.dart';
 import 'package:parcel_delivery_app/screens/home_screen/home_screen.dart';
 
 import '../screens/auth_screens/email_login_screen/email_login_screen.dart';
@@ -45,6 +47,20 @@ class RouteManager {
         page: () => OnboardingScreen(),
         //transition: Transition.cupertino,
         // binding: GeneralBindings(),
+      ),
+
+      /// Got the Country Select Page
+      GetPage(
+        name: AppRoutes.countrySelectScreen,
+        page: () => CountrySelectPage(),
+        transition: Transition.rightToLeft,
+        // binding: GeneralBindings(),
+      ),
+      // Select the Language
+      GetPage(
+        name: AppRoutes.languageSelectScreen,
+        page: () => LanguageSelectPage(),
+        transition: Transition.rightToLeft,
       ),
       GetPage(
         name: AppRoutes.signupScreen,

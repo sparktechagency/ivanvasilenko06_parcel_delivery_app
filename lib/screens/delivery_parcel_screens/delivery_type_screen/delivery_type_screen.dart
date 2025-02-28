@@ -17,6 +17,7 @@ class DeliveryTypeScreen extends StatefulWidget {
   final List<String> images = [
     AppImagePath.cycleImage,
     AppImagePath.personImage,
+    AppImagePath.planeImage,
     AppImagePath.bikeImage,
     AppImagePath.carImage,
     AppImagePath.truckImage,
@@ -27,7 +28,7 @@ class DeliveryTypeScreen extends StatefulWidget {
 }
 
 class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
-  int _currentIndex = 0;
+  int _currentIndex = 4;
   final CarouselSliderController _carouselController =
       CarouselSliderController();
 
@@ -77,6 +78,7 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
                     String title = [
                       "bicycle".tr,
                       "person".tr,
+                      "plane".tr,
                       "bike".tr,
                       "car".tr,
                       "truck".tr

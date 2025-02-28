@@ -130,7 +130,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
               ),
               ButtonWidget(
                 onPressed: () {
-                  Get.toNamed(AppRoutes.signupScreen);
+                  Get.toNamed(AppRoutes.countrySelectScreen);
                 },
                 label: "signUp".tr,
                 textColor: AppColors.white,

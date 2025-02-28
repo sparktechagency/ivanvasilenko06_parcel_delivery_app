@@ -158,5 +158,12 @@
   "enterReceiversNumber": "הזן את מספר המקלט",
   "requestSent": "הבקשה נשלחה",
   "viewSummary": "צפה בתקציר",
-  "recentlyPublished": "פורסם לאחרונה"
+  "recentlyPublished": "פורסם לאחרונה",
+    "israel": "ישראל",
+    "verifyNumber": "אמת מספר",
+    "countryDesciption": "כאן קבל את המדינה שלך",
+    "selectLanguage": "בחר את השפה שלך",
+    "enterYourPreferredLanguage": "הזן את השפה המועדפת עליך"
+
+  
 }

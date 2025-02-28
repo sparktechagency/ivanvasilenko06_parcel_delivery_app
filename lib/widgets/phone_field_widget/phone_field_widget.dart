@@ -15,7 +15,7 @@ class IntlPhoneFieldWidget extends StatelessWidget {
   const IntlPhoneFieldWidget({
     super.key,
     required this.controller,
-    this.initialCountryCode = 'US',
+    this.initialCountryCode = 'IL',
     this.hintText = '',
     this.onChanged,
     this.borderColor, // Optional border color

@@ -253,11 +253,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SpaceWidget(spaceHeight: 16),
-                  TextWidget(
-                    text: "basicInfo".tr,
-                    fontSize: 21,
-                    fontWeight: FontWeight.w600,
-                    fontColor: AppColors.black,
+                  Row(
+                    children: [
+                      TextWidget(
+                        text: "basicInfo".tr,
+                        fontSize: 21,
+                        fontWeight: FontWeight.w600,
+                        fontColor: AppColors.black,
+                      ),
+                      const Spacer(),
+                      TextWidget(
+                        text: "israel".tr,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        fontColor: AppColors.black,
+                      ),
+                      const SizedBox(width: 5),
+                      const Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: AppColors.greyDark2,
+                        size: 16,
+                      ),
+                    ],
                   ),
                   const SpaceWidget(spaceHeight: 12),
                   InkWell(

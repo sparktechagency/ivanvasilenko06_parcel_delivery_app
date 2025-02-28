@@ -24,6 +24,11 @@ class AppStrings {
   static const String getStarted = "Let’s get Started";
   static const String signupDesc =
       "Enter your phone number. We will send you a confirmation code there.";
+  static const String countryDesciption = "Here get your country";
+  static const String selectLanguage = "Select your language";
+  static const String enterYourPreferredLanguage =
+      "Enter your preferred language";
+
   static const String next = "Next";
   static const String verifyPhone = "Verify Phone";
   static const String codeHasSendTo = "Code has been send to";
@@ -147,4 +152,7 @@ class AppStrings {
   static const String veryBad = "Very bad";
   static const String veryGood = "Very Good";
   static const String submit = "Submit";
+
+  static const String israel = "Israel";
+  static const String verifyNumber = "Verify Number";
 }

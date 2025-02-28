@@ -4,6 +4,7 @@ import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/auth_screens/login_screen/widgets/customInkWellWidget.dart';
 import 'package:parcel_delivery_app/screens/auth_screens/login_screen/widgets/or_widget.dart';
+import 'package:parcel_delivery_app/screens/auth_screens/otp_login_screen/otp_login_screen.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_button_widget/text_button_widget.dart';
 import '../../../constants/app_icons_path.dart';
@@ -14,8 +15,17 @@ import '../../bottom_nav_bar/bottom_nav_bar.dart';
 
 class LoginScreen extends StatelessWidget {
   final phoneController = TextEditingController();
+  final isLoading = false.obs;
 
   LoginScreen({super.key});
+
+  void loginUser() {
+    if (phoneController.text.isNotEmpty) {
+      Get.to(() => OtpLoginScreen());
+    } else {
+      Get.offAll(() => const BottomNavScreen());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,14 +58,16 @@ class LoginScreen extends StatelessWidget {
                 hintText: "enterYourPhoneNumber".tr,
               ),
               const SpaceWidget(spaceHeight: 24),
-              ButtonWidget(
-                onPressed: () {
-                  Get.offAll(() => const BottomNavScreen());
-                },
-                label: "login".tr,
-                buttonHeight: 50,
-                buttonWidth: double.infinity,
-              ),
+              Obx(() {
+                return isLoading.value
+                    ? const Center(child: CircularProgressIndicator())
+                    : ButtonWidget(
+                        onPressed: loginUser,
+                        label: "login".tr,
+                        buttonHeight: 50,
+                        buttonWidth: double.infinity,
+                      );
+              }),
               const SpaceWidget(spaceHeight: 16),
               const OrWidget(),
               const SpaceWidget(spaceHeight: 16),

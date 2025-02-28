@@ -3,6 +3,10 @@ class AppRoutes {
 
   static const splashScreen = '/splashScreen';
   static const onboardingScreen = '/onboardingScreen';
+
+  static const countrySelectScreen = '/countrySelectScreen';
+  static const languageSelectScreen = '/languageSelectScreen';
+
   static const signupScreen = '/signupScreen';
   static const verifyPhoneScreen = '/verifyPhoneScreen';
   static const loginScreen = '/loginScreen';

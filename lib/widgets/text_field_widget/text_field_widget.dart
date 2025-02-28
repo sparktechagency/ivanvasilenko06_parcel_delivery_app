@@ -13,6 +13,7 @@ class TextFieldWidget extends StatefulWidget {
   final TextInputType? keyboardType;
   final int maxLines; // Add maxLines as a parameter
   final VoidCallback? onTapSuffix;
+  final bool? read;
 
   const TextFieldWidget({
     super.key,
@@ -21,6 +22,7 @@ class TextFieldWidget extends StatefulWidget {
     this.validator,
     this.suffixIcon,
     this.keyboardType,
+    this.read = false,
     this.maxLines = 1, // Default value is 1
     this.onTapSuffix,
   });
@@ -48,6 +50,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
         borderRadius: BorderRadius.circular(8),
       ),
       child: TextFormField(
+        readOnly: widget.read!,
         controller: widget.controller,
         validator: widget.validator,
         obscureText: obscureText,
