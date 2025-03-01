@@ -155,4 +155,7 @@ class AppStrings {
 
   static const String israel = "Israel";
   static const String verifyNumber = "Verify Number";
+
+  static const String deliveryReceived = "Delivery Received";
+  static const String successfullyDelivery = "Successfully Delivery";
 }

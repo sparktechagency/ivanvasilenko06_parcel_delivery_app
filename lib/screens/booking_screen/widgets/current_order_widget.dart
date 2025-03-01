@@ -20,6 +20,7 @@ class CurrentOrderWidget extends StatefulWidget {
 }
 
 class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
+  bool isReceived = false;
   final List<String> images = [
     AppImagePath.sendParcel,
     AppImagePath.joshuaImage,
@@ -50,6 +51,12 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
     "deliveryManDetails".tr,
   ];
 
+  final List<String> received = [
+    "Delivery received?",
+    "Sending Successfully?",
+    "Delivery Completed?",
+  ];
+  List<String> statuses = ["not received", "not delivered", "not completed"];
   // Function to make a phone call
   final String phoneNumber = '+1234567890';
 
@@ -108,15 +115,8 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
         children: [
           const SpaceWidget(spaceHeight: 8),
           ...List.generate(images.length, (index) {
+            String currentStatus = statuses[index];
             return
-                // Card(
-                // color: AppColors.white,
-                // shape: RoundedRectangleBorder(
-                //   borderRadius: BorderRadius.circular(12),
-                // ),
-                // margin: const EdgeInsets.only(left: 20, right: 20, bottom: 16),
-                // elevation: 3,
-                // child:
                 Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -291,6 +291,52 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
                       ),
                     ],
                   ),
+                  Row(
+                    children: [
+                      TextWidget(
+                        text: received[index],
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        fontColor: AppColors.greyDark2,
+                      ),
+                      Spacer(),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (index == 0) {
+                              statuses[index] = currentStatus == "not received" ? "received" : "not received";
+                            } else if (index == 1) {
+                              statuses[index] = currentStatus == "not delivered" ? "delivered" : "not delivered";
+                            } else if (index == 2) {
+                              statuses[index] = currentStatus == "not completed" ? "completed" : "not completed";
+                            }
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: currentStatus.contains("not") ? AppColors.whiteDark : AppColors.green,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: TextWidget(
+                            text: currentStatus == "not received"
+                                ? "Not Received"
+                                : currentStatus == "received"
+                                ? "Received"
+                                : currentStatus == "not delivered"
+                                ? "Not Delivered"
+                                : currentStatus == "delivered"
+                                ? "Delivered"
+                                : "Completed",
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            fontColor: currentStatus.contains("not") ? AppColors.black : AppColors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),

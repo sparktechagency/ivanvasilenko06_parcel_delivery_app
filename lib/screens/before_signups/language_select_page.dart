@@ -71,7 +71,6 @@ class _LanguageSelectPageState extends State<LanguageSelectPage> {
                             localizationController.setSelectedIndex(0);
                             _saveLanguage(
                                 'en'); // Save 'en' as selected language
-                            Navigator.pop(context);
                           },
                           child: const Text(
                             'English',
@@ -100,7 +99,6 @@ class _LanguageSelectPageState extends State<LanguageSelectPage> {
                             localizationController.setSelectedIndex(1);
                             _saveLanguage(
                                 'he'); // Save 'ar' as selected language
-                            Navigator.pop(context);
                           },
                           child: const Text(
                             'עברי',

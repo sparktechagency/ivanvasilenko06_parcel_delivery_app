@@ -255,6 +255,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SpaceWidget(spaceHeight: 16),
                   Row(
                     children: [
+
+                      /// Basic Info
                       TextWidget(
                         text: "basicInfo".tr,
                         fontSize: 21,
