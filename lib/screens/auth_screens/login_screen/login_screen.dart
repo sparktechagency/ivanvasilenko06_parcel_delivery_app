@@ -31,70 +31,72 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SpaceWidget(spaceHeight: 48),
-              TextWidget(
-                text: "welcome".tr,
-                fontSize: 30,
-                fontWeight: FontWeight.w600,
-                fontColor: AppColors.black,
-              ),
-              const SpaceWidget(spaceHeight: 10),
-              TextWidget(
-                text: "enterNumber".tr,
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                fontColor: AppColors.black,
-                textAlignment: TextAlign.left,
-              ),
-              const SpaceWidget(spaceHeight: 24),
-              IntlPhoneFieldWidget(
-                controller: phoneController,
-                hintText: "enterYourPhoneNumber".tr,
-              ),
-              const SpaceWidget(spaceHeight: 24),
-              Obx(() {
-                return isLoading.value
-                    ? const Center(child: CircularProgressIndicator())
-                    : ButtonWidget(
-                        onPressed: loginUser,
-                        label: "login".tr,
-                        buttonHeight: 50,
-                        buttonWidth: double.infinity,
-                      );
-              }),
-              const SpaceWidget(spaceHeight: 16),
-              const OrWidget(),
-              const SpaceWidget(spaceHeight: 16),
-              CustomInkWellButton(
-                onTap: () {
-                  Get.toNamed(AppRoutes.emailLoginScreen);
-                },
-                icon: AppIconsPath.emailIcon,
-                text: "continueWithEmail".tr,
-              ),
-              const SpaceWidget(spaceHeight: 16),
-              CustomInkWellButton(
-                onTap: () {
-                  Get.offAll(() => const BottomNavScreen());
-                },
-                icon: AppIconsPath.googleIcon,
-                text: "continueWithGoogle".tr,
-              ),
-              const SpaceWidget(spaceHeight: 16),
-              CustomInkWellButton(
-                onTap: () {
-                  Get.offAll(() => const BottomNavScreen());
-                },
-                icon: AppIconsPath.appleIcon,
-                text: "continueWithApple".tr,
-              ),
-            ],
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SpaceWidget(spaceHeight: 48),
+                TextWidget(
+                  text: "welcome".tr,
+                  fontSize: 30,
+                  fontWeight: FontWeight.w600,
+                  fontColor: AppColors.black,
+                ),
+                const SpaceWidget(spaceHeight: 10),
+                TextWidget(
+                  text: "enterNumber".tr,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  fontColor: AppColors.black,
+                  textAlignment: TextAlign.left,
+                ),
+                const SpaceWidget(spaceHeight: 24),
+                IntlPhoneFieldWidget(
+                  controller: phoneController,
+                  hintText: "enterYourPhoneNumber".tr,
+                ),
+                const SpaceWidget(spaceHeight: 24),
+                Obx(() {
+                  return isLoading.value
+                      ? const Center(child: CircularProgressIndicator())
+                      : ButtonWidget(
+                          onPressed: loginUser,
+                          label: "login".tr,
+                          buttonHeight: 50,
+                          buttonWidth: double.infinity,
+                        );
+                }),
+                const SpaceWidget(spaceHeight: 16),
+                const OrWidget(),
+                const SpaceWidget(spaceHeight: 16),
+                CustomInkWellButton(
+                  onTap: () {
+                    Get.toNamed(AppRoutes.emailLoginScreen);
+                  },
+                  icon: AppIconsPath.emailIcon,
+                  text: "continueWithEmail".tr,
+                ),
+                const SpaceWidget(spaceHeight: 16),
+                CustomInkWellButton(
+                  onTap: () {
+                    Get.offAll(() => const BottomNavScreen());
+                  },
+                  icon: AppIconsPath.googleIcon,
+                  text: "continueWithGoogle".tr,
+                ),
+                const SpaceWidget(spaceHeight: 16),
+                CustomInkWellButton(
+                  onTap: () {
+                    Get.offAll(() => const BottomNavScreen());
+                  },
+                  icon: AppIconsPath.appleIcon,
+                  text: "continueWithApple".tr,
+                ),
+              ],
+            ),
           ),
         ),
       ),

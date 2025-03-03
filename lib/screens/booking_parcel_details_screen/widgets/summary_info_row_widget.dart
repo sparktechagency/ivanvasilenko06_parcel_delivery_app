@@ -70,7 +70,7 @@ class SummaryInfoRowWidget extends StatelessWidget {
               ),
               const SpaceWidget(spaceWidth: 16),
               SizedBox(
-                width: ResponsiveUtils.width(150),
+                width: ResponsiveUtils.width(140),
                 child: TextWidget(
                   text: value,
                   fontSize: 14,

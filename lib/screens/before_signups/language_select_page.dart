@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_constant.dart';
+import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/controller/language_controller.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
+import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -55,60 +57,69 @@ class _LanguageSelectPageState extends State<LanguageSelectPage> {
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        height: 45,
-                        width: 150,
-                        decoration: BoxDecoration(
-                          color: AppColors.grey,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: TextButton(
-                          onPressed: () {
-                            localizationController.setLanguage(Locale(
-                              AppConstants.languages[0].languageCode,
-                              AppConstants.languages[0].countryCode,
-                            ));
-                            localizationController.setSelectedIndex(0);
-                            _saveLanguage(
-                                'en'); // Save 'en' as selected language
-                          },
-                          child: const Text(
-                            'English',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.black,
+                      Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: const ImageWidget(
+                              height: 40,
+                              width: 45,
+                              imagePath: AppImagePath.usaFlag,
                             ),
                           ),
-                        ),
+                          TextButton(
+                            onPressed: () {
+                              localizationController.setLanguage(Locale(
+                                AppConstants.languages[0].languageCode,
+                                AppConstants.languages[0].countryCode,
+                              ));
+                              localizationController.setSelectedIndex(0);
+                              _saveLanguage(
+                                  'en'); // Save 'en' as selected language
+                            },
+                            child: const Text(
+                              'English',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.black,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
-                      Container(
-                        height: 45,
-                        width: 150,
-                        decoration: BoxDecoration(
-                          color: AppColors.grey,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: TextButton(
-                          onPressed: () {
-                            localizationController.setLanguage(Locale(
-                              AppConstants.languages[1].languageCode,
-                              AppConstants.languages[1].countryCode,
-                            ));
-                            localizationController.setSelectedIndex(1);
-                            _saveLanguage(
-                                'he'); // Save 'ar' as selected language
-                          },
-                          child: const Text(
-                            'עברי',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.black,
+                      Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: const ImageWidget(
+                              height: 40,
+                              width: 45,
+                              imagePath: AppImagePath.israeilFlag,
                             ),
                           ),
-                        ),
+                          TextButton(
+                            onPressed: () {
+                              localizationController.setLanguage(Locale(
+                                AppConstants.languages[1].languageCode,
+                                AppConstants.languages[1].countryCode,
+                              ));
+                              localizationController.setSelectedIndex(1);
+                              _saveLanguage(
+                                  'he'); // Save 'ar' as selected language
+                            },
+                            child: const Text(
+                              // 'עברי',
+                              'Hebrew',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.black,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   );

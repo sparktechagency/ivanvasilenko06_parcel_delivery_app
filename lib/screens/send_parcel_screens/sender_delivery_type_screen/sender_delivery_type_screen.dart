@@ -51,7 +51,6 @@ class SenderDeliveryTypeScreen extends StatefulWidget {
 }
 
 class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
-  int _currentIndex = 0;
   int _currentIndexP = 0;
   int _currentIndexNP = 0;
   final CarouselSliderController _carouselController =
@@ -64,7 +63,6 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isRTL = Get.locale?.languageCode == 'he';
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Column(
@@ -75,7 +73,6 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
               controller: _pageController,
               onPageChanged: (index) {
                 setState(() {
-                  _currentIndex = index;
                   _currentStep = index;
                 });
               },
@@ -83,7 +80,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                 _buildPage1(),
                 const PageTwo(),
                 const PageThree(),
-                PageFour(),
+                const PageFour(),
                 PageFive(),
                 PageSix(),
               ],

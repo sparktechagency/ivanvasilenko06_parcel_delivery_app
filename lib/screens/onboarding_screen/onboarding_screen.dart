@@ -49,9 +49,9 @@ class OnboardingScreen extends GetView<OnboardingController> {
                             height: 500,
                             width: double.infinity,
                           ),
-                          const SpaceWidget(spaceHeight: 56),
+                          const SpaceWidget(spaceHeight: 38),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
                             child: TextWidget(
                               text: contents[i].title,
                               fontSize: 27,
@@ -61,7 +61,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
                           ),
                           const SpaceWidget(spaceHeight: 14),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
                             child: TextWidget(
                               text: contents[i].description,
                               fontSize: 16,
@@ -72,46 +72,34 @@ class OnboardingScreen extends GetView<OnboardingController> {
                               overflow: TextOverflow.ellipsis,
                               maxLines: 2,
                             ),
-                          ),
+                          ), 
                         ],
                       ),
                     );
                   },
                 ),
               ),
-              isRTL
-                  ? Positioned(
-                      bottom: ResponsiveUtils.height(200),
-                      right: ResponsiveUtils.width(24),
-                      child: GetX<OnboardingController>(
-                        builder: (controller) => Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            contents.length,
-                            (index) => _buildDot(index, controller),
-                          ),
-                        ),
-                      ),
-                    )
-                  : Positioned(
-                      bottom: ResponsiveUtils.height(200),
-                      left: ResponsiveUtils.width(24),
-                      child: GetX<OnboardingController>(
-                        builder: (controller) => Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            contents.length,
-                            (index) => _buildDot(index, controller),
-                          ),
-                        ),
-                      ),
+              Positioned(
+                bottom: isRTL
+                    ? ResponsiveUtils.height(200)
+                    : ResponsiveUtils.height(100),
+                left: isRTL ? null : ResponsiveUtils.width(24),
+                right: isRTL ? ResponsiveUtils.width(24) : null,
+                child: GetX<OnboardingController>(
+                  builder: (controller) => Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      contents.length,
+                      (index) => _buildDot(index, controller),
                     ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
         bottomNavigationBar: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18
-          , vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

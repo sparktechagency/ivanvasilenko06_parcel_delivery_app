@@ -93,11 +93,17 @@ class _ServicesScreenState extends State<ServicesScreen> {
                         ),
                       ),
                       const SpaceWidget(spaceWidth: 8),
-                      TextWidget(
-                        text: "orderName".tr,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        fontColor: AppColors.black,
+                      SizedBox(
+                        width: ResponsiveUtils.width(250),
+                        child: TextWidget(
+                          text: "orderName".tr,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          fontColor: AppColors.black,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlignment: TextAlign.start,
+                        ),
                       ),
                     ],
                   ),

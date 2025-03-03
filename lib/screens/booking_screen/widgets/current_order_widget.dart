@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../constants/app_colors.dart';
@@ -116,8 +117,7 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
           const SpaceWidget(spaceHeight: 8),
           ...List.generate(images.length, (index) {
             String currentStatus = statuses[index];
-            return
-                Container(
+            return Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               margin: const EdgeInsets.only(left: 8, right: 8, bottom: 0),
@@ -304,33 +304,43 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
                         onTap: () {
                           setState(() {
                             if (index == 0) {
-                              statuses[index] = currentStatus == "not received" ? "received" : "not received";
+                              statuses[index] = currentStatus == "not received"
+                                  ? "received"
+                                  : "not received";
                             } else if (index == 1) {
-                              statuses[index] = currentStatus == "not delivered" ? "delivered" : "not delivered";
+                              statuses[index] = currentStatus == "not delivered"
+                                  ? "delivered"
+                                  : "not delivered";
                             } else if (index == 2) {
-                              statuses[index] = currentStatus == "not completed" ? "completed" : "not completed";
+                              statuses[index] = currentStatus == "not completed"
+                                  ? "completed"
+                                  : "not completed";
                             }
                           });
                         },
                         child: Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: currentStatus.contains("not") ? AppColors.whiteDark : AppColors.green,
+                            color: currentStatus.contains("not")
+                                ? AppColors.whiteDark
+                                : AppColors.green,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: TextWidget(
                             text: currentStatus == "not received"
                                 ? "Not Received"
                                 : currentStatus == "received"
-                                ? "Received"
-                                : currentStatus == "not delivered"
-                                ? "Not Delivered"
-                                : currentStatus == "delivered"
-                                ? "Delivered"
-                                : "Completed",
+                                    ? "Received"
+                                    : currentStatus == "not delivered"
+                                        ? "Not Delivered"
+                                        : currentStatus == "delivered"
+                                            ? "Delivered"
+                                            : "Completed",
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            fontColor: currentStatus.contains("not") ? AppColors.black : AppColors.white,
+                            fontColor: currentStatus.contains("not")
+                                ? AppColors.black
+                                : AppColors.white,
                           ),
                         ),
                       ),
@@ -399,14 +409,19 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
                               progress[index] == AppStrings.deliveryManDetails
                                   ? const SpaceWidget(spaceWidth: 8)
                                   : const SpaceWidget(spaceWidth: 0),
-                              TextWidget(
-                                text: progress[index],
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                fontColor: progress[index] ==
-                                        AppStrings.deliveryManDetails
-                                    ? AppColors.greyDark2
-                                    : AppColors.red,
+                              SizedBox(
+                                width: ResponsiveUtils.width(120),
+                                child: TextWidget(
+                                  text: progress[index],
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  fontColor: progress[index] ==
+                                          AppStrings.deliveryManDetails
+                                      ? AppColors.greyDark2
+                                      : AppColors.red,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ],
                           ),

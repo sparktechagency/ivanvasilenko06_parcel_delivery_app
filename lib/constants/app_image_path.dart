@@ -35,6 +35,9 @@ class AppImagePath {
   static const String stepper5 = "assets/images/stepper5.png";
   static const String stepper6 = "assets/images/stepper6.png";
 
+  static const String usaFlag = "assets/images/usa_flag.png";
+  static const String israeilFlag = "assets/images/israeil_flag.png";
+
   // Dev Images
   static const String profileImage = "assets/dev_images/profileImage.png";
   static const String radiusMapBg = "assets/dev_images/radiusMapBg.png";

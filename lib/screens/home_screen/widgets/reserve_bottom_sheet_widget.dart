@@ -80,7 +80,7 @@ class _ReserveBottomSheetWidgetState extends State<ReserveBottomSheetWidget> {
                           const SpaceWidget(spaceHeight: 2),
                           TextWidget(
                             text: "deliverParcel".tr,
-                            fontSize: 16,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                             fontColor: AppColors.black,
                           ),
@@ -121,7 +121,7 @@ class _ReserveBottomSheetWidgetState extends State<ReserveBottomSheetWidget> {
                           const SpaceWidget(spaceHeight: 2),
                           TextWidget(
                             text: "sendParcel".tr,
-                            fontSize: 16,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                             fontColor: AppColors.black,
                           ),
