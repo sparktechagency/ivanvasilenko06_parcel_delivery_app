@@ -10,12 +10,19 @@ import '../../../widgets/space_widget/space_widget.dart';
 import '../../../widgets/text_field_widget/text_field_widget.dart';
 import '../../../widgets/text_widget/text_widgets.dart';
 
-class SignupScreen extends StatelessWidget {
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
+
+  @override
+  _SignupScreenState createState() => _SignupScreenState();
+}
+
+class _SignupScreenState extends State<SignupScreen> {
   final nameController = TextEditingController();
   final phoneController = TextEditingController();
+  final emailController = TextEditingController();
+  bool isContinueWithEmail = false;  // Track whether to show email or phone field
   String fullPhoneNumber = '';
-
-  SignupScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +57,42 @@ class SignupScreen extends StatelessWidget {
                 maxLines: 1,
               ),
               const SpaceWidget(spaceHeight: 16),
-              IntlPhoneFieldWidget(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  TextWidget(
+                    text: "Are you Continue with".tr,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    fontColor: AppColors.black,
+                  ),
+                  const SpaceWidget(spaceWidth: 08),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        // Toggle between email and phone input fields
+                        isContinueWithEmail = !isContinueWithEmail;
+                      });
+                    },
+                    child: TextWidget(
+                      text: isContinueWithEmail ? "Phone?" : "Email?",
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      fontColor: AppColors.black,
+                      underline: true,
+                    ),
+                  )
+                ],
+              ),
+              const SpaceWidget(spaceHeight: 16),
+              // Show phone input if not using email, else show email input
+              isContinueWithEmail
+                  ? TextFieldWidget(
+                controller: emailController,
+                hintText: "enterEmail".tr,
+                maxLines: 1,
+              )
+                  : IntlPhoneFieldWidget(
                 controller: phoneController,
                 hintText: "enterYourPhoneNumber".tr,
                 onChanged: (phone) {
