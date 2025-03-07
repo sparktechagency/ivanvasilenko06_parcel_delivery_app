@@ -291,61 +291,61 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
                       ),
                     ],
                   ),
-                  Row(
-                    children: [
-                      TextWidget(
-                        text: received[index],
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        fontColor: AppColors.greyDark2,
-                      ),
-                      Spacer(),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            if (index == 0) {
-                              statuses[index] = currentStatus == "not received"
-                                  ? "received"
-                                  : "not received";
-                            } else if (index == 1) {
-                              statuses[index] = currentStatus == "not delivered"
-                                  ? "delivered"
-                                  : "not delivered";
-                            } else if (index == 2) {
-                              statuses[index] = currentStatus == "not completed"
-                                  ? "completed"
-                                  : "not completed";
-                            }
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: currentStatus.contains("not")
-                                ? AppColors.whiteDark
-                                : AppColors.green,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: TextWidget(
-                            text: currentStatus == "not received"
-                                ? "Not Received"
-                                : currentStatus == "received"
-                                    ? "Received"
-                                    : currentStatus == "not delivered"
-                                        ? "Not Delivered"
-                                        : currentStatus == "delivered"
-                                            ? "Delivered"
-                                            : "Completed",
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            fontColor: currentStatus.contains("not")
-                                ? AppColors.black
-                                : AppColors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  // Row(
+                  //   children: [
+                  //     TextWidget(
+                  //       text: received[index],
+                  //       fontSize: 15,
+                  //       fontWeight: FontWeight.w500,
+                  //       fontColor: AppColors.greyDark2,
+                  //     ),
+                  //     Spacer(),
+                  //     GestureDetector(
+                  //       onTap: () {
+                  //         setState(() {
+                  //           if (index == 0) {
+                  //             statuses[index] = currentStatus == "not received"
+                  //                 ? "received"
+                  //                 : "not received";
+                  //           } else if (index == 1) {
+                  //             statuses[index] = currentStatus == "not delivered"
+                  //                 ? "delivered"
+                  //                 : "not delivered";
+                  //           } else if (index == 2) {
+                  //             statuses[index] = currentStatus == "not completed"
+                  //                 ? "completed"
+                  //                 : "not completed";
+                  //           }
+                  //         });
+                  //       },
+                  //       child: Container(
+                  //         padding: const EdgeInsets.all(10),
+                  //         decoration: BoxDecoration(
+                  //           color: currentStatus.contains("not")
+                  //               ? AppColors.whiteDark
+                  //               : AppColors.green,
+                  //           borderRadius: BorderRadius.circular(10),
+                  //         ),
+                  //         child: TextWidget(
+                  //           text: currentStatus == "not received"
+                  //               ? "Not Received"
+                  //               : currentStatus == "received"
+                  //                   ? "Received"
+                  //                   : currentStatus == "not delivered"
+                  //                       ? "Not Delivered"
+                  //                       : currentStatus == "delivered"
+                  //                           ? "Delivered"
+                  //                           : "Completed",
+                  //           fontSize: 12,
+                  //           fontWeight: FontWeight.w500,
+                  //           fontColor: currentStatus.contains("not")
+                  //               ? AppColors.black
+                  //               : AppColors.white,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
                   const SizedBox(height: 16),
                   Container(
                     width: double.infinity,

@@ -20,13 +20,16 @@ class SenderDeliveryTypeScreen extends StatefulWidget {
   SenderDeliveryTypeScreen({super.key});
 
   final List<String> nonProfessionalImages = [
-    AppImagePath.cycleImage,
+    AppImagePath.carImage,
     AppImagePath.personImage,
     AppImagePath.bikeImage,
-    AppImagePath.carImage,
+    AppImagePath.cycleImage,
+    AppImagePath.ivanPlane,
+
   ];
   final List<String> professionalImages = [
     AppImagePath.truckImage,
+    AppImagePath.ivanTaxi,
   ];
   final List<String> texts = [
     "vehicleType".tr,
@@ -332,11 +335,12 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                             int index = entry.key;
                             String imagePath = entry.value;
                             String title = [
-                              "bicycle".tr,
+                              "car".tr,
                               "person".tr,
                               "bike".tr,
-                              "car".tr,
-                            ][index];
+                              "bicycle".tr,
+                              "Plane".tr,
+                            ][index % 5];
                             bool isCentered = index == _currentIndexNP;
 
                             return Builder(
@@ -427,7 +431,10 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                               .map((entry) {
                             int index = entry.key;
                             String imagePath = entry.value;
-                            String title = ["truck".tr][index];
+                            String title = [
+                              "truck".tr,
+                              "Taxi".tr,
+                            ][index];
                             bool isCentered = index == _currentIndexP;
 
                             return Builder(

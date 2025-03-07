@@ -57,27 +57,29 @@ class _LanguageSelectPageState extends State<LanguageSelectPage> {
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: const ImageWidget(
-                              height: 40,
-                              width: 45,
-                              imagePath: AppImagePath.usaFlag,
+                      InkWell(
+                        onTap:(){
+                          localizationController.setLanguage(Locale(
+                            AppConstants.languages[0].languageCode,
+                            AppConstants.languages[0].countryCode,
+                          ));
+                          localizationController.setSelectedIndex(0);
+                          _saveLanguage(
+                              'en'); // Save 'en' as selected language
+
+                        },
+                        child: Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: const ImageWidget(
+                                height: 40,
+                                width: 45,
+                                imagePath: AppImagePath.usaFlag,
+                              ),
                             ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              localizationController.setLanguage(Locale(
-                                AppConstants.languages[0].languageCode,
-                                AppConstants.languages[0].countryCode,
-                              ));
-                              localizationController.setSelectedIndex(0);
-                              _saveLanguage(
-                                  'en'); // Save 'en' as selected language
-                            },
-                            child: const Text(
+                            const SizedBox(width:05),
+                            const Text(
                               'English',
                               style: TextStyle(
                                 fontSize: 16,
@@ -85,31 +87,32 @@ class _LanguageSelectPageState extends State<LanguageSelectPage> {
                                 color: AppColors.black,
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: const ImageWidget(
-                              height: 40,
-                              width: 45,
-                              imagePath: AppImagePath.israeilFlag,
+                      InkWell(
+                        onTap: () {
+                          localizationController.setLanguage(Locale(
+                            AppConstants.languages[1].languageCode,
+                            AppConstants.languages[1].countryCode,
+                          ));
+                          localizationController.setSelectedIndex(1);
+                          _saveLanguage(
+                              'he'); // Save 'ar' as selected language
+                        },
+                        child: Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: const ImageWidget(
+                                height: 40,
+                                width: 45,
+                                imagePath: AppImagePath.israeilFlag,
+                              ),
                             ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              localizationController.setLanguage(Locale(
-                                AppConstants.languages[1].languageCode,
-                                AppConstants.languages[1].countryCode,
-                              ));
-                              localizationController.setSelectedIndex(1);
-                              _saveLanguage(
-                                  'he'); // Save 'ar' as selected language
-                            },
-                            child: const Text(
+                            const SizedBox(width:05),
+                            const Text(
                               // 'עברי',
                               'Hebrew',
                               style: TextStyle(
@@ -118,8 +121,8 @@ class _LanguageSelectPageState extends State<LanguageSelectPage> {
                                 color: AppColors.black,
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   );

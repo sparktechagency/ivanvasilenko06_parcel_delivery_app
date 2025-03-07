@@ -82,7 +82,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
               Positioned(
                 bottom: isRTL
                     ? ResponsiveUtils.height(200)
-                    : ResponsiveUtils.height(100),
+                    : ResponsiveUtils.height(120),
                 left: isRTL ? null : ResponsiveUtils.width(24),
                 right: isRTL ? ResponsiveUtils.width(24) : null,
                 child: GetX<OnboardingController>(

@@ -47,4 +47,9 @@ class AppImagePath {
   static const String senderLocationImage =
       "assets/dev_images/senderLocationImage.png";
   static const String joshuaImage = "assets/dev_images/joshuaImage.png";
+
+  static const String taxiImage ="assets/images/taxiImage.png";
+
+  static const String ivanPlane = "assets/images/sizedPlane.png";
+  static const String ivanTaxi = "assets/images/sizedTaxi.png";
 }

@@ -47,7 +47,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
+
               children: [
                 Text(
                   "changeLanguage".tr,
@@ -64,61 +66,72 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          height: 45,
-                          width: 150,
-                          decoration: BoxDecoration(
-                            color: AppColors.grey,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: TextButton(
-                            onPressed: () {
-                              localizationController.setLanguage(Locale(
-                                AppConstants.languages[0].languageCode,
-                                AppConstants.languages[0].countryCode,
-                              ));
-                              localizationController.setSelectedIndex(0);
-                              _saveLanguage(
-                                  'en'); // Save 'en' as selected language
-                              Navigator.pop(context);
-                            },
-                            child: const Text(
-                              'English',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.black,
+                        InkWell(
+                          onTap:(){
+                            localizationController.setLanguage(Locale(
+                              AppConstants.languages[0].languageCode,
+                              AppConstants.languages[0].countryCode,
+                            ));
+                            localizationController.setSelectedIndex(0);
+                            _saveLanguage(
+                                'en'); // Save 'en' as selected language
+                            Navigator.pop(context);
+                          },
+                          child: Row(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: const ImageWidget(
+                                  height: 40,
+                                  width: 45,
+                                  imagePath: AppImagePath.usaFlag,
+                                ),
                               ),
-                            ),
+                              const SizedBox(width:05),
+                              const Text(
+                                'English',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.black,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Container(
-                          height: 45,
-                          width: 150,
-                          decoration: BoxDecoration(
-                            color: AppColors.grey,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: TextButton(
-                            onPressed: () {
-                              localizationController.setLanguage(Locale(
-                                AppConstants.languages[1].languageCode,
-                                AppConstants.languages[1].countryCode,
-                              ));
-                              localizationController.setSelectedIndex(1);
-                              _saveLanguage(
-                                  'he'); // Save 'ar' as selected language
-                              Navigator.pop(context);
-                            },
-                            child: const Text(
-                              'עברי',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.black,
+                        InkWell(
+                          onTap: () {
+                            localizationController.setLanguage(Locale(
+                              AppConstants.languages[1].languageCode,
+                              AppConstants.languages[1].countryCode,
+                            ));
+                            localizationController.setSelectedIndex(1);
+                            _saveLanguage(
+                                'he'); // Save 'ar' as selected language
+                            Navigator.pop(context);
+                          },
+                          child: Row(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: const ImageWidget(
+                                  height: 40,
+                                  width: 45,
+                                  imagePath: AppImagePath.israeilFlag,
+                                ),
                               ),
-                            ),
+                              const SizedBox(width:05),
+                              const Text(
+                                // 'עברי',
+                                'Hebrew',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.black,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],

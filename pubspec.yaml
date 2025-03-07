@@ -57,6 +57,7 @@ dependencies:
   syncfusion_flutter_datepicker: ^27.1.57
   dio: ^5.8.0+1
   pretty_dio_logger: ^1.4.0
+  flutter_screenutil: ^5.9.3
   
 
 dev_dependencies:

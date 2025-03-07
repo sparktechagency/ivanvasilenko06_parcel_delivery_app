@@ -17,14 +17,47 @@ class _PageThreeState extends State<PageThree> {
   DateTime? _fromDateTime;
   DateTime? _toDateTime;
 
-  void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) {
+  void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) async {
     if (args.value is PickerDateRange) {
-      setState(() {
-        _fromDateTime = args.value.startDate;
-        _toDateTime = args.value.endDate;
-      });
+      DateTime? startDate = args.value.startDate;
+      DateTime? endDate = args.value.endDate;
+
+      if (startDate != null && _fromDateTime == null) {
+        // Select Start Time only when picking fromDate for the first time
+        TimeOfDay? startTime = await _selectTime(context, "Select Start Time");
+        if (startTime != null) {
+          setState(() {
+            _fromDateTime = DateTime(
+                startDate.year, startDate.month, startDate.day,
+                startTime.hour, startTime.minute
+            );
+          });
+        }
+      }
+
+      if (endDate != null && _toDateTime == null) {
+        // Select End Time only when picking toDate for the first time
+        TimeOfDay? endTime = await _selectTime(context, "Select End Time");
+        if (endTime != null) {
+          setState(() {
+            _toDateTime = DateTime(
+                endDate.year, endDate.month, endDate.day,
+                endTime.hour, endTime.minute
+            );
+          });
+        }
+      }
     }
   }
+
+  Future<TimeOfDay?> _selectTime(BuildContext context, String title) async {
+    return await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: 9, minute: 0),
+      helpText: title,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -49,13 +82,13 @@ class _PageThreeState extends State<PageThree> {
               fontColor: AppColors.black,
               textAlignment: TextAlign.start,
             ),
-            const SpaceWidget(spaceHeight: 24),
+            const SpaceWidget(spaceHeight: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // From Date Display
+                // From Date & Time Display
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(08),
                   decoration: BoxDecoration(
                     border: Border.all(color: AppColors.grey, width: 1.5),
                     borderRadius: BorderRadius.circular(8),
@@ -63,14 +96,14 @@ class _PageThreeState extends State<PageThree> {
                   child: Text(
                     _fromDateTime == null
                         ? "fromDate".tr
-                        : _formatDate(_fromDateTime!),
+                        : _formatDateTime(_fromDateTime!),
                     style: const TextStyle(fontSize: 16, color: Colors.black),
                   ),
                 ),
                 const Icon(Icons.arrow_forward_ios),
-                // To Date Display
+                // To Date & Time Display
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     border: Border.all(color: AppColors.grey, width: 1.5),
                     borderRadius: BorderRadius.circular(8),
@@ -78,7 +111,7 @@ class _PageThreeState extends State<PageThree> {
                   child: Text(
                     _toDateTime == null
                         ? "toDate".tr
-                        : _formatDate(_toDateTime!),
+                        : _formatDateTime(_toDateTime!),
                     style: const TextStyle(fontSize: 16, color: Colors.black),
                   ),
                 ),
@@ -110,7 +143,8 @@ class _PageThreeState extends State<PageThree> {
     );
   }
 
-  String _formatDate(DateTime dateTime) {
-    return '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}';
+  String _formatDateTime(DateTime dateTime) {
+    return '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} '
+        '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 }

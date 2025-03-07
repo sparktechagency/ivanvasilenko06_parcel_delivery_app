@@ -9,7 +9,14 @@ import '../../widgets/image_widget/image_widget.dart';
 import '../../widgets/space_widget/space_widget.dart';
 import '../../widgets/text_widget/text_widgets.dart';
 
-class NotificationScreen extends StatelessWidget {
+class NotificationScreen extends StatefulWidget {
+  NotificationScreen({super.key});
+
+  @override
+  _NotificationScreenState createState() => _NotificationScreenState();
+}
+
+class _NotificationScreenState extends State<NotificationScreen> {
   final List<String> images = [
     AppImagePath.profileImage,
     AppImagePath.profileImage,
@@ -37,7 +44,8 @@ class NotificationScreen extends StatelessWidget {
     AppStrings.parcelDetails,
   ];
 
-  NotificationScreen({super.key});
+  // List to track the status (accepted, rejected, or pending)
+  List<String> status = List.generate(6, (index) => 'pending'); // Initial status is 'pending'
 
   @override
   Widget build(BuildContext context) {
@@ -67,21 +75,10 @@ class NotificationScreen extends StatelessWidget {
                     children: [
                       const SpaceWidget(spaceHeight: 8),
                       ...List.generate(images.length, (index) {
-                        return
-                            // Card(
-                            // color: AppColors.white,
-                            // shape: RoundedRectangleBorder(
-                            //   borderRadius: BorderRadius.circular(12),
-                            // ),
-                            // margin: const EdgeInsets.only(
-                            //     left: 20, right: 20, bottom: 16),
-                            // elevation: 3,
-                            // child:
-                            Container(
+                        return Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(16),
-                          margin: const EdgeInsets.only(
-                              left: 0, right: 0, bottom: 0),
+                          margin: const EdgeInsets.only(left: 0, right: 0, bottom: 0),
                           decoration: BoxDecoration(
                             color: AppColors.white,
                             borderRadius: BorderRadius.circular(12),
@@ -89,19 +86,16 @@ class NotificationScreen extends StatelessWidget {
                           child: Column(
                             children: [
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
                                           ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(100),
+                                            borderRadius: BorderRadius.circular(100),
                                             child: ImageWidget(
                                               height: 40,
                                               width: 40,
@@ -115,41 +109,6 @@ class NotificationScreen extends StatelessWidget {
                                             fontWeight: FontWeight.w500,
                                             fontColor: AppColors.black,
                                           ),
-                                          names[index] == AppStrings.joshua
-                                              ? const SpaceWidget(spaceWidth: 8)
-                                              : const SizedBox.shrink(),
-                                          names[index] == AppStrings.joshua
-                                              ? Container(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 6,
-                                                      vertical: 2),
-                                                  decoration: BoxDecoration(
-                                                    color: AppColors.yellow,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            100),
-                                                  ),
-                                                  child: const Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.star_rounded,
-                                                        color: AppColors.white,
-                                                        size: 10,
-                                                      ),
-                                                      TextWidget(
-                                                        text:
-                                                            AppStrings.ratings,
-                                                        fontSize: 10,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        fontColor:
-                                                            AppColors.white,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                )
-                                              : const SizedBox.shrink(),
                                         ],
                                       ),
                                       const SpaceWidget(spaceHeight: 8),
@@ -162,8 +121,7 @@ class NotificationScreen extends StatelessWidget {
                                           ),
                                           SpaceWidget(spaceWidth: 8),
                                           TextWidget(
-                                            text:
-                                                'Western Wall to 4 lebri street',
+                                            text: 'Western Wall to 4 lebri street',
                                             fontSize: 12,
                                             fontWeight: FontWeight.w500,
                                             fontColor: AppColors.greyDark2,
@@ -201,7 +159,10 @@ class NotificationScreen extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              Container(
+                              const SpaceWidget(spaceHeight: 16),
+                              // Conditionally render the status in the container
+                              status[index] == 'pending'
+                                  ? Container(
                                 width: double.infinity,
                                 padding: const EdgeInsets.all(14),
                                 decoration: BoxDecoration(
@@ -211,10 +172,14 @@ class NotificationScreen extends StatelessWidget {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  MainAxisAlignment.spaceBetween,
                                   children: [
                                     InkWell(
-                                      onTap: () {},
+                                      onTap: () {
+                                        setState(() {
+                                          status[index] = 'rejected'; // Change to 'rejected'
+                                        });
+                                      },
                                       splashColor: Colors.transparent,
                                       highlightColor: Colors.transparent,
                                       child: Row(
@@ -266,7 +231,11 @@ class NotificationScreen extends StatelessWidget {
                                       color: AppColors.blackLighter,
                                     ),
                                     InkWell(
-                                      onTap: () {},
+                                      onTap: () {
+                                        setState(() {
+                                          status[index] = 'accepted'; // Change to 'accepted'
+                                        });
+                                      },
                                       splashColor: Colors.transparent,
                                       highlightColor: Colors.transparent,
                                       child: Row(
@@ -288,11 +257,35 @@ class NotificationScreen extends StatelessWidget {
                                     ),
                                   ],
                                 ),
+                              )
+                                  : Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: AppColors.whiteLight,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.center,
+                                  children: [
+                                    TextWidget(
+                                      text: status[index] == 'accepted'
+                                          ? "Accepted"
+                                          : "Rejected",
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      fontColor: status[index] == 'accepted'
+                                          ? AppColors.green
+                                          : AppColors.red,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                         );
-                        // );
                       }),
                       const SpaceWidget(spaceHeight: 16),
                     ],

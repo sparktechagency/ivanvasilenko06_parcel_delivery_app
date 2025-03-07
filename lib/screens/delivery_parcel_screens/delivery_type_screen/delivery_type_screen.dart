@@ -17,10 +17,11 @@ class DeliveryTypeScreen extends StatefulWidget {
   final List<String> images = [
     AppImagePath.cycleImage,
     AppImagePath.personImage,
-    AppImagePath.planeImage,
+    AppImagePath.ivanTaxi,
     AppImagePath.bikeImage,
     AppImagePath.carImage,
     AppImagePath.truckImage,
+    AppImagePath.ivanPlane
   ];
 
   @override
@@ -78,10 +79,11 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
                     String title = [
                       "bicycle".tr,
                       "person".tr,
-                      "plane".tr,
+                      "Taxi".tr,
                       "bike".tr,
                       "car".tr,
-                      "truck".tr
+                      "truck".tr,
+                      "Plane".tr
                     ][index];
                     bool isCentered = index == _currentIndex;
 

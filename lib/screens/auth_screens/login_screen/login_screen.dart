@@ -114,7 +114,7 @@ class LoginScreen extends StatelessWidget {
             const SpaceWidget(spaceWidth: 4),
             TextButtonWidget(
               onPressed: () {
-                Get.offAllNamed(AppRoutes.loginScreen);
+                Get.offAllNamed(AppRoutes.signupScreen);
               },
               text: "signUp".tr,
               textColor: AppColors.greyDark,
