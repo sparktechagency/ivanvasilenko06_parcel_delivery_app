@@ -1,41 +1,51 @@
 import 'package:get_storage/get_storage.dart';
 import 'package:parcel_delivery_app/constants/storage_key.dart';
+import 'package:parcel_delivery_app/utils/appLog/error_app_log.dart';
 
 class AppAuthStorage {
   ////////////// storage initial
   GetStorage box = GetStorage();
 
   Future<void> setToken(String value) async {
-    await box.write(StorageKey.token, value);
+    try {
+      await box.write(StorageKey.token, value);
+    } catch (e) {
+      errorLog("set token ", e);
+    }
   }
 
   String? getToken() {
-    return box.read(StorageKey.token);
+    try {
+      return box.read(StorageKey.token) ?? "";
+    } catch (e) {
+      errorLog("get token", e);
+      return "";
+    }
   }
 
   Future<void> setRefreshToken(String value) async {
-    await box.write(StorageKey.refreshToken, value);
+    try {
+      await box.write(StorageKey.refreshToken, value);
+    } catch (e) {
+      errorLog("set refresh token", e);
+    }
   }
 
   String? getRefreshToken() {
-    return box.read(StorageKey.refreshToken);
+    try {
+      return box.read(StorageKey.refreshToken);
+    } catch (e) {
+      errorLog("get refresh token", e);
+      return "";
+    }
   }
 
   ///logout
   Future<void> storageClear() async {
-    await box.erase();
-  }
-
-  ///////////////// Chat ID
-  Future<void> setChatID(String value) async {
-    await box.write(StorageKey.chatID, value);
-  }
-
-  String? getChatID() {
-    return box.read(StorageKey.chatID);
-  }
-
-  Future<void> removeChatID() async {
-    await box.remove(StorageKey.chatID);
+    try {
+      await box.erase();
+    } catch (e) {
+      errorLog("logout", e);
+    }
   }
 }

@@ -5,39 +5,40 @@ import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart';
 
-class SignUpScreenController extends GetxController {
+class LoginScreenController extends GetxController {
   RxBool isLoading = false.obs;
-  TextEditingController fullNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
-  GlobalKey<FormState> signUpFormKey = GlobalKey<FormState>();
+  GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
 
-  Future<void> clickSignUpButton() async {
+
+  Future<void> clickLoginButton() async {
     try {
-      if (signUpFormKey.currentState!.validate()) {
+      if (loginFormKey.currentState!.validate()) {
         isLoading.value = true;
 
         Map<String, String> body = {
-          "fullName": fullNameController.text,
           "email": emailController.text,
         };
 
         var data = await ApiPostServices().apiPostServices(
-          url: AppApiUrl.signupemail,
+          url: AppApiUrl.login,
           body: body,
-          statusCode: 201,
         );
 
         if (data != null) {
           Get.toNamed(
             AppRoutes.verifyEmailScreen,
-            arguments: {"email": emailController.text},
+            arguments: {
+              "email": emailController.text,
+              "isFromLogin": true, // Add this flag to indicate login flow
+            },
           );
         } else {
-          Get.snackbar("Error", "Failed to sign up. Please try again.");
+          Get.snackbar("Error", "Failed to send OTP. Please try again.");
         }
       }
     } catch (e) {
-      log("Error from sign-up click button: $e");
+      log("Error from login click button: $e");
       Get.snackbar("Error", "An error occurred. Please try again.");
     } finally {
       isLoading.value = false;
@@ -46,7 +47,6 @@ class SignUpScreenController extends GetxController {
 
   @override
   void onClose() {
-    fullNameController.dispose();
     emailController.dispose();
     super.onClose();
   }

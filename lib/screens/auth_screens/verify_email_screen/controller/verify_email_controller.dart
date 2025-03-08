@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
+import 'package:parcel_delivery_app/screens/bottom_nav_bar/bottom_nav_bar.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart';
+import 'package:parcel_delivery_app/services/appStroage/app_auth_storage.dart';
 import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 
 class VerifyEmailController extends GetxController {
@@ -15,6 +17,7 @@ class VerifyEmailController extends GetxController {
   var isButtonDisabled = true.obs;
   var start = 180.obs;
   Timer? _timer;
+  bool isFromLogin = false;
 
   @override
   void onInit() {
@@ -22,6 +25,7 @@ class VerifyEmailController extends GetxController {
     startTimer();
     if (Get.arguments != null && Get.arguments is Map) {
       email = Get.arguments["email"] ?? "";
+      isFromLogin = Get.arguments["isFromLogin"] ?? false;
     } else {
       AppSnackBar.error("Invalid email. Try again.");
       Get.back();
@@ -30,7 +34,7 @@ class VerifyEmailController extends GetxController {
 
   void startTimer() {
     isButtonDisabled.value = true;
-    start.value = 10;
+    start.value = 100;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (start.value == 0) {
         isButtonDisabled.value = false;
@@ -41,35 +45,46 @@ class VerifyEmailController extends GetxController {
     });
   }
 
-  Future<void> verifyOtp() async{
-    if(otpController.text.isEmpty){
-      AppSnackBar.error("Please enter the otp");
+  Future<void> verifyOtp() async {
+    if (otpController.text.isEmpty) {
+      AppSnackBar.error("Please enter the OTP");
       return;
     }
-    try{
+    try {
       isLoading.value = true;
 
       Map<String, String> body = {
         'email': email,
         'otpCode': otpController.text
       };
-      var response = await ApiPostServices().apiPostServices(url: AppApiUrl.verifyEmail,body: body);
+
+      String url = isFromLogin ? AppApiUrl.loginemailveify : AppApiUrl.verifyEmail;
+      var response = await ApiPostServices().apiPostServices(url: url, body: body,);
+
       if (response != null) {
-        AppSnackBar.success("Successfully verified the email");
-        Get.offAllNamed(AppRoutes.loginScreen); // Navigate to home or dashboard
+        if (isFromLogin) {
+          if(response["data"]["token"] != null) {  log("😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒");
+            await AppAuthStorage().setToken(response["token"].toString());
+          }
+          AppSnackBar.success("Successfully verified the email");
+          Get.offAll(() => const BottomNavScreen());
+           //  Login flow → BottomNav
+        } else {
+          Get.offAllNamed(AppRoutes.loginScreen); //  Signup flow → Login Screen
+        }
       } else {
         AppSnackBar.error("Invalid OTP. Please try again.");
       }
-    }catch(e){
-      log("Error in email verification : $e");
+    } catch (e) {
+      log("Error in email verification: $e");
       AppSnackBar.error("An error occurred. Please try again.");
-    } finally{
+    } finally {
       isLoading.value = false;
     }
   }
 
+
   void resendCode() {
-    // Add your resend code logic here
     print("Resend code logic executed");
     startTimer();
   }

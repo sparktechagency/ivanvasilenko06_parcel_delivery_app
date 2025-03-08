@@ -1,11 +1,9 @@
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/screens/auth_screens/signup_screen/controller/signup_controller.dart';
-import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
-import '../../../routes/app_routes.dart';
-import '../../../widgets/phone_field_widget/phone_field_widget.dart';
 import '../../../widgets/space_widget/space_widget.dart';
 import '../../../widgets/text_field_widget/text_field_widget.dart';
 import '../../../widgets/text_widget/text_widgets.dart';
@@ -50,10 +48,11 @@ class SignupScreen extends StatelessWidget {
                 ),
                 const SpaceWidget(spaceHeight: 16),
 
-                // Phone Field
-                IntlPhoneFieldWidget(
-                  controller: controller.phoneController,
-                  hintText: "enterYourPhoneNumber".tr,
+                // Email Field
+                TextFieldWidget(
+                  controller: controller.emailController,
+                  hintText: "enterEmail".tr,
+                  maxLines: 1,
                 ),
 
                 const SpaceWidget(spaceHeight: 20),
@@ -75,10 +74,10 @@ class SignupScreen extends StatelessWidget {
             InkWell(
               onTap: () => Get.back(),
               borderRadius: BorderRadius.circular(100),
-              child: CircleAvatar(
+              child: const CircleAvatar(
                 backgroundColor: AppColors.grey,
-                radius: ResponsiveUtils.width(25),
-                child: const Icon(Icons.arrow_back, color: AppColors.black),
+                radius: 25,
+                child: Icon(Icons.arrow_back, color: AppColors.black),
               ),
             ),
             ButtonWidget(
