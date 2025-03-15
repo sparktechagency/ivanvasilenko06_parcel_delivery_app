@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:parcel_delivery_app/screens/send_parcel_screens/controller/sending_parcel_controller.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/sender_text_field_widget/sender_text_field_widget.dart';
 
 import '../../../../constants/app_colors.dart';
@@ -9,7 +10,7 @@ import '../../../../widgets/text_widget/text_widgets.dart';
 class PageFive extends StatelessWidget {
   PageFive({super.key});
 
-  final priceController = TextEditingController();
+  final ParcelController parcelController = Get.put(ParcelController()); // Initialize the controller
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +37,7 @@ class PageFive extends StatelessWidget {
           ),
           const SpaceWidget(spaceHeight: 24),
           SenderTextFieldWidget(
-            controller: priceController,
+            controller: parcelController.priceController,
             hintText: "enterYourPrice".tr,
             maxLines: 1,
             keyboardType: TextInputType.number,

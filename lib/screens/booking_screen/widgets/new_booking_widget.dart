@@ -86,33 +86,33 @@ class _NewBookingWidgetState extends State<NewBookingWidget> {
                                   fontWeight: FontWeight.w500,
                                   fontColor: AppColors.black,
                                 ),
-                                names[index] == AppStrings.joshua
-                                    ? const SpaceWidget(spaceWidth: 8)
-                                    : const SizedBox.shrink(),
-                                names[index] == AppStrings.joshua
-                                    ? Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.yellow,
-                                    borderRadius: BorderRadius.circular(100),
-                                  ),
-                                  child: const Row(
-                                    children: [
-                                      Icon(
-                                        Icons.star_rounded,
-                                        color: AppColors.white,
-                                        size: 10,
-                                      ),
-                                      TextWidget(
-                                        text: AppStrings.ratings,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w500,
-                                        fontColor: AppColors.white,
-                                      ),
-                                    ],
-                                  ),
-                                )
-                                    : const SizedBox.shrink(),
+                                // names[index] == AppStrings.joshua
+                                //     ? const SpaceWidget(spaceWidth: 8)
+                                //     : const SizedBox.shrink(),
+                                // names[index] == AppStrings.joshua
+                                //     ? Container(
+                                //   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                //   decoration: BoxDecoration(
+                                //     color: AppColors.yellow,
+                                //     borderRadius: BorderRadius.circular(100),
+                                //   ),
+                                //   child: const Row(
+                                //     children: [
+                                //       Icon(
+                                //         Icons.star_rounded,
+                                //         color: AppColors.white,
+                                //         size: 10,
+                                //       ),
+                                //       TextWidget(
+                                //         text: AppStrings.ratings,
+                                //         fontSize: 10,
+                                //         fontWeight: FontWeight.w500,
+                                //         fontColor: AppColors.white,
+                                //       ),
+                                //     ],
+                                //   ),
+                                // )
+                                //     : const SizedBox.shrink(),
                               ],
                             ),
                             const SpaceWidget(spaceHeight: 16),

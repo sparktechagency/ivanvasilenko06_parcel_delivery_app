@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
+import 'package:parcel_delivery_app/screens/send_parcel_screens/controller/sending_parcel_controller.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/page_five.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/page_four.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/page_six.dart';
@@ -19,18 +20,27 @@ import '../../../widgets/text_widget/text_widgets.dart';
 class SenderDeliveryTypeScreen extends StatefulWidget {
   SenderDeliveryTypeScreen({super.key});
 
-  final List<String> nonProfessionalImages = [
-    AppImagePath.carImage,
-    AppImagePath.personImage,
-    AppImagePath.bikeImage,
-    AppImagePath.cycleImage,
-    AppImagePath.ivanPlane,
+  @override
+  State<SenderDeliveryTypeScreen> createState() =>
+      _SenderDeliveryTypeScreenState();
+}
 
+class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
+  ParcelController parcelController = Get.put(ParcelController());
+
+  final List<String> nonProfessionalImages = [
+    AppImagePath.bikeImage,
+    AppImagePath.carImage,
+    AppImagePath.cycleImage,
+    AppImagePath.checkedPlane,
+    AppImagePath.personImage,
   ];
+
   final List<String> professionalImages = [
     AppImagePath.truckImage,
-    AppImagePath.ivanTaxi,
+    AppImagePath.checkingTexi,
   ];
+
   final List<String> texts = [
     "vehicleType".tr,
     "location".tr,
@@ -39,6 +49,7 @@ class SenderDeliveryTypeScreen extends StatefulWidget {
     "price".tr,
     "phone".tr,
   ];
+
   final List<String> images = [
     AppImagePath.stepper1,
     AppImagePath.stepper2,
@@ -49,22 +60,6 @@ class SenderDeliveryTypeScreen extends StatefulWidget {
   ];
 
   @override
-  State<SenderDeliveryTypeScreen> createState() =>
-      _SenderDeliveryTypeScreenState();
-}
-
-class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
-  int _currentIndexP = 0;
-  int _currentIndexNP = 0;
-  final CarouselSliderController _carouselController =
-      CarouselSliderController();
-
-  int _currentIndexTab = 0;
-  final PageController _pageController = PageController();
-  final PageController _tabController = PageController();
-  int _currentStep = 0;
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -73,10 +68,10 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
         children: [
           Expanded(
             child: PageView(
-              controller: _pageController,
+              controller: parcelController.pageController,
               onPageChanged: (index) {
                 setState(() {
-                  _currentStep = index;
+                  parcelController.currentStep.value = index;
                 });
               },
               children: [
@@ -106,16 +101,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 InkWell(
-                  onTap: () {
-                    if (_currentStep == 0) {
-                      Get.back();
-                    } else {
-                      setState(() {
-                        _currentStep--;
-                        _pageController.jumpToPage(_currentStep);
-                      });
-                    }
-                  },
+                  onTap: parcelController.goToPreviousStep,
                   borderRadius: BorderRadius.circular(100),
                   child: Card(
                     color: AppColors.white,
@@ -134,17 +120,10 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                   ),
                 ),
                 ButtonWidget(
-                  onPressed: () {
-                    if (_currentStep < 5) {
-                      setState(() {
-                        _currentStep++;
-                        _pageController.jumpToPage(_currentStep);
-                      });
-                    } else {
-                      Get.toNamed(AppRoutes.senderSummaryOfParcelScreen);
-                    }
-                  },
-                  label: _currentStep == 5 ? "next".tr : "next".tr,
+                  onPressed: parcelController.goToNextStep,
+                  label: parcelController.currentStep.value == 5
+                      ? "next".tr
+                      : "next".tr,
                   textColor: AppColors.white,
                   buttonWidth: 105,
                   buttonHeight: 50,
@@ -163,78 +142,74 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
   }
 
   Widget _buildStep(int index) {
-    return Expanded(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(
-            flex: 3,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                //This is the stepper desig
-                _currentStep >= index
-                    ? Image.asset(
-                        height: 15,
-                        width: 15,
-                        widget.images[index],
-                      )
-                    : Image.asset(
-                        height: 15,
-                        width: 15,
-                        widget.images[index],
-                        color: AppColors.white,
+    return Obx(() => Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // This is the stepper design
+                    parcelController.currentStep.value >= index
+                        ? Image.asset(
+                            height: 15,
+                            width: 15,
+                            images[index],
+                          )
+                        : Image.asset(
+                            height: 15,
+                            width: 15,
+                            images[index],
+                            color: AppColors.white,
+                          ),
+                    const SizedBox(height: 4),
+                    Container(
+                      height: 10,
+                      width: 10,
+                      margin: const EdgeInsets.symmetric(horizontal: 0),
+                      decoration: BoxDecoration(
+                        color: parcelController.currentStep.value >= index
+                            ? AppColors.black
+                            : AppColors.greyLight,
+                        borderRadius: BorderRadius.circular(100),
                       ),
-                const SizedBox(height: 4),
-                Container(
-                  height: 10,
-                  width: 10,
-                  margin: const EdgeInsets.symmetric(horizontal: 0),
-                  decoration: BoxDecoration(
-                    color: _currentStep >= index
-                        ? AppColors.black
-                        : AppColors.greyLight,
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  widget.texts[index],
-                  maxLines: 1,
-                  style: TextStyle(
-                      color: _currentStep >= index
-                          ? AppColors.black
-                          : AppColors.white,
-                      fontWeight: _currentStep >= index
-                          ? FontWeight.normal
-                          : FontWeight.normal,
-                      fontSize: 8,
-                      overflow: TextOverflow.ellipsis),
-                ),
-              ],
-            ),
-          ),
-          if (index < widget.texts.length - 1)
-            Expanded(
-              flex: 2,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                margin: const EdgeInsets.only(top: 4),
-                height: 1,
-                decoration: BoxDecoration(
-                  color: _currentStep >= index
-                      ? AppColors.black
-                      : AppColors.greyLight,
-                  borderRadius: BorderRadius.circular(100),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      texts[index],
+                      maxLines: 1,
+                      style: TextStyle(
+                          color: parcelController.currentStep.value >= index
+                              ? AppColors.black
+                              : AppColors.white,
+                          fontWeight: FontWeight.normal,
+                          fontSize: 8,
+                          overflow: TextOverflow.ellipsis),
+                    ),
+                  ],
                 ),
               ),
-            )
-        ],
-      ),
-    );
+              if (index < texts.length - 1)
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    margin: const EdgeInsets.only(top: 4),
+                    height: 1,
+                    decoration: BoxDecoration(
+                      color: parcelController.currentStep.value >= index
+                          ? AppColors.black
+                          : AppColors.greyLight,
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ));
   }
 
   Widget _buildPage1() {
@@ -262,32 +237,32 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                 children: [
                   _buildTabItem("nonProfessional".tr, 0),
                   const SpaceWidget(spaceHeight: 4),
-                  Container(
-                    height: ResponsiveUtils.height(3),
-                    width: ResponsiveUtils.width(12),
-                    decoration: BoxDecoration(
-                      color: _currentIndexTab == 0
-                          ? AppColors.black
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                  ),
+                  Obx(() => Container(
+                        height: ResponsiveUtils.height(3),
+                        width: ResponsiveUtils.width(12),
+                        decoration: BoxDecoration(
+                          color: parcelController.isProfessional.value == false
+                              ? AppColors.black
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      )),
                 ],
               ),
               Column(
                 children: [
                   _buildTabItem("professional".tr, 1),
                   const SpaceWidget(spaceHeight: 4),
-                  Container(
-                    height: ResponsiveUtils.height(3),
-                    width: ResponsiveUtils.width(12),
-                    decoration: BoxDecoration(
-                      color: _currentIndexTab == 1
-                          ? AppColors.black
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                  ),
+                  Obx(() => Container(
+                        height: ResponsiveUtils.height(3),
+                        width: ResponsiveUtils.width(12),
+                        decoration: BoxDecoration(
+                          color: parcelController.isProfessional.value == true
+                              ? AppColors.black
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      )),
                 ],
               ),
             ],
@@ -296,205 +271,16 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
         const SpaceWidget(spaceHeight: 24),
         Expanded(
           child: PageView(
-            controller: _tabController,
+            controller: parcelController.tabController,
             physics: const NeverScrollableScrollPhysics(),
             onPageChanged: (index) {
               setState(() {
-                _currentIndexTab = index;
+                parcelController.isProfessional.value = index == 1;
               });
             },
             children: [
-              Column(
-                children: [
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
-                        child: CarouselSlider(
-                          carouselController: _carouselController,
-                          options: CarouselOptions(
-                            height: ResponsiveUtils.height(150),
-                            enlargeCenterPage: true,
-                            autoPlay: false,
-                            aspectRatio: 16 / 9,
-                            viewportFraction: 0.35,
-                            enableInfiniteScroll: true,
-                            autoPlayAnimationDuration:
-                                const Duration(milliseconds: 800),
-                            onPageChanged: (index, reason) {
-                              setState(() {
-                                _currentIndexNP = index;
-                              });
-                            },
-                          ),
-                          items: widget.nonProfessionalImages
-                              .asMap()
-                              .entries
-                              .map((entry) {
-                            int index = entry.key;
-                            String imagePath = entry.value;
-                            String title = [
-                              "car".tr,
-                              "person".tr,
-                              "bike".tr,
-                              "bicycle".tr,
-                              "Plane".tr,
-                            ][index % 5];
-                            bool isCentered = index == _currentIndexNP;
-
-                            return Builder(
-                              builder: (BuildContext context) {
-                                return Column(
-                                  children: [
-                                    ImageWidget(
-                                      height: 70,
-                                      width: 70,
-                                      imagePath: imagePath,
-                                    ),
-                                    const SizedBox(height: 2),
-                                    TextWidget(
-                                      text: title,
-                                      fontSize: 14,
-                                      fontWeight: isCentered
-                                          ? FontWeight.w600
-                                          : FontWeight.w600,
-                                      fontColor: isCentered
-                                          ? AppColors.black
-                                          : AppColors.greyDarkLight,
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                      Positioned(
-                        left: 0,
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_back_ios,
-                              color: AppColors.black),
-                          onPressed: () {
-                            if (_currentIndexNP > 0) {
-                              _carouselController
-                                  .jumpToPage(_currentIndexNP - 1);
-                            }
-                          },
-                        ),
-                      ),
-                      Positioned(
-                        right: 0,
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_forward_ios,
-                              color: AppColors.black),
-                          onPressed: () {
-                            if (_currentIndexNP <
-                                widget.nonProfessionalImages.length - 1) {
-                              _carouselController
-                                  .jumpToPage(_currentIndexNP + 1);
-                            }
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
-                        child: CarouselSlider(
-                          carouselController: _carouselController,
-                          options: CarouselOptions(
-                            height: ResponsiveUtils.height(150),
-                            enlargeCenterPage: true,
-                            autoPlay: false,
-                            aspectRatio: 16 / 9,
-                            viewportFraction: 0.35,
-                            enableInfiniteScroll: false,
-                            autoPlayAnimationDuration:
-                                const Duration(milliseconds: 800),
-                            onPageChanged: (index, reason) {
-                              setState(() {
-                                _currentIndexP = index;
-                              });
-                            },
-                          ),
-                          items: widget.professionalImages
-                              .asMap()
-                              .entries
-                              .map((entry) {
-                            int index = entry.key;
-                            String imagePath = entry.value;
-                            String title = [
-                              "truck".tr,
-                              "Taxi".tr,
-                            ][index];
-                            bool isCentered = index == _currentIndexP;
-
-                            return Builder(
-                              builder: (BuildContext context) {
-                                return Column(
-                                  children: [
-                                    ImageWidget(
-                                      height: 70,
-                                      width: 70,
-                                      imagePath: imagePath,
-                                    ),
-                                    const SizedBox(height: 2),
-                                    TextWidget(
-                                      text: title,
-                                      fontSize: 14,
-                                      fontWeight: isCentered
-                                          ? FontWeight.w600
-                                          : FontWeight.w600,
-                                      fontColor: isCentered
-                                          ? AppColors.black
-                                          : AppColors.greyDarkLight,
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                      Positioned(
-                        left: 0,
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_back_ios,
-                              color: AppColors.black),
-                          onPressed: () {
-                            if (_currentIndexP > 0) {
-                              _carouselController
-                                  .jumpToPage(_currentIndexP - 1);
-                            }
-                          },
-                        ),
-                      ),
-                      Positioned(
-                        right: 0,
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_forward_ios,
-                              color: AppColors.black),
-                          onPressed: () {
-                            if (_currentIndexP <
-                                widget.professionalImages.length - 1) {
-                              _carouselController
-                                  .jumpToPage(_currentIndexP + 1);
-                            }
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+              _buildNonProfessionalTab(),
+              _buildProfessionalTab(),
             ],
           ),
         ),
@@ -506,21 +292,227 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
     return InkWell(
       onTap: () {
         setState(() {
-          _currentIndexTab = index;
+          parcelController.isProfessional.value = index == 1;
         });
-        _tabController.jumpToPage(index); // Change PageView page
+        parcelController.tabController.jumpToPage(index);
       },
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
-      child: TextWidget(
-        text: label,
-        fontColor: _currentIndexTab == index
-            ? AppColors.black
-            : AppColors.greyDarkLight,
-        fontSize: 14,
-        fontWeight:
-            _currentIndexTab == index ? FontWeight.w600 : FontWeight.w400,
-      ),
+      child: Obx(() => TextWidget(
+            text: label,
+            fontColor: parcelController.isProfessional.value == (index == 1)
+                ? AppColors.black
+                : AppColors.greyDarkLight,
+            fontSize: 14,
+            fontWeight: parcelController.isProfessional.value == (index == 1)
+                ? FontWeight.w600
+                : FontWeight.w400,
+          )),
+    );
+  }
+
+  Widget _buildNonProfessionalTab() {
+    return Column(
+      children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25),
+              child: CarouselSlider(
+                carouselController: parcelController.carouselController,
+                options: CarouselOptions(
+                  height: ResponsiveUtils.height(170),
+                  enlargeCenterPage: true,
+                  autoPlay: false,
+                  aspectRatio: 16 / 9,
+                  viewportFraction: 0.35,
+                  enableInfiniteScroll: true,
+                  autoPlayAnimationDuration: const Duration(milliseconds: 800),
+                  onPageChanged: (index, reason) {
+                    setState(() {
+                      parcelController.currentStep.value = index;
+                    });
+                  },
+                ),
+                items: nonProfessionalImages.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  String imagePath = entry.value;
+                  String title = [
+                    "bike".tr,
+                    "car".tr,
+                    "bicycle".tr,
+                    "Plane".tr,
+                    "person".tr,
+                  ][index % 5];
+                  bool isCentered =
+                      index == parcelController.currentStep.value;
+
+                  return Builder(
+                    builder: (BuildContext context) {
+                      return Column(
+                        children: [
+                          ImageWidget(
+                            height: 82,
+                            width: 82,
+                            imagePath: imagePath,
+                          ),
+                          const SizedBox(height: 2),
+                          Flexible(
+                            child: TextWidget(
+                              text: title,
+                              fontSize: 14,
+                              fontWeight: isCentered
+                                  ? FontWeight.w600
+                                  : FontWeight.w600,
+                              fontColor: isCentered
+                                  ? AppColors.black
+                                  : AppColors.greyDarkLight,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back_ios, color: AppColors.black),
+                onPressed: () {
+                  if (parcelController.currentStep.value > 0) {
+                    setState(() {
+                      parcelController.currentStep.value--;
+                    });
+                    parcelController.carouselController
+                        .jumpToPage(parcelController.currentStep.value);
+                  }
+                },
+              ),
+            ),
+            Positioned(
+              right: 0,
+              child: IconButton(
+                icon:
+                    const Icon(Icons.arrow_forward_ios, color: AppColors.black),
+                onPressed: () {
+                  if (parcelController.currentStep.value <
+                      nonProfessionalImages.length - 1) {
+                    setState(() {
+                      parcelController.currentStep.value++;
+                    });
+                    parcelController.carouselController
+                        .jumpToPage(parcelController.currentStep.value);
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProfessionalTab() {
+    return Column(
+      children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: CarouselSlider(
+                carouselController: parcelController.carouselController,
+                options: CarouselOptions(
+                  height: ResponsiveUtils.height(170),
+                  enlargeCenterPage: true,
+                  autoPlay: false,
+                  aspectRatio: 16 / 9,
+                  viewportFraction: 0.35,
+                  enableInfiniteScroll: false,
+                  autoPlayAnimationDuration: const Duration(milliseconds: 800),
+                  onPageChanged: (index, reason) {
+                    setState(() {
+                      parcelController.currentStep.value = index;
+                    });
+                  },
+                ),
+                items: professionalImages.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  String imagePath = entry.value;
+                  String title = [
+                    "truck".tr,
+                    "Taxi".tr,
+                  ][index];
+                  bool isCentered =
+                      index == parcelController.currentStep.value;
+
+                  return Builder(
+                    builder: (BuildContext context) {
+                      return Column(
+                        children: [
+                          ImageWidget(
+                            height: 82,
+                            width: 82,
+                            imagePath: imagePath,
+                          ),
+                          const SizedBox(height: 2),
+                          Flexible(
+                            child: TextWidget(
+                              text: title,
+                              fontSize: isCentered ? 16 : 14,
+                              fontWeight: isCentered
+                                  ? FontWeight.w600
+                                  : FontWeight.w600,
+                              fontColor: isCentered
+                                  ? AppColors.black
+                                  : AppColors.greyDarkLight,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back_ios, color: AppColors.black),
+                onPressed: () {
+                  if (parcelController.currentStep.value > 0) {
+                    setState(() {
+                      parcelController.currentStep.value--;
+                    });
+                    parcelController.carouselController
+                        .jumpToPage(parcelController.currentStep.value);
+                  }
+                },
+              ),
+            ),
+            Positioned(
+              right: 0,
+              child: IconButton(
+                icon:
+                    const Icon(Icons.arrow_forward_ios, color: AppColors.black),
+                onPressed: () {
+                  if (parcelController.currentStep.value <
+                      professionalImages.length - 1) {
+                    setState(() {
+                      parcelController.currentStep.value++;
+                    });
+                    parcelController.carouselController
+                        .jumpToPage(parcelController.currentStep.value);
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

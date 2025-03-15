@@ -1,8 +1,8 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:parcel_delivery_app/screens/send_parcel_screens/controller/sending_parcel_controller.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/sender_text_field_widget/sender_text_field_widget.dart';
 
 import '../../../../constants/app_colors.dart';
@@ -17,24 +17,21 @@ class PageFour extends StatefulWidget {
 }
 
 class _PageFourState extends State<PageFour> {
+  ParcelController parcelController = Get.put(ParcelController()); // Initialize the controller
+
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
-  List<File> selectedImages = [];
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImages() async {
     final List<XFile>? images = await _picker.pickMultiImage();
     if (images != null) {
-      setState(() {
-        selectedImages.addAll(images.map((image) => File(image.path)));
-      });
+      parcelController.selectedImages.addAll(images.map((image) => File(image.path))); // Update images in the controller
     }
   }
 
   void _removeImage(int index) {
-    setState(() {
-      selectedImages.removeAt(index);
-    });
+    parcelController.selectedImages.removeAt(index); // Remove image from the controller
   }
 
   @override
@@ -58,13 +55,13 @@ class _PageFourState extends State<PageFour> {
                 children: [
                   const SpaceWidget(spaceHeight: 24),
                   SenderTextFieldWidget(
-                    controller: titleController,
+                    controller: parcelController.titleController,
                     hintText: "enterParcelTitle".tr,
                     maxLines: 1,
                   ),
                   const SpaceWidget(spaceHeight: 12),
                   SenderTextFieldWidget(
-                    controller: descriptionController,
+                    controller: parcelController.descriptionController,
                     hintText: "WriteSomethingForDescription".tr,
                     maxLines: 4,
                   ),
@@ -93,17 +90,16 @@ class _PageFourState extends State<PageFour> {
                       ),
                     ),
                   ),
-                  if (selectedImages.isNotEmpty)
-                    SizedBox(
+                  if (parcelController.selectedImages.isNotEmpty)
+                    Obx(()=> SizedBox(
                       height: 300,
                       child: GridView.builder(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,
                           crossAxisSpacing: 8,
                           mainAxisSpacing: 8,
                         ),
-                        itemCount: selectedImages.length,
+                        itemCount: parcelController.selectedImages.length,
                         physics: const NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index) {
                           return Stack(
@@ -112,7 +108,7 @@ class _PageFourState extends State<PageFour> {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
                                   image: DecorationImage(
-                                    image: FileImage(selectedImages[index]),
+                                    image: FileImage(parcelController.selectedImages[index]),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -140,7 +136,7 @@ class _PageFourState extends State<PageFour> {
                           );
                         },
                       ),
-                    ),
+                    ),),
                 ],
               ),
             ),

@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:parcel_delivery_app/screens/send_parcel_screens/controller/sending_parcel_controller.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/sender_text_field_widget/sender_text_field_widget.dart';
 
 import '../../../../constants/app_colors.dart';
 import '../../../../widgets/phone_field_widget/phone_field_widget.dart';
 import '../../../../widgets/space_widget/space_widget.dart';
 import '../../../../widgets/text_widget/text_widgets.dart';
-
 class PageSix extends StatelessWidget {
   PageSix({super.key});
 
-  final nameController = TextEditingController();
-  final phoneController = TextEditingController();
-  String fullPhoneNumber = '';
+  ParcelController parcelController = Get.put(ParcelController()); // Initialize the controller
 
   @override
   Widget build(BuildContext context) {
@@ -39,16 +37,16 @@ class PageSix extends StatelessWidget {
           ),
           const SpaceWidget(spaceHeight: 24),
           SenderTextFieldWidget(
-            controller: nameController,
+            controller: parcelController.nameController, // Bind the controller
             hintText: "enterReceiversName".tr,
             maxLines: 1,
           ),
           const SpaceWidget(spaceHeight: 16),
           IntlPhoneFieldWidget(
-            controller: phoneController,
+            controller: parcelController.phoneController, // Bind the controller
             hintText: "enterReceiversNumber".tr,
             onChanged: (phone) {
-              fullPhoneNumber = phone.completeNumber;
+              parcelController.setReceiverNumber(phone.completeNumber); // Update receiver's number in the controller
             },
             fillColor: AppColors.white,
             borderColor: AppColors.black,

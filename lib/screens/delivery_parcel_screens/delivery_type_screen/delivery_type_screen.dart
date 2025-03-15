@@ -15,13 +15,14 @@ class DeliveryTypeScreen extends StatefulWidget {
   DeliveryTypeScreen({super.key});
 
   final List<String> images = [
-    AppImagePath.cycleImage,
-    AppImagePath.personImage,
-    AppImagePath.ivanTaxi,
+
     AppImagePath.bikeImage,
     AppImagePath.carImage,
+    AppImagePath.checkingTexi,
+    AppImagePath.cycleImage,
     AppImagePath.truckImage,
-    AppImagePath.ivanPlane
+    AppImagePath.checkedPlane,
+    AppImagePath.personImage,
   ];
 
   @override
@@ -55,11 +56,11 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
             alignment: Alignment.center,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
+                padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: CarouselSlider(
                   carouselController: _carouselController,
                   options: CarouselOptions(
-                    height: ResponsiveUtils.height(150),
+                    height: ResponsiveUtils.height(170),
                     enlargeCenterPage: true,
                     autoPlay: false,
                     aspectRatio: 16 / 9,
@@ -77,13 +78,13 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
                     int index = entry.key;
                     String imagePath = entry.value;
                     String title = [
-                      "bicycle".tr,
-                      "person".tr,
-                      "Taxi".tr,
                       "bike".tr,
                       "car".tr,
+                      "Taxi".tr,
+                      "bicycle".tr,
                       "truck".tr,
-                      "Plane".tr
+                      "Plane".tr,
+                      "person".tr
                     ][index];
                     bool isCentered = index == _currentIndex;
 
@@ -92,20 +93,22 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
                         return Column(
                           children: [
                             ImageWidget(
-                              height: 70,
-                              width: 70,
+                              height: 75,
+                              width: 75,
                               imagePath: imagePath,
                             ),
-                            const SizedBox(height: 2),
-                            TextWidget(
-                              text: title,
-                              fontSize: isCentered ? 15 : 14,
-                              fontWeight: isCentered
-                                  ? FontWeight.w600
-                                  : FontWeight.w500,
-                              fontColor: isCentered
-                                  ? AppColors.black
-                                  : AppColors.greyDarkLight,
+                            const SizedBox(height: 1),
+                            Flexible(
+                              child: TextWidget(
+                                text: title,
+                                fontSize: isCentered ? 16 : 14,
+                                fontWeight: isCentered
+                                    ? FontWeight.w600
+                                    : FontWeight.w500,
+                                fontColor: isCentered
+                                    ? AppColors.black
+                                    : AppColors.greyDarkLight,
+                              ),
                             ),
                           ],
                         );

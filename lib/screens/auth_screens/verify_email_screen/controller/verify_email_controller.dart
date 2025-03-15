@@ -8,6 +8,7 @@ import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/bottom_nav_bar/bottom_nav_bar.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart';
 import 'package:parcel_delivery_app/services/appStroage/app_auth_storage.dart';
+import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
 import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 
 class VerifyEmailController extends GetxController {
@@ -63,8 +64,17 @@ class VerifyEmailController extends GetxController {
 
       if (response != null) {
         if (isFromLogin) {
-          if(response["data"]["token"] != null) {  log("😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒");
-            await AppAuthStorage().setToken(response["token"].toString());
+          if(response["data"]["token"] != null) {
+            log("😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒");
+            log(" ✅✅✅✅ ${response["data"]["token"]} ☑️☑️☑️☑️☑️☑️ ");
+             AppAuthStorage().setToken(response["data"]["token"].toString());
+
+             SharePrefsHelper.setString(SharedPreferenceValue.token,response["data"]["token"].toString());
+
+            String token= await SharePrefsHelper.getString(SharedPreferenceValue.token);
+             debugPrint("token=-=-==-=-=-=-=-=-=-=--=-=${token}");
+
+
           }
           AppSnackBar.success("Successfully verified the email");
           Get.offAll(() => const BottomNavScreen());

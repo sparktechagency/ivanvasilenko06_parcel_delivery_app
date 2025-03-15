@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
+import 'package:parcel_delivery_app/screens/bottom_nav_bar/bottom_nav_bar.dart';
 import 'package:parcel_delivery_app/screens/onboarding_screen/widget/onboarding_contant.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
@@ -106,6 +107,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
               ButtonWidget(
                 onPressed: () {
                   Get.toNamed(AppRoutes.loginScreen);
+                  // Get.offAll(() => const BottomNavScreen());
                 },
                 label: "login".tr,
                 textColor: AppColors.black,

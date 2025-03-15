@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:parcel_delivery_app/constants/app_icons_path.dart';
+import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_image_path.dart';
@@ -17,306 +20,263 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
-  final List<String> images = [
-    AppImagePath.profileImage,
-    AppImagePath.profileImage,
-    AppImagePath.profileImage,
-    AppImagePath.profileImage,
-    AppImagePath.profileImage,
-    AppImagePath.profileImage,
-  ];
+  final String phoneNumber = '+1234567890';
+  final String message = 'Hello, this is a test message';
 
-  final List<String> names = [
-    AppStrings.joshua,
-    AppStrings.joshua,
-    AppStrings.joshua,
-    AppStrings.joshua,
-    AppStrings.joshua,
-    AppStrings.joshua,
-  ];
+  // Track the status of each item (pending, accepted, rejected)
+  List<String> status = List.generate(6, (index) => 'pending');
+  List<bool> isButtonClicked = List.generate(6, (index) => false); // Track if buttons are clicked
 
-  final List<String> details = [
-    AppStrings.parcelDetails,
-    AppStrings.viewDetails,
-    AppStrings.parcelDetails,
-    AppStrings.parcelDetails,
-    AppStrings.viewDetails,
-    AppStrings.parcelDetails,
-  ];
+  Future<void> _makePhoneCall() async {
+    final Uri launchUri = Uri(scheme: 'tel', path: phoneNumber);
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    } else {
+      _showErrorSnackBar('Could not launch phone call');
+    }
+  }
 
-  // List to track the status (accepted, rejected, or pending)
-  List<String> status = List.generate(6, (index) => 'pending'); // Initial status is 'pending'
+  Future<void> _sendMessage() async {
+    final Uri launchUri = Uri(scheme: 'sms', path: phoneNumber, queryParameters: {'body': message});
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    } else {
+      _showErrorSnackBar('Could not launch messaging app');
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  final List<String> images = List.filled(6, AppImagePath.profileImage);
+  final List<String> names = List.filled(6, AppStrings.joshua);
+  final List<String> details = List.filled(6, AppStrings.parcelDetails);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: Stack(
         children: [
-          const SpaceWidget(spaceHeight: 48),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: TextWidget(
-              text: "notification".tr,
-              fontSize: 24,
-              fontWeight: FontWeight.w600,
-              fontColor: AppColors.black,
-            ),
-          ),
-          const SpaceWidget(spaceHeight: 24),
-          Expanded(
-            child: Stack(
-              alignment: Alignment.bottomLeft,
-              children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SpaceWidget(spaceHeight: 48),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: TextWidget(
+                  text: "notification".tr,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  fontColor: AppColors.black,
+                ),
+              ),
+              const SpaceWidget(spaceHeight: 24),
+              Expanded(
+                child: SingleChildScrollView(
                   child: Column(
-                    children: [
-                      const SpaceWidget(spaceHeight: 8),
-                      ...List.generate(images.length, (index) {
-                        return Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          margin: const EdgeInsets.only(left: 0, right: 0, bottom: 0),
-                          decoration: BoxDecoration(
-                            color: AppColors.white,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          ClipRRect(
-                                            borderRadius: BorderRadius.circular(100),
-                                            child: ImageWidget(
-                                              height: 40,
-                                              width: 40,
-                                              imagePath: images[index],
-                                            ),
-                                          ),
-                                          const SpaceWidget(spaceWidth: 8),
-                                          TextWidget(
-                                            text: names[index],
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                            fontColor: AppColors.black,
-                                          ),
-                                        ],
+                    children: List.generate(images.length, (index) {
+                      return Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        margin: const EdgeInsets.only(bottom: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(100),
+                                      child: ImageWidget(
+                                        height: 40,
+                                        width: 40,
+                                        imagePath: images[index],
                                       ),
-                                      const SpaceWidget(spaceHeight: 8),
-                                      const Row(
-                                        children: [
-                                          Icon(
-                                            Icons.location_on_rounded,
-                                            color: AppColors.black,
-                                            size: 12,
-                                          ),
-                                          SpaceWidget(spaceWidth: 8),
-                                          TextWidget(
-                                            text: 'Western Wall to 4 lebri street',
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                            fontColor: AppColors.greyDark2,
-                                          ),
-                                        ],
-                                      ),
-                                      const SpaceWidget(spaceHeight: 8),
-                                      const Row(
-                                        children: [
-                                          Icon(
-                                            Icons.calendar_month,
-                                            color: AppColors.black,
-                                            size: 12,
-                                          ),
-                                          SpaceWidget(spaceWidth: 8),
-                                          TextWidget(
-                                            text: '24-04-2024',
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                            fontColor: AppColors.greyDark2,
-                                          ),
-                                        ],
-                                      ),
-                                      const SpaceWidget(spaceHeight: 16),
-                                    ],
-                                  ),
-                                  const Padding(
-                                    padding: EdgeInsets.only(top: 8),
-                                    child: TextWidget(
-                                      text: "${AppStrings.currency} 150",
+                                    ),
+                                    const SpaceWidget(spaceWidth: 8),
+                                    TextWidget(
+                                      text: names[index],
                                       fontSize: 16,
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight: FontWeight.w500,
                                       fontColor: AppColors.black,
+                                    ),
+                                  ],
+                                ),
+                                const TextWidget(
+                                  text: "${AppStrings.currency} 150",
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  fontColor: AppColors.black,
+                                ),
+                              ],
+                            ),
+                            const SpaceWidget(spaceHeight: 8),
+                            const Row(
+                              children: [
+                                Icon(Icons.location_on_rounded, color: AppColors.black, size: 12),
+                                SpaceWidget(spaceWidth: 8),
+                                TextWidget(
+                                  text: 'Western Wall to 4 lebri street',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  fontColor: AppColors.greyDark2,
+                                ),
+                              ],
+                            ),
+                            const SpaceWidget(spaceHeight: 8),
+                            Row(
+                              children: [
+                                const Icon(Icons.calendar_month, color: AppColors.black, size: 12),
+                                const SpaceWidget(spaceWidth: 8),
+                                const TextWidget(
+                                  text: '24-04-2024',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  fontColor: AppColors.greyDark2,
+                                ),
+                                const Spacer(),
+                                if (status[index] == 'accepted') ...[
+                                  InkWell(
+                                    onTap: _sendMessage,
+                                    borderRadius: BorderRadius.circular(100),
+                                    child: const CircleAvatar(
+                                      backgroundColor: AppColors.whiteDark,
+                                      radius: 18,
+                                      child: IconWidget(
+                                        icon: AppIconsPath.whatsAppIcon,
+                                        color: AppColors.black,
+                                        width: 18,
+                                        height: 18,
+                                      ),
+                                    ),
+                                  ),
+                                  const SpaceWidget(spaceWidth: 8),
+                                  InkWell(
+                                    onTap: _makePhoneCall,
+                                    borderRadius: BorderRadius.circular(100),
+                                    child: const CircleAvatar(
+                                      backgroundColor: AppColors.whiteDark,
+                                      radius: 18,
+                                      child: Icon(
+                                        Icons.call,
+                                        color: AppColors.black,
+                                        size: 18,
+                                      ),
                                     ),
                                   ),
                                 ],
+                              ],
+                            ),
+                            const SpaceWidget(spaceHeight: 16),
+                            // Container for showing the status (Accepted or Rejected)
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: AppColors.whiteLight,
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              const SpaceWidget(spaceHeight: 16),
-                              // Conditionally render the status in the container
-                              status[index] == 'pending'
-                                  ? Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(14),
-                                decoration: BoxDecoration(
-                                  color: AppColors.whiteLight,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          status[index] = 'rejected'; // Change to 'rejected'
-                                        });
-                                      },
-                                      splashColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                      child: Row(
-                                        children: [
-                                          const Icon(
-                                            Icons.close,
-                                            color: AppColors.red,
-                                            size: 16,
-                                          ),
-                                          const SpaceWidget(spaceWidth: 4),
-                                          TextWidget(
-                                            text: "reject".tr,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            fontColor: AppColors.red,
-                                          ),
-                                        ],
-                                      ),
+                              child: status[index] == 'pending'
+                                  ? Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        status[index] = 'rejected';
+                                        isButtonClicked[index] = true; // Mark button as clicked
+                                      });
+                                    },
+                                    child: const Row(
+                                      children: [
+                                        Icon(Icons.close, color: AppColors.red, size: 16),
+                                        SpaceWidget(spaceWidth: 4),
+                                        TextWidget(
+                                          text: "reject",
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          fontColor: AppColors.red,
+                                        ),
+                                      ],
                                     ),
-                                    Container(
-                                      width: 1,
-                                      height: 24,
-                                      color: AppColors.blackLighter,
+                                  ),
+                                  Container(width: 1, height: 24, color: AppColors.blackLighter),
+                                  InkWell(
+                                    onTap: () {
+                                      // Placeholder for future View functionality
+                                    },
+                                    child: const Row(
+                                      children: [
+                                        Icon(Icons.remove_red_eye_outlined, color: AppColors.black, size: 14),
+                                        SpaceWidget(spaceWidth: 4),
+                                        TextWidget(
+                                          text: "view",
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          fontColor: AppColors.greyDark2,
+                                        ),
+                                      ],
                                     ),
-                                    InkWell(
-                                      onTap: () {},
-                                      splashColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                      child: Row(
-                                        children: [
-                                          const Icon(
-                                            Icons.remove_red_eye_outlined,
-                                            color: AppColors.black,
-                                            size: 14,
-                                          ),
-                                          const SpaceWidget(spaceWidth: 4),
-                                          TextWidget(
-                                            text: "view".tr,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            fontColor: AppColors.greyDark2,
-                                          ),
-                                        ],
-                                      ),
+                                  ),
+                                  Container(width: 1, height: 24, color: AppColors.blackLighter),
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        status[index] = 'accepted';
+                                        isButtonClicked[index] = true; // Mark button as clicked
+                                      });
+                                    },
+                                    child: const Row(
+                                      children: [
+                                        Icon(Icons.check, color: AppColors.green, size: 14),
+                                        SpaceWidget(spaceWidth: 4),
+                                        TextWidget(
+                                          text: "accept",
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          fontColor: AppColors.green,
+                                        ),
+                                      ],
                                     ),
-                                    Container(
-                                      width: 1,
-                                      height: 24,
-                                      color: AppColors.blackLighter,
-                                    ),
-                                    InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          status[index] = 'accepted'; // Change to 'accepted'
-                                        });
-                                      },
-                                      splashColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                      child: Row(
-                                        children: [
-                                          const Icon(
-                                            Icons.check,
-                                            color: AppColors.green,
-                                            size: 14,
-                                          ),
-                                          const SpaceWidget(spaceWidth: 4),
-                                          TextWidget(
-                                            text: "accept".tr,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            fontColor: AppColors.green,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               )
-                                  : Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(14),
-                                decoration: BoxDecoration(
-                                  color: AppColors.whiteLight,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.center,
-                                  children: [
-                                    TextWidget(
-                                      text: status[index] == 'accepted'
-                                          ? "Accepted"
-                                          : "Rejected",
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      fontColor: status[index] == 'accepted'
-                                          ? AppColors.green
-                                          : AppColors.red,
-                                    ),
-                                  ],
+                                  : Center(
+                                child: TextWidget(
+                                  text: status[index] == 'accepted' ? "Accepted" : "Rejected",
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  fontColor: status[index] == 'accepted' ? AppColors.green : AppColors.red,
                                 ),
                               ),
-                            ],
-                          ),
-                        );
-                      }),
-                      const SpaceWidget(spaceHeight: 16),
-                    ],
-                  ),
-                ),
-                Positioned(
-                  left: 16,
-                  bottom: 16,
-                  child: InkWell(
-                    onTap: () {
-                      Get.back();
-                    },
-                    borderRadius: BorderRadius.circular(100),
-                    child: Card(
-                      color: AppColors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      elevation: 3,
-                      child: CircleAvatar(
-                        backgroundColor: AppColors.white,
-                        radius: ResponsiveUtils.width(25),
-                        child: const Icon(
-                          Icons.arrow_back,
-                          color: AppColors.black,
+                            ),
+                          ],
                         ),
-                      ),
-                    ),
+                      );
+                    }),
                   ),
                 ),
-              ],
+              ),
+            ],
+          ),
+          Positioned(
+            left: 16,
+            bottom: 16,
+            child: InkWell(
+              onTap: () => Get.back(),
+              borderRadius: BorderRadius.circular(100),
+              child: const CircleAvatar(
+                backgroundColor: AppColors.grey,
+                radius: 25,
+                child: Icon(Icons.arrow_back, color: AppColors.black),
+              ),
             ),
           ),
         ],

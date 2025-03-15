@@ -52,4 +52,7 @@ class AppImagePath {
 
   static const String ivanPlane = "assets/images/sizedPlane.png";
   static const String ivanTaxi = "assets/images/sizedTaxi.png";
+
+  static const String checkingTexi = "assets/images/testtaxi.png";
+  static const String checkedPlane = "assets/images/testplace2.png";
 }

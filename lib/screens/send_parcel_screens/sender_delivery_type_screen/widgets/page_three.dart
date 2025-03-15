@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:parcel_delivery_app/screens/send_parcel_screens/controller/sending_parcel_controller.dart';
+import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 import '../../../../constants/app_colors.dart';
@@ -14,8 +16,22 @@ class PageThree extends StatefulWidget {
 }
 
 class _PageThreeState extends State<PageThree> {
+  final ParcelController parcelController = Get.put(ParcelController()); // Initialize the controller
+
   DateTime? _fromDateTime;
   DateTime? _toDateTime;
+
+  Future<TimeOfDay?> _selectTime(BuildContext context, String title, TimeOfDay initialTime) async {
+    return await showDialog<TimeOfDay>(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomTimePickerDialog(
+          title: title,
+          initialTime: initialTime,
+        );
+      },
+    );
+  }
 
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) async {
     if (args.value is PickerDateRange) {
@@ -23,39 +39,37 @@ class _PageThreeState extends State<PageThree> {
       DateTime? endDate = args.value.endDate;
 
       if (startDate != null && _fromDateTime == null) {
-        // Select Start Time only when picking fromDate for the first time
-        TimeOfDay? startTime = await _selectTime(context, "Select Start Time");
+        TimeOfDay? startTime = await _selectTime(context, "Select Start Time", const TimeOfDay(hour: 9, minute: 0));
         if (startTime != null) {
           setState(() {
             _fromDateTime = DateTime(
-                startDate.year, startDate.month, startDate.day,
-                startTime.hour, startTime.minute
+              startDate.year,
+              startDate.month,
+              startDate.day,
+              startTime.hour,
+              startTime.minute,
             );
+            parcelController.setDate(_fromDateTime!); // Update the date in the controller
           });
         }
       }
 
       if (endDate != null && _toDateTime == null) {
-        // Select End Time only when picking toDate for the first time
-        TimeOfDay? endTime = await _selectTime(context, "Select End Time");
+        TimeOfDay? endTime = await _selectTime(context, "Select End Time", const TimeOfDay(hour: 9, minute: 0));
         if (endTime != null) {
           setState(() {
             _toDateTime = DateTime(
-                endDate.year, endDate.month, endDate.day,
-                endTime.hour, endTime.minute
+              endDate.year,
+              endDate.month,
+              endDate.day,
+              endTime.hour,
+              endTime.minute,
             );
+            parcelController.setDate(_toDateTime!); // Update the date in the controller
           });
         }
       }
     }
-  }
-
-  Future<TimeOfDay?> _selectTime(BuildContext context, String title) async {
-    return await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay(hour: 9, minute: 0),
-      helpText: title,
-    );
   }
 
   @override
@@ -86,7 +100,6 @@ class _PageThreeState extends State<PageThree> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // From Date & Time Display
                 Container(
                   padding: const EdgeInsets.all(08),
                   decoration: BoxDecoration(
@@ -101,7 +114,6 @@ class _PageThreeState extends State<PageThree> {
                   ),
                 ),
                 const Icon(Icons.arrow_forward_ios),
-                // To Date & Time Display
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -118,8 +130,6 @@ class _PageThreeState extends State<PageThree> {
               ],
             ),
             const SpaceWidget(spaceHeight: 16),
-
-            // Syncfusion DatePicker
             SfDateRangePicker(
               selectionMode: DateRangePickerSelectionMode.range,
               startRangeSelectionColor: AppColors.black,
@@ -148,3 +158,182 @@ class _PageThreeState extends State<PageThree> {
         '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 }
+
+// Custom Time Picker Dialog remains unchanged
+// Custom Time Picker Dialog
+class CustomTimePickerDialog extends StatefulWidget {
+  final String title;
+  final TimeOfDay initialTime;
+
+  const CustomTimePickerDialog({super.key, required this.title, required this.initialTime});
+
+  @override
+  _CustomTimePickerDialogState createState() => _CustomTimePickerDialogState();
+}
+
+class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
+  late int _hour;
+  late int _minute;
+  bool? _isAM; // Initially null (no selection)
+  final _hourController = TextEditingController();
+  final _minuteController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _hour = widget.initialTime.hourOfPeriod;
+    _minute = widget.initialTime.minute;
+    _isAM = null; // No selection initially
+
+    _hourController.text = _hour.toString().padLeft(2, '0');
+    _minuteController.text = _minute.toString().padLeft(2, '0');
+  }
+
+  void _validateHour(String value) {
+    setState(() {
+      _hour = int.tryParse(value) ?? _hour;
+      if (_hour < 0) _hour = 0;
+      if (_hour > 23) _hour = 23;
+      _hourController.text = _hour.toString().padLeft(2, '0');
+    });
+  }
+
+  void _validateMinute(String value) {
+    setState(() {
+      _minute = int.tryParse(value) ?? _minute;
+      if (_minute < 0) _minute = 0;
+      if (_minute > 59) _minute = 59;
+      _minuteController.text = _minute.toString().padLeft(2, '0');
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: AppColors.grey,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            TextWidget(
+              text: widget.title,
+              fontSize: 24,
+              fontWeight: FontWeight.w600,
+              fontColor: AppColors.black,
+              textAlignment: TextAlign.start,
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Hour Input
+                SizedBox(
+                  width: 80,
+                  child: TextField(
+                    controller: _hourController,
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    decoration: const InputDecoration(hintText: 'HH'),
+                    onChanged: _validateHour,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                const Text(":", style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold)),
+                const SizedBox(width: 10),
+                // Minute Input
+                SizedBox(
+                  width: 80,
+                  child: TextField(
+                    controller: _minuteController,
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    decoration: const InputDecoration(hintText: 'MM'),
+                    onChanged: _validateMinute,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // AM Button
+                ButtonWidget(
+                  buttonWidth: 75,
+                  buttonHeight: 45,
+                  label: 'AM',
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  buttonRadius: BorderRadius.circular(10),
+                  backgroundColor: _isAM == true ? AppColors.black : AppColors.white,
+                  textColor: _isAM == true ? AppColors.white : AppColors.black,
+                  onPressed: () {
+                    setState(() {
+                      _isAM = true;
+                    });
+                  },
+                ),
+                const SizedBox(width: 20),
+                // PM Button
+                ButtonWidget(
+                  buttonWidth: 75,
+                  buttonHeight: 45,
+                  label: 'PM',
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  buttonRadius: BorderRadius.circular(10),
+                  backgroundColor: _isAM == false ? AppColors.black : AppColors.white,
+                  textColor: _isAM == false ? AppColors.white : AppColors.black,
+                  onPressed: () {
+                    setState(() {
+                      _isAM = false;
+                    });
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 18),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // Cancel button
+                ButtonWidget(
+                  buttonWidth: 100,
+                  buttonHeight: 40,
+                  label: 'Cancel',
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  buttonRadius: BorderRadius.circular(10),
+                  backgroundColor: AppColors.white,
+                  textColor: AppColors.black,
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                // OK button
+                ButtonWidget(
+                  buttonWidth: 100,
+                  buttonHeight: 40,
+                  label: 'OK',
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  buttonRadius: BorderRadius.circular(10),
+                  backgroundColor: AppColors.black,
+                  textColor: AppColors.white,
+                  onPressed: () {
+                    if (_isAM == null) return; // Prevent OK if no selection
+
+                    final selectedTime = TimeOfDay(
+                      hour: _isAM! ? _hour : (_hour % 12) + 12, // Convert to 24-hour format
+                      minute: _minute,
+                    );
+                    Navigator.pop(context, selectedTime);
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+

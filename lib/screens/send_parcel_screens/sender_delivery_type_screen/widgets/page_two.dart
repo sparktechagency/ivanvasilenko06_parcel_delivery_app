@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
+import 'package:parcel_delivery_app/screens/send_parcel_screens/controller/sending_parcel_controller.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 
 import '../../../../constants/app_colors.dart';
@@ -18,16 +19,8 @@ class PageTwo extends StatefulWidget {
 }
 
 class _PageTwoState extends State<PageTwo> {
-  final TextEditingController _currentLocationController =
-      TextEditingController();
-  final TextEditingController _destinationController = TextEditingController();
+  ParcelController parcelController = Get.put(ParcelController());
 
-  @override
-  void dispose() {
-    _currentLocationController.dispose();
-    _destinationController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +68,7 @@ class _PageTwoState extends State<PageTwo> {
                   children: [
                     // Current Location Input
                     TextFormField(
-                      controller: _currentLocationController,
+                      controller: parcelController.currentLocationController,
                       style: const TextStyle(
                         color: AppColors.black,
                       ),
@@ -103,7 +96,7 @@ class _PageTwoState extends State<PageTwo> {
                     const SpaceWidget(spaceHeight: 12),
                     // Destination Input
                     TextFormField(
-                      controller: _destinationController,
+                      controller: parcelController.destinationController,
                       style: const TextStyle(
                         color: AppColors.black,
                       ),
