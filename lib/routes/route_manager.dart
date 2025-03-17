@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:parcel_delivery_app/screens/before_signups/country_select_page.dart';
 import 'package:parcel_delivery_app/screens/before_signups/language_select_page.dart';
 import 'package:parcel_delivery_app/screens/home_screen/home_screen.dart';
+import 'package:parcel_delivery_app/screens/recent_publish_orders/recent_publish_order.dart';
 
 import '../screens/auth_screens/email_login_screen/email_login_screen.dart';
 import '../screens/auth_screens/login_screen/login_screen.dart';
@@ -206,6 +207,10 @@ class RouteManager {
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
+      GetPage(
+          name: AppRoutes.recentpublishorder,
+          page: () => RecentPublishOrder(),
+          transition: Transition.rightToLeft),
     ];
   }
 }

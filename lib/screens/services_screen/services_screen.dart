@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:parcel_delivery_app/screens/services_screen/controller/services_controller.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_button_widget/text_button_widget.dart';
 
@@ -15,6 +16,8 @@ import '../../widgets/space_widget/space_widget.dart';
 import '../../widgets/text_widget/text_widgets.dart';
 import '../home_screen/widgets/reserve_bottom_sheet_widget.dart';
 import '../home_screen/widgets/suggestionCardWidget.dart';
+import '../recent_publish_order_details/recent_publish_order_details.dart';
+import 'model/promote_delivery_parcel.dart';
 
 class ServicesScreen extends StatefulWidget {
   ServicesScreen({super.key});
@@ -24,6 +27,8 @@ class ServicesScreen extends StatefulWidget {
 }
 
 class _ServicesScreenState extends State<ServicesScreen> {
+
+
   final List<String> images = [
     AppImagePath.sendParcel,
     AppImagePath.sendParcel,
@@ -212,6 +217,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var controller = Get.put(ServiceController());
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Padding(
@@ -261,163 +267,178 @@ class _ServicesScreenState extends State<ServicesScreen> {
             ),
             Expanded(
               child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SpaceWidget(spaceHeight: 25),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: SuggestionCardWidget(
-                            onTap: () {
-                              Get.toNamed(AppRoutes.deliveryTypeScreen);
-                            },
-                            text: "deliverParcel".tr,
-                            imagePath: AppImagePath.deliverParcel,
+                child:
+                Obx(
+                  ()=> controller.loading.value ?
+                      const Center(child: CircularProgressIndicator(color: Colors.black,),)
+
+                      :
+                    Column(
+
+                    children: [
+                      const SpaceWidget(spaceHeight: 25),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: SuggestionCardWidget(
+                              onTap: () {
+                                Get.toNamed(AppRoutes.deliveryTypeScreen);
+                              },
+                              text: "deliverParcel".tr,
+                              imagePath: AppImagePath.deliverParcel,
+                            ),
                           ),
-                        ),
-                        const SpaceWidget(spaceWidth: 16),
-                        Expanded(
-                          flex: 1,
-                          child: SuggestionCardWidget(
-                            onTap: () {
-                              Get.toNamed(AppRoutes.senderDeliveryTypeScreen);
-                            },
-                            text: "sendParcel".tr,
-                            imagePath: AppImagePath.sendParcel,
+                          const SpaceWidget(spaceWidth: 16),
+                          Expanded(
+                            flex: 1,
+                            child: SuggestionCardWidget(
+                              onTap: () {
+                                Get.toNamed(AppRoutes.senderDeliveryTypeScreen);
+                              },
+                              text: "sendParcel".tr,
+                              imagePath: AppImagePath.sendParcel,
+                            ),
                           ),
-                        ),
-                        const SpaceWidget(spaceWidth: 16),
-                        Expanded(
-                          flex: 1,
-                          child: SuggestionCardWidget(
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                backgroundColor: Colors.transparent,
-                                builder: (BuildContext context) {
-                                  return Container(
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.white,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(24),
-                                        topRight: Radius.circular(24),
+                          const SpaceWidget(spaceWidth: 16),
+                          Expanded(
+                            flex: 1,
+                            child: SuggestionCardWidget(
+                              onTap: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (BuildContext context) {
+                                    return Container(
+                                      decoration: const BoxDecoration(
+                                        color: AppColors.white,
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(24),
+                                          topRight: Radius.circular(24),
+                                        ),
                                       ),
-                                    ),
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 24, horizontal: 32),
-                                    child: const ReserveBottomSheetWidget(),
-                                  );
-                                },
-                              );
-                            },
-                            text: "reserve".tr,
-                            imagePath: AppImagePath.reserve,
+                                      width: double.infinity,
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 24, horizontal: 32),
+                                      child: const ReserveBottomSheetWidget(),
+                                    );
+                                  },
+                                );
+                              },
+                              text: "reserve".tr,
+                              imagePath: AppImagePath.reserve,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SpaceWidget(spaceHeight: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        TextWidget(
-                          text: "recentPublishedOrders".tr,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          fontColor: AppColors.black,
-                        ),
-                        TextButtonWidget(
-                          onPressed: () {},
-                          text: "viewAll".tr,
-                          textColor: AppColors.black,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ],
-                    ),
-                    const SpaceWidget(spaceHeight: 14),
-                    ...List.generate(images.length, (index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                ImageWidget(
-                                  height: 51,
-                                  width: 65,
-                                  imagePath: images[index],
-                                ),
-                                const SpaceWidget(spaceWidth: 12),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    TextWidget(
-                                      text: title[index],
-                                      fontSize: 15.5,
-                                      fontWeight: FontWeight.w500,
-                                      fontColor: AppColors.black,
-                                    ),
-                                    const SpaceWidget(spaceHeight: 4),
-                                    TextWidget(
-                                      text: address[index],
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      fontColor: AppColors.black,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                const TextWidget(
-                                  text: "${AppStrings.currency} 150",
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  fontColor: AppColors.black,
-                                ),
-                                TextButtonWidget(
-                                  onPressed: () {},
-                                  text: "seeDetails".tr,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w400,
-                                  textColor: AppColors.greyDark2,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-                    const SpaceWidget(spaceHeight: 14),
-                    const ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                      child: ImageWidget(
-                        height: 180,
-                        width: double.infinity,
-                        imagePath: AppImagePath.servicesImage,
+                        ],
                       ),
-                    ),
-                    const SpaceWidget(spaceHeight: 14),
-                    ButtonWidget(
-                      onPressed: () {
-                        _openBottomSheet(context);
-                      },
-                      label: "earnMoneyInYourRadius".tr,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      buttonWidth: double.infinity,
-                      buttonHeight: 50,
-                      prefixIcon: AppIconsPath.earnMoneyRadiusIcon,
-                    ),
-                    const SpaceWidget(spaceHeight: 80),
-                  ],
+                      const SpaceWidget(spaceHeight: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          TextWidget(
+                            text: "recentPublishedOrders".tr,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            fontColor: AppColors.black,
+                          ),
+                          TextButtonWidget(
+                            onPressed: () {
+                              Get.toNamed(AppRoutes.recentpublishorder);
+                            },
+                            text: "viewAll".tr,
+                            textColor: AppColors.black,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ],
+                      ),
+                      const SpaceWidget(spaceHeight: 14),
+                      ...List.generate(controller.parcelList.length, (index) {
+                        DeliveryPromote item  = controller.parcelList[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const ImageWidget(
+                                    height: 51,
+                                    width: 65,
+                                    imagePath:    AppImagePath.sendParcel
+                                  ),
+                                  const SpaceWidget(spaceWidth: 12),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      TextWidget(
+                                        text: item.status ?? "",
+                                        fontSize: 15.5,
+                                        fontWeight: FontWeight.w500,
+                                        fontColor: AppColors.black,
+                                      ),
+                                      const SpaceWidget(spaceHeight: 4),
+                                      TextWidget(
+                                        text: item.deliveryLocation ?? "",
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        fontColor: AppColors.black,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  const TextWidget(
+                                    text: "${AppStrings.currency} 150",
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    fontColor: AppColors.black,
+                                  ),
+                                  TextButtonWidget(
+                                    onPressed: () {
+                                      Get.to(
+                                        DeliveryDetailsScreen(item: item), // Pass the item here
+                                      );
+                                    },
+                                    text: "seeDetails".tr,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                    textColor: AppColors.greyDark2,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                      const SpaceWidget(spaceHeight: 14),
+                      const ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                        child: ImageWidget(
+                          height: 180,
+                          width: double.infinity,
+                          imagePath: AppImagePath.servicesImage,
+                        ),
+                      ),
+                      const SpaceWidget(spaceHeight: 14),
+                      ButtonWidget(
+                        onPressed: () {
+                          _openBottomSheet(context);
+                        },
+                        label: "earnMoneyInYourRadius".tr,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        buttonWidth: double.infinity,
+                        buttonHeight: 50,
+                        prefixIcon: AppIconsPath.earnMoneyRadiusIcon,
+                      ),
+                      const SpaceWidget(spaceHeight: 100),
+                    ],
+                  ),
                 ),
               ),
             )

@@ -34,6 +34,7 @@ class TextButtonWidget extends StatelessWidget {
         minimumSize: const Size(50, 30),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         alignment: Alignment.center,
+        
       ),
       child: Text(
         text,

@@ -9,16 +9,10 @@ import '../../../../constants/app_colors.dart';
 import '../../../../widgets/space_widget/space_widget.dart';
 import '../../../../widgets/text_widget/text_widgets.dart';
 
-class PageFour extends StatefulWidget {
-  const PageFour({super.key});
+class PageFour extends StatelessWidget {
+  PageFour({super.key});
 
-  @override
-  State<PageFour> createState() => _PageFourState();
-}
-
-class _PageFourState extends State<PageFour> {
-  ParcelController parcelController = Get.put(ParcelController()); // Initialize the controller
-
+  ParcelController parcelController = Get.put(ParcelController());
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
@@ -26,12 +20,13 @@ class _PageFourState extends State<PageFour> {
   Future<void> _pickImages() async {
     final List<XFile>? images = await _picker.pickMultiImage();
     if (images != null) {
-      parcelController.selectedImages.addAll(images.map((image) => File(image.path))); // Update images in the controller
+      // Update images in the controller
+      parcelController.selectedImages.addAll(images.map((image) => File(image.path)));
     }
   }
 
   void _removeImage(int index) {
-    parcelController.selectedImages.removeAt(index); // Remove image from the controller
+    parcelController.selectedImages.removeAt(index);
   }
 
   @override
@@ -90,57 +85,59 @@ class _PageFourState extends State<PageFour> {
                       ),
                     ),
                   ),
-                  if (parcelController.selectedImages.isNotEmpty)
-                    Obx(()=> SizedBox(
-                      height: 300,
-                      child: GridView.builder(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                        ),
-                        itemCount: parcelController.selectedImages.length,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return Stack(
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  image: DecorationImage(
-                                    image: FileImage(parcelController.selectedImages[index]),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                right: 4,
-                                top: 4,
-                                child: GestureDetector(
-                                  onTap: () => _removeImage(index),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: const BoxDecoration(
-                                      color: Colors.red,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.close,
-                                      size: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
+                  // Ensure that the Obx widget is correctly wrapped around the image list display
+                  Obx(() => parcelController.selectedImages.isNotEmpty
+                      ? SizedBox(
+                    height: 300,
+                    child: GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
                       ),
-                    ),),
+                      itemCount: parcelController.selectedImages.length,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return Stack(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                image: DecorationImage(
+                                  image: FileImage(parcelController.selectedImages[index]),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              right: 4,
+                              top: 4,
+                              child: GestureDetector(
+                                onTap: () => _removeImage(index),
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  )
+                      : Container()), // Show an empty container when no images are selected
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );

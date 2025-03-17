@@ -272,10 +272,23 @@ class _NotificationScreenState extends State<NotificationScreen> {
             child: InkWell(
               onTap: () => Get.back(),
               borderRadius: BorderRadius.circular(100),
-              child: const CircleAvatar(
-                backgroundColor: AppColors.grey,
-                radius: 25,
-                child: Icon(Icons.arrow_back, color: AppColors.black),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.whiteLight, // Background color of CircleAvatar
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(20), // Shadow color
+                      blurRadius: 10, // Spread of the shadow
+                      offset: const Offset(0, 4), // Position of the shadow (x, y)
+                    ),
+                  ],
+                ),
+                child: const CircleAvatar(
+                  backgroundColor: Colors.transparent, // Set to transparent since Container handles color
+                  radius: 25,
+                  child: Icon(Icons.arrow_back, color: AppColors.black),
+                ),
               ),
             ),
           ),

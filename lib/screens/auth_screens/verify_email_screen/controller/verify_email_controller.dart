@@ -67,12 +67,12 @@ class VerifyEmailController extends GetxController {
           if(response["data"]["token"] != null) {
             log("😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒");
             log(" ✅✅✅✅ ${response["data"]["token"]} ☑️☑️☑️☑️☑️☑️ ");
-             AppAuthStorage().setToken(response["data"]["token"].toString());
+             // AppAuthStorage().setToken(response["data"]["token"].toString());
 
              SharePrefsHelper.setString(SharedPreferenceValue.token,response["data"]["token"].toString());
 
             String token= await SharePrefsHelper.getString(SharedPreferenceValue.token);
-             debugPrint("token=-=-==-=-=-=-=-=-=-=--=-=${token}");
+             debugPrint("token=-=-==-=-=-=-=-=-=-=--=-= $token");
 
 
           }

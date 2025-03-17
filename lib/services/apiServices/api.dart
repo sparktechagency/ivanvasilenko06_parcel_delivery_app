@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/services/appStroage/app_auth_storage.dart';
+import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
 import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
@@ -24,11 +25,9 @@ class AppApi {
           options.baseUrl = AppApiUrl.baseUrl;
           options.contentType = 'application/json';
           options.headers["Accept"] = "application/json";
-
-          String? token = AppAuthStorage().getToken();
-          if (token != null) {
-            options.headers["Authorization"] = "Bearer $token";
-          }
+          var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
+          // String? token = AppAuthStorage().getToken();
+          options.headers["Authorization"] = "Bearer $token";
 
           return handler.next(options); // Continue request
         },
@@ -72,6 +71,7 @@ class AppApi {
   // Token refresh logic
   Future<String?> reFreshNewAccessToken() async {
     try {
+
       String? refreshToken = AppAuthStorage().getRefreshToken();
       if (refreshToken != null) {
         final response = await _dio

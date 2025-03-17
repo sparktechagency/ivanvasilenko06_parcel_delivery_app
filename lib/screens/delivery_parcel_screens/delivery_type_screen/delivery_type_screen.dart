@@ -15,7 +15,6 @@ class DeliveryTypeScreen extends StatefulWidget {
   DeliveryTypeScreen({super.key});
 
   final List<String> images = [
-
     AppImagePath.bikeImage,
     AppImagePath.carImage,
     AppImagePath.checkingTexi,
@@ -30,12 +29,22 @@ class DeliveryTypeScreen extends StatefulWidget {
 }
 
 class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
-  int _currentIndex = 4;
+  int _currentIndex = 0;
   final CarouselSliderController _carouselController =
-      CarouselSliderController();
+  CarouselSliderController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Delay the jump to the page after the widget tree is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _carouselController.jumpToPage(_currentIndex);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final images = widget.images ?? []; // Null check for images list
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Column(
@@ -67,14 +76,14 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
                     viewportFraction: 0.35,
                     enableInfiniteScroll: true,
                     autoPlayAnimationDuration:
-                        const Duration(milliseconds: 800),
+                    const Duration(milliseconds: 800),
                     onPageChanged: (index, reason) {
                       setState(() {
                         _currentIndex = index;
                       });
                     },
                   ),
-                  items: widget.images.asMap().entries.map((entry) {
+                  items: images.asMap().entries.map((entry) {
                     int index = entry.key;
                     String imagePath = entry.value;
                     String title = [
@@ -121,7 +130,7 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
                 left: 0,
                 child: IconButton(
                   icon:
-                      const Icon(Icons.arrow_back_ios, color: AppColors.black),
+                  const Icon(Icons.arrow_back_ios, color: AppColors.black),
                   onPressed: () {
                     if (_currentIndex > 0) {
                       _carouselController.jumpToPage(_currentIndex - 1);
@@ -135,7 +144,7 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
                   icon: const Icon(Icons.arrow_forward_ios,
                       color: AppColors.black),
                   onPressed: () {
-                    if (_currentIndex < widget.images.length - 1) {
+                    if (_currentIndex < images.length - 1) {
                       _carouselController.jumpToPage(_currentIndex + 1);
                     }
                   },

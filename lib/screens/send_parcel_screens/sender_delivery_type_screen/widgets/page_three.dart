@@ -49,7 +49,7 @@ class _PageThreeState extends State<PageThree> {
               startTime.hour,
               startTime.minute,
             );
-            parcelController.setDate(_fromDateTime!); // Update the date in the controller
+            parcelController.setStartDateTime(_fromDateTime!); // Update the start date-time in the controller
           });
         }
       }
@@ -65,7 +65,7 @@ class _PageThreeState extends State<PageThree> {
               endTime.hour,
               endTime.minute,
             );
-            parcelController.setDate(_toDateTime!); // Update the date in the controller
+            parcelController.setEndDateTime(_toDateTime!); // Update the end date-time in the controller
           });
         }
       }
@@ -174,16 +174,14 @@ class CustomTimePickerDialog extends StatefulWidget {
 class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
   late int _hour;
   late int _minute;
-  bool? _isAM; // Initially null (no selection)
   final _hourController = TextEditingController();
   final _minuteController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _hour = widget.initialTime.hourOfPeriod;
+    _hour = widget.initialTime.hour;
     _minute = widget.initialTime.minute;
-    _isAM = null; // No selection initially
 
     _hourController.text = _hour.toString().padLeft(2, '0');
     _minuteController.text = _minute.toString().padLeft(2, '0');
@@ -232,6 +230,7 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                 SizedBox(
                   width: 80,
                   child: TextField(
+                    style: const TextStyle(fontSize: 20,fontWeight: FontWeight.bold,fontFamily: "AeonikTRIAL"),
                     controller: _hourController,
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
@@ -246,53 +245,17 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                 SizedBox(
                   width: 80,
                   child: TextField(
+                    style: const TextStyle(fontSize: 20,fontWeight: FontWeight.bold,fontFamily: "AeonikTRIAL") ,
                     controller: _minuteController,
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
-                    decoration: const InputDecoration(hintText: 'MM'),
+                    decoration: const InputDecoration(hintText: 'MM',hintStyle: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,fontFamily: "AeonikTRIAL")),
                     onChanged: _validateMinute,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // AM Button
-                ButtonWidget(
-                  buttonWidth: 75,
-                  buttonHeight: 45,
-                  label: 'AM',
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  buttonRadius: BorderRadius.circular(10),
-                  backgroundColor: _isAM == true ? AppColors.black : AppColors.white,
-                  textColor: _isAM == true ? AppColors.white : AppColors.black,
-                  onPressed: () {
-                    setState(() {
-                      _isAM = true;
-                    });
-                  },
-                ),
-                const SizedBox(width: 20),
-                // PM Button
-                ButtonWidget(
-                  buttonWidth: 75,
-                  buttonHeight: 45,
-                  label: 'PM',
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  buttonRadius: BorderRadius.circular(10),
-                  backgroundColor: _isAM == false ? AppColors.black : AppColors.white,
-                  textColor: _isAM == false ? AppColors.white : AppColors.black,
-                  onPressed: () {
-                    setState(() {
-                      _isAM = false;
-                    });
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 18),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -319,11 +282,9 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                   backgroundColor: AppColors.black,
                   textColor: AppColors.white,
                   onPressed: () {
-                    if (_isAM == null) return; // Prevent OK if no selection
-
                     final selectedTime = TimeOfDay(
-                      hour: _isAM! ? _hour : (_hour % 12) + 12, // Convert to 24-hour format
-                      minute: _minute,
+                      hour: _hour, // Directly using the hour from the input
+                      minute: _minute, // Directly using the minute from the input
                     );
                     Navigator.pop(context, selectedTime);
                   },

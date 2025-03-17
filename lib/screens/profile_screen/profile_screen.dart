@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/profile_screen/widgets/profile_card_widget.dart';
+import 'package:parcel_delivery_app/services/appStroage/app_auth_storage.dart';
+import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
+import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -146,6 +149,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  void logout(){
+    SharePrefsHelper.remove(SharedPreferenceValue.token);
+    Get.toNamed(AppRoutes.splashScreen);
+    // AppAuthStorage.storageClear();
+  }
+  void showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: AppColors.grey, // Using your grey color from the theme
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const TextWidget(
+                  text: 'Are you sure you want to log out?', // Title text
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  fontColor: AppColors.black,
+                  textAlignment: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    // No Button
+                    ButtonWidget(
+                      buttonWidth: 100,
+                      buttonHeight: 40,
+                      label: 'No',
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      buttonRadius: BorderRadius.circular(10),
+                      backgroundColor: AppColors.white,
+                      textColor: AppColors.black,
+                      onPressed: () {
+                        Navigator.pop(context); // Close the dialog
+                      },
+                    ),
+                    // Yes Button
+                    ButtonWidget(
+                      buttonWidth: 100,
+                      buttonHeight: 40,
+                      label: 'Yes',
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      buttonRadius: BorderRadius.circular(10),
+                      backgroundColor: AppColors.black,
+                      textColor: AppColors.white,
+                      onPressed: () {
+                        SharePrefsHelper.remove(SharedPreferenceValue.token);
+                        Get.toNamed(AppRoutes.splashScreen);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -187,6 +255,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Get.toNamed(AppRoutes.contactUsScreen);
                       } else if (value == 2) {
                         showUserLanguage();
+                      }else{
+                        showLogoutDialog();
                       }
                     },
                     splashRadius: 5,
@@ -198,6 +268,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       PopupMenuItem(
                         value: 2,
                         child: Text("changeLanguage".tr),
+                      ),
+                      PopupMenuItem(
+                        value: 3,
+                        child: Text("Logout".tr),
                       ),
                     ],
                   ),

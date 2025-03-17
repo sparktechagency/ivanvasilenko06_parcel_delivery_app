@@ -39,7 +39,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       body: tabs[_currentIndex],
       extendBody: true,
       bottomNavigationBar: Container(
-        height: ResponsiveUtils.height(70),
+        height: ResponsiveUtils.height(85),
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(40),
@@ -48,7 +48,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
           color: AppColors.white,
           boxShadow: [
             BoxShadow(
-              color: AppColors.grey.withOpacity(0.3),
+              color: AppColors.grey.withAlpha(30),
               spreadRadius: 2,
               blurRadius: 3,
             ),

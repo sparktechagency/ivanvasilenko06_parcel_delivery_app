@@ -175,7 +175,7 @@ class SenderSummaryOfParcelScreen extends StatelessWidget {
                 onPressed: () async {
                   controller.submitParcelData();
                   List body = [
-                    controller.isProfessional.value,
+                    controller.selectedDeliveryType.value,
                     controller.currentStep.value,
                     controller.selectedDate.value,
                     controller.currentLocationController.text,
@@ -185,10 +185,10 @@ class SenderSummaryOfParcelScreen extends StatelessWidget {
                     controller.receiverNumber.value,
                     controller.descriptionController.text,
                   ];
-                  // log("😒😒 $body 😒😒");
-                  // var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
-                  // log("✅✅✅✅✅✅ $token ✅✅✅✅✅✅");
-                  // // Get.toNamed(AppRoutes.hurrahScreen);
+                  log("😒😒 $body 😒😒");
+                  var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
+                  log("✅✅✅✅✅✅ $token ✅✅✅✅✅✅");
+                  // Get.toNamed(AppRoutes.hurrahScreen);
                 },
                 label: "finish".tr,
                 textColor: AppColors.white,

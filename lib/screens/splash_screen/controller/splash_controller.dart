@@ -35,7 +35,6 @@ class SplashController extends GetxController {
 
          if(token!=null && token.isNotEmpty){
            Get.offAll(() => const BottomNavScreen());
-
          }else{
            Get.offAllNamed(AppRoutes.onboardingScreen);
          }

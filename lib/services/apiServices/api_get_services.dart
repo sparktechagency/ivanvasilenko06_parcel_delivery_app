@@ -16,12 +16,13 @@ class ApiGetServices {
         int statusCode = 200,
         Map<String, dynamic>? queryParameters,
         dynamic body,
+        String? token,
       }) async {
     try {
       final response = await api.sendRequest.get(
         url,
         queryParameters: queryParameters,
-        data: body,
+        data: body,options:Options(headers: {"Authorization": "Bearer $token}"}),
       );
       if (response.statusCode == statusCode) {
         return response.data;

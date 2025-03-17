@@ -31,4 +31,5 @@ class AppRoutes {
   static const senderSummaryOfParcelScreen = '/senderSummaryOfParcelScreen';
   static const hurrahScreen = '/hurrahScreen';
   static const cancelDeliveryScreen = '/cancelDeliveryScreen';
+  static const recentpublishorder = '/recentpublishorder';
 }

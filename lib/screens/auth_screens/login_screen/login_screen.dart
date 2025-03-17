@@ -72,7 +72,15 @@ class LoginScreen extends StatelessWidget {
                   const SpaceWidget(spaceHeight: 16),
                   CustomInkWellButton(
                     onTap: () {
-                      Get.toNamed(AppRoutes.emailLoginScreen);
+                      Get.snackbar(
+                        "Sign with Email Comming Soon",
+                        "This Feature will be implemented Now You can Sing up with your Email",
+                        backgroundColor: AppColors.green,
+                        colorText: Colors.white,
+                        snackPosition: SnackPosition.TOP,
+                        duration: const Duration(seconds: 2),
+                        margin: EdgeInsets.all(10),
+                      );
                     },
                     icon: AppIconsPath.emailIcon,
                     text: "continueWithEmail".tr,
@@ -80,7 +88,15 @@ class LoginScreen extends StatelessWidget {
                   const SpaceWidget(spaceHeight: 16),
                   CustomInkWellButton(
                     onTap: () {
-                      Get.offAll(() => const BottomNavScreen());
+                      Get.snackbar(
+                        "Sign with Google Comming Soon",
+                        "This Feature will be implemented",
+                        backgroundColor: AppColors.green,
+                        colorText: Colors.white,
+                        snackPosition: SnackPosition.TOP,
+                        duration: const Duration(seconds: 2),
+                        margin: EdgeInsets.all(10),
+                      );
                     },
                     icon: AppIconsPath.googleIcon,
                     text: "continueWithGoogle".tr,
@@ -88,7 +104,15 @@ class LoginScreen extends StatelessWidget {
                   const SpaceWidget(spaceHeight: 16),
                   CustomInkWellButton(
                     onTap: () {
-                      Get.offAll(() => const BottomNavScreen());
+                      Get.snackbar(
+                        "Sign with Apple Comming Soon",
+                        "This Feature will be implemented",
+                        backgroundColor: AppColors.green,
+                        colorText: Colors.white,
+                        snackPosition: SnackPosition.TOP,
+                        duration: const Duration(seconds: 2),
+                        margin: EdgeInsets.all(10),
+                      );
                     },
                     icon: AppIconsPath.appleIcon,
                     text: "continueWithApple".tr,
