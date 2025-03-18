@@ -7,7 +7,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_image_path.dart';
 import '../../constants/app_strings.dart';
-import '../../utils/app_size.dart';
 import '../../widgets/image_widget/image_widget.dart';
 import '../../widgets/space_widget/space_widget.dart';
 import '../../widgets/text_widget/text_widgets.dart';
@@ -25,7 +24,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   // Track the status of each item (pending, accepted, rejected)
   List<String> status = List.generate(6, (index) => 'pending');
-  List<bool> isButtonClicked = List.generate(6, (index) => false); // Track if buttons are clicked
+  List<bool> isButtonClicked =
+      List.generate(6, (index) => false); // Track if buttons are clicked
 
   Future<void> _makePhoneCall() async {
     final Uri launchUri = Uri(scheme: 'tel', path: phoneNumber);
@@ -37,7 +37,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   Future<void> _sendMessage() async {
-    final Uri launchUri = Uri(scheme: 'sms', path: phoneNumber, queryParameters: {'body': message});
+    final Uri launchUri = Uri(
+        scheme: 'sms', path: phoneNumber, queryParameters: {'body': message});
     if (await canLaunchUrl(launchUri)) {
       await launchUrl(launchUri);
     } else {
@@ -46,7 +47,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   final List<String> images = List.filled(6, AppImagePath.profileImage);
@@ -120,7 +122,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             const SpaceWidget(spaceHeight: 8),
                             const Row(
                               children: [
-                                Icon(Icons.location_on_rounded, color: AppColors.black, size: 12),
+                                Icon(Icons.location_on_rounded,
+                                    color: AppColors.black, size: 12),
                                 SpaceWidget(spaceWidth: 8),
                                 TextWidget(
                                   text: 'Western Wall to 4 lebri street',
@@ -131,18 +134,34 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               ],
                             ),
                             const SpaceWidget(spaceHeight: 8),
-                            Row(
+                            const Row(
                               children: [
-                                const Icon(Icons.calendar_month, color: AppColors.black, size: 12),
-                                const SpaceWidget(spaceWidth: 8),
-                                const TextWidget(
+                                Icon(Icons.calendar_month,
+                                    color: AppColors.black, size: 12),
+                                SpaceWidget(spaceWidth: 8),
+                                TextWidget(
                                   text: '24-04-2024',
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                   fontColor: AppColors.greyDark2,
                                 ),
-                                const Spacer(),
-                                if (status[index] == 'accepted') ...[
+                              ],
+                            ),
+                            const SpaceWidget(spaceHeight: 8),
+
+                            if (status[index] == 'accepted') ...[
+                              Row(
+                                children: [
+                                  const Icon(Icons.call,
+                                      color: AppColors.black, size: 12),
+                                  const SpaceWidget(spaceWidth: 8),
+                                  const TextWidget(
+                                    text: '+972 52 123 4567',
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    fontColor: AppColors.greyDark2,
+                                  ),
+                                  const Spacer(),
                                   InkWell(
                                     onTap: _sendMessage,
                                     borderRadius: BorderRadius.circular(100),
@@ -172,8 +191,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                     ),
                                   ),
                                 ],
-                              ],
-                            ),
+                              ),
+                            ],
                             const SpaceWidget(spaceHeight: 16),
                             // Container for showing the status (Accepted or Rejected)
                             Container(
@@ -181,81 +200,101 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               padding: const EdgeInsets.all(14),
                               decoration: BoxDecoration(
                                 color: AppColors.whiteLight,
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(30),
                               ),
                               child: status[index] == 'pending'
                                   ? Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        status[index] = 'rejected';
-                                        isButtonClicked[index] = true; // Mark button as clicked
-                                      });
-                                    },
-                                    child: const Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Icon(Icons.close, color: AppColors.red, size: 16),
-                                        SpaceWidget(spaceWidth: 4),
-                                        TextWidget(
-                                          text: "reject",
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          fontColor: AppColors.red,
+                                        InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              status[index] = 'rejected';
+                                              isButtonClicked[index] =
+                                                  true; // Mark button as clicked
+                                            });
+                                          },
+                                          child: const Row(
+                                            children: [
+                                              Icon(Icons.close,
+                                                  color: AppColors.red,
+                                                  size: 16),
+                                              SpaceWidget(spaceWidth: 4),
+                                              TextWidget(
+                                                text: "Reject",
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                fontColor: AppColors.red,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                            width: 1,
+                                            height: 24,
+                                            color: AppColors.blackLighter),
+                                        InkWell(
+                                          onTap: () {
+                                            // Placeholder for future View functionality
+                                          },
+                                          child: const Row(
+                                            children: [
+                                              Icon(
+                                                  Icons.remove_red_eye_outlined,
+                                                  color: AppColors.black,
+                                                  size: 14),
+                                              SpaceWidget(spaceWidth: 4),
+                                              TextWidget(
+                                                text: "View",
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                fontColor: AppColors.greyDark2,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                            width: 1,
+                                            height: 24,
+                                            color: AppColors.blackLighter),
+                                        InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              status[index] = 'accepted';
+                                              isButtonClicked[index] =
+                                                  true; // Mark button as clicked
+                                            });
+                                          },
+                                          child: const Row(
+                                            children: [
+                                              Icon(Icons.check,
+                                                  color: AppColors.green,
+                                                  size: 14),
+                                              SpaceWidget(spaceWidth: 4),
+                                              TextWidget(
+                                                text: "Accept",
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                fontColor: AppColors.green,
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ],
-                                    ),
-                                  ),
-                                  Container(width: 1, height: 24, color: AppColors.blackLighter),
-                                  InkWell(
-                                    onTap: () {
-                                      // Placeholder for future View functionality
-                                    },
-                                    child: const Row(
-                                      children: [
-                                        Icon(Icons.remove_red_eye_outlined, color: AppColors.black, size: 14),
-                                        SpaceWidget(spaceWidth: 4),
-                                        TextWidget(
-                                          text: "view",
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          fontColor: AppColors.greyDark2,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(width: 1, height: 24, color: AppColors.blackLighter),
-                                  InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        status[index] = 'accepted';
-                                        isButtonClicked[index] = true; // Mark button as clicked
-                                      });
-                                    },
-                                    child: const Row(
-                                      children: [
-                                        Icon(Icons.check, color: AppColors.green, size: 14),
-                                        SpaceWidget(spaceWidth: 4),
-                                        TextWidget(
-                                          text: "accept",
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          fontColor: AppColors.green,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              )
+                                    )
                                   : Center(
-                                child: TextWidget(
-                                  text: status[index] == 'accepted' ? "Accepted" : "Rejected",
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: status[index] == 'accepted' ? AppColors.green : AppColors.red,
-                                ),
-                              ),
+                                      child: TextWidget(
+                                        text: status[index] == 'accepted'
+                                            ? "Accepted"
+                                            : "Rejected",
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        fontColor: status[index] == 'accepted'
+                                            ? AppColors.black
+                                            : AppColors.red,
+                                      ),
+                                    ),
                             ),
                           ],
                         ),
@@ -274,18 +313,18 @@ class _NotificationScreenState extends State<NotificationScreen> {
               borderRadius: BorderRadius.circular(100),
               child: Container(
                 decoration: BoxDecoration(
-                  color: AppColors.whiteLight, // Background color of CircleAvatar
+                  color: AppColors.whiteLight,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withAlpha(20), // Shadow color
-                      blurRadius: 10, // Spread of the shadow
-                      offset: const Offset(0, 4), // Position of the shadow (x, y)
+                      color: Colors.black.withAlpha(20),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
                 child: const CircleAvatar(
-                  backgroundColor: Colors.transparent, // Set to transparent since Container handles color
+                  backgroundColor: Colors.transparent,
                   radius: 25,
                   child: Icon(Icons.arrow_back, color: AppColors.black),
                 ),

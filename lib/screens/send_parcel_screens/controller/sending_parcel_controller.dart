@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'package:http/http.dart' as http;
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,22 +10,24 @@ import 'package:intl/intl.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
-import 'package:http_parser/http_parser.dart';
+import 'package:parcel_delivery_app/services/reporsitory/image_repository/image_repository.dart';
 
 class ParcelController extends GetxController {
   // Variables to store user selections
-  var selectedDeliveryType = 'non-professional'.obs; // Professional or Non-Professional
-  var selectedVehicleType = ''.obs; // Selected vehicle type
-  var selectedLocation = ''.obs; // Selected location
-  var selectedDate = DateTime.now().obs; // Selected date
-  var selectedTime = DateTime.now().obs; // Selected time
-  var description = ''.obs; // Parcel description
-  var price = 0.0.obs; // Parcel price
-  var receiverName = ''.obs; // Receiver's name
-  var receiverNumber = ''.obs; // Receiver's phone number
-  var selectedImages = <File>[].obs; // Selected images for the parcel
+  List<String> userTypeList = <String>["non-professional", "professional"];
 
-  // Controllers for text fields
+  RxString selectedDeliveryType =
+      "non-professional".obs; // Ensure consistency here
+  var selectedVehicleType = ''.obs;
+  var selectedLocation = ''.obs;
+  var selectedDate = DateTime.now().obs;
+  var selectedTime = DateTime.now().obs;
+  var description = ''.obs;
+  var price = 0.0.obs;
+  var receiverName = ''.obs;
+  var receiverNumber = ''.obs;
+  var selectedImages = <String>[].obs;
+
   final currentLocationController = TextEditingController();
   final destinationController = TextEditingController();
   final titleController = TextEditingController();
@@ -34,20 +36,16 @@ class ParcelController extends GetxController {
   final nameController = TextEditingController();
   final phoneController = TextEditingController();
 
-  // Page and tab controllers
   PageController pageController = PageController();
   PageController tabController = PageController();
   CarouselSliderController carouselController = CarouselSliderController();
 
-  // Current step in the process
   var currentStep = 0.obs;
 
-  // Image picker
   final ImagePicker _picker = ImagePicker();
 
-  // New variables for storing start and end time
-  var startDateTime = DateTime.now().obs; // Start date-time
-  var endDateTime = DateTime.now().obs; // End date-time
+  var startDateTime = DateTime.now().obs;
+  var endDateTime = DateTime.now().obs;
 
   // Setters for fields
   void setProfessional(String value) {
@@ -86,7 +84,6 @@ class ParcelController extends GetxController {
     receiverNumber.value = number;
   }
 
-  // Setters for start and end time
   void setStartDateTime(DateTime start) {
     startDateTime.value = start;
   }
@@ -97,9 +94,9 @@ class ParcelController extends GetxController {
 
   Future<void> pickImages() async {
     try {
-      final List<XFile>? images = await _picker.pickMultiImage();
-      if (images != null && images.isNotEmpty) {
-        selectedImages.addAll(images.map((image) => File(image.path)));
+      final List<XFile> images = await _picker.pickMultiImage();
+      if (images.isNotEmpty) {
+        selectedImages.addAll(images.map((image) => File(image.path).path));
       } else {
         Get.snackbar('No images selected', 'Please select at least one image.');
       }
@@ -112,7 +109,6 @@ class ParcelController extends GetxController {
     selectedImages.removeAt(index);
   }
 
-  // Navigation functions
   void goToNextStep() {
     if (currentStep.value < 5) {
       currentStep.value++;
@@ -137,101 +133,61 @@ class ParcelController extends GetxController {
     }
   }
 
-  // Format date and time
   String formatDateTime(DateTime dateTime) {
     return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
   }
 
-  // Convert image to base64
   String imageToBase64(File image) {
     final bytes = image.readAsBytesSync();
     return base64Encode(bytes);
   }
 
-  // Submit parcel data
   Future<void> submitParcelData() async {
-
-    if (selectedDeliveryType.value.isEmpty ||
-        selectedVehicleType.value.isEmpty ||
-        currentLocationController.text.isEmpty ||
-        destinationController.text.isEmpty ||
-        titleController.text.isEmpty ||
-        descriptionController.text.isEmpty ||
-        receiverName.value.isEmpty ||
-        receiverNumber.value.isEmpty ||
-        selectedImages.isEmpty) {
-      Get.snackbar('Error', 'Please fill all the required fields including images');
-      return;
-    }
-
     var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
     log("🔑 Authorization Token: $token");
 
+    if (token.isEmpty) {
+      Get.snackbar('Error', 'Authorization token is missing');
+      return;
+    }
+
     var startTime = DateFormat('yyyy-MM-dd HH:mm').format(startDateTime.value);
     var endTime = DateFormat('yyyy-MM-dd HH:mm').format(endDateTime.value);
-
     log("This is startTime: $startTime");
 
     try {
       final Map<String, dynamic> parcelData = {
-        'senderType': selectedDeliveryType.value,
+        'senderType': "non_professional",
         'pickupLocation': currentLocationController.text,
         'deliveryLocation': destinationController.text,
-        'deliveryStartTime': startTime, // Use startTime from the controller
-        'deliveryEndTime': endTime, // Use endTime from the controller
+        'deliveryStartTime': startTime,
+        'deliveryEndTime': endTime,
         'deliveryType': selectedVehicleType.value,
         'price': price.value.toString(),
-        'receiverDetails': {
-          "name": receiverName.value,
-          "phoneNumber": receiverNumber.value,
-        },
         'title': titleController.text,
         'description': descriptionController.text,
+        'name': nameController.text,
+        'phoneNumber': phoneController.text,
       };
 
       log("📦 Sending parcel data: $parcelData");
 
-      var request = http.MultipartRequest(
-        'POST',
-        Uri.parse(AppApiUrl.sendPercel),
+      if (selectedImages.isEmpty) {
+        Get.snackbar('Error', 'Please select at least one image.');
+        return;
+      }
+
+      await ImageMultipartUpload().imageUploadWithData2(
+        body: parcelData,
+        url: AppApiUrl.sendPercel,
+        imagePath: selectedImages.value,
       );
-
-      request.fields.addAll(parcelData.map((key, value) => MapEntry(key, value.toString())));
-
-      log("🖼 Selected images count: ${selectedImages.length}");
-      for (var image in selectedImages) {
-        log("📸 Adding image: ${image.path}");
-        request.files.add(
-          await http.MultipartFile.fromPath(
-            'images',
-            image.path,
-            contentType: MediaType('image', 'png'),
-          ),
-        );
-      }
-
-      request.headers['Authorization'] = 'Bearer $token';
-      log("🌐 Sending request to: ${AppApiUrl.sendPercel}");
-
-      var response = await request.send();
-
-      log("📩 Response Status Code: ${response.statusCode}");
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        String responseBody = await response.stream.bytesToString();
-        log("✅ Parcel data sent successfully! Response: $responseBody");
-        Get.toNamed(AppRoutes.hurrahScreen);
-      } else {
-        String responseBody = await response.stream.bytesToString();
-        log("❌ Failed to send parcel data: ${response.statusCode} - $responseBody");
-        Get.snackbar('Error', 'Failed to submit parcel data: ${response.statusCode}');
-      }
     } catch (e) {
       log("❌ Error sending parcel data: $e");
       Get.snackbar('Error', 'Failed to submit parcel data: $e');
     }
   }
 
-  // Reset all fields
   void resetAllFields() {
     selectedDeliveryType.value = 'non-professional';
     selectedVehicleType.value = '';
@@ -254,7 +210,6 @@ class ParcelController extends GetxController {
 
   @override
   void onClose() {
-    // Dispose of controllers
     currentLocationController.dispose();
     destinationController.dispose();
     titleController.dispose();

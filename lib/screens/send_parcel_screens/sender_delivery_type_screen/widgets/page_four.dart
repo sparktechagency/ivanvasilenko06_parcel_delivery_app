@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -21,7 +22,8 @@ class PageFour extends StatelessWidget {
     final List<XFile>? images = await _picker.pickMultiImage();
     if (images != null) {
       // Update images in the controller
-      parcelController.selectedImages.addAll(images.map((image) => File(image.path)));
+      parcelController.selectedImages
+          .addAll(images.map((image) => File(image.path).path));
     }
   }
 
@@ -88,52 +90,56 @@ class PageFour extends StatelessWidget {
                   // Ensure that the Obx widget is correctly wrapped around the image list display
                   Obx(() => parcelController.selectedImages.isNotEmpty
                       ? SizedBox(
-                    height: 300,
-                    child: GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                      ),
-                      itemCount: parcelController.selectedImages.length,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return Stack(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                image: DecorationImage(
-                                  image: FileImage(parcelController.selectedImages[index]),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
+                          height: 300,
+                          child: GridView.builder(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
                             ),
-                            Positioned(
-                              right: 4,
-                              top: 4,
-                              child: GestureDetector(
-                                onTap: () => _removeImage(index),
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.red,
-                                    shape: BoxShape.circle,
+                            itemCount: parcelController.selectedImages.length,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              return Stack(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      image: DecorationImage(
+                                        image: FileImage(File(parcelController
+                                            .selectedImages[index])),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
                                   ),
-                                  child: const Icon(
-                                    Icons.close,
-                                    size: 16,
-                                    color: Colors.white,
+                                  Positioned(
+                                    right: 4,
+                                    top: 4,
+                                    child: GestureDetector(
+                                      onTap: () => _removeImage(index),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: const BoxDecoration(
+                                          color: AppColors.black,
+                                          // color: AppColors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.close,
+                                          size: 16,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  )
-                      : Container()), // Show an empty container when no images are selected
+                                ],
+                              );
+                            },
+                          ),
+                        )
+                      : Container()),
+                  // Show an empty container when no images are selected
                 ],
               ),
             ),

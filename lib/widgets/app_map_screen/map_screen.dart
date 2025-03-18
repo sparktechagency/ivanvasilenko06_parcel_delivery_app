@@ -6,7 +6,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class MapScreen extends StatefulWidget {
+  const MapScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _MapScreenState createState() => _MapScreenState();
 }
 

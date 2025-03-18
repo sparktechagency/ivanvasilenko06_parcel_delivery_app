@@ -8,13 +8,10 @@ import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/page_six.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/page_three.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/page_two.dart';
-import 'package:parcel_delivery_app/utils/app_size.dart';
+import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
-
-import '../../../constants/app_colors.dart';
-import '../../../widgets/button_widget/button_widget.dart';
-import '../../../widgets/space_widget/space_widget.dart';
-import '../../../widgets/text_widget/text_widgets.dart';
+import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
+import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
 
 class SenderDeliveryTypeScreen extends StatefulWidget {
   const SenderDeliveryTypeScreen({super.key});
@@ -25,7 +22,15 @@ class SenderDeliveryTypeScreen extends StatefulWidget {
 }
 
 class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
+  int currentCarouselIndex = 0;
   ParcelController parcelController = Get.put(ParcelController());
+
+  @override
+  void initState() {
+    super.initState();
+    parcelController.selectedDeliveryType.value =
+        "non-professional"; // Correct value
+  }
 
   final List<String> nonProfessionalImages = [
     AppImagePath.bikeImage,
@@ -61,7 +66,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Colors.white,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -83,7 +88,6 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
               ],
             ),
           ),
-          // Horizontal Stepper
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
@@ -93,7 +97,6 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
               }),
             ),
           ),
-          // Buttons
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
@@ -102,19 +105,12 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                 InkWell(
                   onTap: parcelController.goToPreviousStep,
                   borderRadius: BorderRadius.circular(100),
-                  child: Card(
-                    color: AppColors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    elevation: 3,
-                    child: CircleAvatar(
-                      backgroundColor: AppColors.white,
-                      radius: ResponsiveUtils.width(25),
-                      child: const Icon(
-                        Icons.arrow_back,
-                        color: AppColors.black,
-                      ),
+                  child: const CircleAvatar(
+                    backgroundColor: Colors.white,
+                    radius: 25,
+                    child: Icon(
+                      Icons.arrow_back,
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -123,11 +119,11 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                   label: parcelController.currentStep.value == 5
                       ? "next".tr
                       : "next".tr,
-                  textColor: AppColors.white,
+                  textColor: Colors.white,
                   buttonWidth: 105,
                   buttonHeight: 50,
                   icon: Icons.arrow_forward,
-                  iconColor: AppColors.white,
+                  iconColor: Colors.white,
                   fontWeight: FontWeight.w500,
                   fontSize: 16,
                   iconSize: 20,
@@ -151,7 +147,6 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // This is the stepper design
                     parcelController.currentStep.value >= index
                         ? Image.asset(
                             height: 15,
@@ -162,7 +157,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                             height: 15,
                             width: 15,
                             images[index],
-                            color: AppColors.white,
+                            color: Colors.white,
                           ),
                     const SizedBox(height: 4),
                     Container(
@@ -171,8 +166,8 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                       margin: const EdgeInsets.symmetric(horizontal: 0),
                       decoration: BoxDecoration(
                         color: parcelController.currentStep.value >= index
-                            ? AppColors.black
-                            : AppColors.greyLight,
+                            ? Colors.black
+                            : Colors.grey,
                         borderRadius: BorderRadius.circular(100),
                       ),
                     ),
@@ -182,8 +177,8 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                       maxLines: 1,
                       style: TextStyle(
                           color: parcelController.currentStep.value >= index
-                              ? AppColors.black
-                              : AppColors.white,
+                              ? Colors.black
+                              : Colors.white,
                           fontWeight: FontWeight.normal,
                           fontSize: 8,
                           overflow: TextOverflow.ellipsis),
@@ -200,8 +195,8 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                     height: 1,
                     decoration: BoxDecoration(
                       color: parcelController.currentStep.value >= index
-                          ? AppColors.black
-                          : AppColors.greyLight,
+                          ? Colors.black
+                          : Colors.grey,
                       borderRadius: BorderRadius.circular(100),
                     ),
                   ),
@@ -222,7 +217,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
             text: "senderDeliveryType".tr,
             fontSize: 24,
             fontWeight: FontWeight.w600,
-            fontColor: AppColors.black,
+            fontColor: Colors.black,
             textAlignment: isRTL ? TextAlign.right : TextAlign.left,
           ),
         ),
@@ -234,34 +229,36 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
             children: [
               Column(
                 children: [
-                  _buildTabItem("nonProfessional".tr, "non-professional"), // Pass string "non-professional"
+                  _buildTabItem("nonProfessional".tr, "non-professional"),
                   const SpaceWidget(spaceHeight: 4),
                   Obx(() => Container(
-                    height: ResponsiveUtils.height(3),
-                    width: ResponsiveUtils.width(12),
-                    decoration: BoxDecoration(
-                      color: parcelController.selectedDeliveryType.value == "non-professional"
-                          ? AppColors.black
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                  )),
+                        height: 3,
+                        width: 12,
+                        decoration: BoxDecoration(
+                          color: parcelController.selectedDeliveryType.value ==
+                                  "non-professional"
+                              ? Colors.black
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ))
                 ],
               ),
               Column(
                 children: [
-                  _buildTabItem("professional".tr, "professional"), // Pass string "professional"
+                  _buildTabItem("professional".tr, "professional"),
                   const SpaceWidget(spaceHeight: 4),
                   Obx(() => Container(
-                    height: ResponsiveUtils.height(3),
-                    width: ResponsiveUtils.width(12),
-                    decoration: BoxDecoration(
-                      color: parcelController.selectedDeliveryType.value == "professional"
-                          ? AppColors.black
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                  )),
+                        height: 3,
+                        width: 12,
+                        decoration: BoxDecoration(
+                          color: parcelController.selectedDeliveryType.value ==
+                                  "professional"
+                              ? Colors.black
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ))
                 ],
               ),
             ],
@@ -274,9 +271,9 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
             physics: const NeverScrollableScrollPhysics(),
             onPageChanged: (index) {
               setState(() {
-                // Set the delivery type based on selected index
-                parcelController.selectedDeliveryType.value =
-                index == 1 ? "professional" : "non-professional"; // Set string directly
+                parcelController.selectedDeliveryType.value = index == 1
+                    ? "professional"
+                    : "non_professional"; // Correct format
               });
             },
             children: [
@@ -289,31 +286,29 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
     );
   }
 
-
   Widget _buildTabItem(String label, String deliveryType) {
     return InkWell(
       onTap: () {
-        setState(() {
-          // Update selected delivery type as string (either "professional" or "non-professional")
-          parcelController.selectedDeliveryType.value = deliveryType;
-        });
-        parcelController.tabController.jumpToPage(deliveryType == "professional" ? 1 : 0);
+        parcelController.selectedDeliveryType.value = deliveryType;
+        parcelController.tabController
+            .jumpToPage(deliveryType == "professional" ? 1 : 0);
       },
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       child: Obx(() => TextWidget(
-        text: label,
-        fontColor: parcelController.selectedDeliveryType.value == deliveryType
-            ? AppColors.black
-            : AppColors.greyDarkLight,
-        fontSize: 14,
-        fontWeight: parcelController.selectedDeliveryType.value == deliveryType
-            ? FontWeight.w600
-            : FontWeight.w400,
-      )),
+            text: label,
+            fontColor:
+                parcelController.selectedDeliveryType.value == deliveryType
+                    ? Colors.black
+                    : Colors.grey,
+            fontSize: 14,
+            fontWeight:
+                parcelController.selectedDeliveryType.value == deliveryType
+                    ? FontWeight.w600
+                    : FontWeight.w400,
+          )),
     );
   }
-
 
   Widget _buildNonProfessionalTab() {
     return Column(
@@ -326,7 +321,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
               child: CarouselSlider(
                 carouselController: parcelController.carouselController,
                 options: CarouselOptions(
-                  height: ResponsiveUtils.height(170),
+                  height: 170,
                   enlargeCenterPage: true,
                   autoPlay: false,
                   aspectRatio: 16 / 9,
@@ -335,18 +330,16 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                   autoPlayAnimationDuration: const Duration(milliseconds: 800),
                   onPageChanged: (index, reason) {
                     setState(() {
-                      parcelController.currentStep.value = index;
+                      currentCarouselIndex = index;
                     });
-
-                    // Update the selected vehicle in the controller
                     String vehicle = [
-                      "bike",     // index 0
-                      "car",      // index 1
-                      "bicycle",  // index 2
-                      "Plane",    // index 3
-                      "person"    // index 4
-                    ][index % 5];  // Select the corresponding vehicle string
-                    parcelController.selectedVehicleType.value = vehicle;  // Update selected vehicle
+                      "bike",
+                      "car",
+                      "bicycle",
+                      "Plane",
+                      "person"
+                    ][index % 5];
+                    parcelController.selectedVehicleType.value = vehicle;
                   },
                 ),
                 items: nonProfessionalImages.asMap().entries.map((entry) {
@@ -359,7 +352,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                     "Plane".tr,
                     "person".tr,
                   ][index % 5];
-                  bool isCentered = index == parcelController.currentStep.value;
+                  bool isCentered = index == currentCarouselIndex;
 
                   return Builder(
                     builder: (BuildContext context) {
@@ -377,10 +370,9 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                               fontSize: 14,
                               fontWeight: isCentered
                                   ? FontWeight.w600
-                                  : FontWeight.w600,
-                              fontColor: isCentered
-                                  ? AppColors.black
-                                  : AppColors.greyDarkLight,
+                                  : FontWeight.w400,
+                              fontColor:
+                                  isCentered ? Colors.black : Colors.grey,
                             ),
                           ),
                         ],
@@ -390,43 +382,11 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                 }).toList(),
               ),
             ),
-            Positioned(
-              left: 0,
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back_ios, color: AppColors.black),
-                onPressed: () {
-                  if (parcelController.currentStep.value > 0) {
-                    setState(() {
-                      parcelController.currentStep.value--;
-                    });
-                    parcelController.carouselController
-                        .jumpToPage(parcelController.currentStep.value);
-                  }
-                },
-              ),
-            ),
-            Positioned(
-              right: 0,
-              child: IconButton(
-                icon: const Icon(Icons.arrow_forward_ios, color: AppColors.black),
-                onPressed: () {
-                  if (parcelController.currentStep.value <
-                      nonProfessionalImages.length - 1) {
-                    setState(() {
-                      parcelController.currentStep.value++;
-                    });
-                    parcelController.carouselController
-                        .jumpToPage(parcelController.currentStep.value);
-                  }
-                },
-              ),
-            ),
           ],
         ),
       ],
     );
   }
-
 
   Widget _buildProfessionalTab() {
     return Column(
@@ -439,7 +399,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
               child: CarouselSlider(
                 carouselController: parcelController.carouselController,
                 options: CarouselOptions(
-                  height: ResponsiveUtils.height(170),
+                  height: 170,
                   enlargeCenterPage: true,
                   autoPlay: false,
                   aspectRatio: 16 / 9,
@@ -448,15 +408,13 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                   autoPlayAnimationDuration: const Duration(milliseconds: 800),
                   onPageChanged: (index, reason) {
                     setState(() {
-                      parcelController.currentStep.value = index;
+                      currentCarouselIndex = index;
                     });
-
-                    // Update the selected vehicle in the controller
                     String vehicle = [
-                      "truck",  // index 0
-                      "Taxi",   // index 1
-                    ][index];  // Select the corresponding vehicle string
-                    parcelController.selectedVehicleType.value = vehicle;  // Update selected vehicle
+                      "truck",
+                      "Taxi",
+                    ][index];
+                    parcelController.selectedVehicleType.value = vehicle;
                   },
                 ),
                 items: professionalImages.asMap().entries.map((entry) {
@@ -466,7 +424,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                     "truck".tr,
                     "Taxi".tr,
                   ][index];
-                  bool isCentered = index == parcelController.currentStep.value;
+                  bool isCentered = index == currentCarouselIndex;
 
                   return Builder(
                     builder: (BuildContext context) {
@@ -484,10 +442,9 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                               fontSize: isCentered ? 16 : 14,
                               fontWeight: isCentered
                                   ? FontWeight.w600
-                                  : FontWeight.w600,
-                              fontColor: isCentered
-                                  ? AppColors.black
-                                  : AppColors.greyDarkLight,
+                                  : FontWeight.w400,
+                              fontColor:
+                                  isCentered ? Colors.black : Colors.grey,
                             ),
                           ),
                         ],
@@ -497,41 +454,9 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                 }).toList(),
               ),
             ),
-            Positioned(
-              left: 0,
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back_ios, color: AppColors.black),
-                onPressed: () {
-                  if (parcelController.currentStep.value > 0) {
-                    setState(() {
-                      parcelController.currentStep.value--;
-                    });
-                    parcelController.carouselController
-                        .jumpToPage(parcelController.currentStep.value);
-                  }
-                },
-              ),
-            ),
-            Positioned(
-              right: 0,
-              child: IconButton(
-                icon: const Icon(Icons.arrow_forward_ios, color: AppColors.black),
-                onPressed: () {
-                  if (parcelController.currentStep.value <
-                      professionalImages.length - 1) {
-                    setState(() {
-                      parcelController.currentStep.value++;
-                    });
-                    parcelController.carouselController
-                        .jumpToPage(parcelController.currentStep.value);
-                  }
-                },
-              ),
-            ),
           ],
         ),
       ],
     );
   }
-
 }

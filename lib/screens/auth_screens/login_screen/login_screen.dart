@@ -11,7 +11,6 @@ import 'package:parcel_delivery_app/widgets/text_button_widget/text_button_widge
 import 'package:parcel_delivery_app/widgets/text_field_widget/text_field_widget.dart';
 import '../../../widgets/space_widget/space_widget.dart';
 import '../../../widgets/text_widget/text_widgets.dart';
-import '../../bottom_nav_bar/bottom_nav_bar.dart';
 
 class LoginScreen extends StatelessWidget {
   final LoginScreenController controller = Get.put(LoginScreenController());
@@ -79,7 +78,7 @@ class LoginScreen extends StatelessWidget {
                         colorText: Colors.white,
                         snackPosition: SnackPosition.TOP,
                         duration: const Duration(seconds: 2),
-                        margin: EdgeInsets.all(10),
+                        margin: const EdgeInsets.all(10),
                       );
                     },
                     icon: AppIconsPath.emailIcon,
@@ -95,7 +94,7 @@ class LoginScreen extends StatelessWidget {
                         colorText: Colors.white,
                         snackPosition: SnackPosition.TOP,
                         duration: const Duration(seconds: 2),
-                        margin: EdgeInsets.all(10),
+                        margin: const EdgeInsets.all(10),
                       );
                     },
                     icon: AppIconsPath.googleIcon,
@@ -111,7 +110,7 @@ class LoginScreen extends StatelessWidget {
                         colorText: Colors.white,
                         snackPosition: SnackPosition.TOP,
                         duration: const Duration(seconds: 2),
-                        margin: EdgeInsets.all(10),
+                        margin: const EdgeInsets.all(10),
                       );
                     },
                     icon: AppIconsPath.appleIcon,
