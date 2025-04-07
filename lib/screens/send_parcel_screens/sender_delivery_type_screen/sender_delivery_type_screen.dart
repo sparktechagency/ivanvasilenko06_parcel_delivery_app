@@ -270,11 +270,18 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
             controller: parcelController.tabController,
             physics: const NeverScrollableScrollPhysics(),
             onPageChanged: (index) {
-              setState(() {
-                parcelController.selectedDeliveryType.value = index == 1
-                    ? "professional"
-                    : "non_professional"; // Correct format
-              });
+              if (index == 1) {
+                parcelController.selectedDeliveryType.value = "professional";
+              } else if (index == 0) {
+                parcelController.selectedDeliveryType.value =
+                    "non-professional";
+              }
+              //
+              // setState(() {
+              //   parcelController.selectedDeliveryType.value = index == 1
+              //       ? "professional"
+              //       : "non_professional";
+              // });
             },
             children: [
               _buildNonProfessionalTab(),

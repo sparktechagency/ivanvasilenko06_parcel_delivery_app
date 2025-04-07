@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
+import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
+import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
 
 import '../../../constants/app_colors.dart';
-import '../../../widgets/space_widget/space_widget.dart';
+import '../../../constants/app_icons_path.dart';
 import '../../../widgets/text_widget/text_widgets.dart';
+import '../controller/delivery_screens_controller.dart'; // Import the controller
 
 class SelectDeliveryLocationScreen extends StatefulWidget {
   const SelectDeliveryLocationScreen({super.key});
@@ -21,18 +23,23 @@ class _SelectDeliveryLocationScreenState
   final TextEditingController _currentLocationController =
       TextEditingController();
   final TextEditingController _destinationController = TextEditingController();
+  final DeliveryScreenController _controller =
+      Get.find<DeliveryScreenController>();
 
-  // Sample suggested locations - in real app, this would come from an API
   final List<Map<String, String>> suggestedLocations = [
-    {"name": "Area Name", "address": "Address in detail..."},
-    {"name": "Area Name-2", "address": "Address in detail..."},
-    {"name": "Area Name", "address": "Address in detail..."},
-    {"name": "Area Name-2", "address": "Address in detail..."},
-    {"name": "Area Name", "address": "Address in detail..."},
-    {"name": "Area Name-2", "address": "Address in detail..."},
-    {"name": "Area Name", "address": "Address in detail..."},
-    {"name": "Area Name-2", "address": "Address in detail..."},
+    {"name": "Mirpur DOHS", "address": "Address in Mirpur..."},
+    {"name": "Chittagong", "address": "Address in Chittagong..."},
+    {"name": "Dhaka", "address": "Address in Dhaka..."},
+    {"name": "Gulshan", "address": "Address in Gulshan..."},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Get the delivery type from the previous screen
+    final deliveryType = Get.arguments as String;
+    appLog('🆓🆓 Selected Delivery Type: $deliveryType');
+  }
 
   @override
   void dispose() {
@@ -49,7 +56,6 @@ class _SelectDeliveryLocationScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with back button and title
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               child: Row(
@@ -72,8 +78,6 @@ class _SelectDeliveryLocationScreenState
                 ],
               ),
             ),
-
-            // Location input container
             Row(
               children: [
                 const SizedBox(width: 24),
@@ -108,33 +112,16 @@ class _SelectDeliveryLocationScreenState
                     ),
                     child: Column(
                       children: [
-                        // Current Location Input
                         TextFormField(
                           controller: _currentLocationController,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.black,
-                          ),
                           decoration: InputDecoration(
-                            hintText: "currentLocationText".tr,
-                            border: InputBorder.none,
-                          ),
+                              hintText: "currentLocationText".tr),
                         ),
-                        const Divider(
-                          height: 2,
-                          color: AppColors.blackLighter,
-                        ),
-                        // Destination Input
+                        const Divider(height: 2),
                         TextFormField(
                           controller: _destinationController,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.black,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: "destinationText".tr,
-                            border: InputBorder.none,
-                          ),
+                          decoration:
+                              InputDecoration(hintText: "destinationText".tr),
                         ),
                       ],
                     ),
@@ -142,20 +129,6 @@ class _SelectDeliveryLocationScreenState
                 ),
               ],
             ),
-            const SpaceWidget(spaceHeight: 24),
-            // Suggested Destinations title
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                "suggestedDestinations".tr,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            const SpaceWidget(spaceHeight: 16),
-            // Suggested Destinations list
             Expanded(
               child: ListView.separated(
                 padding:
@@ -167,27 +140,57 @@ class _SelectDeliveryLocationScreenState
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.location_on_rounded,
                         color: Colors.black),
-                    title: Text(
-                      suggestedLocations[index]["name"]!,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    subtitle: Text(
-                      suggestedLocations[index]["address"]!,
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                      ),
-                    ),
+                    title: Text(suggestedLocations[index]["name"]!),
+                    subtitle: Text(suggestedLocations[index]["address"]!),
                     onTap: () {
-                      // Handle location selection
                       _destinationController.text =
                           suggestedLocations[index]["name"]!;
+                      _controller.setSelectedDeliveryLocation(
+                        suggestedLocations[index]["name"]!,
+                      );
                       Get.toNamed(AppRoutes.chooseParcelForDeliveryScreen);
                     },
                   );
                 },
               ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            InkWell(
+              onTap: () {
+                Get.back();
+              },
+              child: const CircleAvatar(
+                backgroundColor: AppColors.white,
+                radius: 25,
+                child: Icon(Icons.arrow_back, color: AppColors.black),
+              ),
+            ),
+            ButtonWidget(
+              onPressed: () {
+                Get.toNamed(AppRoutes.chooseParcelForDeliveryScreen,
+                    arguments: {
+                      'deliveryType': 'car',
+                      // Example delivery type
+                      'deliveryLocation': 'Mirpur, DOHS'
+                      // Example delivery location
+                    });
+              },
+              label: "next".tr,
+              textColor: AppColors.white,
+              buttonWidth: 105,
+              buttonHeight: 50,
+              icon: Icons.arrow_forward,
+              iconColor: AppColors.white,
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
+              iconSize: 20,
             ),
           ],
         ),

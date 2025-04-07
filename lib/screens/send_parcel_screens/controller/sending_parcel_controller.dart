@@ -14,10 +14,9 @@ import 'package:parcel_delivery_app/services/reporsitory/image_repository/image_
 
 class ParcelController extends GetxController {
   // Variables to store user selections
-  List<String> userTypeList = <String>["non-professional", "professional"];
+  //// List<String> userTypeList = <String>["non_professional", "professional"];
 
-  RxString selectedDeliveryType =
-      "non-professional".obs; // Ensure consistency here
+  RxString selectedDeliveryType = ''.obs; // Ensure consistency here
   var selectedVehicleType = ''.obs;
   var selectedLocation = ''.obs;
   var selectedDate = DateTime.now().obs;
@@ -157,7 +156,7 @@ class ParcelController extends GetxController {
 
     try {
       final Map<String, dynamic> parcelData = {
-        'senderType': "non_professional",
+        'senderType': selectedDeliveryType.value,
         'pickupLocation': currentLocationController.text,
         'deliveryLocation': destinationController.text,
         'deliveryStartTime': startTime,

@@ -147,7 +147,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                 ),
                               ],
                             ),
-                            const SpaceWidget(spaceHeight: 8),
 
                             if (status[index] == 'accepted') ...[
                               Row(

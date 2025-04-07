@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:parcel_delivery_app/screens/bottom_nav_bar/bottom_nav_bar.dart';
 
 import '../../../constants/app_colors.dart';
 import '../../../widgets/button_widget/button_widget.dart';
@@ -39,12 +38,14 @@ class VerifyEmailScreen extends StatelessWidget {
                 controller: controller.otpController,
                 hintText: '******',
                 maxLines: 1,
+                keyboardType: TextInputType.number,
               ),
               const SpaceWidget(spaceHeight: 16),
 
               // Display Email Information
               TextWidget(
-                text: "${"codeHasSendTo".tr} ${controller.email}. ${"usually".tr}",
+                text:
+                    "${"codeHasSendTo".tr} ${controller.email}. ${"usually".tr}",
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 fontColor: AppColors.greyDarkLight,
@@ -53,9 +54,9 @@ class VerifyEmailScreen extends StatelessWidget {
 
               // Resend Code Button with Timer
               Obx(
-                    () => TextButtonWidget(
+                () => TextButtonWidget(
                   onPressed: controller.isButtonDisabled.value
-                      ? (){}
+                      ? () {}
                       : controller.resendCode,
                   text: controller.isButtonDisabled.value
                       ? "${"sendRepeatSMS".tr} ${controller.start.value} ${"sec".tr}"
@@ -74,13 +75,13 @@ class VerifyEmailScreen extends StatelessWidget {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Obx(() => ButtonWidget(
-          onPressed: controller.isLoading.value
-              ? null // Disable button while loading
-              : () => controller.verifyOtp(),
-          label: controller.isLoading.value ? "Verifying..." : "verify".tr,
-          buttonWidth: double.infinity,
-          buttonHeight: 50,
-        )),
+              onPressed: controller.isLoading.value
+                  ? null // Disable button while loading
+                  : () => controller.verifyOtp(),
+              label: controller.isLoading.value ? "Verifying..." : "verify".tr,
+              buttonWidth: double.infinity,
+              buttonHeight: 50,
+            )),
       ),
     );
   }
