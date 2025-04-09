@@ -1,13 +1,15 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
-import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
-
-import '../../../constants/app_colors.dart';
-import '../../../constants/app_image_path.dart';
-import '../../../routes/app_routes.dart';
-import '../../../widgets/button_widget/button_widget.dart';
-import '../controller/delivery_screens_controller.dart'; // Ensure you're using your controller
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:parcel_delivery_app/constants/app_colors.dart';
+import 'package:parcel_delivery_app/constants/app_icons_path.dart';
+import 'package:parcel_delivery_app/routes/app_routes.dart';
+import 'package:parcel_delivery_app/constants/api_key.dart';
+import 'package:http/http.dart' as http;
+import 'package:parcel_delivery_app/screens/delivery_parcel_screens/controller/delivery_screens_controller.dart';
+import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
+import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
 
 class ChooseParcelForDeliveryScreen extends StatefulWidget {
   const ChooseParcelForDeliveryScreen({super.key});
@@ -19,191 +21,162 @@ class ChooseParcelForDeliveryScreen extends StatefulWidget {
 
 class _ChooseParcelForDeliveryScreenState
     extends State<ChooseParcelForDeliveryScreen> {
-  Set<int> selectedParcelIndices = {}; // To track selected parcels
-
   final DeliveryScreenController _controller =
-      Get.find<DeliveryScreenController>(); // Access the controller
+      Get.find<DeliveryScreenController>();
+
+  Set<Marker> _markers = {};
+  Polyline? _polyline;
+
+  @override
+  void initState() {
+    super.initState();
+    _setMarkersAndPolyline();
+  }
+
+  // Set markers for current and destination locations
+  void _setMarkersAndPolyline() {
+    final startingLocation = _controller.startingCoordinates.value;
+    final destinationLocation = _controller.endingCoordinates.value;
+
+    if (startingLocation != null && destinationLocation != null) {
+      // Add the starting marker
+      _markers.add(
+        Marker(
+          markerId: const MarkerId('starting-location'),
+          position: startingLocation,
+          infoWindow: const InfoWindow(title: 'Starting Location'),
+        ),
+      );
+
+      // Add the ending marker
+      _markers.add(
+        Marker(
+          markerId: const MarkerId('destination-location'),
+          position: destinationLocation,
+          infoWindow: const InfoWindow(title: 'Destination Location'),
+        ),
+      );
+
+      _fetchDirections(startingLocation, destinationLocation);
+    }
+  }
+
+  // Fetch directions and create polyline
+  Future<void> _fetchDirections(LatLng origin, LatLng destination) async {
+    final url =
+        'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=$apikey';
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final polylineCoordinates =
+          _decodePolyline(data['routes'][0]['overview_polyline']['points']);
+
+      setState(() {
+        _polyline = Polyline(
+          polylineId: const PolylineId('route'),
+          points: polylineCoordinates,
+          color: AppColors.black,
+          width: 5,
+        );
+      });
+    } else {
+      print("Failed to load directions");
+    }
+  }
+
+  // Decode polyline encoded string into LatLng points
+  List<LatLng> _decodePolyline(String encoded) {
+    List<LatLng> polylineCoordinates = [];
+    int index = 0;
+    int len = encoded.length;
+    int lat = 0;
+    int lng = 0;
+
+    while (index < len) {
+      int b;
+      int shift = 0;
+      int result = 0;
+
+      // Decode latitude
+      do {
+        b = encoded.codeUnitAt(index) - 63;
+        index++;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      lat += (result & 0x01) != 0 ? ~(result >> 1) : (result >> 1);
+
+      shift = 0;
+      result = 0;
+
+      // Decode longitude
+      do {
+        b = encoded.codeUnitAt(index) - 63;
+        index++;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      lng += (result & 0x01) != 0 ? ~(result >> 1) : (result >> 1);
+
+      polylineCoordinates.add(LatLng(
+        (lat / 1E5).toDouble(),
+        (lng / 1E5).toDouble(),
+      ));
+    }
+    return polylineCoordinates;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: AppColors.white,
+        leading: const Icon(Icons.arrow_back, size: 28),
+        title: TextWidget(
+          text: "Choose Delivery Percel".tr,
+          fontSize: 24,
+          fontWeight: FontWeight.w600,
+          fontColor: AppColors.black,
+        ),
+        titleSpacing: -7,
+      ),
       backgroundColor: AppColors.white,
-      body: Column(
-        children: [
-          const ImageWidget(
-            height: 450,
-            width: double.infinity,
-            imagePath: AppImagePath.selectParcelForDeliveryImage,
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: Container(
-              decoration: const BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(24))),
-              child: Obx(() {
-                final parcels = _controller.parcels; // Get the list of parcels
-
-                if (parcels.isEmpty) {
-                  return const Center(
-                    child: Text(
-                        "No parcels available for the selected delivery type and location."),
-                  );
-                }
-
-                return SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 8),
-                        Text(
-                          "chooseParcelForDelivery".tr,
-                          style: const TextStyle(
-                            fontSize: 23,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        ...List.generate(parcels.length, (index) {
-                          final parcel = parcels[index];
-                          final isSelected = selectedParcelIndices
-                              .contains(index); // Check if parcel is selected
-
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: isSelected
-                                    ? Colors.black
-                                    : Colors.transparent,
-                                width: isSelected ? 2 : 1,
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Container(
-                              padding: const EdgeInsets.only(
-                                  left: 2, top: 8, bottom: 8, right: 14),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Checkbox(
-                                        value: isSelected,
-                                        onChanged: (bool? value) {
-                                          setState(() {
-                                            if (value == true) {
-                                              selectedParcelIndices.add(index);
-                                            } else {
-                                              selectedParcelIndices
-                                                  .remove(index);
-                                            }
-                                          });
-                                        },
-                                        activeColor: Colors.black,
-                                      ),
-                                      ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(100),
-                                        child: ImageWidget(
-                                          imagePath: parcel.images.isNotEmpty
-                                              ? parcel.images[
-                                                  0] // First image of the parcel
-                                              : AppImagePath.personImage,
-                                          width: 40,
-                                          height: 40,
-                                        ),
-                                      ),
-                                      const SpaceWidget(spaceWidth: 12),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            parcel.name ?? 'Unknown Parcel',
-                                            // Display parcel name
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                          Text(parcel.deliveryLocation ??
-                                              'Unknown location'),
-                                          // Display delivery location
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        parcel.phoneNumber ?? 'N/A',
-                                        // Display phone number
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 16),
-                                      ),
-                                      Text(
-                                        parcel.status ?? 'Unknown status',
-                                        style: TextStyle(
-                                            color: Colors.green[600],
-                                            fontSize: 12), // Display status
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-            ),
-          ),
-        ],
+      body: GoogleMap(
+        initialCameraPosition: CameraPosition(
+          target: _controller.startingCoordinates.value ??
+              const LatLng(0.0, 0.0), // Default to (0,0) if no coordinates
+          zoom: 12,
+        ),
+        onMapCreated: (controller) {},
+        markers: _markers,
+        polylines: _polyline != null ? {_polyline!} : {},
       ),
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(left: 16, top: 8, right: 16, bottom: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             InkWell(
               onTap: () {
-                Get.back(); // Go back to the previous screen
+                Get.back();
               },
-              borderRadius: BorderRadius.circular(100),
-              child: Card(
-                color: AppColors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(100),
-                ),
-                elevation: 3,
-                child: const CircleAvatar(
-                  backgroundColor: AppColors.white,
-                  radius: 25,
-                  child: Icon(Icons.arrow_back, color: AppColors.black),
-                ),
+              child: const CircleAvatar(
+                backgroundColor: Colors.white,
+                radius: 25,
+                child: Icon(Icons.arrow_back, color: Colors.black),
               ),
             ),
             ButtonWidget(
               onPressed: () {
-                // Proceed to the next screen with selected parcels
                 Get.toNamed(AppRoutes.parcelForDeliveryScreen);
               },
-              label: "next".tr,
-              textColor: AppColors.white,
+              label: "Next",
+              textColor: Colors.white,
               buttonWidth: 105,
               buttonHeight: 50,
               icon: Icons.arrow_forward,
-              iconColor: AppColors.white,
+              iconColor: Colors.white,
               fontWeight: FontWeight.w500,
               fontSize: 16,
               iconSize: 20,

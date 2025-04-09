@@ -28,4 +28,8 @@ class AppIconsPath {
   static const String deliverymanIcon = "assets/icons/deliverymanIcon.svg";
   static const String personAddIcon = "assets/icons/personAddIcon.svg";
   static const String homeOutlinedIcon = "assets/icons/homeOutlinedIcon.svg";
+
+  static const String startingLocationIcon =
+      "assets/icons/startLocationIcon.png";
+  static const String endingLocationIcon = "assets/icons/endingLocaitonIcon.png";
 }

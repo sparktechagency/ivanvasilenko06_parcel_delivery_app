@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
-
 import '../../../constants/app_colors.dart';
 import '../../../constants/app_image_path.dart';
 import '../../../widgets/button_widget/button_widget.dart';
@@ -45,7 +44,7 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final images = widget.images ?? [];
+    final images = widget.images;
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Column(
@@ -80,7 +79,6 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
                       setState(() {
                         _currentIndex = index;
                       });
-                      // Update the selected delivery type as a string (no enum)
                       String selectedType = [
                         "bike",
                         "car",
@@ -140,7 +138,6 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
                   icon:
                       const Icon(Icons.arrow_back_ios, color: AppColors.black),
                   onPressed: () {
-                    // Infinite loop for the carousel
                     _carouselController.previousPage(
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeInOut,
@@ -154,7 +151,6 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
                   icon: const Icon(Icons.arrow_forward_ios,
                       color: AppColors.black),
                   onPressed: () {
-                    // Infinite loop for the carousel
                     _carouselController.nextPage(
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeInOut,
@@ -183,7 +179,6 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
             ),
             ButtonWidget(
               onPressed: () {
-                // Passing the selected delivery type as an argument to the next screen
                 Get.toNamed(AppRoutes.selectDeliveryLocationScreen,
                     arguments: _controller.selectedDeliveryType.value);
               },

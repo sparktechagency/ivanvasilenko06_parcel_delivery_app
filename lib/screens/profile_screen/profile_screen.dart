@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
+import 'package:parcel_delivery_app/screens/profile_screen/controller/profile_controller.dart';
 import 'package:parcel_delivery_app/screens/profile_screen/widgets/profile_card_widget.dart';
-import 'package:parcel_delivery_app/services/appStroage/app_auth_storage.dart';
 import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
@@ -27,6 +27,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final ProfileController profileController = Get.put(ProfileController());
   void _saveLanguage(String languageCode) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('language', languageCode);
@@ -52,7 +53,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
-
               children: [
                 Text(
                   "changeLanguage".tr,
@@ -70,7 +70,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         InkWell(
-                          onTap:(){
+                          onTap: () {
                             localizationController.setLanguage(Locale(
                               AppConstants.languages[0].languageCode,
                               AppConstants.languages[0].countryCode,
@@ -90,7 +90,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   imagePath: AppImagePath.usaFlag,
                                 ),
                               ),
-                              const SizedBox(width:05),
+                              const SizedBox(width: 05),
                               const Text(
                                 'English',
                                 style: TextStyle(
@@ -124,7 +124,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   imagePath: AppImagePath.israeilFlag,
                                 ),
                               ),
-                              const SizedBox(width:05),
+                              const SizedBox(width: 05),
                               const Text(
                                 // 'עברי',
                                 'Hebrew',
@@ -149,17 +149,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void logout(){
+  void logout() {
     SharePrefsHelper.remove(SharedPreferenceValue.token);
     Get.toNamed(AppRoutes.splashScreen);
     // AppAuthStorage.storageClear();
   }
+
   void showLogoutDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          backgroundColor: AppColors.grey, // Using your grey color from the theme
+          backgroundColor:
+              AppColors.grey, // Using your grey color from the theme
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -182,7 +184,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       buttonWidth: 100,
                       buttonHeight: 40,
                       label: 'No',
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
                       buttonRadius: BorderRadius.circular(10),
                       backgroundColor: AppColors.white,
                       textColor: AppColors.black,
@@ -195,7 +198,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       buttonWidth: 100,
                       buttonHeight: 40,
                       label: 'Yes',
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 10),
                       buttonRadius: BorderRadius.circular(10),
                       backgroundColor: AppColors.black,
                       textColor: AppColors.white,
@@ -255,7 +259,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Get.toNamed(AppRoutes.contactUsScreen);
                       } else if (value == 2) {
                         showUserLanguage();
-                      }else{
+                      } else {
                         showLogoutDialog();
                       }
                     },
@@ -342,7 +346,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SpaceWidget(spaceHeight: 16),
                   Row(
                     children: [
-
                       /// Basic Info
                       TextWidget(
                         text: "basicInfo".tr,

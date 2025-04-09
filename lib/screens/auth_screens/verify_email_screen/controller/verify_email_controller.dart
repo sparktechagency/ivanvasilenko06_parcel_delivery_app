@@ -7,7 +7,6 @@ import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/bottom_nav_bar/bottom_nav_bar.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart';
-import 'package:parcel_delivery_app/services/appStroage/app_auth_storage.dart';
 import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
 import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 
@@ -59,26 +58,30 @@ class VerifyEmailController extends GetxController {
         'otpCode': otpController.text
       };
 
-      String url = isFromLogin ? AppApiUrl.loginemailveify : AppApiUrl.verifyEmail;
-      var response = await ApiPostServices().apiPostServices(url: url, body: body,);
+      String url =
+          isFromLogin ? AppApiUrl.loginemailveify : AppApiUrl.verifyEmail;
+      var response = await ApiPostServices().apiPostServices(
+        url: url,
+        body: body,
+      );
 
       if (response != null) {
         if (isFromLogin) {
-          if(response["data"]["token"] != null) {
+          if (response["data"]["token"] != null) {
             log("😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒😒");
             log(" ✅✅✅✅ ${response["data"]["token"]} ☑️☑️☑️☑️☑️☑️ ");
-             // AppAuthStorage().setToken(response["data"]["token"].toString());
+            // AppAuthStorage().setToken(response["data"]["token"].toString());
 
-             SharePrefsHelper.setString(SharedPreferenceValue.token,response["data"]["token"].toString());
+            SharePrefsHelper.setString(SharedPreferenceValue.token,
+                response["data"]["token"].toString());
 
-            String token= await SharePrefsHelper.getString(SharedPreferenceValue.token);
-             debugPrint("token=-=-==-=-=-=-=-=-=-=--=-= $token");
-
-
+            String token =
+                await SharePrefsHelper.getString(SharedPreferenceValue.token);
+            debugPrint("token=-=-==-=-=-=-=-=-=-=--=-= $token");
           }
           AppSnackBar.success("Successfully verified the email");
           Get.offAll(() => const BottomNavScreen());
-           //  Login flow → BottomNav
+          //  Login flow → BottomNav
         } else {
           Get.offAllNamed(AppRoutes.loginScreen); //  Signup flow → Login Screen
         }
@@ -93,9 +96,8 @@ class VerifyEmailController extends GetxController {
     }
   }
 
-
   void resendCode() {
-    print("Resend code logic executed");
+    log("Resend code logic executed");
     startTimer();
   }
 

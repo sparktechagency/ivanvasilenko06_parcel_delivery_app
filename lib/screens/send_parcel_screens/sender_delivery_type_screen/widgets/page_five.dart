@@ -10,7 +10,8 @@ import '../../../../widgets/text_widget/text_widgets.dart';
 class PageFive extends StatelessWidget {
   PageFive({super.key});
 
-  final ParcelController parcelController = Get.put(ParcelController()); // Initialize the controller
+  final ParcelController parcelController =
+      Get.put(ParcelController()); // Initialize the controller
 
   @override
   Widget build(BuildContext context) {

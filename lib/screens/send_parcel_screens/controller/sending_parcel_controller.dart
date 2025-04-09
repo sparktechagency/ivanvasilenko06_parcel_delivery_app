@@ -13,20 +13,20 @@ import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
 import 'package:parcel_delivery_app/services/reporsitory/image_repository/image_repository.dart';
 
 class ParcelController extends GetxController {
-  // Variables to store user selections
-  //// List<String> userTypeList = <String>["non_professional", "professional"];
+  // Observables for form fields
+  RxString startingLocation = ''.obs;
+  RxString endingLocation = ''.obs;
+  RxString selectedDeliveryType = ''.obs;
+  RxString selectedVehicleType = ''.obs;
+  Rx<DateTime> selectedDate = DateTime.now().obs;
+  Rx<DateTime> selectedTime = DateTime.now().obs;
+  RxString description = ''.obs;
+  RxString price = ''.obs;
+  RxString receiverName = ''.obs;
+  RxString receiverNumber = ''.obs;
+  RxList<String> selectedImages = <String>[].obs;
 
-  RxString selectedDeliveryType = ''.obs; // Ensure consistency here
-  var selectedVehicleType = ''.obs;
-  var selectedLocation = ''.obs;
-  var selectedDate = DateTime.now().obs;
-  var selectedTime = DateTime.now().obs;
-  var description = ''.obs;
-  var price = 0.0.obs;
-  var receiverName = ''.obs;
-  var receiverNumber = ''.obs;
-  var selectedImages = <String>[].obs;
-
+  // Controllers for text inputs
   final currentLocationController = TextEditingController();
   final destinationController = TextEditingController();
   final titleController = TextEditingController();
@@ -35,28 +35,33 @@ class ParcelController extends GetxController {
   final nameController = TextEditingController();
   final phoneController = TextEditingController();
 
+  // Stepper and carousel controllers
   PageController pageController = PageController();
   PageController tabController = PageController();
   CarouselSliderController carouselController = CarouselSliderController();
 
-  var currentStep = 0.obs;
+  RxInt currentStep = 0.obs;
 
   final ImagePicker _picker = ImagePicker();
 
-  var startDateTime = DateTime.now().obs;
-  var endDateTime = DateTime.now().obs;
+  Rx<DateTime> startDateTime = DateTime.now().obs;
+  Rx<DateTime> endDateTime = DateTime.now().obs;
 
-  // Setters for fields
-  void setProfessional(String value) {
+  // Setters for form fields
+  void setStartingLocation(String location) {
+    startingLocation.value = location;
+  }
+
+  void setEndingLocation(String location) {
+    endingLocation.value = location;
+  }
+
+  void setDeliveryType(String value) {
     selectedDeliveryType.value = value;
   }
 
   void setVehicleType(String type) {
     selectedVehicleType.value = type;
-  }
-
-  void setLocation(String location) {
-    selectedLocation.value = location;
   }
 
   void setDate(DateTime date) {
@@ -71,7 +76,7 @@ class ParcelController extends GetxController {
     description.value = desc;
   }
 
-  void setPrice(double value) {
+  void setPrice(String value) {
     price.value = value;
   }
 
@@ -91,6 +96,7 @@ class ParcelController extends GetxController {
     endDateTime.value = end;
   }
 
+  // Image picking logic
   Future<void> pickImages() async {
     try {
       final List<XFile> images = await _picker.pickMultiImage();
@@ -108,6 +114,7 @@ class ParcelController extends GetxController {
     selectedImages.removeAt(index);
   }
 
+  // Step navigation logic
   void goToNextStep() {
     if (currentStep.value < 5) {
       currentStep.value++;
@@ -132,6 +139,7 @@ class ParcelController extends GetxController {
     }
   }
 
+  // Utility functions for formatting date and image conversion
   String formatDateTime(DateTime dateTime) {
     return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
   }
@@ -141,6 +149,7 @@ class ParcelController extends GetxController {
     return base64Encode(bytes);
   }
 
+  // Submission of parcel data
   Future<void> submitParcelData() async {
     var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
     log("🔑 Authorization Token: $token");
@@ -157,12 +166,14 @@ class ParcelController extends GetxController {
     try {
       final Map<String, dynamic> parcelData = {
         'senderType': selectedDeliveryType.value,
-        'pickupLocation': currentLocationController.text,
-        'deliveryLocation': destinationController.text,
+        'pickupLocation': startingLocation.value,
+        // Use the starting location from the controller
+        'deliveryLocation': endingLocation.value,
+        // Use the ending location from the controller
         'deliveryStartTime': startTime,
         'deliveryEndTime': endTime,
         'deliveryType': selectedVehicleType.value,
-        'price': price.value.toString(),
+        'price': priceController.text,
         'title': titleController.text,
         'description': descriptionController.text,
         'name': nameController.text,
@@ -187,14 +198,16 @@ class ParcelController extends GetxController {
     }
   }
 
+  // Reset form fields to default values
   void resetAllFields() {
     selectedDeliveryType.value = 'non-professional';
     selectedVehicleType.value = '';
-    selectedLocation.value = '';
+    startingLocation.value = '';
+    endingLocation.value = '';
     selectedDate.value = DateTime.now();
     selectedTime.value = DateTime.now();
     description.value = '';
-    price.value = 0.0;
+    price.value = '';
     receiverName.value = '';
     receiverNumber.value = '';
     selectedImages.clear();

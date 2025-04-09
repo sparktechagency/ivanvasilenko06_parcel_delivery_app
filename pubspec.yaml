@@ -64,11 +64,12 @@ dependencies:
 #  google_maps_place_picker_mb: ^3.1.2
   flutter_polyline_points: ^2.1.0
   geocode: ^1.0.3
-  geolocator: ^10.1.1
+  geolocator: ^13.0.4
   location: ^8.0.0
-  google_maps_flutter: ^2.10.1
+  google_maps_flutter: ^2.12.1
   mime: ^1.0.5
   flutter_image_compress: ^2.4.0
+  permission_handler: ^11.4.0
 
   
 

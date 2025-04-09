@@ -1,14 +1,12 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
-import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/delivery_parcel_screens/summary_of_parcel_screen/widgets/summary_info_row_widget.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/controller/sending_parcel_controller.dart';
-import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
+
 import '../../../constants/app_colors.dart';
 import '../../../constants/app_icons_path.dart';
 import '../../../utils/app_size.dart';
@@ -80,13 +78,13 @@ class SenderSummaryOfParcelScreen extends StatelessWidget {
                         SummaryInfoRowWidget(
                           icon: AppIconsPath.destinationIcon,
                           label: "currentLocationText".tr,
-                          value: controller.currentLocationController.text,
+                          value: controller.startingLocation.string,
                         ),
                         const SpaceWidget(spaceHeight: 8),
                         SummaryInfoRowWidget(
                           icon: AppIconsPath.currentLocationIcon,
                           label: "destinationText".tr,
-                          value: controller.destinationController.text,
+                          value: controller.endingLocation.string,
                         ),
                         const SpaceWidget(spaceHeight: 8),
                         SummaryInfoRowWidget(
@@ -178,21 +176,6 @@ class SenderSummaryOfParcelScreen extends StatelessWidget {
                   ButtonWidget(
                     onPressed: () {
                       controller.submitParcelData();
-                      // List body = [
-                      //   controller.selectedDeliveryType.value,
-                      //   controller.currentStep.value,
-                      //   controller.selectedDate.value,
-                      //   controller.currentLocationController.text,
-                      //   controller.destinationController.text,
-                      //   controller.priceController.text,
-                      //   controller.nameController.text,
-                      //   controller.receiverNumber.value,
-                      //   controller.descriptionController.text,
-                      // ];
-                      // log("😒😒 $body 😒😒");
-                      // var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
-                      // log("✅✅✅✅✅✅ $token ✅✅✅✅✅✅");
-                      // Get.toNamed(AppRoutes.hurrahScreen);
                     },
                     label: "finish".tr,
                     textColor: AppColors.white,

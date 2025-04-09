@@ -18,16 +18,12 @@ class ServiceController extends GetxController {
 
       var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
 
-      // Make the API request
       final response = await ApiGetServices()
           .apiGetServices(AppApiUrl.servicePromote, token: token);
 
-      // Log the response for debugging
       log("API Response: $response");
 
-      // Check if response contains valid data
       if (response["data"] != null && response["data"].isNotEmpty) {
-        // Clear the previous data and add the new data to the list
         parcelList.clear();
         for (var element in response['data']) {
           parcelList.add(DeliveryPromote.fromJson(element));

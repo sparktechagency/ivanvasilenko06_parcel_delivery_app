@@ -28,8 +28,11 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
   @override
   void initState() {
     super.initState();
+    // Initially set the delivery type and vehicle type
     parcelController.selectedDeliveryType.value =
-        "non-professional"; // Correct value
+        "non-professional"; // Default to non-professional
+    parcelController.selectedVehicleType.value =
+        'bike'; // Default vehicle for non-professional
   }
 
   final List<String> nonProfessionalImages = [
@@ -272,16 +275,12 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
             onPageChanged: (index) {
               if (index == 1) {
                 parcelController.selectedDeliveryType.value = "professional";
+                parcelController.selectedVehicleType.value = 'truck';
               } else if (index == 0) {
                 parcelController.selectedDeliveryType.value =
                     "non-professional";
+                parcelController.selectedVehicleType.value = 'bike';
               }
-              //
-              // setState(() {
-              //   parcelController.selectedDeliveryType.value = index == 1
-              //       ? "professional"
-              //       : "non_professional";
-              // });
             },
             children: [
               _buildNonProfessionalTab(),
