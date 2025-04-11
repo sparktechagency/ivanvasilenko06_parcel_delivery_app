@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
@@ -21,7 +22,8 @@ class ApiPostServices {
     final dynamic response;
     try {
       if (token != null) {
-        response = await NonAuthApi().sendRequest.post(url, data: body, options: Options(headers: {"Authorization": token}));
+        response = await NonAuthApi().sendRequest.post(url,
+            data: body, options: Options(headers: {"Authorization": token}));
       } else {
         response = await AppApi().sendRequest.post(url, data: body);
       }

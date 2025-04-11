@@ -1,12 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart'; // 🆕 for formatting date
 import 'package:parcel_delivery_app/constants/app_colors.dart';
-import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
-import 'package:parcel_delivery_app/constants/api_key.dart';
-import 'package:http/http.dart' as http;
 import 'package:parcel_delivery_app/screens/delivery_parcel_screens/controller/delivery_screens_controller.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
@@ -21,110 +18,77 @@ class ChooseParcelForDeliveryScreen extends StatefulWidget {
 
 class _ChooseParcelForDeliveryScreenState
     extends State<ChooseParcelForDeliveryScreen> {
-  final DeliveryScreenController _controller =
+  final DeliveryScreenController controller =
       Get.find<DeliveryScreenController>();
 
-  Set<Marker> _markers = {};
-  Polyline? _polyline;
+  BitmapDescriptor? _customMarker;
 
   @override
   void initState() {
     super.initState();
-    _setMarkersAndPolyline();
+    _loadCustomMarkerIcon();
   }
 
-  // Set markers for current and destination locations
-  void _setMarkersAndPolyline() {
-    final startingLocation = _controller.startingCoordinates.value;
-    final destinationLocation = _controller.endingCoordinates.value;
-
-    if (startingLocation != null && destinationLocation != null) {
-      // Add the starting marker
-      _markers.add(
-        Marker(
-          markerId: const MarkerId('starting-location'),
-          position: startingLocation,
-          infoWindow: const InfoWindow(title: 'Starting Location'),
-        ),
-      );
-
-      // Add the ending marker
-      _markers.add(
-        Marker(
-          markerId: const MarkerId('destination-location'),
-          position: destinationLocation,
-          infoWindow: const InfoWindow(title: 'Destination Location'),
-        ),
-      );
-
-      _fetchDirections(startingLocation, destinationLocation);
-    }
+  Future<void> _loadCustomMarkerIcon() async {
+    _customMarker = await BitmapDescriptor.fromAssetImage(
+      const ImageConfiguration(size: Size(40, 40)),
+      'assets/icons/parcelIcon.png',
+    );
+    setState(() {});
   }
 
-  // Fetch directions and create polyline
-  Future<void> _fetchDirections(LatLng origin, LatLng destination) async {
-    final url =
-        'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=$apikey';
-    final response = await http.get(Uri.parse(url));
+  // 🆕 Show bottom sheet with parcel details
+  void _showParcelDetailsBottomSheet(int index) {
+    final parcel = controller.parcels[index];
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final polylineCoordinates =
-          _decodePolyline(data['routes'][0]['overview_polyline']['points']);
-
-      setState(() {
-        _polyline = Polyline(
-          polylineId: const PolylineId('route'),
-          points: polylineCoordinates,
-          color: AppColors.black,
-          width: 5,
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(parcel.title ?? 'Parcel',
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                Text("Sender: ${parcel.senderId?.fullName ?? 'N/A'}"),
+                Text("Type: ${parcel.deliveryType ?? ''}"),
+                Text("Phone: ${parcel.phoneNumber ?? ''}"),
+                Text("Price: ৳${parcel.price ?? ''}"),
+                Text(
+                  "From: ${DateFormat.yMd().format(DateTime.parse(parcel.deliveryStartTime!))}",
+                ),
+                Text(
+                  "To: ${DateFormat.yMd().format(DateTime.parse(parcel.deliveryEndTime!))}",
+                ),
+                const SizedBox(height: 12),
+                if (parcel.images != null && parcel.images!.isNotEmpty)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      'https://your.api.base.url${parcel.images!.first}',
+                      height: 180,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) =>
+                          const Icon(Icons.image_not_supported),
+                    ),
+                  )
+                else
+                  const Text("No image available"),
+              ],
+            ),
+          ),
         );
-      });
-    } else {
-      print("Failed to load directions");
-    }
-  }
-
-  // Decode polyline encoded string into LatLng points
-  List<LatLng> _decodePolyline(String encoded) {
-    List<LatLng> polylineCoordinates = [];
-    int index = 0;
-    int len = encoded.length;
-    int lat = 0;
-    int lng = 0;
-
-    while (index < len) {
-      int b;
-      int shift = 0;
-      int result = 0;
-
-      // Decode latitude
-      do {
-        b = encoded.codeUnitAt(index) - 63;
-        index++;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      lat += (result & 0x01) != 0 ? ~(result >> 1) : (result >> 1);
-
-      shift = 0;
-      result = 0;
-
-      // Decode longitude
-      do {
-        b = encoded.codeUnitAt(index) - 63;
-        index++;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      lng += (result & 0x01) != 0 ? ~(result >> 1) : (result >> 1);
-
-      polylineCoordinates.add(LatLng(
-        (lat / 1E5).toDouble(),
-        (lng / 1E5).toDouble(),
-      ));
-    }
-    return polylineCoordinates;
+      },
+    );
   }
 
   @override
@@ -134,7 +98,7 @@ class _ChooseParcelForDeliveryScreenState
         backgroundColor: AppColors.white,
         leading: const Icon(Icons.arrow_back, size: 28),
         title: TextWidget(
-          text: "Choose Delivery Percel".tr,
+          text: "Choose Delivery Parcel".tr,
           fontSize: 24,
           fontWeight: FontWeight.w600,
           fontColor: AppColors.black,
@@ -142,41 +106,91 @@ class _ChooseParcelForDeliveryScreenState
         titleSpacing: -7,
       ),
       backgroundColor: AppColors.white,
-      body: GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: _controller.startingCoordinates.value ??
-              const LatLng(0.0, 0.0), // Default to (0,0) if no coordinates
-          zoom: 12,
-        ),
-        onMapCreated: (controller) {},
-        markers: _markers,
-        polylines: _polyline != null ? {_polyline!} : {},
-      ),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final parcels = controller.parcels;
+
+        LatLng initialLatLng = const LatLng(23.777176, 90.399452);
+
+        if (parcels.isNotEmpty &&
+            parcels.first.pickupLocation?.coordinates != null &&
+            parcels.first.pickupLocation!.coordinates!.length == 2) {
+          final coords = parcels.first.pickupLocation!.coordinates!;
+          initialLatLng = LatLng(coords[1], coords[0]);
+        }
+
+        final Set<Marker> markers = {};
+        for (int i = 0; i < parcels.length; i++) {
+          final parcel = parcels[i];
+          final coords = parcel.pickupLocation?.coordinates;
+
+          if (coords != null && coords.length == 2) {
+            final lat = double.tryParse(coords[1].toString());
+            final lng = double.tryParse(coords[0].toString());
+
+            if (lat != null && lng != null) {
+              print('✅ Showing parcel ${parcel.title} at ($lat, $lng)');
+
+              markers.add(
+                Marker(
+                  markerId: MarkerId('pickup-$i'),
+                  position: LatLng(lat, lng),
+                  icon: _customMarker ?? BitmapDescriptor.defaultMarker,
+                  onTap: () => _showParcelDetailsBottomSheet(i),
+                ),
+              );
+            } else {
+              print('❌ Invalid coords for ${parcel.title}');
+            }
+          } else {
+            print('❌ Missing coords for ${parcel.title}');
+          }
+        }
+
+        return GoogleMap(
+          initialCameraPosition: CameraPosition(
+            target: initialLatLng,
+            zoom: 12,
+          ),
+          markers: markers,
+          onMapCreated: (_) {},
+        );
+      }),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             InkWell(
-              onTap: () {
-                Get.back();
-              },
+              onTap: () => Get.back(),
               child: const CircleAvatar(
-                backgroundColor: Colors.white,
+                backgroundColor: AppColors.white,
                 radius: 25,
-                child: Icon(Icons.arrow_back, color: Colors.black),
+                child: Icon(Icons.arrow_back, color: AppColors.black),
               ),
             ),
             ButtonWidget(
               onPressed: () {
-                Get.toNamed(AppRoutes.parcelForDeliveryScreen);
+                controller.fetchDeliveryParcelsList();
+                Get.toNamed(
+                  AppRoutes.parcelForDeliveryScreen,
+                  arguments: {
+                    "deliveryType": controller.selectedDeliveryType.value,
+                    "pickupLocation": controller.pickupLocation.value,
+                    "deliveryLocation":
+                        controller.selectedDeliveryLocation.value,
+                  },
+                );
               },
               label: "Next",
-              textColor: Colors.white,
+              textColor: AppColors.white,
               buttonWidth: 105,
               buttonHeight: 50,
               icon: Icons.arrow_forward,
-              iconColor: Colors.white,
+              iconColor: AppColors.white,
               fontWeight: FontWeight.w500,
               fontSize: 16,
               iconSize: 20,

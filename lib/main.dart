@@ -9,9 +9,9 @@ void main() async {
 
   SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
-  Map<String, Map<String, String>> _languages = await dep.init();
+  Map<String, Map<String, String>> languages = await dep.init();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(MainApp(
-    languages: _languages,
+    languages: languages,
   ));
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
+
 import '../../../constants/app_colors.dart';
 import '../../../constants/app_image_path.dart';
 import '../../../widgets/button_widget/button_widget.dart';
@@ -36,6 +37,11 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
 
   @override
   void initState() {
+    super.initState();
+    // This sets the default delivery type (index 0 = "bike")
+    _controller.selectedDeliveryType("bike");
+
+    // This is to set  selected delivery type as index
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _carouselController.jumpToPage(_currentIndex);
@@ -88,7 +94,7 @@ class _DeliveryTypeScreenState extends State<DeliveryTypeScreen> {
                         "Plane",
                         "person"
                       ][index];
-                      _controller.setSelectedDeliveryType(selectedType);
+                      _controller.selectedDeliveryType(selectedType);
                     },
                   ),
                   items: images.asMap().entries.map((entry) {

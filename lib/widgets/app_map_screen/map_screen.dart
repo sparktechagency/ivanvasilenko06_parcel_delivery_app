@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -19,12 +16,9 @@ class _MapScreenState extends State<MapScreen> {
   TextEditingController();
   final TextEditingController _destinationController = TextEditingController();
   LatLng? _currentLocation;
-  LatLng? _destination;
   final Set<Marker> _markers = {};
   final Set<Polyline> _polylines = {};
-  final PolylinePoints _polylinePoints = PolylinePoints();
-  final String _apiKey =
-      "YOAIzaSyAszXC1be8aJ37eHuNcBm_-O1clWkPUwV4"; // Replace with your Google Maps API key
+// Replace with your Google Maps API key
 
   @override
   void initState() {
@@ -93,31 +87,6 @@ class _MapScreenState extends State<MapScreen> {
 
   // Fetch directions using the Directions API
 
-  Future<void> _fetchDirections() async {
-    final response = await http.get(Uri.parse(
-        "https://maps.googleapis.com/maps/api/directions/json?origin=${_currentLocation!.latitude},${_currentLocation!.longitude}&destination=${_destination!.latitude},${_destination!.longitude}&key=$_apiKey"));
-    final data = jsonDecode(response.body);
-
-    // Decode polyline points
-    List<PointLatLng> points = _polylinePoints
-        .decodePolyline(data['routes'][0]['overview_polyline']['points']);
-
-    // Convert points to LatLng list
-    List<LatLng> polylineCoordinates =
-    points.map((point) => LatLng(point.latitude, point.longitude)).toList();
-
-    // Draw polyline on the map
-    setState(() {
-      _polylines.add(
-        Polyline(
-          polylineId: const PolylineId("route"),
-          points: polylineCoordinates,
-          color: Colors.blue,
-          width: 5,
-        ),
-      );
-    });
-  }
 
   @override
   Widget build(BuildContext context) {

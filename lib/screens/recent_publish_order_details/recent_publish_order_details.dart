@@ -7,14 +7,13 @@ import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
 import '../../constants/app_icons_path.dart';
-import '../../constants/app_strings.dart';
 import '../booking_parcel_details_screen/widgets/summary_info_row_widget.dart';
 import '../services_screen/model/promote_delivery_parcel.dart';
 
 class DeliveryDetailsScreen extends StatelessWidget {
-  final DeliveryPromote item; // Accept the item (delivery) as a parameter
+  final DeliveryPromote item; 
 
-  const DeliveryDetailsScreen({Key? key, required this.item}) : super(key: key);
+  const DeliveryDetailsScreen({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +51,7 @@ class DeliveryDetailsScreen extends StatelessWidget {
                       const SpaceWidget(spaceWidth: 8),
                       const TextWidget(
                         text:
-                            "Details of Parcel", // Use the correct field for title
+                            "Details of Parcel", 
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
                         fontColor: AppColors.black,
@@ -85,12 +84,6 @@ class DeliveryDetailsScreen extends StatelessWidget {
                     value: item.deliveryLocation ??
                         "N/A", // Use item field for destination
                   ),
-                  // const SpaceWidget(spaceHeight: 8),
-                  // SummaryInfoRowWidget(
-                  //   icon: AppIconsPath.priceIcon,
-                  //   label: "price".tr,
-                  //   value: item. != null ? "${AppStrings.currency} ${item.price}" : "N/A",  // Use item field for price
-                  // ),
                   const SpaceWidget(spaceHeight: 8),
                   SummaryInfoRowWidget(
                     icon: AppIconsPath.profileIcon,
@@ -147,8 +140,6 @@ class DeliveryDetailsScreen extends StatelessWidget {
             ),
             ButtonWidget(
               onPressed: () async {
-                // Handle the submission or action when the button is pressed
-                // You can log or send any data if required
               },
               label: "finish".tr,
               textColor: AppColors.white,

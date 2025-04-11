@@ -139,7 +139,6 @@ class ParcelController extends GetxController {
     }
   }
 
-  // Utility functions for formatting date and image conversion
   String formatDateTime(DateTime dateTime) {
     return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
   }

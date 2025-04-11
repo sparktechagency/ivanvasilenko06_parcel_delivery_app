@@ -26,27 +26,25 @@ class SplashController extends GetxController {
   // }
 
   void onInit() {
-   WidgetsBinding.instance.addPostFrameCallback((_) {
-       Future.delayed(const Duration(seconds: 3)).then((_) async{
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(seconds: 3)).then((_) async {
         // Get.offAllNamed(AppRoutes.homeScreen);
-        var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
+        var token =
+            await SharePrefsHelper.getString(SharedPreferenceValue.token);
 
-         debugPrint("✅✅✅✅✅-${token} ❇️❇️❇️❇️❇️❇️❇️❇️❇️❇️❇️❇️");
+        debugPrint("✅✅✅✅✅ $token ❇️❇️❇️❇️❇️❇️");
 
-         if(token!=null && token.isNotEmpty){
-           Get.offAll(() => const BottomNavScreen());
-         }else{
-           Get.offAllNamed(AppRoutes.onboardingScreen);
-         }
+        if (token != null && token.isNotEmpty) {
+          Get.offAll(() => const BottomNavScreen());
+        } else {
+          Get.offAllNamed(AppRoutes.onboardingScreen);
+        }
         // Get.offAll(() => const BottomNavScreen());
-       });
-   });
-
+      });
+    });
 
     super.onInit();
   }
-
-
 
   @override
   void onClose() {

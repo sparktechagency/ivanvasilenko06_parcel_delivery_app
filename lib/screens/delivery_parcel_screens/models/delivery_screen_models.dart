@@ -1,69 +1,146 @@
-class Sender {
-  final String id;
-  final String fullName;
-  final String email;
-  final String role;
+class DeliverParcelModel {
+  String? status;
+  List<DeliverParcelList>? deliveryParcelList;
 
-  Sender({
-    required this.id,
-    required this.fullName,
-    required this.email,
-    required this.role,
-  });
+  DeliverParcelModel({this.status, this.deliveryParcelList});
 
-  factory Sender.fromJson(Map<String, dynamic> json) {
-    return Sender(
-      id: json["_id"] ?? '',
-      fullName: json["fullName"] ?? '',
-      email: json["email"] ?? '',
-      role: json["role"] ?? '',
-    );
+  DeliverParcelModel.fromJson(Map<String, dynamic> json) {
+    status = json['status'];
+    if (json['data'] != null) {
+      deliveryParcelList = <DeliverParcelList>[];
+      json['data'].forEach((v) {
+        deliveryParcelList!.add(new DeliverParcelList.fromJson(v));
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['status'] = this.status;
+    if (this.deliveryParcelList != null) {
+      data['data'] = this.deliveryParcelList!.map((v) => v.toJson()).toList();
+    }
+    return data;
   }
 }
 
-class Parcel {
-  final String id;
-  final Sender sender;
-  final String pickupLocation;
-  final String deliveryLocation;
-  final String deliveryType;
-  final String status;
-  final List<String> images;
-  final String? title;
-  final String? name;
-  final String? phoneNumber;
-  final String? deliveryStartTime;
-  final String? deliveryEndTime;
+class DeliverParcelList {
+  String? sId;
+  SenderId? senderId;
+  PickupLocation? pickupLocation;
+  PickupLocation? deliveryLocation;
+  String? title;
+  String? deliveryStartTime;
+  String? deliveryEndTime;
+  String? deliveryType;
+  int? price;
+  String? name;
+  String? phoneNumber;
+  List<String>? images;
+  String? status;
 
-  Parcel({
-    required this.id,
-    required this.sender,
-    required this.pickupLocation,
-    required this.deliveryLocation,
-    required this.deliveryType,
-    required this.status,
-    required this.images,
-    this.title,
-    this.name,
-    this.phoneNumber,
-    this.deliveryStartTime,
-    this.deliveryEndTime,
-  });
+  DeliverParcelList(
+      {this.sId,
+      this.senderId,
+      this.pickupLocation,
+      this.deliveryLocation,
+      this.title,
+      this.deliveryStartTime,
+      this.deliveryEndTime,
+      this.deliveryType,
+      this.price,
+      this.name,
+      this.phoneNumber,
+      this.images,
+      this.status});
 
-  factory Parcel.fromJson(Map<String, dynamic> json) {
-    return Parcel(
-      id: json["_id"] ?? '',
-      sender: Sender.fromJson(json["senderId"]),
-      pickupLocation: json["pickupLocation"] ?? '',
-      deliveryLocation: json["deliveryLocation"] ?? '',
-      deliveryType: json["deliveryType"] ?? '',
-      status: json["status"] ?? '',
-      images: List<String>.from(json["images"] ?? []),
-      title: json["title"],
-      name: json["name"],
-      phoneNumber: json["phoneNumber"],
-      deliveryStartTime: json["deliveryStartTime"],
-      deliveryEndTime: json["deliveryEndTime"],
-    );
+  DeliverParcelList.fromJson(Map<String, dynamic> json) {
+    sId = json['_id'];
+    senderId = json['senderId'] != null
+        ? new SenderId.fromJson(json['senderId'])
+        : null;
+    pickupLocation = json['pickupLocation'] != null
+        ? new PickupLocation.fromJson(json['pickupLocation'])
+        : null;
+    deliveryLocation = json['deliveryLocation'] != null
+        ? new PickupLocation.fromJson(json['deliveryLocation'])
+        : null;
+    title = json['title'];
+    deliveryStartTime = json['deliveryStartTime'];
+    deliveryEndTime = json['deliveryEndTime'];
+    deliveryType = json['deliveryType'];
+    price = json['price'];
+    name = json['name'];
+    phoneNumber = json['phoneNumber'];
+    images = json['images'].cast<String>();
+    status = json['status'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['_id'] = this.sId;
+    if (this.senderId != null) {
+      data['senderId'] = this.senderId!.toJson();
+    }
+    if (this.pickupLocation != null) {
+      data['pickupLocation'] = this.pickupLocation!.toJson();
+    }
+    if (this.deliveryLocation != null) {
+      data['deliveryLocation'] = this.deliveryLocation!.toJson();
+    }
+    data['title'] = this.title;
+    data['deliveryStartTime'] = this.deliveryStartTime;
+    data['deliveryEndTime'] = this.deliveryEndTime;
+    data['deliveryType'] = this.deliveryType;
+    data['price'] = this.price;
+    data['name'] = this.name;
+    data['phoneNumber'] = this.phoneNumber;
+    data['images'] = this.images;
+    data['status'] = this.status;
+    return data;
+  }
+}
+
+class SenderId {
+  String? sId;
+  String? fullName;
+  String? email;
+  String? role;
+
+  SenderId({this.sId, this.fullName, this.email, this.role});
+
+  SenderId.fromJson(Map<String, dynamic> json) {
+    sId = json['_id'];
+    fullName = json['fullName'];
+    email = json['email'];
+    role = json['role'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['_id'] = this.sId;
+    data['fullName'] = this.fullName;
+    data['email'] = this.email;
+    data['role'] = this.role;
+    return data;
+  }
+}
+
+class PickupLocation {
+  String? type;
+  List<double>? coordinates;
+
+  PickupLocation({this.type, this.coordinates});
+
+  PickupLocation.fromJson(Map<String, dynamic> json) {
+    type = json['type'];
+    coordinates = json['coordinates'].cast<double>();
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['type'] = this.type;
+    data['coordinates'] = this.coordinates;
+    return data;
   }
 }

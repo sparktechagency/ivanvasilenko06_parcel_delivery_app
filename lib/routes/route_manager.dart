@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:parcel_delivery_app/screens/before_signups/country_select_page.dart';
 import 'package:parcel_delivery_app/screens/before_signups/language_select_page.dart';
 import 'package:parcel_delivery_app/screens/home_screen/home_screen.dart';
+import 'package:parcel_delivery_app/screens/profile_screen/controller/profile_controller.dart';
 import 'package:parcel_delivery_app/screens/recent_publish_orders/recent_publish_order.dart';
 
 import '../screens/auth_screens/email_login_screen/email_login_screen.dart';
@@ -53,14 +54,14 @@ class RouteManager {
       /// Got the Country Select Page
       GetPage(
         name: AppRoutes.countrySelectScreen,
-        page: () => CountrySelectPage(),
+        page: () => const CountrySelectPage(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
       // Select the Language
       GetPage(
         name: AppRoutes.languageSelectScreen,
-        page: () => LanguageSelectPage(),
+        page: () => const LanguageSelectPage(),
         transition: Transition.rightToLeft,
       ),
       GetPage(
@@ -95,13 +96,13 @@ class RouteManager {
       ),
       GetPage(
         name: AppRoutes.homeScreen,
-        page: () => HomeScreen(),
+        page: () => const HomeScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
       GetPage(
         name: AppRoutes.servicesScreen,
-        page: () => ServicesScreen(),
+        page: () => const ServicesScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
@@ -143,73 +144,73 @@ class RouteManager {
       ),
       GetPage(
         name: AppRoutes.radiusMapScreen,
-        page: () => RadiusMapScreen(),
+        page: () => const RadiusMapScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
       GetPage(
         name: AppRoutes.parcelForDeliveryScreen,
-        page: () => ParcelForDeliveryScreen(),
+        page: () => const ParcelForDeliveryScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
       GetPage(
         name: AppRoutes.contactUsScreen,
-        page: () => ContactUsScreen(),
+        page: () => const ContactUsScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
       GetPage(
         name: AppRoutes.historyScreen,
-        page: () => HistoryScreen(),
+        page: () => const HistoryScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
       GetPage(
         name: AppRoutes.selectDeliveryLocationScreen,
-        page: () => SelectDeliveryLocationScreen(),
+        page: () => const SelectDeliveryLocationScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
       GetPage(
         name: AppRoutes.chooseParcelForDeliveryScreen,
-        page: () => ChooseParcelForDeliveryScreen(),
+        page: () => const ChooseParcelForDeliveryScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
       GetPage(
         name: AppRoutes.summaryOfParcelScreen,
-        page: () => SummaryOfParcelScreen(),
+        page: () => const SummaryOfParcelScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
       GetPage(
         name: AppRoutes.senderDeliveryTypeScreen,
-        page: () => SenderDeliveryTypeScreen(),
+        page: () => const SenderDeliveryTypeScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
       GetPage(
         name: AppRoutes.senderSummaryOfParcelScreen,
-        page: () => SenderSummaryOfParcelScreen(),
+        page: () => const SenderSummaryOfParcelScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
       GetPage(
         name: AppRoutes.hurrahScreen,
-        page: () => HurrahScreen(),
+        page: () => const HurrahScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
       GetPage(
         name: AppRoutes.cancelDeliveryScreen,
-        page: () => CancelDeliveryScreen(),
+        page: () => const CancelDeliveryScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
       GetPage(
           name: AppRoutes.recentpublishorder,
-          page: () => RecentPublishOrder(),
+          page: () => const RecentPublishOrder(),
           transition: Transition.rightToLeft),
     ];
   }

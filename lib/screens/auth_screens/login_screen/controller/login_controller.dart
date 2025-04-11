@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
@@ -10,8 +11,7 @@ class LoginScreenController extends GetxController {
   TextEditingController emailController = TextEditingController();
   GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
 
-
-  Future<void> clickLoginButton() async {
+  Future<dynamic> clickLoginButton() async {
     try {
       if (loginFormKey.currentState!.validate()) {
         isLoading.value = true;
@@ -30,7 +30,7 @@ class LoginScreenController extends GetxController {
             AppRoutes.verifyEmailScreen,
             arguments: {
               "email": emailController.text,
-              "isFromLogin": true, // Add this flag to indicate login flow
+              "isFromLogin": true,
             },
           );
         } else {

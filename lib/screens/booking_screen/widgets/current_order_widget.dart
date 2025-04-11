@@ -144,41 +144,12 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
                                 ),
                               ),
                               const SpaceWidget(spaceWidth: 8),
-                              TextWidget(
+                              const TextWidget(
                                 text: "Parcel",
                                 fontSize: 15.5,
                                 fontWeight: FontWeight.w500,
                                 fontColor: AppColors.black,
                               ),
-                              // names[index] == AppStrings.joshua
-                              //     ? const SpaceWidget(spaceWidth: 8)
-                              //     : const SizedBox.shrink(),
-                              // names[index] == AppStrings.joshua
-                              //     ? Container(
-                              //         padding: const EdgeInsets.symmetric(
-                              //             horizontal: 6, vertical: 2),
-                              //         decoration: BoxDecoration(
-                              //           color: AppColors.yellow,
-                              //           borderRadius:
-                              //               BorderRadius.circular(100),
-                              //         ),
-                              //         child: const Row(
-                              //           children: [
-                              //             Icon(
-                              //               Icons.star_rounded,
-                              //               color: AppColors.white,
-                              //               size: 10,
-                              //             ),
-                              //             TextWidget(
-                              //               text: AppStrings.ratings,
-                              //               fontSize: 10,
-                              //               fontWeight: FontWeight.w500,
-                              //               fontColor: AppColors.white,
-                              //             ),
-                              //           ],
-                              //         ),
-                              //       )
-                              //     : const SizedBox.shrink(),
                             ],
                           ),
                           const SpaceWidget(spaceHeight: 8),
@@ -291,61 +262,7 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
                       ),
                     ],
                   ),
-                  // Row(
-                  //   children: [
-                  //     TextWidget(
-                  //       text: received[index],
-                  //       fontSize: 15,
-                  //       fontWeight: FontWeight.w500,
-                  //       fontColor: AppColors.greyDark2,
-                  //     ),
-                  //     Spacer(),
-                  //     GestureDetector(
-                  //       onTap: () {
-                  //         setState(() {
-                  //           if (index == 0) {
-                  //             statuses[index] = currentStatus == "not received"
-                  //                 ? "received"
-                  //                 : "not received";
-                  //           } else if (index == 1) {
-                  //             statuses[index] = currentStatus == "not delivered"
-                  //                 ? "delivered"
-                  //                 : "not delivered";
-                  //           } else if (index == 2) {
-                  //             statuses[index] = currentStatus == "not completed"
-                  //                 ? "completed"
-                  //                 : "not completed";
-                  //           }
-                  //         });
-                  //       },
-                  //       child: Container(
-                  //         padding: const EdgeInsets.all(10),
-                  //         decoration: BoxDecoration(
-                  //           color: currentStatus.contains("not")
-                  //               ? AppColors.whiteDark
-                  //               : AppColors.green,
-                  //           borderRadius: BorderRadius.circular(10),
-                  //         ),
-                  //         child: TextWidget(
-                  //           text: currentStatus == "not received"
-                  //               ? "Not Received"
-                  //               : currentStatus == "received"
-                  //                   ? "Received"
-                  //                   : currentStatus == "not delivered"
-                  //                       ? "Not Delivered"
-                  //                       : currentStatus == "delivered"
-                  //                           ? "Delivered"
-                  //                           : "Completed",
-                  //           fontSize: 12,
-                  //           fontWeight: FontWeight.w500,
-                  //           fontColor: currentStatus.contains("not")
-                  //               ? AppColors.black
-                  //               : AppColors.white,
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
+                  
                   const SizedBox(height: 16),
                   Container(
                     width: double.infinity,

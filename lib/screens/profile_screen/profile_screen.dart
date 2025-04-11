@@ -20,7 +20,9 @@ import '../../widgets/space_widget/space_widget.dart';
 import '../../widgets/text_widget/text_widgets.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final ProfileController? profileController;
+
+  const ProfileScreen({super.key, this.profileController});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -348,7 +350,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       /// Basic Info
                       TextWidget(
-                        text: "basicInfo".tr,
+                        text: profileController
+                                .profileData.value.data?.fullName ??
+                            "Basic Nothing".tr,
                         fontSize: 21,
                         fontWeight: FontWeight.w600,
                         fontColor: AppColors.black,
@@ -465,7 +469,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     thickness: 1,
                   ),
                   ProfileCardWidget(
-                    titleText: "name".tr,
+                    titleText:
+                        profileController.profileData.value.data?.fullName ??
+                            "name".tr,
                     subtitleText: AppStrings.ivan,
                   ),
                   const Divider(

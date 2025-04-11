@@ -22,6 +22,10 @@ class PageTwo extends StatefulWidget {
 class _PageTwoState extends State<PageTwo> {
   final TextEditingController startingController = TextEditingController();
   final TextEditingController endingController = TextEditingController();
+
+  // Track the currently active location type: 'starting' or 'ending'
+  String _activeLocationType = '';
+
   List<dynamic> _placePredictions = [];
   bool _isLoading = false;
 
@@ -33,8 +37,7 @@ class _PageTwoState extends State<PageTwo> {
   Polyline? _polyline;
 
   // Fetch autocomplete predictions from Google Places API
-  Future<void> placeAutoComplete(String query,
-      {required String locationType}) async {
+  Future<void> placeAutoComplete(String query) async {
     if (query.isEmpty) {
       setState(() {
         _placePredictions = [];
@@ -85,7 +88,8 @@ class _PageTwoState extends State<PageTwo> {
       _placePredictions = [];
       startingController.text = description;
     });
-    // Update the location in the controller
+
+    // Update the location in the ParcelController
     Get.find<ParcelController>().setStartingLocation(description);
     await fetchPlaceDetails(placeId, 'starting');
   }
@@ -96,7 +100,8 @@ class _PageTwoState extends State<PageTwo> {
       _placePredictions = [];
       endingController.text = description;
     });
-    // Update the location in the controller
+
+    // Update the location in the ParcelController
     Get.find<ParcelController>().setEndingLocation(description);
     await fetchPlaceDetails(placeId, 'ending');
   }
@@ -132,7 +137,7 @@ class _PageTwoState extends State<PageTwo> {
                 ),
               ),
             );
-          } else if (locationType == 'ending') {
+          } else {
             _endingLocationCoordinates =
                 LatLng(location['lat'], location['lng']);
             _markers.add(
@@ -155,10 +160,13 @@ class _PageTwoState extends State<PageTwo> {
         }
 
         // Move map camera to selected location
-        _mapController?.animateCamera(CameraUpdate.newLatLng(
+        _mapController?.animateCamera(
+          CameraUpdate.newLatLng(
             locationType == 'starting'
                 ? _startingLocationCoordinates!
-                : _endingLocationCoordinates!));
+                : _endingLocationCoordinates!,
+          ),
+        );
       }
     } catch (e) {
       debugPrint('Error: $e');
@@ -185,7 +193,7 @@ class _PageTwoState extends State<PageTwo> {
         _polyline = Polyline(
           polylineId: const PolylineId('route'),
           points: polylineCoordinates,
-          color: Colors.black,
+          color: Colors.black, // change color or other properties as you like
           width: 5,
         );
       });
@@ -228,10 +236,9 @@ class _PageTwoState extends State<PageTwo> {
       } while (b >= 0x20);
       lng += (result & 0x01) != 0 ? ~(result >> 1) : (result >> 1);
 
-      polylineCoordinates.add(LatLng(
-        (lat / 1E5).toDouble(),
-        (lng / 1E5).toDouble(),
-      ));
+      polylineCoordinates.add(
+        LatLng((lat / 1E5).toDouble(), (lng / 1E5).toDouble()),
+      );
     }
     return polylineCoordinates;
   }
@@ -288,7 +295,9 @@ class _PageTwoState extends State<PageTwo> {
                       TextFormField(
                         controller: startingController,
                         onChanged: (query) {
-                          placeAutoComplete(query, locationType: 'starting');
+                          // Mark active location as 'starting'
+                          _activeLocationType = 'starting';
+                          placeAutoComplete(query);
                         },
                         style: const TextStyle(
                           color: AppColors.black,
@@ -304,7 +313,9 @@ class _PageTwoState extends State<PageTwo> {
                       TextFormField(
                         controller: endingController,
                         onChanged: (query) {
-                          placeAutoComplete(query, locationType: 'ending');
+                          // Mark active location as 'ending'
+                          _activeLocationType = 'ending';
+                          placeAutoComplete(query);
                         },
                         style: const TextStyle(
                           color: AppColors.black,
@@ -359,14 +370,18 @@ class _PageTwoState extends State<PageTwo> {
                           final prediction = _placePredictions[index];
                           return ListTile(
                             title: Text(prediction['description']),
-                            onTap: () => prediction['description']
-                                    .contains(startingController.text)
-                                ? onStartingLocationSelected(
-                                    prediction['place_id'],
-                                    prediction['description'])
-                                : onEndingLocationSelected(
-                                    prediction['place_id'],
-                                    prediction['description']),
+                            onTap: () {
+                              final placeId = prediction['place_id'];
+                              final description = prediction['description'];
+
+                              // Use the _activeLocationType to decide which callback to run
+                              if (_activeLocationType == 'starting') {
+                                onStartingLocationSelected(
+                                    placeId, description);
+                              } else {
+                                onEndingLocationSelected(placeId, description);
+                              }
+                            },
                           );
                         },
                       ),
@@ -379,7 +394,9 @@ class _PageTwoState extends State<PageTwo> {
                     right: 16,
                     child: Container(
                       color: Colors.white.withAlpha(70),
-                      child: const Center(child: CircularProgressIndicator()),
+                      child: const Center(
+                        child: CircularProgressIndicator(),
+                      ),
                     ),
                   ),
               ],

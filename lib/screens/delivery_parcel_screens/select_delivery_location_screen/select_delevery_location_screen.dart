@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -6,10 +8,11 @@ import 'package:http/http.dart' as http;
 import 'package:parcel_delivery_app/constants/api_key.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
+import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
-import 'package:parcel_delivery_app/routes/app_routes.dart';
+
 import '../controller/delivery_screens_controller.dart';
 
 class SelectDeliveryLocationScreen extends StatefulWidget {
@@ -22,15 +25,25 @@ class SelectDeliveryLocationScreen extends StatefulWidget {
 
 class _SelectDeliveryLocationScreenState
     extends State<SelectDeliveryLocationScreen> {
-  final TextEditingController _currentLocationController =
+  final DeliveryScreenController controller =
+      Get.find<DeliveryScreenController>();
+
+  // Local controllers for the text fields
+  final TextEditingController _pickupLocationController =
       TextEditingController();
   final TextEditingController _destinationController = TextEditingController();
-  final DeliveryScreenController _controller =
-      Get.find<DeliveryScreenController>();
 
   List<dynamic> _placePredictions = [];
   bool _isLoading = false;
   String _locationType = '';
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize text fields with existing controller values (if any)
+    _pickupLocationController.text = controller.pickupLocation.value;
+    _destinationController.text = controller.selectedDeliveryLocation.value;
+  }
 
   // Fetch autocomplete predictions from Google Places API
   Future<void> placeAutoComplete(String query,
@@ -80,24 +93,24 @@ class _SelectDeliveryLocationScreenState
     }
   }
 
-  // Handle selection of a location (either current or destination)
+  // Handle selection of a prediction
   void onLocationSelected(String placeId, String description) async {
     setState(() {
       _placePredictions = [];
     });
 
-    // Set the correct text in the respective text field based on location type
     if (_locationType == 'current') {
-      _currentLocationController.text = description;
+      _pickupLocationController.text = description;
+      controller.pickupLocation.value = description;
     } else if (_locationType == 'destination') {
       _destinationController.text = description;
+      controller.selectedDeliveryLocation.value = description;
     }
 
-    // Fetch place details based on placeId
     await fetchPlaceDetails(placeId);
   }
 
-  // Fetch details of the selected place using the place_id
+  // Fetch lat/lng details from place_id
   Future<void> fetchPlaceDetails(String placeId) async {
     final Uri uri = Uri.https(
       'maps.googleapis.com',
@@ -114,18 +127,43 @@ class _SelectDeliveryLocationScreenState
         final data = json.decode(response.body);
         final location = data['result']['geometry']['location'];
 
-        // Update the location coordinates in the controller based on the location type
         if (_locationType == 'current') {
-          _controller.setStartingLocation(_currentLocationController.text,
-              LatLng(location['lat'], location['lng']));
+          controller.setStartingLocation(
+            controller.pickupLocation.value,
+            LatLng(location['lat'], location['lng']),
+          );
+          controller.pickupLocationLatitude.value = location['lat'].toString();
+          controller.pickupLocationLongitude.value = location['lng'].toString();
         } else if (_locationType == 'destination') {
-          _controller.setEndingLocation(_destinationController.text,
-              LatLng(location['lat'], location['lng']));
+          controller.setEndingLocation(
+            controller.selectedDeliveryLocation.value,
+            LatLng(location['lat'], location['lng']),
+          );
         }
       }
     } catch (e) {
       debugPrint('Error: $e');
     }
+  }
+
+  // Navigate to next screen (no radius needed now)
+  void _fetchParcelsAndProceed() {
+    controller.fetchParcels();
+
+    // Pass only the relevant arguments to the next screen
+    Get.toNamed(AppRoutes.chooseParcelForDeliveryScreen, arguments: {
+      "deliveryType": controller.selectedDeliveryType.value,
+      "pickupLocation": controller.pickupLocation.value,
+      "pickupLatLng": controller.startingCoordinates.value,
+      "deliveryLocation": controller.selectedDeliveryLocation.value,
+      "deliveryLatLng": controller.endingCoordinates.value,
+    });
+
+    log('🆒 DeliveryType: ${controller.selectedDeliveryType.value}');
+    log('✳️ PickupLocation: ${controller.pickupLocation.value}');
+    log('☑️ PickupLatLng: ${controller.startingCoordinates.value}');
+    log('🛑 DeliveryLocation: ${controller.selectedDeliveryLocation.value}');
+    log('🚩 DeliveryLatLng: ${controller.endingCoordinates.value}');
   }
 
   @override
@@ -145,6 +183,7 @@ class _SelectDeliveryLocationScreenState
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
@@ -171,19 +210,26 @@ class _SelectDeliveryLocationScreenState
                 Expanded(
                   child: Container(
                     margin: const EdgeInsets.only(
-                        left: 12, right: 24, top: 16, bottom: 16),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                      left: 12,
+                      right: 24,
+                      top: 16,
+                      bottom: 16,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       border: Border.all(color: AppColors.black, width: 2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
                       children: [
-                        // Current Location Input
+                        // Current Location
                         TextFormField(
-                          controller: _currentLocationController,
+                          controller: _pickupLocationController,
                           onChanged: (query) {
+                            controller.pickupLocation.value = query;
                             placeAutoComplete(query, locationType: 'current');
                           },
                           style: const TextStyle(
@@ -193,16 +239,27 @@ class _SelectDeliveryLocationScreenState
                           decoration: InputDecoration(
                             hintText: "currentLocationText".tr,
                             border: InputBorder.none,
+                            suffixIcon:
+                                _pickupLocationController.text.isNotEmpty
+                                    ? IconButton(
+                                        icon: const Icon(Icons.clear),
+                                        onPressed: () {
+                                          _pickupLocationController.clear();
+                                          controller.pickupLocation.value = '';
+                                        },
+                                      )
+                                    : null,
                           ),
                         ),
                         const Divider(
                           height: 2,
                           color: AppColors.blackLighter,
                         ),
-                        // Destination Input
+                        // Destination
                         TextFormField(
                           controller: _destinationController,
                           onChanged: (query) {
+                            controller.selectedDeliveryLocation.value = query;
                             placeAutoComplete(query,
                                 locationType: 'destination');
                           },
@@ -213,6 +270,16 @@ class _SelectDeliveryLocationScreenState
                           decoration: InputDecoration(
                             hintText: "destinationText".tr,
                             border: InputBorder.none,
+                            suffixIcon: _destinationController.text.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      _destinationController.clear();
+                                      controller
+                                          .selectedDeliveryLocation.value = '';
+                                    },
+                                  )
+                                : null,
                           ),
                         ),
                       ],
@@ -221,8 +288,10 @@ class _SelectDeliveryLocationScreenState
                 ),
               ],
             ),
+
+            // Removed the "Enter Radius" row completely
             if (_isLoading) const CircularProgressIndicator(),
-            // Display autocomplete suggestions
+            // List of predictions
             Expanded(
               child: ListView.builder(
                 itemCount: _placePredictions.length,
@@ -231,9 +300,10 @@ class _SelectDeliveryLocationScreenState
                   return ListTile(
                     title: Text(prediction['description']),
                     onTap: () {
-                      // Now, we ensure the correct location is passed based on type
                       onLocationSelected(
-                          prediction['place_id'], prediction['description']);
+                        prediction['place_id'],
+                        prediction['description'],
+                      );
                     },
                   );
                 },
@@ -242,15 +312,14 @@ class _SelectDeliveryLocationScreenState
           ],
         ),
       ),
+      // Bottom bar with "Back" and "Next" buttons
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             InkWell(
-              onTap: () {
-                Get.back();
-              },
+              onTap: () => Get.back(),
               child: const CircleAvatar(
                 backgroundColor: AppColors.white,
                 radius: 25,
@@ -259,14 +328,9 @@ class _SelectDeliveryLocationScreenState
             ),
             ButtonWidget(
               onPressed: () {
-                _controller.fetchParcels();
-                Get.toNamed(AppRoutes.chooseParcelForDeliveryScreen,
-                    arguments: {
-                      "deliveryType": _controller.selectedDeliveryType.value,
-                      "pickupLocation": _controller.pickupLocation.value,
-                      "deliveryLocation":
-                          _controller.selectedDeliveryLocation.value,
-                    });
+                log("=== Tapped Next ===");
+                controller.fetchDeliveryParcelsList();
+                _fetchParcelsAndProceed();
               },
               label: "next".tr,
               textColor: AppColors.white,

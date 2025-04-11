@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
@@ -10,33 +10,32 @@ class ProfileController extends GetxController {
   var isLoading = true.obs;
   var errorMessage = ''.obs;
 
-
   @override
   void onInit() {
     super.onInit();
     getProfileInfo();
   }
-  
-  Future<void> getProfileInfo() async {
-    isLoading.value = true; // Set loading to true
-    errorMessage.value = ''; // Clear any previous error message
+
+  Future<dynamic> getProfileInfo() async {
+    isLoading.value = true;
+    errorMessage.value = '';
 
     try {
-      // Make the API call using ApiGetServices
-      final response = await ApiGetServices().apiGetServices(AppApiUrl.getProfile);
+      final response =
+          await ApiGetServices().apiGetServices(AppApiUrl.getProfile);
 
-      if (response.statusCode == 200) {
-        profileData.value = ProfileModel.fromJson(response.data);
-      } else {
-        throw Exception('Failed to load profile data: ${response.statusCode}');
+      if (response['statusCode'] == 200) {
+        profileData.value = ProfileModel.fromJson(response.deliveryParcelList);
       }
-    } on Exception catch (e) {
+    } catch (e) {
       errorMessage.value = 'An error occurred: ${e.toString()}';
-      print('Error: ${e.toString()}');
+      log('Error: ${e.toString()}');
     } finally {
       isLoading.value = false;
     }
+    return null;
   }
+
   // Method to refresh profile data
   Future<void> refreshProfileData() async {
     await getProfileInfo();

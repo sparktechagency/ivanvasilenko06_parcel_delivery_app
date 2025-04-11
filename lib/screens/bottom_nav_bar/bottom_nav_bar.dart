@@ -25,7 +25,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
   void initState() {
     tabs = [
       const HomeScreen(),
-      ServicesScreen(),
+      const ServicesScreen(),
       const BookingScreen(),
       const ProfileScreen(),
     ];
