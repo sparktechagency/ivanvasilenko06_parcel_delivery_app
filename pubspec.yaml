@@ -70,6 +70,7 @@ dependencies:
   mime: ^1.0.5
   flutter_image_compress: ^2.4.0
   permission_handler: ^11.4.0
+  geocoding: ^3.0.0
 
   
 

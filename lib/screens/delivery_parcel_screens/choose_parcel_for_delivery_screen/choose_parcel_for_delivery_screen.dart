@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -125,14 +127,14 @@ class _ChooseParcelForDeliveryScreenState
         final Set<Marker> markers = {};
         for (int i = 0; i < parcels.length; i++) {
           final parcel = parcels[i];
-          final coords = parcel.pickupLocation?.coordinates;
+          final coOrdinate = parcel.pickupLocation?.coordinates;
 
-          if (coords != null && coords.length == 2) {
-            final lat = double.tryParse(coords[1].toString());
-            final lng = double.tryParse(coords[0].toString());
+          if (coOrdinate != null) {
+            final lat = double.tryParse(coOrdinate[1].toString());
+            final lng = double.tryParse(coOrdinate[0].toString());
 
             if (lat != null && lng != null) {
-              print('✅ Showing parcel ${parcel.title} at ($lat, $lng)');
+              log('✅ Showing parcel ${parcel.title} at ($lat, $lng)');
 
               markers.add(
                 Marker(
@@ -143,10 +145,10 @@ class _ChooseParcelForDeliveryScreenState
                 ),
               );
             } else {
-              print('❌ Invalid coords for ${parcel.title}');
+              log('❌ Invalid  coOrdinate for ${parcel.title}');
             }
           } else {
-            print('❌ Missing coords for ${parcel.title}');
+            log('❌ Missing  coOrdinate for ${parcel.title}');
           }
         }
 

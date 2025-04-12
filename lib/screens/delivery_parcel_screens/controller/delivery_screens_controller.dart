@@ -47,9 +47,9 @@ class DeliveryScreenController extends GetxController {
       final dataList = responseData["data"] as List;
       final coords = <LatLng>[];
       for (final item in dataList) {
-        final deliveryLoc = item["pickupLocation"];
-        if (deliveryLoc != null && deliveryLoc["coordinates"] is List) {
-          final coordsList = deliveryLoc["coordinates"] as List;
+        final pickupLoc = item["pickupLocation"];
+        if (pickupLoc != null && pickupLoc["coordinates"] is List) {
+          final coordsList = pickupLoc["coordinates"] as List;
           // The array is [lng, lat], so you read them carefully
           if (coordsList.length == 2) {
             final double lng = coordsList[0].toDouble();
