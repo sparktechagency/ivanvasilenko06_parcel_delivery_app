@@ -6,12 +6,13 @@ import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
+
 import '../../constants/app_icons_path.dart';
 import '../booking_parcel_details_screen/widgets/summary_info_row_widget.dart';
 import '../services_screen/model/promote_delivery_parcel.dart';
 
 class DeliveryDetailsScreen extends StatelessWidget {
-  final DeliveryPromote item; 
+  final Data item; // Correctly define the item parameter as Data
 
   const DeliveryDetailsScreen({super.key, required this.item});
 
@@ -50,8 +51,7 @@ class DeliveryDetailsScreen extends StatelessWidget {
                       ),
                       const SpaceWidget(spaceWidth: 8),
                       const TextWidget(
-                        text:
-                            "Details of Parcel", 
+                        text: "Details of Parcel",
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
                         fontColor: AppColors.black,
@@ -64,46 +64,46 @@ class DeliveryDetailsScreen extends StatelessWidget {
                     thickness: 1,
                   ),
                   const SpaceWidget(spaceHeight: 16),
+                  // Updated to handle nested properties properly
                   SummaryInfoRowWidget(
                     icon: AppIconsPath.deliveryTimeIcon,
                     label: "deliveryTimeText".tr,
-                    value: item.deliveryTime ??
-                        "N/A", // Use item field for delivery time
+                    value: item.deliveryType ?? "N/A", // Fixed field usage
                   ),
                   const SpaceWidget(spaceHeight: 8),
+                  // Correctly access nested coordinates
                   SummaryInfoRowWidget(
                     icon: AppIconsPath.destinationIcon,
                     label: "currentLocationText".tr,
-                    value: item.pickupLocation ??
-                        "N/A", // Use item field for current location
+                    value: item.pickupLocation?.coordinates?.join(", ") ??
+                        "N/A", // Access coordinates properly
                   ),
                   const SpaceWidget(spaceHeight: 8),
+                  // Correctly access delivery location coordinates
                   SummaryInfoRowWidget(
                     icon: AppIconsPath.currentLocationIcon,
                     label: "destinationText".tr,
-                    value: item.deliveryLocation ??
-                        "N/A", // Use item field for destination
+                    value: item.deliveryLocation?.coordinates?.join(", ") ??
+                        "N/A", // Access coordinates properly
                   ),
                   const SpaceWidget(spaceHeight: 8),
                   SummaryInfoRowWidget(
                     icon: AppIconsPath.profileIcon,
                     label: "receiversName".tr,
-                    value: item.deliveryType ??
-                        "N/A", // Use item field for receiver's name
+                    value: item.name ??
+                        "N/A", // Use item.name for the receiver's name
                   ),
                   const SpaceWidget(spaceHeight: 8),
                   SummaryInfoRowWidget(
                     icon: AppIconsPath.callIcon,
                     label: "receiversNumber".tr,
-                    value: item.senderType ??
-                        "N/A", // Use item field for receiver's number
+                    value: item.phoneNumber ?? "N/A", // Correct field usage
                   ),
                   const SpaceWidget(spaceHeight: 8),
                   SummaryInfoRowWidget(
                     icon: AppIconsPath.descriptionIcon,
                     label: "descriptionText".tr,
-                    value: item.createdAt ??
-                        "N/A", // Use item field for description
+                    value: item.status ?? "N/A", // Correct field usage
                   ),
                   const SpaceWidget(spaceHeight: 8),
                 ],
@@ -140,6 +140,7 @@ class DeliveryDetailsScreen extends StatelessWidget {
             ),
             ButtonWidget(
               onPressed: () async {
+                // Add any additional action on finish button if needed
               },
               label: "finish".tr,
               textColor: AppColors.white,

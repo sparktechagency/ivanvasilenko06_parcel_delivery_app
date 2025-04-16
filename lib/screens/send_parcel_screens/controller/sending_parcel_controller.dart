@@ -11,6 +11,7 @@ import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
 import 'package:parcel_delivery_app/services/reporsitory/image_repository/image_repository.dart';
+import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 
 class ParcelController extends GetxController {
   // Observables for form fields
@@ -25,6 +26,7 @@ class ParcelController extends GetxController {
   RxString receiverName = ''.obs;
   RxString receiverNumber = ''.obs;
   RxList<String> selectedImages = <String>[].obs;
+  RxBool isLoading = false.obs;
 
   // Controllers for text inputs
   final currentLocationController = TextEditingController();
@@ -103,10 +105,11 @@ class ParcelController extends GetxController {
       if (images.isNotEmpty) {
         selectedImages.addAll(images.map((image) => File(image.path).path));
       } else {
-        Get.snackbar('No images selected', 'Please select at least one image.');
+        AppSnackBar.error(
+            "No images selected, Please select at least one image.");
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to pick images: $e');
+      AppSnackBar.error("'Error', 'Failed to pick images: $e'");
     }
   }
 
@@ -154,9 +157,11 @@ class ParcelController extends GetxController {
     log("🔑 Authorization Token: $token");
 
     if (token.isEmpty) {
-      Get.snackbar('Error', 'Authorization token is missing');
+      AppSnackBar.error('Error, Authorization token is missing');
       return;
     }
+
+    isLoading.value = true;
 
     var startTime = DateFormat('yyyy-MM-dd HH:mm').format(startDateTime.value);
     var endTime = DateFormat('yyyy-MM-dd HH:mm').format(endDateTime.value);
@@ -166,9 +171,7 @@ class ParcelController extends GetxController {
       final Map<String, dynamic> parcelData = {
         'senderType': selectedDeliveryType.value,
         'pickupLocation': startingLocation.value,
-        // Use the starting location from the controller
         'deliveryLocation': endingLocation.value,
-        // Use the ending location from the controller
         'deliveryStartTime': startTime,
         'deliveryEndTime': endTime,
         'deliveryType': selectedVehicleType.value,
@@ -182,7 +185,7 @@ class ParcelController extends GetxController {
       log("📦 Sending parcel data: $parcelData");
 
       if (selectedImages.isEmpty) {
-        Get.snackbar('Error', 'Please select at least one image.');
+        AppSnackBar.error('Error Please select at least one image.');
         return;
       }
 
@@ -193,7 +196,9 @@ class ParcelController extends GetxController {
       );
     } catch (e) {
       log("❌ Error sending parcel data: $e");
-      Get.snackbar('Error', 'Failed to submit parcel data: $e');
+      AppSnackBar.error("'Error', 'Failed to submit parcel data: $e'");
+    } finally {
+      isLoading.value = false;
     }
   }
 

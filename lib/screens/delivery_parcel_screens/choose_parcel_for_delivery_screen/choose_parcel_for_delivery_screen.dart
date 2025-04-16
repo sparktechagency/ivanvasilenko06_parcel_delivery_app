@@ -5,8 +5,8 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart'; // 🆕 for formatting date
 import 'package:parcel_delivery_app/constants/app_colors.dart';
-import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/delivery_parcel_screens/controller/delivery_screens_controller.dart';
+import 'package:parcel_delivery_app/screens/delivery_parcel_screens/parcel_for_delivery_screen/parcel_for_delivery_screen.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
 
@@ -177,8 +177,17 @@ class _ChooseParcelForDeliveryScreenState
             ButtonWidget(
               onPressed: () {
                 controller.fetchDeliveryParcelsList();
-                Get.toNamed(
-                  AppRoutes.parcelForDeliveryScreen,
+                // Get.toNamed(
+                //   AppRoutes.parcelForDeliveryScreen,
+                //   arguments: {
+                //     "deliveryType": controller.selectedDeliveryType.value,
+                //     "pickupLocation": controller.pickupLocation.value,
+                //     "deliveryLocation":
+                //         controller.selectedDeliveryLocation.value,
+                //   },
+                // );
+                Get.to(
+                  const ParcelForDeliveryScreen(),
                   arguments: {
                     "deliveryType": controller.selectedDeliveryType.value,
                     "pickupLocation": controller.pickupLocation.value,

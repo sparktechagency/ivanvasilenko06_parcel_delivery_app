@@ -353,6 +353,12 @@ class _PageTwoState extends State<PageTwo> {
                     markers: _markers,
                     zoomControlsEnabled: true,
                     polylines: _polyline != null ? {_polyline!} : {},
+                    myLocationButtonEnabled: true,
+                    myLocationEnabled: true,
+                    scrollGesturesEnabled: true,
+                    zoomGesturesEnabled: true,
+                    tiltGesturesEnabled: true,
+                    rotateGesturesEnabled: true,
                   ),
                 ),
                 if (_placePredictions.isNotEmpty)
@@ -374,7 +380,6 @@ class _PageTwoState extends State<PageTwo> {
                               final placeId = prediction['place_id'];
                               final description = prediction['description'];
 
-                              // Use the _activeLocationType to decide which callback to run
                               if (_activeLocationType == 'starting') {
                                 onStartingLocationSelected(
                                     placeId, description);

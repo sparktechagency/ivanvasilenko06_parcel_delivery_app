@@ -19,178 +19,191 @@ class SenderSummaryOfParcelScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(
-        init: ParcelController(),
-        builder: (controller) {
-          return Scaffold(
-            backgroundColor: AppColors.white,
-            body: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SpaceWidget(spaceHeight: 48),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: TextWidget(
-                    text: "summaryOfYourParcel".tr,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    fontColor: AppColors.black,
-                  ),
-                ),
-                const SpaceWidget(spaceHeight: 40),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(100),
-                              child: const ImageWidget(
-                                height: 40,
-                                width: 40,
-                                imagePath: AppImagePath.sendParcel,
-                              ),
-                            ),
-                            const SpaceWidget(spaceWidth: 8),
-                            TextWidget(
-                              text: controller.titleController.text,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w500,
-                              fontColor: AppColors.black,
-                            ),
-                          ],
-                        ),
-                        const SpaceWidget(spaceHeight: 16),
-                        const Divider(
-                          color: AppColors.grey,
-                          thickness: 1,
-                        ),
-                        const SpaceWidget(spaceHeight: 16),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.deliveryTimeIcon,
-                          label: "deliveryTimeText".tr,
-                          value: controller
-                              .formatDateTime(controller.selectedDate.value),
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.destinationIcon,
-                          label: "currentLocationText".tr,
-                          value: controller.startingLocation.string,
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.currentLocationIcon,
-                          label: "destinationText".tr,
-                          value: controller.endingLocation.string,
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.priceIcon,
-                          label: "price".tr,
-                          value: controller.priceController.text,
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.profileIcon,
-                          label: "receiversName".tr,
-                          value: controller.nameController.text,
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.callIcon,
-                          label: "receiversNumber".tr,
-                          value: controller.receiverNumber.value,
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.descriptionIcon,
-                          label: "descriptionText".tr,
-                          value: controller.descriptionController.text,
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        Container(
-                          height: 400,
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: AppColors.grey),
-                          ),
-                          child: GridView.builder(
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3, // Number of tiles per row
-                              childAspectRatio: 1, // Aspect ratio of each tile
-                              mainAxisSpacing: 10, // Spacing between rows
-                              crossAxisSpacing: 10, // Spacing between columns
-                            ),
-                            itemCount: controller.selectedImages.length,
-                            itemBuilder: (context, index) {
-                              return Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  image: DecorationImage(
-                                    image: FileImage(
-                                        File(controller.selectedImages[index])),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            bottomNavigationBar: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return GetBuilder<ParcelController>(
+      builder: (controller) {
+        return Scaffold(
+          backgroundColor: AppColors.white,
+          body: Stack(
+            children: [
+              // Main content of the screen
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  InkWell(
-                    onTap: () {
-                      Get.back();
-                    },
-                    borderRadius: BorderRadius.circular(100),
-                    child: Card(
-                      color: AppColors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      elevation: 3,
-                      child: CircleAvatar(
-                        backgroundColor: AppColors.white,
-                        radius: ResponsiveUtils.width(25),
-                        child: const Icon(
-                          Icons.arrow_back,
-                          color: AppColors.black,
-                        ),
-                      ),
+                  const SpaceWidget(spaceHeight: 48),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: TextWidget(
+                      text: "summaryOfYourParcel".tr,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                      fontColor: AppColors.black,
                     ),
                   ),
-                  ButtonWidget(
-                    onPressed: () {
-                      controller.submitParcelData();
-                    },
-                    label: "finish".tr,
-                    textColor: AppColors.white,
-                    buttonWidth: 112,
-                    buttonHeight: 50,
-                    icon: Icons.arrow_forward,
-                    iconColor: AppColors.white,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
-                    iconSize: 20,
+                  const SpaceWidget(spaceHeight: 40),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(100),
+                                child: const ImageWidget(
+                                  height: 40,
+                                  width: 40,
+                                  imagePath: AppImagePath.sendParcel,
+                                ),
+                              ),
+                              const SpaceWidget(spaceWidth: 8),
+                              TextWidget(
+                                text: controller.titleController.text,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                fontColor: AppColors.black,
+                              ),
+                            ],
+                          ),
+                          const SpaceWidget(spaceHeight: 16),
+                          const Divider(
+                            color: AppColors.grey,
+                            thickness: 1,
+                          ),
+                          const SpaceWidget(spaceHeight: 16),
+                          SummaryInfoRowWidget(
+                            icon: AppIconsPath.deliveryTimeIcon,
+                            label: "deliveryTimeText".tr,
+                            value: controller
+                                .formatDateTime(controller.selectedDate.value),
+                          ),
+                          const SpaceWidget(spaceHeight: 8),
+                          SummaryInfoRowWidget(
+                            icon: AppIconsPath.destinationIcon,
+                            label: "currentLocationText".tr,
+                            value: controller.startingLocation.string,
+                          ),
+                          const SpaceWidget(spaceHeight: 8),
+                          SummaryInfoRowWidget(
+                            icon: AppIconsPath.currentLocationIcon,
+                            label: "destinationText".tr,
+                            value: controller.endingLocation.string,
+                          ),
+                          const SpaceWidget(spaceHeight: 8),
+                          SummaryInfoRowWidget(
+                            icon: AppIconsPath.priceIcon,
+                            label: "price".tr,
+                            value: controller.priceController.text,
+                          ),
+                          const SpaceWidget(spaceHeight: 8),
+                          SummaryInfoRowWidget(
+                            icon: AppIconsPath.profileIcon,
+                            label: "receiversName".tr,
+                            value: controller.nameController.text,
+                          ),
+                          const SpaceWidget(spaceHeight: 8),
+                          SummaryInfoRowWidget(
+                            icon: AppIconsPath.callIcon,
+                            label: "receiversNumber".tr,
+                            value: controller.receiverNumber.value,
+                          ),
+                          const SpaceWidget(spaceHeight: 8),
+                          SummaryInfoRowWidget(
+                            icon: AppIconsPath.descriptionIcon,
+                            label: "descriptionText".tr,
+                            value: controller.descriptionController.text,
+                          ),
+                          const SpaceWidget(spaceHeight: 8),
+                          Container(
+                            height: 400,
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: AppColors.grey),
+                            ),
+                            child: GridView.builder(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                // Number of tiles per row
+                                childAspectRatio: 1,
+                                // Aspect ratio of each tile
+                                mainAxisSpacing: 10,
+                                // Spacing between rows
+                                crossAxisSpacing: 10, // Spacing between columns
+                              ),
+                              itemCount: controller.selectedImages.length,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    image: DecorationImage(
+                                      image: FileImage(File(
+                                          controller.selectedImages[index])),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
+              // CircularProgressIndicator in the center of the screen
+              if (controller.isLoading.value)
+                const Center(
+                  child: CircularProgressIndicator(),
+                ),
+            ],
+          ),
+          bottomNavigationBar: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                InkWell(
+                  onTap: () {
+                    Get.back();
+                  },
+                  borderRadius: BorderRadius.circular(100),
+                  child: Card(
+                    color: AppColors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    elevation: 3,
+                    child: CircleAvatar(
+                      backgroundColor: AppColors.white,
+                      radius: ResponsiveUtils.width(25),
+                      child: const Icon(
+                        Icons.arrow_back,
+                        color: AppColors.black,
+                      ),
+                    ),
+                  ),
+                ),
+                ButtonWidget(
+                  onPressed: () {
+                    controller.submitParcelData();
+                  },
+                  label: "finish".tr,
+                  textColor: AppColors.white,
+                  buttonWidth: 112,
+                  buttonHeight: 50,
+                  icon: Icons.arrow_forward,
+                  iconColor: AppColors.white,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                  iconSize: 20,
+                ),
+              ],
             ),
-          );
-        });
+          ),
+        );
+      },
+    );
   }
 }

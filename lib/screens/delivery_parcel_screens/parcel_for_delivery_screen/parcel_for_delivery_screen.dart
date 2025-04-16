@@ -1,44 +1,93 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart'; // Import geocoding package
+import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
+import 'package:parcel_delivery_app/constants/app_strings.dart';
+import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/bottom_nav_bar/bottom_nav_bar.dart';
 import 'package:parcel_delivery_app/screens/delivery_parcel_screens/controller/delivery_screens_controller.dart';
+import 'package:parcel_delivery_app/utils/app_size.dart';
+import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
+import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
+import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
+import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
+import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
+import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
 
-import '../../constants/app_colors.dart';
-import '../../constants/app_strings.dart';
-import '../../routes/app_routes.dart';
-import '../../utils/app_size.dart';
-import '../../widgets/button_widget/button_widget.dart';
-import '../../widgets/icon_widget/icon_widget.dart';
-import '../../widgets/image_widget/image_widget.dart';
-import '../../widgets/space_widget/space_widget.dart';
-import '../../widgets/text_widget/text_widgets.dart';
-
-class ParcelForDeliveryScreen extends StatelessWidget {
+class ParcelForDeliveryScreen extends StatefulWidget {
   const ParcelForDeliveryScreen({super.key});
 
-  Future<String> _getLocationFromCoordinates(
-      double latitude, double longitude) async {
+  @override
+  State<ParcelForDeliveryScreen> createState() =>
+      _ParcelForDeliveryScreenState();
+}
+
+class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
+  // Cache to store the fetched address based on coordinates
+  Map<String, String> addressCache = {};
+
+  // Store the current address to update it only when coordinates change
+  String address = "Loading...";
+
+  // Function to get the address from coordinates with caching
+  Future<void> _getAddress(double latitude, double longitude) async {
+    final String key = '$latitude,$longitude';
+
+    // Check if the address for these coordinates is cached
+    if (addressCache.containsKey(key)) {
+      setState(() {
+        address = addressCache[key]!;
+      });
+      return;
+    }
+
     try {
-      // Use reverse geocoding to get a human-readable address from coordinates
       List<Placemark> placemarks =
           await placemarkFromCoordinates(latitude, longitude);
-      Placemark placemark =
-          placemarks.first; // Get the first available placemark
-
-      // Return a formatted address
-      return '${placemark.street}, ${placemark.locality}, ${placemark.country}';
+      if (placemarks.isNotEmpty) {
+        String newAddress =
+            '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].country}';
+        setState(() {
+          address = newAddress;
+        });
+        addressCache[key] = newAddress; // Cache the address
+      } else {
+        setState(() {
+          address = 'No address found';
+        });
+      }
     } catch (e) {
-      return 'Location not available';
+      setState(() {
+        address = 'Error fetching address';
+      });
+    }
+  }
+
+  String formatDeliveryDate(dynamic deliveryEndTime) {
+    if (deliveryEndTime is String) {
+      try {
+        final parsedDate = DateTime.parse(deliveryEndTime);
+        return DateFormat('yyyy-MM-dd , hh:mm').format(parsedDate);
+      } catch (e) {
+        return "Invalid Date Format";
+      }
+    } else if (deliveryEndTime is DateTime) {
+      return DateFormat('yyyy-MM-dd , hh:mm').format(deliveryEndTime);
+    } else {
+      return "Unknown Date";
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final deliveryScreenController = Get.find<DeliveryScreenController>();
+
+    log("▶️▶️▶️▶️▶️ The parcels are: ${deliveryScreenController.parcels}◀️◀️◀️◀️◀️");
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -63,67 +112,50 @@ class ParcelForDeliveryScreen extends StatelessWidget {
                 final parcel = deliveryScreenController.parcels[index];
                 final title = parcel.title ?? "Unknown Parcel";
                 final price = parcel.price ?? 0;
-                final date = (parcel.deliveryEndTime is String)
-                    ? (() {
-                        try {
-                          DateTime parsedDate =
-                              DateTime.parse(parcel.deliveryEndTime as String);
-                          return DateFormat('yyyy-MM-dd , hh:mm')
-                              .format(parsedDate);
-                        } catch (e) {
-                          return "Invalid Date Format";
-                        }
-                      })()
-                    : parcel.deliveryEndTime != null
-                        ? DateFormat('yyyy-MM-dd , hh:mm')
-                            .format(parcel.deliveryEndTime as DateTime)
-                        : "Unknown Date";
-
+                final date = formatDeliveryDate(parcel.deliveryEndTime);
                 // Extract the coordinates for the delivery location
                 final deliveryCoordinates =
                     parcel.deliveryLocation?.coordinates;
-                String locationText = "Location not available";
 
+                // Only fetch the address if coordinates are available and not already cached
                 if (deliveryCoordinates != null &&
                     deliveryCoordinates.length == 2) {
-                  final latitude = deliveryCoordinates[1]; // Latitude
-                  final longitude = deliveryCoordinates[0]; // Longitude
-
-                  // Fetch the human-readable address using reverse geocoding
-                  _getLocationFromCoordinates(latitude, longitude)
-                      .then((address) {
-                    // Update the state of the widget with the location
-                    locationText = address;
-                  });
+                  final latitude = deliveryCoordinates[1];
+                  final longitude = deliveryCoordinates[0];
+                  // Call _getAddress only if the address for these coordinates is not cached
+                  _getAddress(latitude, longitude);
                 }
 
                 return Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(14),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(100),
-                                child: const ImageWidget(
-                                  imagePath: AppImagePath.sendParcel,
-                                  width: 40,
-                                  height: 40,
+                          Expanded(
+                            flex: 2,
+                            child: Row(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(100),
+                                  child: const ImageWidget(
+                                    imagePath: AppImagePath.sendParcel,
+                                    width: 40,
+                                    height: 40,
+                                  ),
                                 ),
-                              ),
-                              const SpaceWidget(spaceWidth: 12),
-                              TextWidget(
-                                text: title,
-                                fontSize: 15.5,
-                                fontWeight: FontWeight.w600,
-                                fontColor: AppColors.black,
-                              ),
-                              const SpaceWidget(spaceWidth: 12),
-                            ],
+                                const SpaceWidget(spaceWidth: 10),
+                                TextWidget(
+                                  text: title,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  fontColor: AppColors.black,
+                                ),
+                                const SpaceWidget(spaceWidth: 10),
+                              ],
+                            ),
                           ),
                           TextWidget(
                             text: "${AppStrings.currency} $price",
@@ -134,7 +166,6 @@ class ParcelForDeliveryScreen extends StatelessWidget {
                         ],
                       ),
                       const SpaceWidget(spaceHeight: 8),
-                      // Display the location as text
                       Row(
                         children: [
                           const Icon(
@@ -143,9 +174,8 @@ class ParcelForDeliveryScreen extends StatelessWidget {
                             size: 12,
                           ),
                           const SpaceWidget(spaceWidth: 8),
-                          // Show the location text here
                           TextWidget(
-                            text: locationText,
+                            text: address,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             fontColor: AppColors.greyDark2,
@@ -182,7 +212,21 @@ class ParcelForDeliveryScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             InkWell(
-                              onTap: index == 2 ? null : () {},
+                              onTap: index == 2
+                                  ? null
+                                  : () {
+                                      final parcelId = parcel.sId;
+                                      if (parcelId != null &&
+                                          parcelId.isNotEmpty) {
+                                        deliveryScreenController
+                                            .sendParcelRequest(parcelId);
+                                        Get.toNamed(
+                                            AppRoutes.sentRequestSuccessfully);
+                                      } else {
+                                        AppSnackBar.error(
+                                            "Parcel ID is missing");
+                                      }
+                                    },
                               splashColor: Colors.transparent,
                               highlightColor: Colors.transparent,
                               child: Row(
@@ -197,9 +241,7 @@ class ParcelForDeliveryScreen extends StatelessWidget {
                                   ),
                                   const SpaceWidget(spaceWidth: 8),
                                   TextWidget(
-                                    text: index == 2
-                                        ? "requestSent".tr
-                                        : "sendRequest".tr,
+                                    text: "sendRequest".tr,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                     fontColor: AppColors.black,
@@ -213,11 +255,15 @@ class ParcelForDeliveryScreen extends StatelessWidget {
                               color: AppColors.blackLighter,
                             ),
                             InkWell(
-                              onTap: index == 2
+                              onTap: index == 2 || parcel.sId == null
                                   ? null
                                   : () {
-                                      Get.toNamed(
-                                          AppRoutes.summaryOfParcelScreen);
+                                      if (parcel.sId != null) {
+                                        Get.toNamed(
+                                          AppRoutes.summaryOfParcelScreen,
+                                          arguments: parcel.sId,
+                                        );
+                                      }
                                     },
                               splashColor: Colors.transparent,
                               highlightColor: Colors.transparent,

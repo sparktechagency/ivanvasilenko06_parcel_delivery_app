@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
+import 'package:parcel_delivery_app/constants/app_strings.dart';
+import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/bottom_nav_bar/bottom_nav_bar.dart';
-
-import '../../constants/app_colors.dart';
-import '../../constants/app_strings.dart';
-import '../../routes/app_routes.dart';
-import '../../utils/app_size.dart';
-import '../../widgets/button_widget/button_widget.dart';
-import '../../widgets/icon_widget/icon_widget.dart';
-import '../../widgets/image_widget/image_widget.dart';
-import '../../widgets/space_widget/space_widget.dart';
-import '../../widgets/text_widget/text_widgets.dart';
+import 'package:parcel_delivery_app/utils/app_size.dart';
+import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
+import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
+import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
+import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
+import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
 
 class ParcelForDeliveryScreen extends StatelessWidget {
   const ParcelForDeliveryScreen({super.key});

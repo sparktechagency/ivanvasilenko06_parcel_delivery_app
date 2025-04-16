@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:parcel_delivery_app/screens/before_signups/country_select_page.dart';
 import 'package:parcel_delivery_app/screens/before_signups/language_select_page.dart';
 import 'package:parcel_delivery_app/screens/home_screen/home_screen.dart';
-import 'package:parcel_delivery_app/screens/profile_screen/controller/profile_controller.dart';
 import 'package:parcel_delivery_app/screens/recent_publish_orders/recent_publish_order.dart';
 
 import '../screens/auth_screens/email_login_screen/email_login_screen.dart';
@@ -17,12 +16,12 @@ import '../screens/cancel_delivery_screen/cancel_delivery_screen.dart';
 import '../screens/contact_us_screen/contact_us_screen.dart';
 import '../screens/delivery_parcel_screens/choose_parcel_for_delivery_screen/choose_parcel_for_delivery_screen.dart';
 import '../screens/delivery_parcel_screens/delivery_type_screen/delivery_type_screen.dart';
+import '../screens/delivery_parcel_screens/parcel_for_delivery_screen/parcel_for_delivery_screen_radius.dart';
 import '../screens/delivery_parcel_screens/select_delivery_location_screen/select_delevery_location_screen.dart';
 import '../screens/delivery_parcel_screens/summary_of_parcel_screen/summary_of_parcel_screen.dart';
 import '../screens/history_screen/history_screen.dart';
 import '../screens/notification_screen/notification_screen.dart';
 import '../screens/onboarding_screen/onboarding_screen.dart';
-import '../screens/parcel_for_delivery_screen/parcel_for_delivery_screen.dart';
 import '../screens/profile_screen/profile_screen.dart';
 import '../screens/radius_map_screen/radius_map_screen.dart';
 import '../screens/send_parcel_screens/hurrah_screen/hurrah_screen.dart';
@@ -150,9 +149,14 @@ class RouteManager {
       ),
       GetPage(
         name: AppRoutes.parcelForDeliveryScreen,
-        page: () => const ParcelForDeliveryScreen(),
+        page: () => ParcelForDeliveryScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
+      ),
+      GetPage(
+        name: AppRoutes.sentRequestSuccessfully,
+        page: () => const SenderDeliveryTypeScreen(),
+        transition: Transition.rightToLeft,
       ),
       GetPage(
         name: AppRoutes.contactUsScreen,

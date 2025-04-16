@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_get_services.dart';
+import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart';
+import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 
 import '../models/delivery_screen_models.dart';
 
@@ -25,6 +27,9 @@ class DeliveryScreenController extends GetxController {
   // For Showing Parcels List using Model
   RxList<DeliverParcelList> parcels = RxList<DeliverParcelList>();
   RxBool isLoading = false.obs;
+
+  // New variable to store parcel IDs that need to be sent
+  RxList<String> selectedParcelIds = RxList<String>();
 
   // Methods to set the pickup and destination
   void setStartingLocation(String address, LatLng latLng) {
@@ -92,8 +97,7 @@ class DeliveryScreenController extends GetxController {
     //     isLoading.value = false;
     //   }
     // } else {
-    //   parcels.clear();
-    // }
+    //   parcels.cle
   }
 
   RxList<DeliverParcelList> deliveryParcelList = <DeliverParcelList>[].obs;
@@ -152,8 +156,7 @@ class DeliveryScreenController extends GetxController {
   //     }
   //   } else {
   //     parcels.clear();
-  //   }
-  // }
+  //
   Future<void> fetchDeliveryParcelsList() async {
     if (selectedDeliveryType.value != null &&
         pickupLocation.value != null &&
@@ -187,6 +190,39 @@ class DeliveryScreenController extends GetxController {
       }
     } else {
       parcels.clear();
+    }
+  }
+
+  Future<void> sendParcelRequest(String parcelId) async {
+    if (parcelId.isEmpty) {
+      AppSnackBar.error("No parcel selected");
+      return;
+    }
+
+    isLoading.value = true;
+    try {
+      // POST request URL for sending parcel ID to the database
+      const String requestUrl = AppApiUrl.deliveryRequest;
+
+      // Prepare the body for the POST request
+      final data = json.encode({
+        'parcelIds': [parcelId],
+      });
+
+      final response = await ApiPostServices().apiPostServices(
+        url: requestUrl,
+        body: data,
+      );
+
+      if (response != null && response['status'] == 'success') {
+        AppSnackBar.success("Parcel request sent successfully");
+      } else {
+        AppSnackBar.error("Failed to send parcel request");
+      }
+    } catch (e) {
+      AppSnackBar.error("Error sending parcel request: $e");
+    } finally {
+      isLoading.value = false;
     }
   }
 

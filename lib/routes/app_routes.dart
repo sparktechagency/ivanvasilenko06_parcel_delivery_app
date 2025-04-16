@@ -32,4 +32,5 @@ class AppRoutes {
   static const hurrahScreen = '/hurrahScreen';
   static const cancelDeliveryScreen = '/cancelDeliveryScreen';
   static const recentpublishorder = '/recentpublishorder';
+  static const sentRequestSuccessfully = '/sentRequestSuccessfully';
 }

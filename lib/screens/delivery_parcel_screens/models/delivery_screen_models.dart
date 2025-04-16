@@ -38,6 +38,7 @@ class DeliverParcelList {
   String? phoneNumber;
   List<String>? images;
   String? status;
+  String? description; // Added the description field
 
   DeliverParcelList(
       {this.sId,
@@ -52,7 +53,8 @@ class DeliverParcelList {
       this.name,
       this.phoneNumber,
       this.images,
-      this.status});
+      this.status,
+      this.description}); // Added description to the constructor
 
   DeliverParcelList.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -72,8 +74,9 @@ class DeliverParcelList {
     price = json['price'];
     name = json['name'];
     phoneNumber = json['phoneNumber'];
-    images = json['images'].cast<String>();
+    images = json['images']?.cast<String>();
     status = json['status'];
+    description = json['description']; // Added description field mapping
   }
 
   Map<String, dynamic> toJson() {
@@ -97,6 +100,8 @@ class DeliverParcelList {
     data['phoneNumber'] = this.phoneNumber;
     data['images'] = this.images;
     data['status'] = this.status;
+    data['description'] =
+        this.description; // Added description field to the JSON output
     return data;
   }
 }

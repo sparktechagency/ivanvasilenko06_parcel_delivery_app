@@ -31,7 +31,6 @@ class SplashController extends GetxController {
         // Get.offAllNamed(AppRoutes.homeScreen);
         var token =
             await SharePrefsHelper.getString(SharedPreferenceValue.token);
-
         debugPrint("✅✅✅✅✅ $token ❇️❇️❇️❇️❇️❇️");
 
         if (token != null && token.isNotEmpty) {
