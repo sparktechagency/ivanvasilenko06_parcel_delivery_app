@@ -46,7 +46,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
                         children: [
                           ImageWidget(
                             imagePath: contents[i].image,
-                            height: 500,
+                            height: ResponsiveUtils.height(500),
                             width: double.infinity,
                           ),
                           const SpaceWidget(spaceHeight: 38),
@@ -72,7 +72,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
                               overflow: TextOverflow.ellipsis,
                               maxLines: 2,
                             ),
-                          ), 
+                          ),
                         ],
                       ),
                     );
@@ -80,9 +80,9 @@ class OnboardingScreen extends GetView<OnboardingController> {
                 ),
               ),
               Positioned(
-                bottom: isRTL
-                    ? ResponsiveUtils.height(200)
-                    : ResponsiveUtils.height(120),
+                top: isRTL
+                    ? ResponsiveUtils.height(520)
+                    : ResponsiveUtils.height(520),
                 left: isRTL ? null : ResponsiveUtils.width(24),
                 right: isRTL ? ResponsiveUtils.width(24) : null,
                 child: GetX<OnboardingController>(

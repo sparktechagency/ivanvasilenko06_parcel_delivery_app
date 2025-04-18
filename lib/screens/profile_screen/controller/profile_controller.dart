@@ -1,3 +1,4 @@
+// File: profile_controller.dart
 import 'dart:developer';
 
 import 'package:get/get.dart';
@@ -16,6 +17,7 @@ class ProfileController extends GetxController {
     getProfileInfo();
   }
 
+  // In profile_controller.dart, modify the getProfileInfo method:
   Future<dynamic> getProfileInfo() async {
     isLoading.value = true;
     errorMessage.value = '';
@@ -23,9 +25,18 @@ class ProfileController extends GetxController {
     try {
       final response =
           await ApiGetServices().apiGetServices(AppApiUrl.getProfile);
+      log("API URL: ${AppApiUrl.getProfile}");
+      log("Raw API Response: ${response.toString()}");
+      log("Status Code: ${response['statusCode']}");
 
-      if (response['statusCode'] == 200) {
-        profileData.value = ProfileModel.fromJson(response.deliveryParcelList);
+      // Create the profile model from the entire response
+      if (response['status'] == 'success' && response['data'] != null) {
+        profileData.value = ProfileModel.fromJson(response);
+        log("Parsed Profile Data: ${profileData.value.toJson().toString()}");
+        log("Profile Data Full Name: ${profileData.value.data?.fullName}");
+      } else {
+        errorMessage.value = 'Error: ${response['message'] ?? 'No message'}';
+        log("Error: ${response['message'] ?? 'No message'}");
       }
     } catch (e) {
       errorMessage.value = 'An error occurred: ${e.toString()}';

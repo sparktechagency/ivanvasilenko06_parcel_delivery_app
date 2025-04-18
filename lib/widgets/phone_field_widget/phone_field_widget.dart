@@ -18,16 +18,14 @@ class IntlPhoneFieldWidget extends StatelessWidget {
     this.initialCountryCode = 'IL',
     this.hintText = '',
     this.onChanged,
-    this.borderColor, // Optional border color
-    this.fillColor, // Optional fill color
+    this.borderColor,
+    this.fillColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    Color effectiveBorderColor =
-        borderColor ?? AppColors.grey; // Default to grey if not provided
-    Color effectiveFillColor =
-        fillColor ?? AppColors.grey; // Default to transparent if not provided
+    Color effectiveBorderColor = borderColor ?? AppColors.grey;
+    Color effectiveFillColor = fillColor ?? AppColors.grey;
     return IntlPhoneField(
       controller: controller,
       flagsButtonPadding: const EdgeInsets.only(left: 10),

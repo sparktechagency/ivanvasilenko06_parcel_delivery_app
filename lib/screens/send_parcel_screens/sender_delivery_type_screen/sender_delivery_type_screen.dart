@@ -75,6 +75,7 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
         children: [
           Expanded(
             child: PageView(
+              physics: const NeverScrollableScrollPhysics(),
               controller: parcelController.pageController,
               onPageChanged: (index) {
                 setState(() {
@@ -118,7 +119,9 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                   ),
                 ),
                 ButtonWidget(
-                  onPressed: parcelController.goToNextStep,
+                  onPressed: () {
+                    parcelController.goToNextStep();
+                  },
                   label: parcelController.currentStep.value == 5
                       ? "next".tr
                       : "next".tr,
@@ -179,12 +182,13 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                       texts[index],
                       maxLines: 1,
                       style: TextStyle(
-                          color: parcelController.currentStep.value >= index
-                              ? Colors.black
-                              : Colors.white,
-                          fontWeight: FontWeight.normal,
-                          fontSize: 8,
-                          overflow: TextOverflow.ellipsis),
+                        color: parcelController.currentStep.value >= index
+                            ? Colors.black
+                            : Colors.white,
+                        fontWeight: FontWeight.normal,
+                        fontSize: 8,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),

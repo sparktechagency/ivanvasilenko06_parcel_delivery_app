@@ -7,10 +7,11 @@ import '../../../../constants/app_colors.dart';
 import '../../../../widgets/phone_field_widget/phone_field_widget.dart';
 import '../../../../widgets/space_widget/space_widget.dart';
 import '../../../../widgets/text_widget/text_widgets.dart';
+
 class PageSix extends StatelessWidget {
   PageSix({super.key});
 
-  ParcelController parcelController = Get.put(ParcelController()); // Initialize the controller
+  final ParcelController parcelController = Get.put(ParcelController());
 
   @override
   Widget build(BuildContext context) {
@@ -37,19 +38,21 @@ class PageSix extends StatelessWidget {
           ),
           const SpaceWidget(spaceHeight: 24),
           SenderTextFieldWidget(
-            controller: parcelController.nameController, // Bind the controller
+            controller: parcelController.nameController,
             hintText: "enterReceiversName".tr,
             maxLines: 1,
           ),
           const SpaceWidget(spaceHeight: 16),
           IntlPhoneFieldWidget(
-            controller: parcelController.phoneController, // Bind the controller
+            controller: parcelController.phoneController,
+            // Bind the controller to the phone field
             hintText: "enterReceiversNumber".tr,
             onChanged: (phone) {
-              parcelController.setReceiverNumber(phone.completeNumber); // Update receiver's number in the controller
+              parcelController.setReceiverNumber(phone.number);
             },
             fillColor: AppColors.white,
             borderColor: AppColors.black,
+            initialCountryCode: "IL", // Default to Israel
           ),
         ],
       ),

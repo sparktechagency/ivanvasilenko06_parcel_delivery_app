@@ -14,21 +14,23 @@ import 'package:parcel_delivery_app/services/reporsitory/image_repository/image_
 import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 
 class ParcelController extends GetxController {
-  // Observables for form fields
+  // Observable data
   RxString startingLocation = ''.obs;
   RxString endingLocation = ''.obs;
-  RxString selectedDeliveryType = ''.obs;
+  RxString selectedDeliveryType = 'non-professional'.obs;
   RxString selectedVehicleType = ''.obs;
-  Rx<DateTime> selectedDate = DateTime.now().obs;
-  Rx<DateTime> selectedTime = DateTime.now().obs;
   RxString description = ''.obs;
   RxString price = ''.obs;
   RxString receiverName = ''.obs;
   RxString receiverNumber = ''.obs;
+  Rx<DateTime> selectedDate = DateTime.now().obs;
+  Rx<DateTime> selectedTime = DateTime.now().obs;
+  Rx<DateTime> startDateTime = DateTime.now().obs;
+  Rx<DateTime> endDateTime = DateTime.now().obs;
   RxList<String> selectedImages = <String>[].obs;
   RxBool isLoading = false.obs;
 
-  // Controllers for text inputs
+  // Controllers
   final currentLocationController = TextEditingController();
   final destinationController = TextEditingController();
   final titleController = TextEditingController();
@@ -37,88 +39,34 @@ class ParcelController extends GetxController {
   final nameController = TextEditingController();
   final phoneController = TextEditingController();
 
-  // Stepper and carousel controllers
+  // Navigation
   PageController pageController = PageController();
   PageController tabController = PageController();
   CarouselSliderController carouselController = CarouselSliderController();
-
   RxInt currentStep = 0.obs;
 
   final ImagePicker _picker = ImagePicker();
 
-  Rx<DateTime> startDateTime = DateTime.now().obs;
-  Rx<DateTime> endDateTime = DateTime.now().obs;
+  // Setters
+  void setStartingLocation(String location) =>
+      startingLocation.value = location;
 
-  // Setters for form fields
-  void setStartingLocation(String location) {
-    startingLocation.value = location;
-  }
+  void setEndingLocation(String location) => endingLocation.value = location;
 
-  void setEndingLocation(String location) {
-    endingLocation.value = location;
-  }
+  void setDeliveryType(String type) => selectedDeliveryType.value = type;
 
-  void setDeliveryType(String value) {
-    selectedDeliveryType.value = value;
-  }
+  void setVehicleType(String type) => selectedVehicleType.value = type;
 
-  void setVehicleType(String type) {
-    selectedVehicleType.value = type;
-  }
+  void setStartDateTime(DateTime start) => startDateTime.value = start;
 
-  void setDate(DateTime date) {
-    selectedDate.value = date;
-  }
+  void setEndDateTime(DateTime end) => endDateTime.value = end;
 
-  void setTime(DateTime time) {
-    selectedTime.value = time;
-  }
+  void setReceiverNumber(String number) => phoneController.text = number;
 
-  void setDescription(String desc) {
-    description.value = desc;
-  }
-
-  void setPrice(String value) {
-    price.value = value;
-  }
-
-  void setReceiverName(String name) {
-    receiverName.value = name;
-  }
-
-  void setReceiverNumber(String number) {
-    receiverNumber.value = number;
-  }
-
-  void setStartDateTime(DateTime start) {
-    startDateTime.value = start;
-  }
-
-  void setEndDateTime(DateTime end) {
-    endDateTime.value = end;
-  }
-
-  // Image picking logic
-  Future<void> pickImages() async {
-    try {
-      final List<XFile> images = await _picker.pickMultiImage();
-      if (images.isNotEmpty) {
-        selectedImages.addAll(images.map((image) => File(image.path).path));
-      } else {
-        AppSnackBar.error(
-            "No images selected, Please select at least one image.");
-      }
-    } catch (e) {
-      AppSnackBar.error("'Error', 'Failed to pick images: $e'");
-    }
-  }
-
-  void removeImage(int index) {
-    selectedImages.removeAt(index);
-  }
-
-  // Step navigation logic
+  // Step navigation with validation
   void goToNextStep() {
+    if (!validateCurrentStep()) return;
+
     if (currentStep.value < 5) {
       currentStep.value++;
       pageController.nextPage(
@@ -142,6 +90,76 @@ class ParcelController extends GetxController {
     }
   }
 
+  bool validateCurrentStep() {
+    switch (currentStep.value) {
+      case 1:
+        // Step 1: Location Validation
+        if (startingLocation.isEmpty || endingLocation.isEmpty) {
+          AppSnackBar.error(
+              "Please fill both pickup and destination locations.");
+          return false;
+        }
+        return true;
+
+      case 2:
+        // Step 2: Time Validation
+        if (startDateTime.value == null || endDateTime.value == null) {
+          AppSnackBar.error("Please select both delivery start and end time.");
+          return false;
+        }
+        return true;
+
+      case 3:
+        // Step 3: Description and Image Validation
+        if (titleController.text.trim().isEmpty ||
+            descriptionController.text.trim().isEmpty ||
+            selectedImages.isEmpty) {
+          AppSnackBar.error(
+              "Please fill title, description, and select at least one image.");
+          return false;
+        }
+        return true;
+
+      case 4:
+        // Step 4: Price Validation
+        if (priceController.text.trim().isEmpty) {
+          AppSnackBar.error("Please enter the delivery price.");
+          return false;
+        }
+        return true;
+
+      case 5:
+        // Step 5: Receiver Info Validation
+        if (nameController.text.trim().isEmpty ||
+            phoneController.text.trim().isEmpty) {
+          AppSnackBar.error("Please enter receiver name and phone number.");
+          return false;
+        }
+        return true;
+
+      default:
+        return true;
+    }
+  }
+
+  // Image logic
+  Future<void> pickImages() async {
+    try {
+      final List<XFile> images = await _picker.pickMultiImage();
+      if (images.isNotEmpty) {
+        selectedImages.addAll(images.map((img) => File(img.path).path));
+      } else {
+        AppSnackBar.error("No images selected.");
+      }
+    } catch (e) {
+      AppSnackBar.error("Failed to pick images: $e");
+    }
+  }
+
+  void removeImage(int index) {
+    selectedImages.removeAt(index);
+  }
+
   String formatDateTime(DateTime dateTime) {
     return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
   }
@@ -151,29 +169,29 @@ class ParcelController extends GetxController {
     return base64Encode(bytes);
   }
 
-  // Submission of parcel data
+  // Submission
   Future<void> submitParcelData() async {
     var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
     log("🔑 Authorization Token: $token");
 
     if (token.isEmpty) {
-      AppSnackBar.error('Error, Authorization token is missing');
+      AppSnackBar.error("Authorization token is missing.");
+      return;
+    }
+
+    if (selectedImages.isEmpty) {
+      AppSnackBar.error("Please select at least one image.");
       return;
     }
 
     isLoading.value = true;
-
-    var startTime = DateFormat('yyyy-MM-dd HH:mm').format(startDateTime.value);
-    var endTime = DateFormat('yyyy-MM-dd HH:mm').format(endDateTime.value);
-    log("This is startTime: $startTime");
-
     try {
-      final Map<String, dynamic> parcelData = {
+      final parcelData = {
         'senderType': selectedDeliveryType.value,
         'pickupLocation': startingLocation.value,
         'deliveryLocation': endingLocation.value,
-        'deliveryStartTime': startTime,
-        'deliveryEndTime': endTime,
+        'deliveryStartTime': formatDateTime(startDateTime.value),
+        'deliveryEndTime': formatDateTime(endDateTime.value),
         'deliveryType': selectedVehicleType.value,
         'price': priceController.text,
         'title': titleController.text,
@@ -182,27 +200,19 @@ class ParcelController extends GetxController {
         'phoneNumber': phoneController.text,
       };
 
-      log("📦 Sending parcel data: $parcelData");
-
-      if (selectedImages.isEmpty) {
-        AppSnackBar.error('Error Please select at least one image.');
-        return;
-      }
-
       await ImageMultipartUpload().imageUploadWithData2(
         body: parcelData,
         url: AppApiUrl.sendPercel,
-        imagePath: selectedImages.value,
+        imagePath: selectedImages,
       );
     } catch (e) {
-      log("❌ Error sending parcel data: $e");
-      AppSnackBar.error("'Error', 'Failed to submit parcel data: $e'");
+      log("❌ Error submitting parcel: $e");
+      AppSnackBar.error("Failed to submit parcel data.");
     } finally {
       isLoading.value = false;
     }
   }
 
-  // Reset form fields to default values
   void resetAllFields() {
     selectedDeliveryType.value = 'non-professional';
     selectedVehicleType.value = '';
@@ -210,11 +220,10 @@ class ParcelController extends GetxController {
     endingLocation.value = '';
     selectedDate.value = DateTime.now();
     selectedTime.value = DateTime.now();
-    description.value = '';
-    price.value = '';
-    receiverName.value = '';
-    receiverNumber.value = '';
+    startDateTime.value = DateTime.now();
+    endDateTime.value = DateTime.now();
     selectedImages.clear();
+
     currentLocationController.clear();
     destinationController.clear();
     titleController.clear();

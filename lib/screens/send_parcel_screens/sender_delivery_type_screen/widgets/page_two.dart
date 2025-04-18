@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:location/location.dart';
 import 'package:parcel_delivery_app/constants/api_key.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
@@ -23,20 +24,56 @@ class _PageTwoState extends State<PageTwo> {
   final TextEditingController startingController = TextEditingController();
   final TextEditingController endingController = TextEditingController();
 
-  // Track the currently active location type: 'starting' or 'ending'
-  String _activeLocationType = '';
-
+  String _activeLocationType = ''; // Track the active text field
   List<dynamic> _placePredictions = [];
   bool _isLoading = false;
 
-  // Variables to store selected location's coordinates
   LatLng? _startingLocationCoordinates;
   LatLng? _endingLocationCoordinates;
+  LatLng? _currentLocationCoordinates;
   GoogleMapController? _mapController;
   final Set<Marker> _markers = <Marker>{};
   Polyline? _polyline;
 
-  // Fetch autocomplete predictions from Google Places API
+  // Function to get the current location
+  Future<void> getCurrentLocation() async {
+    Location location = Location();
+
+    // Check if location service is enabled
+    bool serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        debugPrint("Location services are disabled");
+        return;
+      }
+    }
+
+    // Check and request location permission
+    PermissionStatus permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        debugPrint("Location permission not granted");
+        return;
+      }
+    }
+
+    // Get the current location data
+    LocationData locationData = await location.getLocation();
+    setState(() {
+      _currentLocationCoordinates =
+          LatLng(locationData.latitude!, locationData.longitude!);
+    });
+
+    // Update the map with the current location
+    if (_mapController != null && _currentLocationCoordinates != null) {
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLng(_currentLocationCoordinates!),
+      );
+    }
+  }
+
   Future<void> placeAutoComplete(String query) async {
     if (query.isEmpty) {
       setState(() {
@@ -82,31 +119,32 @@ class _PageTwoState extends State<PageTwo> {
     }
   }
 
-  // Handle selection of a starting location
   void onStartingLocationSelected(String placeId, String description) async {
     setState(() {
       _placePredictions = [];
       startingController.text = description;
     });
 
-    // Update the location in the ParcelController
     Get.find<ParcelController>().setStartingLocation(description);
     await fetchPlaceDetails(placeId, 'starting');
+
+    // Close keyboard after selection
+    FocusScope.of(context).unfocus();
   }
 
-  // Handle selection of an ending location
   void onEndingLocationSelected(String placeId, String description) async {
     setState(() {
       _placePredictions = [];
       endingController.text = description;
     });
 
-    // Update the location in the ParcelController
     Get.find<ParcelController>().setEndingLocation(description);
     await fetchPlaceDetails(placeId, 'ending');
+
+    // Close keyboard after selection
+    FocusScope.of(context).unfocus();
   }
 
-  // Fetch details of the selected place using the place_id
   Future<void> fetchPlaceDetails(String placeId, String locationType) async {
     final Uri uri = Uri.https(
       'maps.googleapis.com',
@@ -153,13 +191,11 @@ class _PageTwoState extends State<PageTwo> {
           }
         });
 
-        // Fetch the route directions once both locations are selected
         if (_startingLocationCoordinates != null &&
             _endingLocationCoordinates != null) {
           await fetchDirections();
         }
 
-        // Move map camera to selected location
         _mapController?.animateCamera(
           CameraUpdate.newLatLng(
             locationType == 'starting'
@@ -173,7 +209,6 @@ class _PageTwoState extends State<PageTwo> {
     }
   }
 
-  // Fetch directions using the Google Directions API
   Future<void> fetchDirections() async {
     if (_startingLocationCoordinates == null ||
         _endingLocationCoordinates == null) {
@@ -193,7 +228,7 @@ class _PageTwoState extends State<PageTwo> {
         _polyline = Polyline(
           polylineId: const PolylineId('route'),
           points: polylineCoordinates,
-          color: Colors.black, // change color or other properties as you like
+          color: Colors.black,
           width: 5,
         );
       });
@@ -202,7 +237,6 @@ class _PageTwoState extends State<PageTwo> {
     }
   }
 
-  // Decode polyline encoded string into LatLng points
   List<LatLng> _decodePolyline(String encoded) {
     List<LatLng> polylineCoordinates = [];
     int index = 0;
@@ -215,7 +249,6 @@ class _PageTwoState extends State<PageTwo> {
       int shift = 0;
       int result = 0;
 
-      // Decode latitude
       do {
         b = encoded.codeUnitAt(index) - 63;
         index++;
@@ -227,7 +260,6 @@ class _PageTwoState extends State<PageTwo> {
       shift = 0;
       result = 0;
 
-      // Decode longitude
       do {
         b = encoded.codeUnitAt(index) - 63;
         index++;
@@ -262,10 +294,10 @@ class _PageTwoState extends State<PageTwo> {
       ),
       backgroundColor: AppColors.white,
       body: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SpaceWidget(spaceHeight: 24),
             Row(
               children: [
                 const SizedBox(width: 24),
@@ -295,7 +327,6 @@ class _PageTwoState extends State<PageTwo> {
                       TextFormField(
                         controller: startingController,
                         onChanged: (query) {
-                          // Mark active location as 'starting'
                           _activeLocationType = 'starting';
                           placeAutoComplete(query);
                         },
@@ -310,10 +341,30 @@ class _PageTwoState extends State<PageTwo> {
                         ),
                       ),
                       const SpaceWidget(spaceHeight: 12),
+                      if (_activeLocationType == 'starting' &&
+                          _placePredictions.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: _placePredictions.length,
+                            itemBuilder: (context, index) {
+                              final prediction = _placePredictions[index];
+                              return ListTile(
+                                title: Text(prediction['description']),
+                                onTap: () {
+                                  final placeId = prediction['place_id'];
+                                  final description = prediction['description'];
+                                  onStartingLocationSelected(
+                                      placeId, description);
+                                },
+                              );
+                            },
+                          ),
+                        ),
                       TextFormField(
                         controller: endingController,
                         onChanged: (query) {
-                          // Mark active location as 'ending'
                           _activeLocationType = 'ending';
                           placeAutoComplete(query);
                         },
@@ -327,6 +378,28 @@ class _PageTwoState extends State<PageTwo> {
                           ),
                         ),
                       ),
+                      const SpaceWidget(spaceHeight: 12),
+                      if (_activeLocationType == 'ending' &&
+                          _placePredictions.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: _placePredictions.length,
+                            itemBuilder: (context, index) {
+                              final prediction = _placePredictions[index];
+                              return ListTile(
+                                title: Text(prediction['description']),
+                                onTap: () {
+                                  final placeId = prediction['place_id'];
+                                  final description = prediction['description'];
+                                  onEndingLocationSelected(
+                                      placeId, description);
+                                },
+                              );
+                            },
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -334,18 +407,22 @@ class _PageTwoState extends State<PageTwo> {
               ],
             ),
             const SpaceWidget(spaceHeight: 24),
-
-            // Wrap GoogleMap and suggestion list with a Stack
             Stack(
               children: [
                 SizedBox(
                   height: 500,
                   width: double.infinity,
                   child: GoogleMap(
-                    initialCameraPosition: const CameraPosition(
-                      target: LatLng(23.76171, 90.43128),
-                      zoom: 12.0,
-                    ),
+                    // Set initial camera position to the current location (if fetched)
+                    initialCameraPosition: _currentLocationCoordinates != null
+                        ? CameraPosition(
+                            target: _currentLocationCoordinates!,
+                            zoom: 12.0,
+                          )
+                        : const CameraPosition(
+                            target: LatLng(23.76171, 90.43128),
+                            zoom: 12.0,
+                          ),
                     onMapCreated: (GoogleMapController controller) {
                       _mapController = controller;
                     },
@@ -361,49 +438,6 @@ class _PageTwoState extends State<PageTwo> {
                     rotateGesturesEnabled: true,
                   ),
                 ),
-                if (_placePredictions.isNotEmpty)
-                  Positioned(
-                    left: 16,
-                    right: 16,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xB3FFFFFF).withAlpha(160),
-                      ),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: _placePredictions.length,
-                        itemBuilder: (context, index) {
-                          final prediction = _placePredictions[index];
-                          return ListTile(
-                            title: Text(prediction['description']),
-                            onTap: () {
-                              final placeId = prediction['place_id'];
-                              final description = prediction['description'];
-
-                              if (_activeLocationType == 'starting') {
-                                onStartingLocationSelected(
-                                    placeId, description);
-                              } else {
-                                onEndingLocationSelected(placeId, description);
-                              }
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                if (_isLoading)
-                  Positioned(
-                    top: 120,
-                    left: 16,
-                    right: 16,
-                    child: Container(
-                      color: Colors.white.withAlpha(70),
-                      child: const Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
-                  ),
               ],
             ),
           ],

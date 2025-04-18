@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "1006712863575",
+    "firebase_url": "https://parceldeliveryapp-5dc60-default-rtdb.firebaseio.com",
+    "project_id": "parceldeliveryapp-5dc60",
+    "storage_bucket": "parceldeliveryapp-5dc60.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1006712863575:android:5bda31379b1c0eb1b45c12",
+        "android_client_info": {
+          "package_name": "com.ivan.delivery"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbkEqzVhfESOX2zb1ZQpBg0n0QCBaitoA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
