@@ -9,6 +9,7 @@ import 'package:parcel_delivery_app/screens/auth_screens/login_screen/widgets/or
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_button_widget/text_button_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_field_widget/text_field_widget.dart';
+
 import '../../../widgets/space_widget/space_widget.dart';
 import '../../../widgets/text_widget/text_widgets.dart';
 
@@ -60,11 +61,11 @@ class LoginScreen extends StatelessWidget {
                     return controller.isLoading.value
                         ? const Center(child: CircularProgressIndicator())
                         : ButtonWidget(
-                      onPressed: controller.clickLoginButton,
-                      label: "login".tr,
-                      buttonHeight: 50,
-                      buttonWidth: double.infinity,
-                    );
+                            onPressed: controller.clickLoginButton,
+                            label: "login".tr,
+                            buttonHeight: 50,
+                            buttonWidth: double.infinity,
+                          );
                   }),
                   const SpaceWidget(spaceHeight: 16),
                   const OrWidget(),
@@ -85,21 +86,17 @@ class LoginScreen extends StatelessWidget {
                     text: "continueWithEmail".tr,
                   ),
                   const SpaceWidget(spaceHeight: 16),
-                  CustomInkWellButton(
-                    onTap: () {
-                      Get.snackbar(
-                        "Sign with Google Comming Soon",
-                        "This Feature will be implemented",
-                        backgroundColor: AppColors.green,
-                        colorText: Colors.white,
-                        snackPosition: SnackPosition.TOP,
-                        duration: const Duration(seconds: 2),
-                        margin: const EdgeInsets.all(10),
-                      );
-                    },
-                    icon: AppIconsPath.googleIcon,
-                    text: "continueWithGoogle".tr,
-                  ),
+                  Obx(() {
+                    return controller.isGoogleLoading.value
+                        ? const Center(child: CircularProgressIndicator())
+                        : CustomInkWellButton(
+                            onTap: () {
+                              controller.googleSignIn();
+                            },
+                            icon: AppIconsPath.googleIcon,
+                            text: "continueWithGoogle".tr,
+                          );
+                  }),
                   const SpaceWidget(spaceHeight: 16),
                   CustomInkWellButton(
                     onTap: () {

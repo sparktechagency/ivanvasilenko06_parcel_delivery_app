@@ -31,5 +31,7 @@ class AppIconsPath {
 
   static const String startingLocationIcon =
       "assets/icons/startLocationIcon.png";
-  static const String endingLocationIcon = "assets/icons/endingLocaitonIcon.png";
+  static const String endingLocationIcon =
+      "assets/icons/endingLocaitonIcon.png";
+  static const String blackLocation = "assets/icons/blackLocation.svg";
 }

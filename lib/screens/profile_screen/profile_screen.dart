@@ -325,11 +325,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(100),
                                 child: ImageWidget(
-                                  imagePath: profileController.profileData.value
-                                              .data?.profileImage?.isNotEmpty ??
+                                  imagePath: profileController
+                                              .profileData
+                                              .value
+                                              .data
+                                              ?.user
+                                              ?.profileImage
+                                              ?.isNotEmpty ??
                                           false
-                                      ? profileController
-                                          .profileData.value.data!.profileImage!
+                                      ? profileController.profileData.value
+                                          .data!.user!.profileImage!
                                       : AppImagePath.profileImage,
                                   height: 116,
                                   width: 116,
@@ -374,7 +379,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         TextWidget(
                           text: profileController
-                                  .profileData.value.data?.fullName ??
+                                  .profileData.value.data?.user?.fullName ??
                               'N/A',
                           fontSize: 21,
                           fontWeight: FontWeight.w600,
@@ -493,9 +498,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     ProfileCardWidget(
                       titleText: "name".tr,
-                      subtitleText:
-                          profileController.profileData.value.data?.fullName ??
-                              'N/A',
+                      subtitleText: profileController
+                              .profileData.value.data?.user?.fullName ??
+                          'N/A',
                     ),
                     const Divider(
                       color: AppColors.grey,
@@ -503,9 +508,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     ProfileCardWidget(
                       titleText: "phoneNumber".tr,
-                      subtitleText:
-                          profileController.profileData.value.data?.email ??
-                              'N/A',
+                      subtitleText: profileController
+                              .profileData.value.data?.user?.email ??
+                          'N/A',
                     ),
                     const Divider(
                       color: AppColors.grey,
@@ -513,9 +518,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     ProfileCardWidget(
                       titleText: "verifiedEmail".tr,
-                      subtitleText:
-                          profileController.profileData.value.data?.email ??
-                              'N/A',
+                      subtitleText: profileController
+                              .profileData.value.data?.user?.email ??
+                          'N/A',
                       badgeIcon: AppIconsPath.badgeIcon,
                     ),
                     const Divider(

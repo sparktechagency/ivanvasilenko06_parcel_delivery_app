@@ -7,6 +7,7 @@ class AppApiUrl {
   static const String signupemail = "/auth/register-email";
   static const String verifyEmail = "/auth/verify-otp-email";
   static const String loginemailveify = "/auth/verify-login-otp";
+  static const String googleAuth = "/auth/google-auth";
   static const String sendPercel = "$baseUrl/parcel/create";
   static const String getProfile = "/user/profile";
   static const String servicePromote = "$baseUrl/parcel/available";
