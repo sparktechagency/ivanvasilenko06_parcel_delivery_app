@@ -155,6 +155,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (BuildContext context) {
         return Dialog(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)), // Flat corners
+          ),
           backgroundColor: AppColors.grey,
           child: Padding(
             padding: const EdgeInsets.all(16.0),

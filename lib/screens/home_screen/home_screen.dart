@@ -1,14 +1,18 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
+import 'package:parcel_delivery_app/screens/home_screen/controller/earn_money_radius_controller.dart';
 import 'package:parcel_delivery_app/screens/home_screen/widgets/earn_money_card_widget.dart';
 import 'package:parcel_delivery_app/screens/home_screen/widgets/home_screen_appbar.dart';
 import 'package:parcel_delivery_app/screens/home_screen/widgets/reserve_bottom_sheet_widget.dart';
 import 'package:parcel_delivery_app/screens/home_screen/widgets/suggestionCardWidget.dart';
-import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 
 import '../../utils/app_size.dart';
 import '../../widgets/button_widget/button_widget.dart';
@@ -24,8 +28,48 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   double _currentValue = 5.0;
+  bool receivingDeliveries = false;
+  final EarnMoneyRadiusController _radiusController =
+      Get.put(EarnMoneyRadiusController());
+
+// Function to get current location
+// Updates to _getCurrentLocation function in home_screen.dart
+  Future<void> _getCurrentLocation() async {
+    try {
+      // Request location permissions if not granted
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          // Handle denied permissions
+          log('Location permissions denied.');
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        // Handle permanently denied permissions
+        log('Location permissions permanently denied.');
+        return;
+      }
+
+      // Get current position
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      _radiusController
+          .setCurrentLocation(LatLng(position.latitude, position.longitude));
+      log('Current Location: Latitude: ${position.latitude}');
+      log('Current Location: Longitude: ${position.longitude}');
+    } catch (e) {
+      log('Error getting location: $e');
+      // Show error message to user
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Could not get current location. Please try again.')));
+    }
+  }
 
   void _openBottomSheet(BuildContext context) {
+    _getCurrentLocation(); // Get current location when opening the bottom sheet
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -64,123 +108,94 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontColor: AppColors.black,
                   ),
                   const SpaceWidget(spaceHeight: 12),
-                  Row(
+                  // Slider for radius selection
+                  Column(
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(100),
-                        child: const ImageWidget(
-                          height: 50,
-                          width: 50,
-                          imagePath: AppImagePath.sendParcel,
+                      Text(
+                        '${_currentValue.toStringAsFixed(0)} ${"km".tr}',
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SpaceWidget(spaceWidth: 8),
-                      SizedBox(
-                        width: ResponsiveUtils.width(250),
-                        child: TextWidget(
-                          text: "orderName".tr,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          fontColor: AppColors.black,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          textAlignment: TextAlign.start,
+                      const SpaceWidget(spaceWidth: 0),
+                      SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          activeTrackColor: Colors.black,
+                          inactiveTrackColor: Colors.grey.shade200,
+                          thumbColor: Colors.black,
+                          thumbShape: const RoundSliderThumbShape(
+                              enabledThumbRadius: 12),
+                          overlayColor: Colors.black.withAlpha(51),
+                          trackHeight: 6.0,
+                        ),
+                        child: Slider(
+                          value: _currentValue,
+                          min: 0,
+                          max: 50,
+                          divisions: 50,
+                          onChanged: (value) {
+                            setState(() {
+                              _currentValue = value;
+                            });
+                            _radiusController.radius.value = value;
+                          },
                         ),
                       ),
-                    ],
-                  ),
-                  const SpaceWidget(spaceWidth: 16),
-                  // Local state for slider value
-                  StatefulBuilder(
-                    builder: (context, sliderSetState) {
-                      return Column(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("0${"km".tr}"),
+                            Text("50${"km".tr}"),
+                          ],
+                        ),
+                      ),
+                      const SpaceWidget(spaceHeight: 32),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            '${_currentValue.round()} ${"km".tr}',
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SpaceWidget(spaceWidth: 0),
-                          SliderTheme(
-                            data: SliderTheme.of(context).copyWith(
-                              activeTrackColor: Colors.black,
-                              inactiveTrackColor: Colors.grey.shade200,
-                              thumbColor: Colors.black,
-                              thumbShape: const RoundSliderThumbShape(
-                                  enabledThumbRadius: 12),
-                              overlayColor: Colors.black.withOpacity(0.2),
-                              trackHeight: 6.0,
-                            ),
-                            child: Slider(
-                              value: _currentValue,
-                              min: 0,
-                              max: 50,
-                              divisions: 50,
-                              // label: '${_currentValue.round()} Km',
-                              onChanged: (value) {
-                                sliderSetState(() {
-                                  _currentValue = value;
-                                });
-                              },
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("0${"km".tr}"),
-                                Text("50${"km".tr}"),
-                              ],
-                            ),
-                          ),
-                          const SpaceWidget(spaceHeight: 32),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  Get.back();
-                                },
+                          InkWell(
+                            onTap: () {
+                              Get.back();
+                            },
+                            borderRadius: BorderRadius.circular(100),
+                            child: Card(
+                              color: AppColors.white,
+                              shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(100),
-                                child: Card(
-                                  color: AppColors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(100),
-                                  ),
-                                  elevation: 3,
-                                  child: CircleAvatar(
-                                    backgroundColor: AppColors.white,
-                                    radius: ResponsiveUtils.width(25),
-                                    child: const Icon(
-                                      Icons.arrow_back,
-                                      color: AppColors.black,
-                                    ),
-                                  ),
+                              ),
+                              elevation: 3,
+                              child: CircleAvatar(
+                                backgroundColor: AppColors.white,
+                                radius: ResponsiveUtils.width(25),
+                                child: const Icon(
+                                  Icons.arrow_back,
+                                  color: AppColors.black,
                                 ),
                               ),
-                              ButtonWidget(
-                                onPressed: () {
-                                  Get.toNamed(AppRoutes.radiusMapScreen);
-                                },
-                                label: "next".tr,
-                                textColor: AppColors.white,
-                                buttonWidth: 105,
-                                buttonHeight: 50,
-                                icon: Icons.arrow_forward,
-                                iconColor: AppColors.white,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 16,
-                                iconSize: 20,
-                              ),
-                            ],
+                            ),
                           ),
-                          const SpaceWidget(spaceHeight: 32),
+                          ButtonWidget(
+                            onPressed: () {
+                              _radiusController.fetchParcelsInRadius();
+                              Get.toNamed(AppRoutes.radiusMapScreen);
+                            },
+                            label: "next".tr,
+                            textColor: AppColors.white,
+                            buttonWidth: 105,
+                            buttonHeight: 50,
+                            icon: Icons.arrow_forward,
+                            iconColor: AppColors.white,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                            iconSize: 20,
+                          ),
                         ],
-                      );
-                    },
+                      ),
+                      const SpaceWidget(spaceHeight: 32),
+                    ],
                   ),
                 ],
               ),
@@ -220,7 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       fontWeight: FontWeight.w700,
                       fontColor: AppColors.black,
                     ),
-                    const SpaceWidget(spaceHeight: 16),
+                    const SpaceWidget(spaceHeight: 12),
                     Row(
                       children: [
                         Expanded(
@@ -233,7 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             imagePath: AppImagePath.deliverParcel,
                           ),
                         ),
-                        const SpaceWidget(spaceWidth: 16),
+                        const SpaceWidget(spaceWidth: 12),
                         Expanded(
                           flex: 1,
                           child: SuggestionCardWidget(
@@ -244,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             imagePath: AppImagePath.sendParcel,
                           ),
                         ),
-                        const SpaceWidget(spaceWidth: 16),
+                        const SpaceWidget(spaceWidth: 12),
                         Expanded(
                           flex: 1,
                           child: SuggestionCardWidget(
@@ -275,7 +290,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-                    const SpaceWidget(spaceHeight: 24),
+                    const SpaceWidget(spaceHeight: 20),
                     TextWidget(
                       text: "earnMoney".tr,
                       fontSize: 14,
@@ -288,6 +303,82 @@ class _HomeScreenState extends State<HomeScreen> {
                         _openBottomSheet(context);
                       },
                     ),
+                    const SpaceWidget(spaceHeight: 24),
+                    Container(
+                      height: ResponsiveUtils.height(50),
+                      padding: const EdgeInsets.all(10),
+                      decoration: const BoxDecoration(
+                        color: AppColors.greyLightest,
+                        borderRadius: BorderRadius.all(Radius.circular(50)),
+                      ),
+                      child: Row(
+                        children: [
+                          const TextWidget(
+                            text: "Interested in Receiving Deliveries?",
+                            fontSize: 15.5,
+                            fontColor: AppColors.black,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          const Spacer(),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                receivingDeliveries = !receivingDeliveries;
+                              });
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              width: 60,
+                              height: 30,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: receivingDeliveries
+                                    ? AppColors.green
+                                    : AppColors.red,
+                              ),
+                              child: Stack(
+                                children: [
+                                  Align(
+                                    alignment: receivingDeliveries
+                                        ? Alignment.centerLeft
+                                        : Alignment.centerRight,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 05),
+                                      child: Text(
+                                        receivingDeliveries ? 'ON' : 'OFF',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  AnimatedAlign(
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                    alignment: receivingDeliveries
+                                        ? Alignment.centerRight
+                                        : Alignment.centerLeft,
+                                    child: Container(
+                                      width: 22,
+                                      height: 22,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
                   ],
                 ),
               ),

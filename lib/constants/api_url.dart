@@ -13,5 +13,6 @@ class AppApiUrl {
   static const String servicePromote = "$baseUrl/parcel/available";
   static const String deliverParcel = "$baseUrl/parcel/filtered";
   static const String deliveryRequest = "$liveDomain/delivery/request-delivery";
+  static const String getParcelInRadius = "$baseUrl/parcel/availableByRadius";
   static const String token = "";
 }

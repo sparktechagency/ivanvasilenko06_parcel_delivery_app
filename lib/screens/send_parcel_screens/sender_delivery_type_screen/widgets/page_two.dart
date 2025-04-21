@@ -28,6 +28,8 @@ class _PageTwoState extends State<PageTwo> {
   final LocationRepository _locationRepository = LocationRepository();
   final FocusNode _startingFocusNode = FocusNode();
   final FocusNode _endingFocusNode = FocusNode();
+  Set<Marker> _markers = {};
+  bool _mapInitialized = false;
 
   @override
   void initState() {
@@ -65,7 +67,11 @@ class _PageTwoState extends State<PageTwo> {
   Future<void> _getCurrentLocation() async {
     final location = await _locationRepository.getCurrentLocation();
     if (location != null && mounted) {
-      setState(() {});
+      setState(() {
+        // Update any state variables if needed
+      });
+
+      // Only animate camera if the map controller is initialized
       if (_mapController != null) {
         _mapController?.animateCamera(
           CameraUpdate.newLatLng(location),
@@ -107,76 +113,107 @@ class _PageTwoState extends State<PageTwo> {
   }
 
   void _onStartingLocationSelected(String placeId, String description) async {
+    // Update UI immediately
     setState(() {
       _placePredictions = [];
       startingController.text = description;
+      _activeLocationType = '';
     });
 
+    // Update controller
     Get.find<ParcelController>().setStartingLocation(description);
 
-    final location =
-        await _locationRepository.fetchPlaceDetails(placeId, 'starting');
-    if (location != null && mounted) {
-      setState(() {});
-      _mapController?.animateCamera(
-        CameraUpdate.newLatLng(location),
-      );
+    try {
+      // Fetch location details
+      final location =
+          await _locationRepository.fetchPlaceDetails(placeId, 'starting');
+
+      // Check if widget is still mounted before updating UI
+      if (location != null && mounted) {
+        // Move camera to the location
+        _mapController?.animateCamera(
+          CameraUpdate.newLatLng(location),
+        );
+
+        // Force UI update to refresh map
+        setState(() {
+          _markers = _locationRepository.markers;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching starting location details: $e');
     }
+
+    // Unfocus keyboard
     FocusScope.of(context).unfocus();
   }
 
   // Handle ending location selection
   void _onEndingLocationSelected(String placeId, String description) async {
+    // Update UI immediately
     setState(() {
       _placePredictions = [];
       endingController.text = description;
+      _activeLocationType = '';
     });
 
+    // Update controller
     Get.find<ParcelController>().setEndingLocation(description);
 
-    // Fetch place details and update map
-    final location =
-        await _locationRepository.fetchPlaceDetails(placeId, 'ending');
-    if (location != null && mounted) {
-      setState(() {});
-      _mapController?.animateCamera(
-        CameraUpdate.newLatLng(location),
-      );
+    try {
+      // Fetch place details and update map
+      final location =
+          await _locationRepository.fetchPlaceDetails(placeId, 'ending');
+
+      // Check if widget is still mounted before updating UI
+      if (location != null && mounted) {
+        // Move camera to the location
+        _mapController?.animateCamera(
+          CameraUpdate.newLatLng(location),
+        );
+
+        // Force UI update to refresh map
+        setState(() {
+          _markers = _locationRepository.markers;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching ending location details: $e');
     }
+
+    // Unfocus keyboard
     FocusScope.of(context).unfocus();
   }
 
   // Build prediction list for autocomplete results
   Widget _buildPredictionsList() {
-    if (_placePredictions.isEmpty) {
+    if (_placePredictions.isEmpty || _isLoading) {
       return const SizedBox.shrink();
     }
 
-    return SingleChildScrollView(
+    return Material(
+      elevation: 4.0,
+      borderRadius: BorderRadius.circular(8),
       child: Container(
         constraints: const BoxConstraints(maxHeight: 200),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withAlpha(76),
-              spreadRadius: 1,
-              blurRadius: 3,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
-        child: ListView.builder(
+        child: ListView.separated(
           shrinkWrap: true,
+          padding: EdgeInsets.zero,
           itemCount: _placePredictions.length,
+          separatorBuilder: (context, index) => const Divider(
+            height: 1,
+            thickness: 1,
+            color: AppColors.greyLight2,
+          ),
           itemBuilder: (context, index) {
             final prediction = _placePredictions[index];
             return ListTile(
               dense: true,
-              // Make list tiles more compact
               visualDensity: const VisualDensity(vertical: -2),
-              // Further reduce height
               leading: const Icon(Icons.location_on,
                   color: AppColors.greyDarkLight2, size: 18),
               title: Text(
@@ -252,17 +289,9 @@ class _PageTwoState extends State<PageTwo> {
                   hintStyle: const TextStyle(
                     color: AppColors.greyDarkLight2,
                   ),
-                  // contentPadding: const EdgeInsets.symmetric(vertical: 5),
                 ),
               ),
               const SpaceWidget(spaceHeight: 08),
-
-              // Show predictions if active field is starting
-              if (_activeLocationType == 'starting' &&
-                  _placePredictions.isNotEmpty)
-                _buildPredictionsList(),
-
-              // Destination location field
               TextFormField(
                 controller: endingController,
                 focusNode: _endingFocusNode,
@@ -280,15 +309,9 @@ class _PageTwoState extends State<PageTwo> {
                   hintStyle: const TextStyle(
                     color: AppColors.greyDarkLight2,
                   ),
-                  // contentPadding: const EdgeInsets.symmetric(vertical: 5),
                 ),
               ),
               const SpaceWidget(spaceHeight: 08),
-
-              // Show predictions if active field is ending
-              if (_activeLocationType == 'ending' &&
-                  _placePredictions.isNotEmpty)
-                _buildPredictionsList(),
             ],
           ),
         ),
@@ -314,7 +337,11 @@ class _PageTwoState extends State<PageTwo> {
                     zoom: 12.0,
                   ),
         onMapCreated: (GoogleMapController controller) {
-          _mapController = controller;
+          setState(() {
+            _mapController = controller;
+            _mapInitialized = true;
+          });
+
           if (_locationRepository.currentLocationCoordinates != null) {
             _mapController?.animateCamera(
               CameraUpdate.newLatLng(
@@ -323,7 +350,9 @@ class _PageTwoState extends State<PageTwo> {
           }
         },
         mapType: MapType.terrain,
-        markers: _locationRepository.markers,
+        markers: _locationRepository.markers.isNotEmpty
+            ? _locationRepository.markers
+            : _markers,
         polylines: _locationRepository.polyline != null
             ? {_locationRepository.polyline!}
             : {},
@@ -342,7 +371,6 @@ class _PageTwoState extends State<PageTwo> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      // Allow the screen to resize when keyboard appears
       appBar: AppBar(
         title: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -365,50 +393,56 @@ class _PageTwoState extends State<PageTwo> {
           FocusScope.of(context).unfocus();
           setState(() {
             _placePredictions = [];
+            _activeLocationType = '';
           });
         },
-        child: LayoutBuilder(builder: (context, constraints) {
-          // Get keyboard height
-          final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-          final isKeyboardVisible = keyboardHeight > 0;
-
-          return Stack(
+        child: SafeArea(
+          child: Stack(
             children: [
-              // Main content in a scrollable container
-              SingleChildScrollView(
-                physics: isKeyboardVisible
-                    ? const AlwaysScrollableScrollPhysics()
-                    : const NeverScrollableScrollPhysics(),
-                child: SizedBox(
-                  height: constraints.maxHeight +
-                      (isKeyboardVisible ? keyboardHeight : 0),
-                  child: Column(
-                    children: [
-                      // Location input fields
-                      _buildLocationInputs(),
+              // Main content
+              Column(
+                children: [
+                  // Location input fields
+                  _buildLocationInputs(),
 
-                      // Spacer
-                      const SpaceWidget(spaceHeight: 16),
+                  // Spacer
+                  const SpaceWidget(spaceHeight: 16),
 
-                      // Map section - will get smaller when keyboard appears
-                      Expanded(child: _buildMap()),
-                    ],
-                  ),
-                ),
+                  // Map section
+                  Expanded(child: _buildMap()),
+                ],
               ),
 
-              // This will ensure predictions stay visible when keyboard is open
+              // Position predictions list properly - now with correct positioning
               if (_activeLocationType.isNotEmpty &&
                   _placePredictions.isNotEmpty)
                 Positioned(
                   top: _activeLocationType == 'starting' ? 60 : 120,
-                  left: 47, // Align with text fields
+                  left: 47,
                   right: 16,
                   child: _buildPredictionsList(),
                 ),
+
+              // Loading indicator
+              if (_isLoading)
+                Positioned(
+                  top: _activeLocationType == 'starting' ? 60 : 120,
+                  left: 47,
+                  right: 16,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                ),
             ],
-          );
-        }),
+          ),
+        ),
       ),
     );
   }

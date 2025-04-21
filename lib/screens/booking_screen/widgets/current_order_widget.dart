@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
+import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../constants/app_colors.dart';
@@ -48,7 +49,7 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
 
   final List<String> progress = [
     "removeFromMap".tr,
-    "cancelDelivery".tr,
+    "Finish Delivery".tr,
     "deliveryManDetails".tr,
   ];
 
@@ -58,6 +59,7 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
     "Delivery Completed?",
   ];
   List<String> statuses = ["not received", "not delivered", "not completed"];
+
   // Function to make a phone call
   final String phoneNumber = '+1234567890';
 
@@ -105,6 +107,66 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
+    );
+  }
+
+  void deliveryFinished() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)), // Flat corners
+          ),
+          backgroundColor: AppColors.grey,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const TextWidget(
+                  text: 'Have you completed the delivery?',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  fontColor: AppColors.black,
+                  textAlignment: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ButtonWidget(
+                      buttonWidth: 100,
+                      buttonHeight: 40,
+                      label: 'No',
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
+                      buttonRadius: BorderRadius.circular(10),
+                      backgroundColor: AppColors.white,
+                      textColor: AppColors.black,
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    ButtonWidget(
+                      buttonWidth: 100,
+                      buttonHeight: 40,
+                      label: 'Yes',
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 10),
+                      buttonRadius: BorderRadius.circular(10),
+                      backgroundColor: AppColors.green,
+                      textColor: AppColors.white,
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -262,7 +324,6 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
                       ),
                     ],
                   ),
-                  
                   const SizedBox(height: 16),
                   Container(
                     width: double.infinity,
@@ -309,7 +370,14 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
                         ),
                         InkWell(
                           onTap: () {
-                            Get.toNamed(AppRoutes.cancelDeliveryScreen);
+                            // You might want to handle different navigation based on the text
+                            if (progress[index] == "Finish Delivery".tr) {
+                              // Handle finish delivery action
+                              // You might want to do something different than navigating to cancel screen
+                              deliveryFinished();
+                            } else {
+                              Get.toNamed(AppRoutes.cancelDeliveryScreen);
+                            }
                           },
                           splashColor: Colors.transparent,
                           highlightColor: Colors.transparent,
@@ -335,11 +403,15 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
                                   fontColor: progress[index] ==
                                           AppStrings.deliveryManDetails
                                       ? AppColors.greyDark2
-                                      : AppColors.red,
+                                      : progress[index] == "Finish Delivery".tr
+                                          ? AppColors
+                                              .green // Set green color for "Finish Delivery"
+                                          : AppColors.red,
+                                  // Keep red for other buttons like "Remove from Map"
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                              ),
+                              )
                             ],
                           ),
                         ),
