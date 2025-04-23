@@ -13,6 +13,8 @@ import 'package:parcel_delivery_app/screens/home_screen/widgets/earn_money_card_
 import 'package:parcel_delivery_app/screens/home_screen/widgets/home_screen_appbar.dart';
 import 'package:parcel_delivery_app/screens/home_screen/widgets/reserve_bottom_sheet_widget.dart';
 import 'package:parcel_delivery_app/screens/home_screen/widgets/suggestionCardWidget.dart';
+import 'package:parcel_delivery_app/screens/notification_screen/controller/notification_controller.dart';
+import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 
 import '../../utils/app_size.dart';
 import '../../widgets/button_widget/button_widget.dart';
@@ -31,29 +33,25 @@ class _HomeScreenState extends State<HomeScreen> {
   bool receivingDeliveries = false;
   final EarnMoneyRadiusController _radiusController =
       Get.put(EarnMoneyRadiusController());
+  final NotificationController notificationController =
+      Get.put(NotificationController());
 
-// Function to get current location
-// Updates to _getCurrentLocation function in home_screen.dart
   Future<void> _getCurrentLocation() async {
     try {
-      // Request location permissions if not granted
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          // Handle denied permissions
           log('Location permissions denied.');
           return;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
-        // Handle permanently denied permissions
         log('Location permissions permanently denied.');
         return;
       }
 
-      // Get current position
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
       _radiusController
@@ -104,20 +102,38 @@ class _HomeScreenState extends State<HomeScreen> {
                   TextWidget(
                     text: "chooseRadius".tr,
                     fontSize: 23,
+                    fontFamily: "AeonikTRIAL",
                     fontWeight: FontWeight.w600,
                     fontColor: AppColors.black,
                   ),
                   const SpaceWidget(spaceHeight: 12),
+                  const Row(
+                    children: [
+                      ImageWidget(
+                        height: 40,
+                        width: 40,
+                        imagePath: AppImagePath.sendParcel,
+                      ),
+                      SpaceWidget(spaceWidth: 12),
+                      Flexible(
+                        child: TextWidget(
+                          text:
+                              "Pick the distance you want to work within. We’ll only show you jobs nearby!",
+                          fontSize: 14,
+                          fontFamily: "AeonikTRIAL",
+                          fontWeight: FontWeight.w600,
+                          fontColor: AppColors.black,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlignment: TextAlign.start,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SpaceWidget(spaceHeight: 32),
                   // Slider for radius selection
                   Column(
                     children: [
-                      Text(
-                        '${_currentValue.toStringAsFixed(0)} ${"km".tr}',
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
                       const SpaceWidget(spaceWidth: 0),
                       SliderTheme(
                         data: SliderTheme.of(context).copyWith(
@@ -130,6 +146,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           trackHeight: 6.0,
                         ),
                         child: Slider(
+                          label:
+                              '${_currentValue.toStringAsFixed(0)} ${"km".tr}',
                           value: _currentValue,
                           min: 0,
                           max: 50,
@@ -194,7 +212,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ],
                       ),
-                      const SpaceWidget(spaceHeight: 32),
                     ],
                   ),
                 ],
@@ -217,170 +234,168 @@ class _HomeScreenState extends State<HomeScreen> {
             logoImagePath: AppImagePath.appLogo,
             notificationIconPath: AppIconsPath.notificationIcon,
             onNotificationPressed: () {
+              notificationController.fetchNotifications();
               Get.toNamed(AppRoutes.notificationScreen);
             },
             badgeLabel: "1",
             profileImagePath: AppImagePath.profileImage,
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextWidget(
-                      text: "suggestions".tr,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      fontColor: AppColors.black,
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextWidget(
+                    text: "suggestions".tr,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    fontColor: AppColors.black,
+                  ),
+                  const SpaceWidget(spaceHeight: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: SuggestionCardWidget(
+                          onTap: () {
+                            Get.toNamed(AppRoutes.deliveryTypeScreen);
+                          },
+                          text: "deliverParcel".tr,
+                          imagePath: AppImagePath.deliverParcel,
+                        ),
+                      ),
+                      const SpaceWidget(spaceWidth: 12),
+                      Expanded(
+                        flex: 1,
+                        child: SuggestionCardWidget(
+                          onTap: () {
+                            Get.toNamed(AppRoutes.senderDeliveryTypeScreen);
+                          },
+                          text: "sendParcel".tr,
+                          imagePath: AppImagePath.sendParcel,
+                        ),
+                      ),
+                      const SpaceWidget(spaceWidth: 12),
+                      Expanded(
+                        flex: 1,
+                        child: SuggestionCardWidget(
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              backgroundColor: Colors.transparent,
+                              builder: (BuildContext context) {
+                                return Container(
+                                  decoration: const BoxDecoration(
+                                    color: AppColors.white,
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(24),
+                                      topRight: Radius.circular(24),
+                                    ),
+                                  ),
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 15, horizontal: 26),
+                                  child: const ReserveBottomSheetWidget(),
+                                );
+                              },
+                            );
+                          },
+                          text: "reserve".tr,
+                          imagePath: AppImagePath.reserve,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SpaceWidget(spaceHeight: 12),
+                  TextWidget(
+                    text: "earnMoney".tr,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    fontColor: AppColors.black,
+                  ),
+                  const SpaceWidget(spaceHeight: 12),
+                  EarnMoneyCardWidget(
+                    onTap: () {
+                      _openBottomSheet(context);
+                    },
+                  ),
+                  const SpaceWidget(spaceHeight: 12),
+                  Container(
+                    height: ResponsiveUtils.height(50),
+                    padding: const EdgeInsets.all(10),
+                    decoration: const BoxDecoration(
+                      color: AppColors.greyLightest,
+                      borderRadius: BorderRadius.all(Radius.circular(50)),
                     ),
-                    const SpaceWidget(spaceHeight: 12),
-                    Row(
+                    child: Row(
                       children: [
-                        Expanded(
-                          flex: 1,
-                          child: SuggestionCardWidget(
-                            onTap: () {
-                              Get.toNamed(AppRoutes.deliveryTypeScreen);
-                            },
-                            text: "deliverParcel".tr,
-                            imagePath: AppImagePath.deliverParcel,
-                          ),
+                        const TextWidget(
+                          text: "Interested in Receiving Deliveries?",
+                          fontSize: 14,
+                          fontColor: AppColors.black,
+                          fontWeight: FontWeight.w600,
                         ),
-                        const SpaceWidget(spaceWidth: 12),
-                        Expanded(
-                          flex: 1,
-                          child: SuggestionCardWidget(
-                            onTap: () {
-                              Get.toNamed(AppRoutes.senderDeliveryTypeScreen);
-                            },
-                            text: "sendParcel".tr,
-                            imagePath: AppImagePath.sendParcel,
-                          ),
-                        ),
-                        const SpaceWidget(spaceWidth: 12),
-                        Expanded(
-                          flex: 1,
-                          child: SuggestionCardWidget(
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                backgroundColor: Colors.transparent,
-                                builder: (BuildContext context) {
-                                  return Container(
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.white,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(24),
-                                        topRight: Radius.circular(24),
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              receivingDeliveries = !receivingDeliveries;
+                            });
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            width: 54,
+                            height: 27,
+                            padding: const EdgeInsets.symmetric(horizontal: 2),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: receivingDeliveries
+                                  ? AppColors.green
+                                  : AppColors.red,
+                            ),
+                            child: Stack(
+                              children: [
+                                Align(
+                                  alignment: receivingDeliveries
+                                      ? Alignment.centerLeft
+                                      : Alignment.centerRight,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 05),
+                                    child: Text(
+                                      receivingDeliveries ? 'ON' : 'OFF',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
                                       ),
                                     ),
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 15, horizontal: 26),
-                                    child: const ReserveBottomSheetWidget(),
-                                  );
-                                },
-                              );
-                            },
-                            text: "reserve".tr,
-                            imagePath: AppImagePath.reserve,
+                                  ),
+                                ),
+                                AnimatedAlign(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                  alignment: receivingDeliveries
+                                      ? Alignment.centerRight
+                                      : Alignment.centerLeft,
+                                  child: Container(
+                                    width: 18,
+                                    height: 18,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    const SpaceWidget(spaceHeight: 20),
-                    TextWidget(
-                      text: "earnMoney".tr,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      fontColor: AppColors.black,
-                    ),
-                    const SpaceWidget(spaceHeight: 16),
-                    EarnMoneyCardWidget(
-                      onTap: () {
-                        _openBottomSheet(context);
-                      },
-                    ),
-                    const SpaceWidget(spaceHeight: 24),
-                    Container(
-                      height: ResponsiveUtils.height(50),
-                      padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
-                        color: AppColors.greyLightest,
-                        borderRadius: BorderRadius.all(Radius.circular(50)),
-                      ),
-                      child: Row(
-                        children: [
-                          const TextWidget(
-                            text: "Interested in Receiving Deliveries?",
-                            fontSize: 15.5,
-                            fontColor: AppColors.black,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          const Spacer(),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                receivingDeliveries = !receivingDeliveries;
-                              });
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              width: 60,
-                              height: 30,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 4),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: receivingDeliveries
-                                    ? AppColors.green
-                                    : AppColors.red,
-                              ),
-                              child: Stack(
-                                children: [
-                                  Align(
-                                    alignment: receivingDeliveries
-                                        ? Alignment.centerLeft
-                                        : Alignment.centerRight,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 05),
-                                      child: Text(
-                                        receivingDeliveries ? 'ON' : 'OFF',
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  AnimatedAlign(
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeInOut,
-                                    alignment: receivingDeliveries
-                                        ? Alignment.centerRight
-                                        : Alignment.centerLeft,
-                                    child: Container(
-                                      width: 22,
-                                      height: 22,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
+                  )
+                ],
               ),
             ),
           )

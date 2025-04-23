@@ -9,10 +9,11 @@ import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
 
 import '../../constants/app_icons_path.dart';
 import '../booking_parcel_details_screen/widgets/summary_info_row_widget.dart';
-import '../services_screen/model/promote_delivery_parcel.dart';
+import '../services_screen/model/service_screen_model.dart';
 
 class DeliveryDetailsScreen extends StatelessWidget {
-  final Data item; // Correctly define the item parameter as Data
+  final ServiceScreenDataList
+      item; // Correctly define the item parameter as Data
 
   const DeliveryDetailsScreen({super.key, required this.item});
 

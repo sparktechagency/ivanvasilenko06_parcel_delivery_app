@@ -10,14 +10,12 @@ class EarnMoneyRadiusController extends GetxController {
   RxDouble radius = 5.0.obs;
   Rxn<LatLng> currentLocation = Rxn<LatLng>();
   RxList<Marker> markers = <Marker>[].obs;
-  RxList<dynamic> parcelsInRadius =
-      <dynamic>[].obs; // Add this line to store parcel data
+  RxList<dynamic> parcelsInRadius = <dynamic>[].obs;
 
   void setCurrentLocation(LatLng location) {
     currentLocation.value = location;
   }
 
-  // Fetch parcels within radius and add markers to map
   Future<void> fetchParcelsInRadius() async {
     if (currentLocation.value == null) {
       log('Current location is null. Cannot fetch parcels.');
@@ -37,18 +35,15 @@ class EarnMoneyRadiusController extends GetxController {
       log('API Request URL: ${AppApiUrl.getParcelInRadius}');
       log('API Request Body: $requestBody');
 
-      // If apiPostServices returns a Map instead of a Response
       final response = await ApiPostServices()
           .apiPostServices(url: AppApiUrl.getParcelInRadius, body: requestBody);
 
       log('API Response: $response');
 
-      // Assuming response is a Map with 'status' and 'data' fields
       if (response != null && response['status'] == 'success') {
         List<dynamic> data = response['data'];
         parcelsInRadius.value = data; // Store the fetched parcels
 
-        // Add markers for each parcel's pickup location
         markers.clear();
         for (var parcel in data) {
           double pickupLat = parcel["pickupLocation"]["coordinates"][1];

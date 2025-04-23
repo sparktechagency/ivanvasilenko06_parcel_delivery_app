@@ -147,11 +147,15 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
                                   ),
                                 ),
                                 const SpaceWidget(spaceWidth: 10),
-                                TextWidget(
-                                  text: title,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  fontColor: AppColors.black,
+                                Flexible(
+                                  child: TextWidget(
+                                    text: title,
+                                    fontSize: 15,
+                                    fontFamily: "AeonikTRIAL",
+                                    fontWeight: FontWeight.w600,
+                                    fontColor: AppColors.black,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
                                 const SpaceWidget(spaceWidth: 10),
                               ],

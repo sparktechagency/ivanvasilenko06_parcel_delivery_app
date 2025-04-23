@@ -75,7 +75,7 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
                   center: currentLoc,
                   radius: _radiusController.radius.value * 1000,
                   // Convert km to meters
-                  fillColor: AppColors.black.withAlpha(51),
+                  fillColor: AppColors.black.withAlpha(25),
                   strokeColor: AppColors.black,
                   strokeWidth: 1,
                 )
@@ -122,7 +122,7 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
                   onPressed: () {
                     Get.toNamed(AppRoutes.radiusAvailableParcel);
                   },
-                  label: "viewParcels".tr,
+                  label: "View Parcels".tr,
                   textColor: AppColors.white,
                   buttonWidth: 150,
                   buttonHeight: 50,

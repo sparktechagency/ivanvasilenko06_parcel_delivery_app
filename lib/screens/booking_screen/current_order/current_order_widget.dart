@@ -1,36 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:parcel_delivery_app/constants/app_image_path.dart';
-import 'package:parcel_delivery_app/constants/app_strings.dart';
 import 'package:parcel_delivery_app/screens/booking_screen/current_order/controller/current_order_controller.dart';
-import 'package:parcel_delivery_app/screens/booking_screen/new_booking/new_booking_widget.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
-import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../constants/app_colors.dart';
-import '../../constants/app_icons_path.dart';
-import '../../routes/app_routes.dart';
-import '../../widgets/icon_widget/icon_widget.dart';
-import '../../widgets/space_widget/space_widget.dart';
-import '../../widgets/text_widget/text_widgets.dart';
+import '../../../constants/app_colors.dart';
+import '../../../constants/app_icons_path.dart';
+import '../../../constants/app_image_path.dart';
+import '../../../constants/app_strings.dart';
+import '../../../routes/app_routes.dart';
+import '../../../widgets/icon_widget/icon_widget.dart';
+import '../../../widgets/image_widget/image_widget.dart';
+import '../../../widgets/space_widget/space_widget.dart';
+import '../../../widgets/text_widget/text_widgets.dart';
 
-class BookingScreen extends StatefulWidget {
-  const BookingScreen({super.key});
+class CurrentOrderWidget extends StatefulWidget {
+  const CurrentOrderWidget({super.key});
 
   @override
-  State<BookingScreen> createState() => _BookingScreenState();
+  State<CurrentOrderWidget> createState() => _CurrentOrderWidgetState();
 }
 
-class _BookingScreenState extends State<BookingScreen> {
-  int _currentIndex = 0;
-  Map<String, String> addressCache = {};
-  String address = "Loading...";
-  final PageController _pageController = PageController();
-
+class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
   final CurrentOrderController currentOrderController =
       Get.put(CurrentOrderController());
 
@@ -191,192 +183,26 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 
-  // Function to get the address from coordinates with caching
-  Future<void> _getAddress(double latitude, double longitude) async {
-    final String key = '$latitude,$longitude';
-
-    // Check if the address for these coordinates is cached
-    if (addressCache.containsKey(key)) {
-      setState(() {
-        address = addressCache[key]!;
-      });
-      return;
-    }
-
-    try {
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(latitude, longitude);
-      if (placemarks.isNotEmpty) {
-        String newAddress =
-            '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].country}';
-        setState(() {
-          address = newAddress;
-        });
-        addressCache[key] = newAddress; // Cache the address
-      } else {
-        setState(() {
-          address = 'No address found';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        address = 'Error fetching address';
-      });
-    }
-  }
-
-  String formatDeliveryDate(dynamic deliveryEndTime) {
-    if (deliveryEndTime is String) {
-      try {
-        final parsedDate = DateTime.parse(deliveryEndTime);
-        return DateFormat('yyyy-MM-dd , hh:mm').format(parsedDate);
-      } catch (e) {
-        return "Invalid Date Format";
-      }
-    } else if (deliveryEndTime is DateTime) {
-      return DateFormat('yyyy-MM-dd , hh:mm').format(deliveryEndTime);
-    } else {
-      return "Unknown Date";
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SpaceWidget(spaceHeight: 48),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: TextWidget(
-              text: "bookings".tr,
-              fontSize: 24,
-              fontWeight: FontWeight.w600,
-              fontColor: AppColors.black,
-            ),
-          ),
-          const SpaceWidget(spaceHeight: 24),
-
-          ///<This one is tab bar  ===================>
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Column(
-                  children: [
-                    _buildTabItem("currentOrders".tr, 0),
-                    const SpaceWidget(spaceHeight: 4),
-                    Container(
-                      height: ResponsiveUtils.height(3),
-                      width: ResponsiveUtils.width(12),
-                      decoration: BoxDecoration(
-                        color: _currentIndex == 0
-                            ? AppColors.black
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                    ),
-                  ],
-                ),
-                Container(
-                  width: 1,
-                  height: 24,
-                  color: AppColors.greyDarkLight,
-                ),
-                Column(
-                  children: [
-                    _buildTabItem("newBookings".tr, 1),
-                    const SpaceWidget(spaceHeight: 4),
-                    Container(
-                      height: ResponsiveUtils.height(3),
-                      width: ResponsiveUtils.width(12),
-                      decoration: BoxDecoration(
-                        color: _currentIndex == 1
-                            ? AppColors.black
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
-              children: [
-                _currentOrderWidget(),
-                const NewBookingWidget(),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTabItem(String label, int index) {
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _currentIndex = index;
-        });
-        _pageController.jumpToPage(index); // Change PageView page
-      },
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      child: TextWidget(
-        text: label,
-        fontColor:
-            _currentIndex == index ? AppColors.black : AppColors.greyDarkLight,
-        fontSize: 14,
-        fontWeight: _currentIndex == index ? FontWeight.w600 : FontWeight.w400,
-      ),
-    );
-  }
-
-  Widget _currentOrderWidget() {
-    return Obx(() {
-      final data = currentOrderController.currentOrdersModel.value.data;
-      if (data == null || data.isEmpty) {
-        return const Center(child: Text('No current orders available'));
-      }
-      return SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          children: [
-            ListView.separated(
-              shrinkWrap: true,
-              // Ensures the ListView fits within the parent Column
-              itemCount: data.length,
-              separatorBuilder: (context, index) =>
-                  const SpaceWidget(spaceHeight: 8),
-              // Adds spacing between items
-              itemBuilder: (context, index) {
-                String currentStatus =
-                    statuses[index < statuses.length ? index : 0];
-                final deliverLocation =
-                    data[index].deliveryLocation?.coordinates;
-                final date =
-                    formatDeliveryDate(data[index].deliveryEndTime ?? "");
-                if (deliverLocation != null && deliverLocation.length == 2) {
-                  final latitude = deliverLocation[1];
-                  final longitude = deliverLocation[0];
-                  _getAddress(latitude, longitude);
-                }
-                return Padding(
-                  padding: const EdgeInsets.all(14.0),
+    return Obx(() => SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Column(
+            children: [
+              const SpaceWidget(spaceHeight: 8),
+              ...List.generate(
+                  currentOrderController
+                          .currentOrdersModel.value.data?.length ??
+                      0, (index) {
+                String currentStatus = statuses[index];
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.only(left: 8, right: 8, bottom: 0),
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Column(
                     children: [
                       Row(
@@ -392,14 +218,18 @@ class _BookingScreenState extends State<BookingScreen> {
                                     child: ImageWidget(
                                       height: 40,
                                       width: 40,
-                                      imagePath: index < images.length
-                                          ? images[index]
-                                          : images[0],
+                                      imagePath: images[index],
                                     ),
                                   ),
                                   const SpaceWidget(spaceWidth: 8),
                                   TextWidget(
-                                    text: data[index].title ?? "",
+                                    text: currentOrderController
+                                            .currentOrdersModel
+                                            .value
+                                            .data![index]
+                                            .title ??
+                                        ""
+                                            "",
                                     fontSize: 15.5,
                                     fontWeight: FontWeight.w500,
                                     fontColor: AppColors.black,
@@ -407,16 +237,16 @@ class _BookingScreenState extends State<BookingScreen> {
                                 ],
                               ),
                               const SpaceWidget(spaceHeight: 8),
-                              Row(
+                              const Row(
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.location_on_rounded,
                                     color: AppColors.black,
                                     size: 12,
                                   ),
-                                  const SpaceWidget(spaceWidth: 8),
+                                  SpaceWidget(spaceWidth: 8),
                                   TextWidget(
-                                    text: address,
+                                    text: 'Western Wall to 4 lebri street',
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                     fontColor: AppColors.greyDark2,
@@ -441,16 +271,16 @@ class _BookingScreenState extends State<BookingScreen> {
                                 ],
                               ),
                               const SpaceWidget(spaceHeight: 8),
-                              Row(
+                              const Row(
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.calendar_month,
                                     color: AppColors.black,
                                     size: 12,
                                   ),
-                                  const SpaceWidget(spaceWidth: 8),
+                                  SpaceWidget(spaceWidth: 8),
                                   TextWidget(
-                                    text: date,
+                                    text: '24-04-2024',
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                     fontColor: AppColors.greyDark2,
@@ -463,27 +293,20 @@ class _BookingScreenState extends State<BookingScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              TextWidget(
-                                text:
-                                    "${AppStrings.currency} ${data[index].price}",
+                              const TextWidget(
+                                text: "${AppStrings.currency} 150",
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 fontColor: AppColors.black,
                               ),
                               const SpaceWidget(spaceHeight: 20),
                               TextWidget(
-                                text: data[index].status ?? "",
+                                text: status[index],
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
-                                fontColor: data[index].status == "PENDING"
-                                    ? AppColors.red
-                                    : data[index].status == "IN_TRANSIT"
-                                        ? AppColors.green
-                                        : data[index].status == "DELIVERED"
-                                            ? AppColors.green
-                                            : data[index].status == "REQUESTED"
-                                                ? AppColors.green
-                                                : AppColors.black,
+                                fontColor: status[index] == AppStrings.inTransit
+                                    ? AppColors.green
+                                    : AppColors.red,
                               ),
                               const SpaceWidget(spaceHeight: 12),
                               Row(
@@ -537,9 +360,8 @@ class _BookingScreenState extends State<BookingScreen> {
                           children: [
                             InkWell(
                               onTap: () {
-                                if (index < details.length &&
-                                    details[index] ==
-                                        AppStrings.parcelDetails) {
+                                if (details[index] ==
+                                    AppStrings.parcelDetails) {
                                   Get.toNamed(
                                       AppRoutes.bookingParcelDetailsScreen);
                                 } else {
@@ -558,9 +380,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                   ),
                                   const SpaceWidget(spaceWidth: 8),
                                   TextWidget(
-                                    text: index < details.length
-                                        ? details[index]
-                                        : "Details",
+                                    text: details[index],
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                     fontColor: AppColors.greyDark2,
@@ -575,8 +395,10 @@ class _BookingScreenState extends State<BookingScreen> {
                             ),
                             InkWell(
                               onTap: () {
-                                if (index < progress.length &&
-                                    progress[index] == "Finish Delivery".tr) {
+                                // You might want to handle different navigation based on the text
+                                if (progress[index] == "Finish Delivery".tr) {
+                                  // Handle finish delivery action
+                                  // You might want to do something different than navigating to cancel screen
                                   deliveryFinished();
                                 } else {
                                   Get.toNamed(AppRoutes.cancelDeliveryScreen);
@@ -586,9 +408,8 @@ class _BookingScreenState extends State<BookingScreen> {
                               highlightColor: Colors.transparent,
                               child: Row(
                                 children: [
-                                  index < progress.length &&
-                                          progress[index] ==
-                                              AppStrings.deliveryManDetails
+                                  progress[index] ==
+                                          AppStrings.deliveryManDetails
                                       ? const IconWidget(
                                           icon: AppIconsPath.deliverymanIcon,
                                           color: AppColors.greyDark2,
@@ -596,28 +417,25 @@ class _BookingScreenState extends State<BookingScreen> {
                                           height: 14,
                                         )
                                       : const SizedBox.shrink(),
-                                  index < progress.length &&
-                                          progress[index] ==
-                                              AppStrings.deliveryManDetails
+                                  progress[index] ==
+                                          AppStrings.deliveryManDetails
                                       ? const SpaceWidget(spaceWidth: 8)
                                       : const SpaceWidget(spaceWidth: 0),
                                   SizedBox(
                                     width: ResponsiveUtils.width(120),
                                     child: TextWidget(
-                                      text: index < progress.length
-                                          ? progress[index]
-                                          : "",
+                                      text: progress[index],
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
-                                      fontColor: index < progress.length &&
-                                              progress[index] ==
-                                                  AppStrings.deliveryManDetails
+                                      fontColor: progress[index] ==
+                                              AppStrings.deliveryManDetails
                                           ? AppColors.greyDark2
-                                          : index < progress.length &&
-                                                  progress[index] ==
-                                                      "Finish Delivery".tr
-                                              ? AppColors.green
+                                          : progress[index] ==
+                                                  "Finish Delivery".tr
+                                              ? AppColors
+                                                  .green // Set green color for "Finish Delivery"
                                               : AppColors.red,
+                                      // Keep red for other buttons like "Remove from Map"
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -631,12 +449,11 @@ class _BookingScreenState extends State<BookingScreen> {
                     ],
                   ),
                 );
-              },
-            ),
-            const SpaceWidget(spaceHeight: 80),
-          ],
-        ),
-      );
-    });
+                // );
+              }),
+              const SpaceWidget(spaceHeight: 80),
+            ],
+          ),
+        ));
   }
 }

@@ -161,18 +161,14 @@ class _PageTwoState extends State<PageTwo> {
     Get.find<ParcelController>().setEndingLocation(description);
 
     try {
-      // Fetch place details and update map
       final location =
           await _locationRepository.fetchPlaceDetails(placeId, 'ending');
 
-      // Check if widget is still mounted before updating UI
       if (location != null && mounted) {
-        // Move camera to the location
         _mapController?.animateCamera(
           CameraUpdate.newLatLng(location),
         );
 
-        // Force UI update to refresh map
         setState(() {
           _markers = _locationRepository.markers;
         });
@@ -181,11 +177,9 @@ class _PageTwoState extends State<PageTwo> {
       debugPrint('Error fetching ending location details: $e');
     }
 
-    // Unfocus keyboard
     FocusScope.of(context).unfocus();
   }
 
-  // Build prediction list for autocomplete results
   Widget _buildPredictionsList() {
     if (_placePredictions.isEmpty || _isLoading) {
       return const SizedBox.shrink();

@@ -29,7 +29,7 @@ class EarnMoneyCardWidget extends StatelessWidget {
           const ClipRRect(
             borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
             child: ImageWidget(
-              height: 180,
+              height: 160,
               width: double.infinity,
               imagePath: AppImagePath.earnMoney,
             ),

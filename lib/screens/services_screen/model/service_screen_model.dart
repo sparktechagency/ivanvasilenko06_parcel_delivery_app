@@ -1,15 +1,15 @@
 class ServiceScreenModel {
   String? status;
-  List<Data>? data;
+  List<ServiceScreenDataList>? serviceScreenDataList;
 
-  ServiceScreenModel({this.status, this.data});
+  ServiceScreenModel({this.status, this.serviceScreenDataList});
 
   ServiceScreenModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     if (json['data'] != null) {
-      data = <Data>[];
+      serviceScreenDataList = <ServiceScreenDataList>[];
       json['data'].forEach((v) {
-        data!.add(Data.fromJson(v));
+        serviceScreenDataList!.add(ServiceScreenDataList.fromJson(v));
       });
     }
   }
@@ -17,14 +17,15 @@ class ServiceScreenModel {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['status'] = this.status;
-    if (this.data != null) {
-      data['data'] = this.data!.map((v) => v.toJson()).toList();
+    if (this.serviceScreenDataList != null) {
+      data['data'] =
+          this.serviceScreenDataList!.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
-class Data {
+class ServiceScreenDataList {
   PickupLocation? pickupLocation;
   PickupLocation? deliveryLocation;
   String? sId;
@@ -36,11 +37,11 @@ class Data {
   String? phoneNumber;
   List<String>? images;
   String? status;
-  List<DeliveryRequest>? deliveryRequests; // Updated to use a proper class
+  List<DeliveryRequest>? deliveryRequests;
   String? createdAt;
   String? updatedAt;
 
-  Data({
+  ServiceScreenDataList({
     this.pickupLocation,
     this.deliveryLocation,
     this.sId,
@@ -57,7 +58,7 @@ class Data {
     this.updatedAt,
   });
 
-  Data.fromJson(Map<String, dynamic> json) {
+  ServiceScreenDataList.fromJson(Map<String, dynamic> json) {
     pickupLocation = json['pickupLocation'] != null
         ? PickupLocation.fromJson(json['pickupLocation'])
         : null;

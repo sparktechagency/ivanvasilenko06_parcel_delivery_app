@@ -4,7 +4,7 @@ import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/constants/app_strings.dart';
 import 'package:parcel_delivery_app/screens/services_screen/controller/services_controller.dart';
-import 'package:parcel_delivery_app/screens/services_screen/model/promote_delivery_parcel.dart';
+import 'package:parcel_delivery_app/screens/services_screen/model/service_screen_model.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_button_widget/text_button_widget.dart';
@@ -64,8 +64,9 @@ class RecentPublishOrder extends StatelessWidget {
                                 const SpaceWidget(spaceHeight: 4),
                                 // Display the parcel's title or a default message
                                 TextWidget(
-                                  text: item.data?.first.title ??
-                                      "Title not available",
+                                  text:
+                                      item.serviceScreenDataList?.first.title ??
+                                          "Title not available",
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                   fontColor: AppColors.black,
@@ -86,7 +87,7 @@ class RecentPublishOrder extends StatelessWidget {
                             TextButtonWidget(
                               onPressed: () {
                                 Get.to(DeliveryDetailsScreen(
-                                    item: item.data!
+                                    item: item.serviceScreenDataList!
                                         .first)); // Pass the first Data object
                               },
                               text: "seeDetails".tr,

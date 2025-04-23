@@ -33,13 +33,12 @@ class _ChooseParcelForDeliveryScreenState
 
   Future<void> _loadCustomMarkerIcon() async {
     _customMarker = await BitmapDescriptor.fromAssetImage(
-      const ImageConfiguration(size: Size(40, 40)),
+      const ImageConfiguration(size: Size(30, 30)),
       'assets/icons/parcelIcon.png',
     );
     setState(() {});
   }
 
-  // 🆕 Show bottom sheet with parcel details
   void _showParcelDetailsBottomSheet(int index) {
     final parcel = controller.parcels[index];
 

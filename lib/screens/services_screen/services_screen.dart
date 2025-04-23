@@ -8,16 +8,16 @@ import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/home_screen/widgets/reserve_bottom_sheet_widget.dart';
 import 'package:parcel_delivery_app/screens/home_screen/widgets/suggestionCardWidget.dart';
 import 'package:parcel_delivery_app/screens/services_screen/controller/services_controller.dart';
-import 'package:parcel_delivery_app/screens/services_screen/model/promote_delivery_parcel.dart';
+import 'package:parcel_delivery_app/screens/services_screen/model/service_screen_model.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
+import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_button_widget/text_button_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
 
-import '../../widgets/icon_widget/icon_widget.dart';
 import '../recent_publish_order_details/recent_publish_order_details.dart';
 
 class ServicesScreen extends StatefulWidget {
@@ -28,23 +28,6 @@ class ServicesScreen extends StatefulWidget {
 }
 
 class _ServicesScreenState extends State<ServicesScreen> {
-  final List<String> images = [
-    AppImagePath.sendParcel,
-    AppImagePath.sendParcel,
-    AppImagePath.sendParcel,
-  ];
-
-  final List<String> title = [
-    'Parcel 1',
-    'Parcel 2',
-    'Parcel 3',
-  ];
-
-  final List<String> address = [
-    'Western Wall',
-    'Western Wall',
-    'Western Wall',
-  ];
   double _currentValue = 5.0;
 
   void _openBottomSheet(BuildContext context) {
@@ -112,7 +95,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     ],
                   ),
                   const SpaceWidget(spaceWidth: 16),
-                  // Local state for slider value
                   StatefulBuilder(
                     builder: (context, sliderSetState) {
                       return Column(
@@ -140,7 +122,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
                               min: 0,
                               max: 50,
                               divisions: 50,
-                              // label: '${_currentValue.round()} Km',
                               onChanged: (value) {
                                 sliderSetState(() {
                                   _currentValue = value;
@@ -174,10 +155,9 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                     borderRadius: BorderRadius.circular(100),
                                   ),
                                   elevation: 3,
-                                  child: CircleAvatar(
+                                  child: const CircleAvatar(
                                     backgroundColor: AppColors.white,
-                                    radius: ResponsiveUtils.width(25),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.arrow_back,
                                       color: AppColors.black,
                                     ),
@@ -355,10 +335,14 @@ class _ServicesScreenState extends State<ServicesScreen> {
                               ],
                             ),
                             const SpaceWidget(spaceHeight: 14),
-                            ...List.generate(controller.recentParcelList.length,
+                            ...List.generate(
+                                controller.recentParcelList.length > 4
+                                    ? 4
+                                    : controller.recentParcelList.length,
                                 (index) {
                               ServiceScreenModel item =
-                                  controller.recentParcelList[index];
+                                  controller.recentParcelList[index]
+                                      as ServiceScreenModel;
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 10),
                                 child: Row(
@@ -377,9 +361,12 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             TextWidget(
-                                              text: item.data != null &&
-                                                      item.data!.isNotEmpty
-                                                  ? item.data!.first.title!
+                                              text: item.serviceScreenDataList !=
+                                                          null &&
+                                                      item.serviceScreenDataList!
+                                                          .isNotEmpty
+                                                  ? item.serviceScreenDataList!
+                                                      .first.title!
                                                   : "Title not available",
                                               fontSize: 12,
                                               fontWeight: FontWeight.w500,
@@ -387,9 +374,9 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                             ),
                                             const SpaceWidget(spaceHeight: 4),
                                             TextWidget(
-                                              text: item.data?.first.title ??
+                                              text: item.serviceScreenDataList
+                                                      ?.first.title ??
                                                   "Title not available",
-                                              // Corrected this line
                                               fontSize: 12,
                                               fontWeight: FontWeight.w500,
                                               fontColor: AppColors.black,
@@ -410,15 +397,16 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                         ),
                                         TextButtonWidget(
                                           onPressed: () {
-                                            if (item.data != null &&
-                                                item.data!.isNotEmpty) {
-                                              // Pass the first element from item.data
-                                              Get.to(DeliveryDetailsScreen(
-                                                  item: item.data!.first));
+                                            final dataList =
+                                                item.serviceScreenDataList;
+                                            if (dataList != null &&
+                                                dataList.isNotEmpty) {
+                                              Get.to(() =>
+                                                  DeliveryDetailsScreen(
+                                                      item: dataList.first));
                                             } else {
-                                              // Show an error message if data is null or empty
                                               AppSnackBar.error(
-                                                  "No data available for this order.");
+                                                  "Parcel details not available.");
                                             }
                                           },
                                           text: "seeDetails".tr,

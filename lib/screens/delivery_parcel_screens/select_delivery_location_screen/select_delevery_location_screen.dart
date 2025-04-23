@@ -33,6 +33,10 @@ class _SelectDeliveryLocationScreenState
       TextEditingController();
   final TextEditingController _destinationController = TextEditingController();
 
+  // Focus nodes to track which field is active
+  final FocusNode _pickupFocusNode = FocusNode();
+  final FocusNode _destinationFocusNode = FocusNode();
+
   List<dynamic> _placePredictions = [];
   bool _isLoading = false;
   String _locationType = '';
@@ -43,6 +47,32 @@ class _SelectDeliveryLocationScreenState
     // Initialize text fields with existing controller values (if any)
     _pickupLocationController.text = controller.pickupLocation.value;
     _destinationController.text = controller.selectedDeliveryLocation.value;
+
+    // Add listeners to focus nodes
+    _pickupFocusNode.addListener(() {
+      if (_pickupFocusNode.hasFocus) {
+        setState(() {
+          _locationType = 'current';
+        });
+      }
+    });
+
+    _destinationFocusNode.addListener(() {
+      if (_destinationFocusNode.hasFocus) {
+        setState(() {
+          _locationType = 'destination';
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _pickupFocusNode.dispose();
+    _destinationFocusNode.dispose();
+    _pickupLocationController.dispose();
+    _destinationController.dispose();
+    super.dispose();
   }
 
   // Fetch autocomplete predictions from Google Places API
@@ -108,6 +138,9 @@ class _SelectDeliveryLocationScreenState
     }
 
     await fetchPlaceDetails(placeId);
+
+    // Unfocus keyboard
+    FocusScope.of(context).unfocus();
   }
 
   // Fetch lat/lng details from place_id
@@ -149,8 +182,6 @@ class _SelectDeliveryLocationScreenState
   // Navigate to next screen (no radius needed now)
   void _fetchParcelsAndProceed() {
     controller.fetchParcels();
-
-    // Pass only the relevant arguments to the next screen
     Get.toNamed(AppRoutes.chooseParcelForDeliveryScreen, arguments: {
       "deliveryType": controller.selectedDeliveryType.value,
       "pickupLocation": controller.pickupLocation.value,
@@ -166,12 +197,65 @@ class _SelectDeliveryLocationScreenState
     log('🚩 DeliveryLatLng: ${controller.endingCoordinates.value}');
   }
 
+  // Build predictions list with icons (similar to PageTwo)
+  Widget _buildPredictionsList() {
+    if (_placePredictions.isEmpty || _isLoading) {
+      return const SizedBox.shrink();
+    }
+
+    return Material(
+      elevation: 4.0,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        constraints: const BoxConstraints(maxHeight: 200),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: ListView.separated(
+          shrinkWrap: true,
+          padding: EdgeInsets.zero,
+          itemCount: _placePredictions.length,
+          separatorBuilder: (context, index) => const Divider(
+            height: 1,
+            thickness: 1,
+            color: AppColors.greyLight2,
+          ),
+          itemBuilder: (context, index) {
+            final prediction = _placePredictions[index];
+            return ListTile(
+              dense: true,
+              visualDensity: const VisualDensity(vertical: -2),
+              leading: const Icon(Icons.location_on,
+                  color: AppColors.greyDarkLight2, size: 18),
+              title: Text(
+                prediction['description'],
+                style: const TextStyle(fontSize: 14),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              onTap: () {
+                onLocationSelected(
+                  prediction['place_id'],
+                  prediction['description'],
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.white,
-        leading: const Icon(Icons.arrow_back, size: 28),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, size: 28),
+          onPressed: () => Get.back(),
+        ),
         title: TextWidget(
           text: "enterDeliveryLocation".tr,
           fontSize: 24,
@@ -181,135 +265,159 @@ class _SelectDeliveryLocationScreenState
         titleSpacing: -7,
       ),
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const SizedBox(width: 24),
-                Column(
-                  children: [
-                    const IconWidget(
-                      height: 15,
-                      width: 15,
-                      icon: AppIconsPath.destinationIcon,
-                    ),
-                    Container(
-                      width: 1,
-                      height: 30,
-                      color: AppColors.greyLight2,
-                    ),
-                    const IconWidget(
-                      height: 15,
-                      width: 15,
-                      icon: AppIconsPath.currentLocationIcon,
-                    ),
-                  ],
-                ),
-                Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.only(
-                      left: 12,
-                      right: 24,
-                      top: 16,
-                      bottom: 16,
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.black, width: 2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      children: [
-                        // Current Location
-                        TextFormField(
-                          controller: _pickupLocationController,
-                          onChanged: (query) {
-                            controller.pickupLocation.value = query;
-                            placeAutoComplete(query, locationType: 'current');
-                          },
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.black,
+      body: GestureDetector(
+        onTap: () {
+          // Close keyboard when tapping outside of text fields
+          FocusScope.of(context).unfocus();
+          setState(() {
+            _placePredictions = [];
+          });
+        },
+        child: SafeArea(
+          child: Stack(
+            children: [
+              // Main content column
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const SizedBox(width: 24),
+                      Column(
+                        children: [
+                          const IconWidget(
+                            height: 15,
+                            width: 15,
+                            icon: AppIconsPath.destinationIcon,
                           ),
-                          decoration: InputDecoration(
-                            hintText: "currentLocationText".tr,
-                            border: InputBorder.none,
-                            suffixIcon:
-                                _pickupLocationController.text.isNotEmpty
-                                    ? IconButton(
-                                        icon: const Icon(Icons.clear),
-                                        onPressed: () {
-                                          _pickupLocationController.clear();
-                                          controller.pickupLocation.value = '';
-                                        },
-                                      )
-                                    : null,
+                          Container(
+                            width: 1,
+                            height: 30,
+                            color: AppColors.greyLight2,
+                          ),
+                          const IconWidget(
+                            height: 15,
+                            width: 15,
+                            icon: AppIconsPath.currentLocationIcon,
+                          ),
+                        ],
+                      ),
+                      Expanded(
+                        child: Container(
+                          margin: const EdgeInsets.only(
+                            left: 12,
+                            right: 24,
+                            top: 16,
+                            bottom: 16,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            border:
+                                Border.all(color: AppColors.black, width: 2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            children: [
+                              // Current Location
+                              TextFormField(
+                                controller: _pickupLocationController,
+                                focusNode: _pickupFocusNode,
+                                onChanged: (query) {
+                                  controller.pickupLocation.value = query;
+                                  placeAutoComplete(query,
+                                      locationType: 'current');
+                                },
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.black,
+                                ),
+                                decoration: InputDecoration(
+                                  hintText: "currentLocationText".tr,
+                                  border: InputBorder.none,
+                                  suffixIcon: _pickupLocationController
+                                          .text.isNotEmpty
+                                      ? IconButton(
+                                          icon: const Icon(Icons.clear),
+                                          onPressed: () {
+                                            _pickupLocationController.clear();
+                                            controller.pickupLocation.value =
+                                                '';
+                                            setState(() {
+                                              _placePredictions = [];
+                                            });
+                                          },
+                                        )
+                                      : null,
+                                ),
+                              ),
+                              const Divider(
+                                height: 2,
+                                color: AppColors.blackLighter,
+                              ),
+                              // Destination
+                              TextFormField(
+                                controller: _destinationController,
+                                focusNode: _destinationFocusNode,
+                                onChanged: (query) {
+                                  controller.selectedDeliveryLocation.value =
+                                      query;
+                                  placeAutoComplete(query,
+                                      locationType: 'destination');
+                                },
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.black,
+                                ),
+                                decoration: InputDecoration(
+                                  hintText: "destinationText".tr,
+                                  border: InputBorder.none,
+                                  suffixIcon:
+                                      _destinationController.text.isNotEmpty
+                                          ? IconButton(
+                                              icon: const Icon(Icons.clear),
+                                              onPressed: () {
+                                                _destinationController.clear();
+                                                controller
+                                                    .selectedDeliveryLocation
+                                                    .value = '';
+                                                setState(() {
+                                                  _placePredictions = [];
+                                                });
+                                              },
+                                            )
+                                          : null,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const Divider(
-                          height: 2,
-                          color: AppColors.blackLighter,
-                        ),
-                        // Destination
-                        TextFormField(
-                          controller: _destinationController,
-                          onChanged: (query) {
-                            controller.selectedDeliveryLocation.value = query;
-                            placeAutoComplete(query,
-                                locationType: 'destination');
-                          },
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.black,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: "destinationText".tr,
-                            border: InputBorder.none,
-                            suffixIcon: _destinationController.text.isNotEmpty
-                                ? IconButton(
-                                    icon: const Icon(Icons.clear),
-                                    onPressed: () {
-                                      _destinationController.clear();
-                                      controller
-                                          .selectedDeliveryLocation.value = '';
-                                    },
-                                  )
-                                : null,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
 
-            // Removed the "Enter Radius" row completely
-            if (_isLoading) const CircularProgressIndicator(),
-            // List of predictions
-            Expanded(
-              child: ListView.builder(
-                itemCount: _placePredictions.length,
-                itemBuilder: (context, index) {
-                  final prediction = _placePredictions[index];
-                  return ListTile(
-                    title: Text(prediction['description']),
-                    onTap: () {
-                      onLocationSelected(
-                        prediction['place_id'],
-                        prediction['description'],
-                      );
-                    },
-                  );
-                },
+                  if (_isLoading)
+                    const Center(child: CircularProgressIndicator())
+                  else
+                    const SizedBox.shrink(),
+
+                  // New improved predictions list will be shown in the Stack position below
+                  Expanded(child: Container()),
+                ],
               ),
-            ),
-          ],
+
+              // Position predictions list properly
+              if (_placePredictions.isNotEmpty)
+                Positioned(
+                  top: _locationType == 'current' ? 70 : 110,
+                  left: 50, // Align with the text fields
+                  right: 24,
+                  child: _buildPredictionsList(),
+                ),
+            ],
+          ),
         ),
       ),
       // Bottom bar with "Back" and "Next" buttons
