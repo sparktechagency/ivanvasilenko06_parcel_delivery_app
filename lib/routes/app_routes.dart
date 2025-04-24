@@ -33,5 +33,6 @@ class AppRoutes {
   static const cancelDeliveryScreen = '/cancelDeliveryScreen';
   static const recentpublishorder = '/recentpublishorder';
   static const radiusAvailableParcel = '/radiusAvailableParcel';
+  static const editProfile = '/editProfile';
   static const sentRequestSuccessfully = '/sentRequestSuccessfully';
 }

@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:parcel_delivery_app/screens/before_signups/country_select_page.dart';
 import 'package:parcel_delivery_app/screens/before_signups/language_select_page.dart';
 import 'package:parcel_delivery_app/screens/home_screen/home_screen.dart';
+import 'package:parcel_delivery_app/screens/profile_screen/edit_profile.dart';
 import 'package:parcel_delivery_app/screens/radius_map_screen/radius_available_parcel/radius_avaiable_parcel.dart';
 import 'package:parcel_delivery_app/screens/recent_publish_orders/recent_publish_order.dart';
 
@@ -221,6 +222,11 @@ class RouteManager {
           name: AppRoutes.radiusAvailableParcel,
           page: () => const RadiusAvailableParcel(),
           transition: Transition.rightToLeft),
+      GetPage(
+        name: AppRoutes.editProfile,
+        page: () => EditProfile(),
+        transition: Transition.rightToLeft,
+      ),
     ];
   }
 }

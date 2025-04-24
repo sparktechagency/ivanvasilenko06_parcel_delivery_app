@@ -1,4 +1,3 @@
-// File: profile_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
@@ -7,6 +6,7 @@ import 'package:parcel_delivery_app/screens/profile_screen/controller/profile_co
 import 'package:parcel_delivery_app/screens/profile_screen/widgets/profile_card_widget.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
+import 'package:parcel_delivery_app/widgets/image_widget/app_images.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constants/app_colors.dart';
@@ -283,11 +283,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Get.toNamed(AppRoutes.contactUsScreen);
                         } else if (value == 2) {
                           showUserLanguage();
-                        } else {
+                        } else if (value == 3) {
+                          Get.toNamed(AppRoutes.editProfile);
+                        } else if (value == 4) {
                           showLogoutDialog();
-                        }
+                        } else if (value == 5) {}
                       },
-                      splashRadius: 5,
+                      splashRadius: 6,
                       itemBuilder: (context) => [
                         PopupMenuItem(
                           value: 1,
@@ -299,7 +301,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         PopupMenuItem(
                           value: 3,
+                          child: Text("Edit Profile".tr),
+                        ),
+                        PopupMenuItem(
+                          value: 4,
                           child: Text("Logout".tr),
+                        ),
+                        PopupMenuItem(
+                          value: 5,
+                          child: Text("Delete Account".tr),
                         ),
                       ],
                     ),
@@ -320,31 +330,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Stack(
                         alignment: Alignment.bottomLeft,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(4),
-                            child: SizedBox(
-                              width: ResponsiveUtils.width(120),
-                              height: ResponsiveUtils.width(120),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(100),
-                                child: ImageWidget(
-                                  imagePath: profileController
-                                              .profileData
-                                              .value
-                                              .data
-                                              ?.user
-                                              ?.profileImage
-                                              ?.isNotEmpty ??
-                                          false
-                                      ? profileController.profileData.value
-                                          .data!.user!.profileImage!
-                                      : AppImagePath.profileImage,
-                                  height: 116,
-                                  width: 116,
+                          Obx(() {
+                            if (profileController.isLoading.value) {
+                              return const Center(
+                                  child: CircularProgressIndicator());
+                            }
+                            return Padding(
+                              padding: const EdgeInsets.all(4),
+                              child: SizedBox(
+                                width: ResponsiveUtils.width(120),
+                                height: ResponsiveUtils.width(120),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(100),
+                                  child: AppImage(
+                                    url: profileController
+                                                .profileData
+                                                .value
+                                                .data
+                                                ?.user
+                                                ?.profileImage
+                                                ?.isNotEmpty ??
+                                            false
+                                        ? profileController.profileData.value
+                                            .data!.user!.profileImage!
+                                        : AppImagePath.profileImage,
+                                    height: 116,
+                                    width: 116,
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
+                            );
+                          }),
                           Positioned(
                             child: Align(
                               alignment: Alignment.bottomCenter,
@@ -540,7 +557,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SpaceWidget(spaceHeight: 4),
                     ProfileCardWidget(
                       titleText: "facebook".tr,
-                      subtitleText: AppStrings.emailId,
+                      subtitleText: profileController
+                              .profileData.value.data?.user?.facebook ??
+                          'N/A',
                     ),
                     const Divider(
                       color: AppColors.grey,
@@ -548,7 +567,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     ProfileCardWidget(
                       titleText: "instagram".tr,
-                      subtitleText: AppStrings.instagramId,
+                      subtitleText: profileController
+                              .profileData.value.data?.user?.instagram ??
+                          'N/A',
                     ),
                     const Divider(
                       color: AppColors.grey,
@@ -556,7 +577,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     ProfileCardWidget(
                       titleText: "whatsapp".tr,
-                      subtitleText: AppStrings.number,
+                      subtitleText: profileController
+                              .profileData.value.data?.user?.whatsapp ??
+                          'N/A',
                     ),
                     const SpaceWidget(spaceHeight: 90),
                   ],

@@ -9,6 +9,7 @@ import 'package:parcel_delivery_app/constants/api_key.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
+import 'package:parcel_delivery_app/services/reporsitory/location_repository/location_repository.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
@@ -27,6 +28,7 @@ class _SelectDeliveryLocationScreenState
     extends State<SelectDeliveryLocationScreen> {
   final DeliveryScreenController controller =
       Get.find<DeliveryScreenController>();
+  final LocationRepository _locationRepository = LocationRepository();
 
   // Local controllers for the text fields
   final TextEditingController _pickupLocationController =
@@ -40,6 +42,11 @@ class _SelectDeliveryLocationScreenState
   List<dynamic> _placePredictions = [];
   bool _isLoading = false;
   String _locationType = '';
+
+  // Map controller
+  GoogleMapController? _mapController;
+  Set<Marker> _markers = {};
+  bool _mapInitialized = false;
 
   @override
   void initState() {
@@ -64,6 +71,9 @@ class _SelectDeliveryLocationScreenState
         });
       }
     });
+
+    // Get current location when screen initializes
+    _getCurrentLocation();
   }
 
   @override
@@ -72,7 +82,28 @@ class _SelectDeliveryLocationScreenState
     _destinationFocusNode.dispose();
     _pickupLocationController.dispose();
     _destinationController.dispose();
+    _mapController?.dispose();
     super.dispose();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    final location = await _locationRepository.getCurrentLocation();
+    if (location != null && mounted) {
+      // Set current location as starting point
+      controller.setStartingLocation(
+        "Current Location",
+        location,
+      );
+      controller.pickupLocationLatitude.value = location.latitude.toString();
+      controller.pickupLocationLongitude.value = location.longitude.toString();
+
+      // Only update the text field if it's empty
+      if (_pickupLocationController.text.isEmpty) {
+        setState(() {
+          _pickupLocationController.text = "Current Location";
+        });
+      }
+    }
   }
 
   // Fetch autocomplete predictions from Google Places API
@@ -167,11 +198,25 @@ class _SelectDeliveryLocationScreenState
           );
           controller.pickupLocationLatitude.value = location['lat'].toString();
           controller.pickupLocationLongitude.value = location['lng'].toString();
+
+          // Update map if needed
+          if (_mapController != null) {
+            _mapController?.animateCamera(
+              CameraUpdate.newLatLng(LatLng(location['lat'], location['lng'])),
+            );
+          }
         } else if (_locationType == 'destination') {
           controller.setEndingLocation(
             controller.selectedDeliveryLocation.value,
             LatLng(location['lat'], location['lng']),
           );
+
+          // Update map if needed
+          if (_mapController != null) {
+            _mapController?.animateCamera(
+              CameraUpdate.newLatLng(LatLng(location['lat'], location['lng'])),
+            );
+          }
         }
       }
     } catch (e) {
@@ -179,7 +224,6 @@ class _SelectDeliveryLocationScreenState
     }
   }
 
-  // Navigate to next screen (no radius needed now)
   void _fetchParcelsAndProceed() {
     controller.fetchParcels();
     Get.toNamed(AppRoutes.chooseParcelForDeliveryScreen, arguments: {
@@ -397,13 +441,10 @@ class _SelectDeliveryLocationScreenState
                       ),
                     ],
                   ),
-
                   if (_isLoading)
                     const Center(child: CircularProgressIndicator())
                   else
                     const SizedBox.shrink(),
-
-                  // New improved predictions list will be shown in the Stack position below
                   Expanded(child: Container()),
                 ],
               ),
@@ -436,7 +477,7 @@ class _SelectDeliveryLocationScreenState
             ),
             ButtonWidget(
               onPressed: () {
-                log("=== Tapped Next ===");
+                log("<================================== Tapped Next ==========================================>");
                 controller.fetchDeliveryParcelsList();
                 _fetchParcelsAndProceed();
               },

@@ -45,8 +45,6 @@ class _BookingScreenState extends State<BookingScreen> {
   bool isReceived = false;
   final List<String> images = [
     AppImagePath.sendParcel,
-    AppImagePath.joshuaImage,
-    AppImagePath.sendParcel,
   ];
 
   final List<String> names = [
@@ -316,7 +314,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 });
               },
               children: [
-                _currentOrderWidget(),
+                SingleChildScrollView(child: _currentOrderWidget()),
                 const NewBookingWidget(),
               ],
             ),
@@ -352,276 +350,298 @@ class _BookingScreenState extends State<BookingScreen> {
       if (data == null || data.isEmpty) {
         return const Center(child: Text('No current orders available'));
       }
-      return SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          children: [
-            ListView.separated(
-              shrinkWrap: true,
-              // Ensures the ListView fits within the parent Column
-              itemCount: data.length,
-              separatorBuilder: (context, index) =>
-                  const SpaceWidget(spaceHeight: 8),
-              // Adds spacing between items
-              itemBuilder: (context, index) {
-                String currentStatus =
-                    statuses[index < statuses.length ? index : 0];
-                final deliverLocation =
-                    data[index].deliveryLocation?.coordinates;
-                final date =
-                    formatDeliveryDate(data[index].deliveryEndTime ?? "");
-                if (deliverLocation != null && deliverLocation.length == 2) {
-                  final latitude = deliverLocation[1];
-                  final longitude = deliverLocation[0];
-                  _getAddress(latitude, longitude);
-                }
-                return Padding(
-                  padding: const EdgeInsets.all(14.0),
-                  child: Column(
+      return Column(
+        children: [
+          SizedBox(
+            height: 550,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Column(
+                children: List.generate(data.length, (index) {
+                  String currentStatus =
+                      statuses[index < statuses.length ? index : 0];
+                  final deliverLocation =
+                      data[index].deliveryLocation?.coordinates;
+                  final date =
+                      formatDeliveryDate(data[index].deliveryEndTime ?? "");
+                  if (deliverLocation != null && deliverLocation.length == 2) {
+                    final latitude = deliverLocation[1];
+                    final longitude = deliverLocation[0];
+                    _getAddress(latitude, longitude);
+                  }
+                  return Column(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(100),
-                                    child: ImageWidget(
-                                      height: 40,
-                                      width: 40,
-                                      imagePath: index < images.length
-                                          ? images[index]
-                                          : images[0],
-                                    ),
-                                  ),
-                                  const SpaceWidget(spaceWidth: 8),
-                                  TextWidget(
-                                    text: data[index].title ?? "",
-                                    fontSize: 15.5,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.black,
-                                  ),
-                                ],
-                              ),
-                              const SpaceWidget(spaceHeight: 8),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.location_on_rounded,
-                                    color: AppColors.black,
-                                    size: 12,
-                                  ),
-                                  const SpaceWidget(spaceWidth: 8),
-                                  TextWidget(
-                                    text: address,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.greyDark2,
-                                  ),
-                                ],
-                              ),
-                              const SpaceWidget(spaceHeight: 8),
-                              const Row(
-                                children: [
-                                  Icon(
-                                    Icons.call,
-                                    color: AppColors.black,
-                                    size: 12,
-                                  ),
-                                  SpaceWidget(spaceWidth: 8),
-                                  TextWidget(
-                                    text: '+375 292316347',
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.greyDark2,
-                                  ),
-                                ],
-                              ),
-                              const SpaceWidget(spaceHeight: 8),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.calendar_month,
-                                    color: AppColors.black,
-                                    size: 12,
-                                  ),
-                                  const SpaceWidget(spaceWidth: 8),
-                                  TextWidget(
-                                    text: date,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.greyDark2,
-                                  ),
-                                ],
-                              ),
-                              const SpaceWidget(spaceHeight: 16),
-                            ],
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              TextWidget(
-                                text:
-                                    "${AppStrings.currency} ${data[index].price}",
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                fontColor: AppColors.black,
-                              ),
-                              const SpaceWidget(spaceHeight: 20),
-                              TextWidget(
-                                text: data[index].status ?? "",
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                fontColor: data[index].status == "PENDING"
-                                    ? AppColors.red
-                                    : data[index].status == "IN_TRANSIT"
-                                        ? AppColors.green
-                                        : data[index].status == "DELIVERED"
-                                            ? AppColors.green
-                                            : data[index].status == "REQUESTED"
-                                                ? AppColors.green
-                                                : AppColors.black,
-                              ),
-                              const SpaceWidget(spaceHeight: 12),
-                              Row(
-                                children: [
-                                  InkWell(
-                                    onTap: _sendMessage,
-                                    borderRadius: BorderRadius.circular(100),
-                                    child: const CircleAvatar(
-                                      backgroundColor: AppColors.whiteDark,
-                                      radius: 18,
-                                      child: IconWidget(
-                                        icon: AppIconsPath.whatsAppIcon,
-                                        color: AppColors.black,
-                                        width: 18,
-                                        height: 18,
-                                      ),
-                                    ),
-                                  ),
-                                  const SpaceWidget(spaceWidth: 8),
-                                  InkWell(
-                                    onTap: _makePhoneCall,
-                                    borderRadius: BorderRadius.circular(100),
-                                    child: const CircleAvatar(
-                                      backgroundColor: AppColors.whiteDark,
-                                      radius: 18,
-                                      child: Icon(
-                                        Icons.call,
-                                        color: AppColors.black,
-                                        size: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SpaceWidget(spaceHeight: 8),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: AppColors.whiteLight,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      if (index > 0) const SpaceWidget(spaceHeight: 8),
+                      // Separator
+                      Padding(
+                        padding: const EdgeInsets.all(14.0),
+                        child: Column(
                           children: [
-                            InkWell(
-                              onTap: () {
-                                if (index < details.length &&
-                                    details[index] ==
-                                        AppStrings.parcelDetails) {
-                                  Get.toNamed(
-                                      AppRoutes.bookingParcelDetailsScreen);
-                                } else {
-                                  Get.toNamed(
-                                      AppRoutes.bookingViewDetailsScreen);
-                                }
-                              },
-                              splashColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.remove_red_eye_outlined,
-                                    color: AppColors.black,
-                                    size: 16,
-                                  ),
-                                  const SpaceWidget(spaceWidth: 8),
-                                  TextWidget(
-                                    text: index < details.length
-                                        ? details[index]
-                                        : "Details",
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.greyDark2,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              width: 1,
-                              height: 24,
-                              color: AppColors.blackLighter,
-                            ),
-                            InkWell(
-                              onTap: () {
-                                if (index < progress.length &&
-                                    progress[index] == "Finish Delivery".tr) {
-                                  deliveryFinished();
-                                } else {
-                                  Get.toNamed(AppRoutes.cancelDeliveryScreen);
-                                }
-                              },
-                              splashColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              child: Row(
-                                children: [
-                                  index < progress.length &&
-                                          progress[index] ==
-                                              AppStrings.deliveryManDetails
-                                      ? const IconWidget(
-                                          icon: AppIconsPath.deliverymanIcon,
-                                          color: AppColors.greyDark2,
-                                          width: 14,
-                                          height: 14,
-                                        )
-                                      : const SizedBox.shrink(),
-                                  index < progress.length &&
-                                          progress[index] ==
-                                              AppStrings.deliveryManDetails
-                                      ? const SpaceWidget(spaceWidth: 8)
-                                      : const SpaceWidget(spaceWidth: 0),
-                                  SizedBox(
-                                    width: ResponsiveUtils.width(120),
-                                    child: TextWidget(
-                                      text: index < progress.length
-                                          ? progress[index]
-                                          : "",
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      fontColor: index < progress.length &&
-                                              progress[index] ==
-                                                  AppStrings.deliveryManDetails
-                                          ? AppColors.greyDark2
-                                          : index < progress.length &&
-                                                  progress[index] ==
-                                                      "Finish Delivery".tr
-                                              ? AppColors.green
-                                              : AppColors.red,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                          child: const ImageWidget(
+                                            height: 40,
+                                            width: 40,
+                                            imagePath: AppImagePath.sendParcel,
+                                          ),
+                                        ),
+                                        const SpaceWidget(spaceWidth: 8),
+                                        SizedBox(
+                                          width: ResponsiveUtils.width(160),
+                                          child: TextWidget(
+                                            text: data[index].title ?? "",
+                                            fontSize: 15.5,
+                                            fontWeight: FontWeight.w500,
+                                            fontColor: AppColors.black,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlignment: TextAlign.start,
+                                          ),
+                                        ),
+                                        const SpaceWidget(spaceWidth: 8),
+                                      ],
                                     ),
-                                  )
+                                    const SpaceWidget(spaceHeight: 8),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.location_on_rounded,
+                                          color: AppColors.black,
+                                          size: 12,
+                                        ),
+                                        const SpaceWidget(spaceWidth: 8),
+                                        TextWidget(
+                                          text: address,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          fontColor: AppColors.greyDark2,
+                                        ),
+                                      ],
+                                    ),
+                                    const SpaceWidget(spaceHeight: 8),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.call,
+                                          color: AppColors.black,
+                                          size: 12,
+                                        ),
+                                        const SpaceWidget(spaceWidth: 8),
+                                        TextWidget(
+                                          text: data[index].phoneNumber ?? "",
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          fontColor: AppColors.greyDark2,
+                                        ),
+                                      ],
+                                    ),
+                                    const SpaceWidget(spaceHeight: 8),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.calendar_month,
+                                          color: AppColors.black,
+                                          size: 12,
+                                        ),
+                                        const SpaceWidget(spaceWidth: 8),
+                                        TextWidget(
+                                          text: date,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          fontColor: AppColors.greyDark2,
+                                        ),
+                                      ],
+                                    ),
+                                    const SpaceWidget(spaceHeight: 10),
+                                  ],
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    TextWidget(
+                                      text:
+                                          "${AppStrings.currency} ${data[index].price}",
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      fontColor: AppColors.black,
+                                    ),
+                                    const SpaceWidget(spaceHeight: 20),
+                                    TextWidget(
+                                      text: data[index].status ?? "",
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      fontColor: data[index].status == "PENDING"
+                                          ? AppColors.red
+                                          : data[index].status == "IN_TRANSIT"
+                                              ? AppColors.green
+                                              : data[index].status ==
+                                                      "DELIVERED"
+                                                  ? AppColors.green
+                                                  : data[index].status ==
+                                                          "REQUESTED"
+                                                      ? AppColors.green
+                                                      : AppColors.black,
+                                    ),
+                                    const SpaceWidget(spaceHeight: 12),
+                                    Row(
+                                      children: [
+                                        InkWell(
+                                          onTap: _sendMessage,
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                          child: const CircleAvatar(
+                                            backgroundColor:
+                                                AppColors.whiteDark,
+                                            radius: 18,
+                                            child: IconWidget(
+                                              icon: AppIconsPath.whatsAppIcon,
+                                              color: AppColors.black,
+                                              width: 18,
+                                              height: 18,
+                                            ),
+                                          ),
+                                        ),
+                                        const SpaceWidget(spaceWidth: 8),
+                                        InkWell(
+                                          onTap: _makePhoneCall,
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                          child: const CircleAvatar(
+                                            backgroundColor:
+                                                AppColors.whiteDark,
+                                            radius: 18,
+                                            child: Icon(
+                                              Icons.call,
+                                              color: AppColors.black,
+                                              size: 18,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SpaceWidget(spaceHeight: 8),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: AppColors.whiteLight,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      if (index < details.length &&
+                                          details[index] ==
+                                              AppStrings.parcelDetails) {
+                                        Get.toNamed(AppRoutes
+                                            .bookingParcelDetailsScreen);
+                                      } else {
+                                        Get.toNamed(
+                                            AppRoutes.bookingViewDetailsScreen);
+                                      }
+                                    },
+                                    splashColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.remove_red_eye_outlined,
+                                          color: AppColors.black,
+                                          size: 16,
+                                        ),
+                                        const SpaceWidget(spaceWidth: 8),
+                                        TextWidget(
+                                          text: index < details.length
+                                              ? details[index]
+                                              : "Details",
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          fontColor: AppColors.greyDark2,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 1,
+                                    height: 24,
+                                    color: AppColors.blackLighter,
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      if (index < progress.length &&
+                                          progress[index] ==
+                                              "Finish Delivery".tr) {
+                                        deliveryFinished();
+                                      } else {
+                                        Get.toNamed(
+                                            AppRoutes.cancelDeliveryScreen);
+                                      }
+                                    },
+                                    splashColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    child: Row(
+                                      children: [
+                                        index < progress.length &&
+                                                progress[index] ==
+                                                    AppStrings
+                                                        .deliveryManDetails
+                                            ? const IconWidget(
+                                                icon: AppIconsPath
+                                                    .deliverymanIcon,
+                                                color: AppColors.greyDark2,
+                                                width: 14,
+                                                height: 14,
+                                              )
+                                            : const SizedBox.shrink(),
+                                        index < progress.length &&
+                                                progress[index] ==
+                                                    AppStrings
+                                                        .deliveryManDetails
+                                            ? const SpaceWidget(spaceWidth: 8)
+                                            : const SpaceWidget(spaceWidth: 0),
+                                        SizedBox(
+                                          width: ResponsiveUtils.width(120),
+                                          child: TextWidget(
+                                            text: index < progress.length
+                                                ? progress[index]
+                                                : "",
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            fontColor: index <
+                                                        progress.length &&
+                                                    progress[index] ==
+                                                        AppStrings
+                                                            .deliveryManDetails
+                                                ? AppColors.greyDark2
+                                                : index < progress.length &&
+                                                        progress[index] ==
+                                                            "Finish Delivery".tr
+                                                    ? AppColors.green
+                                                    : AppColors.red,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -629,13 +649,13 @@ class _BookingScreenState extends State<BookingScreen> {
                         ),
                       ),
                     ],
-                  ),
-                );
-              },
+                  );
+                }),
+              ),
             ),
-            const SpaceWidget(spaceHeight: 80),
-          ],
-        ),
+          ),
+          const SpaceWidget(spaceHeight: 80),
+        ],
       );
     });
   }

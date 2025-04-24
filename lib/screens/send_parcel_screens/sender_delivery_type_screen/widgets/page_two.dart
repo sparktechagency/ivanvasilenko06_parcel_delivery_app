@@ -71,7 +71,6 @@ class _PageTwoState extends State<PageTwo> {
         // Update any state variables if needed
       });
 
-      // Only animate camera if the map controller is initialized
       if (_mapController != null) {
         _mapController?.animateCamera(
           CameraUpdate.newLatLng(location),
