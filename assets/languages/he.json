@@ -60,9 +60,9 @@
   "view": "הצג",
   "accept": "קבל",
   "basicInfo": "מידע בסיסי",
-  "orderCompleted": "15+ הזמנות",
-  "orderDelivered": "12 נמסרו",
-  "orderReceived": "03 התקבלו",
+  "orderCompleted": " הזמנות",
+  "orderDelivered": " נמסרו",
+  "orderReceived": " התקבלו",
   "name": "שם",
   "ivan": "איוון סומרהולדר",
   "credits": "קרדיטים",
@@ -159,11 +159,9 @@
   "requestSent": "הבקשה נשלחה",
   "viewSummary": "צפה בתקציר",
   "recentlyPublished": "פורסם לאחרונה",
-    "israel": "ישראל",
-    "verifyNumber": "אמת מספר",
-    "countryDesciption": "כאן קבל את המדינה שלך",
-    "selectLanguage": "בחר את השפה שלך",
-    "enterYourPreferredLanguage": "הזן את השפה המועדפת עליך"
-
-  
+  "israel": "ישראל",
+  "verifyNumber": "אמת מספר",
+  "countryDesciption": "כאן קבל את המדינה שלך",
+  "selectLanguage": "בחר את השפה שלך",
+  "enterYourPreferredLanguage": "הזן את השפה המועדפת עליך"
 }

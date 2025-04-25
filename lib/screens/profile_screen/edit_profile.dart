@@ -20,7 +20,6 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfileState extends State<EditProfile> {
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
   final TextEditingController faceBookController = TextEditingController();
   final TextEditingController instaController = TextEditingController();
   final TextEditingController whastappController = TextEditingController();
@@ -28,7 +27,7 @@ class _EditProfileState extends State<EditProfile> {
   File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
 
-  final ProfileController _profileController = Get.put(ProfileController());
+  final ProfileController _profileController = Get.find<ProfileController>();
 
   @override
   void initState() {
@@ -45,7 +44,6 @@ class _EditProfileState extends State<EditProfile> {
 
       // Populate the text controllers with the current profile data
       nameController.text = user.fullName ?? '';
-      emailController.text = user.email ?? '';
       faceBookController.text = user.facebook ?? '';
       instaController.text = user.instagram ?? '';
       whastappController.text = user.whatsapp ?? '';
@@ -126,19 +124,6 @@ class _EditProfileState extends State<EditProfile> {
             ),
             const SpaceWidget(spaceHeight: 10),
             TextWidget(
-                text: "Email".tr,
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                fontColor: AppColors.black),
-            const SpaceWidget(spaceHeight: 10),
-            EditProfileTextFieldWidget(
-              height: 50,
-              controller: emailController,
-              hintText: "Enter your email",
-              maxLines: 1,
-            ),
-            const SpaceWidget(spaceHeight: 10),
-            TextWidget(
                 text: "Facebook".tr,
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
@@ -177,37 +162,53 @@ class _EditProfileState extends State<EditProfile> {
               maxLines: 1,
             ),
             const SpaceWidget(spaceHeight: 20),
-            ButtonWidget(
-              onPressed: () async {
-                // Call the updateProfile function with the updated data
-                await _profileController.updateProfile(
-                  fullName: nameController.text.trim(),
-                  email: emailController.text.trim(),
-                  facebook: faceBookController.text.trim(),
-                  instagram: instaController.text.trim(),
-                  whatsapp: whastappController.text.trim(),
-                  profileImage: _selectedImage,
-                );
+            Obx(() => ButtonWidget(
+                  onPressed: _profileController.isLoading.value
+                      ? null
+                      : () async {
+                          // Get the user ID from profileData
+                          final userId = _profileController
+                              .profileData.value.data?.user?.id;
+                          if (userId == null || userId.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("User ID not found")),
+                            );
+                            return;
+                          }
 
-                // Show success or error message
-                if (_profileController.errorMessage.value.isNotEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text(_profileController.errorMessage.value)),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text("Profile updated successfully")),
-                  );
-                  Navigator.pop(
-                      context); // Navigate back to the main profile screen
-                }
-              },
-              label: "Edit Profile".tr,
-              buttonHeight: 50,
-              buttonWidth: double.infinity,
-            ),
+                          // Call the updateProfile function with the updated data
+                          await _profileController.updateProfile(
+                            fullName: nameController.text.trim(),
+                            facebook: faceBookController.text.trim(),
+                            instagram: instaController.text.trim(),
+                            whatsapp: whastappController.text.trim(),
+                            ID: userId,
+                            // Pass the user ID
+                            Image: _selectedImage,
+                          );
+
+                          // Show success or error message
+                          if (_profileController
+                              .errorMessage.value.isNotEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      _profileController.errorMessage.value)),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text("Profile updated successfully")),
+                            );
+                            // Navigation is handled in updateProfile() with Get.back()
+                          }
+                        },
+                  label: "Edit Profile".tr,
+                  buttonHeight: 50,
+                  buttonWidth: double.infinity,
+                )),
             const SpaceWidget(spaceHeight: 30),
           ],
         ),

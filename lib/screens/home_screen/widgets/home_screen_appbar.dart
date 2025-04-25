@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:parcel_delivery_app/widgets/image_widget/app_images.dart';
 
 import '../../../constants/app_colors.dart';
 import '../../../widgets/icon_widget/icon_widget.dart';
@@ -55,10 +56,13 @@ class HomeScreenAppBar extends StatelessWidget {
                 ),
               ),
               const SpaceWidget(spaceWidth: 12),
-              ImageWidget(
-                height: 40,
-                width: 40,
-                imagePath: profileImagePath,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(100),
+                child: AppImage(
+                  height: 40,
+                  width: 40,
+                  url: profileImagePath,
+                ),
               )
             ],
           )

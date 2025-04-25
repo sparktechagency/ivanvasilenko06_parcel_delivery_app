@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data'; // Added for Uint8List
@@ -61,73 +62,149 @@ class ProfileController extends GetxController {
     }
   }
 
+  // Future<void> updateProfile({
+  //   required String fullName,
+  //   required String facebook,
+  //   required String instagram,
+  //   required String whatsapp,
+  //   File? Image,
+  // }) async {
+  //   isLoading.value = true;
+  //   errorMessage.value = '';
+  //
+  //   try {
+  //     var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
+  //     log("🔑 Authorization Token: $token");
+  //
+  //     // Step 1: Create multipart request instance
+  //     var request = http.MultipartRequest(
+  //       'PUT',
+  //       Uri.parse(AppApiUrl.updateProfile),
+  //     );
+  //
+  //     // Step 2: Add text fields to the request
+  //     request.fields['fullName'] = fullName;
+  //     request.fields['facebook'] = facebook;
+  //     request.fields['instagram'] = instagram;
+  //     request.fields['whatsapp'] = whatsapp;
+  //
+  //     // Step 3: Add the profile image if provided
+  //     if (Image != null) {
+  //       // Step 3a: Read the image file
+  //       File imageFile = File(Image.path);
+  //
+  //       // Step 3b: Convert image to bytes
+  //       Uint8List imageData = await imageFile.readAsBytes();
+  //
+  //       // Step 3c: Add the image as a file to the request
+  //       request.files.add(
+  //         http.MultipartFile.fromBytes(
+  //           'Image',
+  //           imageData,
+  //           filename: path.basename(imageFile.path), // Use the file's name
+  //           contentType: MediaType('image', 'jpg'),
+  //         ),
+  //       );
+  //     }
+  //
+  //     // Step 4: Add the token to the headers
+  //     request.headers['Authorization'] = 'Bearer $token';
+  //
+  //     // Step 5: Send the request
+  //     var response = await request.send();
+  //
+  //     // Step 6: Handle the response
+  //     final responseBody = await response.stream.bytesToString();
+  //     log("Raw API Response: $responseBody");
+  //
+  //     if (response.statusCode == 200) {
+  //       log("Profile updated successfully");
+  //       await getProfileInfo(); // Refresh the profile data
+  //     } else {
+  //       errorMessage.value =
+  //           'Error: ${response.statusCode} - ${response.reasonPhrase}';
+  //       log("Error Response: $responseBody");
+  //     }
+  //   } catch (e) {
+  //     // Handle exceptions during the API call or data parsing
+  //     errorMessage.value = 'An error occurred: ${e.toString()}';
+  //     log('Exception error: ${e.toString()}');
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
+
   Future<void> updateProfile({
     required String fullName,
-    required String email,
     required String facebook,
     required String instagram,
     required String whatsapp,
-    File? profileImage,
+    required String ID,
+    File? Image,
   }) async {
     isLoading.value = true;
     errorMessage.value = '';
-
     try {
       var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
+      if (token == null || token.isEmpty) {
+        errorMessage.value = 'Authorization token is missing';
+        log("Token missing");
+        isLoading.value = false;
+        return;
+      }
       log("🔑 Authorization Token: $token");
 
-      // Step 1: Create multipart request instance
-      var request = http.MultipartRequest(
-        'PUT',
-        Uri.parse(AppApiUrl.updateProfile),
-      );
-
-      // Step 2: Add text fields to the request
+      var request =
+          http.MultipartRequest('PUT', Uri.parse(AppApiUrl.updateProfile));
+      request.fields['id'] = ID; // Add ID to request fields
       request.fields['fullName'] = fullName;
-      request.fields['email'] = email;
       request.fields['facebook'] = facebook;
       request.fields['instagram'] = instagram;
       request.fields['whatsapp'] = whatsapp;
 
-      // Step 3: Add the profile image if provided
-      if (profileImage != null) {
-        // Step 3a: Read the image file
-        File imageFile = File(profileImage.path);
-
-        // Step 3b: Convert image to bytes
+      if (Image != null) {
+        File imageFile = File(Image.path);
+        if (!await imageFile.exists()) {
+          errorMessage.value = 'Image file does not exist';
+          log("Image file error");
+          isLoading.value = false;
+          return;
+        }
         Uint8List imageData = await imageFile.readAsBytes();
-
-        // Step 3c: Add the image as a file to the request
+        String extension =
+            path.extension(imageFile.path).toLowerCase().replaceAll('.', '');
         request.files.add(
           http.MultipartFile.fromBytes(
-            'profileImage',
+            'image', // Note: Using 'image' as per your latest code
             imageData,
-            filename: path.basename(imageFile.path), // Use the file's name
-            contentType: MediaType('image', 'jpg'),
+            filename: path.basename(imageFile.path),
+            contentType:
+                MediaType('image', extension == 'jpg' ? 'jpeg' : extension),
           ),
         );
       }
 
-      // Step 4: Add the token to the headers
       request.headers['Authorization'] = 'Bearer $token';
-
-      // Step 5: Send the request
       var response = await request.send();
-
-      // Step 6: Handle the response
       final responseBody = await response.stream.bytesToString();
       log("Raw API Response: $responseBody");
 
       if (response.statusCode == 200) {
         log("Profile updated successfully");
-        await getProfileInfo(); // Refresh the profile data
+        await refreshProfileData(); // Refresh profile data
+        Get.back(); // Navigate back to ProfileScreen
       } else {
-        errorMessage.value =
-            'Error: ${response.statusCode} - ${response.reasonPhrase}';
+        try {
+          final jsonResponse = json.decode(responseBody);
+          errorMessage.value =
+              'Error: ${response.statusCode} - ${jsonResponse['message'] ?? response.reasonPhrase}';
+        } catch (e) {
+          errorMessage.value =
+              'Error: ${response.statusCode} - ${response.reasonPhrase}';
+        }
         log("Error Response: $responseBody");
       }
     } catch (e) {
-      // Handle exceptions during the API call or data parsing
       errorMessage.value = 'An error occurred: ${e.toString()}';
       log('Exception error: ${e.toString()}');
     } finally {
@@ -136,6 +213,6 @@ class ProfileController extends GetxController {
   }
 
   Future<void> refreshProfileData() async {
-    await getProfileInfo(); // Re-fetch profile data
+    await getProfileInfo();
   }
 }

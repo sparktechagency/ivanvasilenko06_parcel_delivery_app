@@ -14,6 +14,7 @@ import 'package:parcel_delivery_app/screens/home_screen/widgets/home_screen_appb
 import 'package:parcel_delivery_app/screens/home_screen/widgets/reserve_bottom_sheet_widget.dart';
 import 'package:parcel_delivery_app/screens/home_screen/widgets/suggestionCardWidget.dart';
 import 'package:parcel_delivery_app/screens/notification_screen/controller/notification_controller.dart';
+import 'package:parcel_delivery_app/screens/profile_screen/controller/profile_controller.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 
 import '../../utils/app_size.dart';
@@ -35,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
       Get.put(EarnMoneyRadiusController());
   final NotificationController notificationController =
       Get.put(NotificationController());
+  final ProfileController profileController = Get.put(ProfileController());
 
   Future<void> _getCurrentLocation() async {
     try {
@@ -224,183 +226,200 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    profileController.getProfileInfo();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          HomeScreenAppBar(
-            logoImagePath: AppImagePath.appLogo,
-            notificationIconPath: AppIconsPath.notificationIcon,
-            onNotificationPressed: () {
-              notificationController.fetchNotifications();
-              Get.toNamed(AppRoutes.notificationScreen);
-            },
-            badgeLabel: "1",
-            profileImagePath: AppImagePath.profileImage,
-          ),
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextWidget(
-                    text: "suggestions".tr,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    fontColor: AppColors.black,
-                  ),
-                  const SpaceWidget(spaceHeight: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 1,
-                        child: SuggestionCardWidget(
-                          onTap: () {
-                            Get.toNamed(AppRoutes.deliveryTypeScreen);
-                          },
-                          text: "deliverParcel".tr,
-                          imagePath: AppImagePath.deliverParcel,
-                        ),
-                      ),
-                      const SpaceWidget(spaceWidth: 12),
-                      Expanded(
-                        flex: 1,
-                        child: SuggestionCardWidget(
-                          onTap: () {
-                            Get.toNamed(AppRoutes.senderDeliveryTypeScreen);
-                          },
-                          text: "sendParcel".tr,
-                          imagePath: AppImagePath.sendParcel,
-                        ),
-                      ),
-                      const SpaceWidget(spaceWidth: 12),
-                      Expanded(
-                        flex: 1,
-                        child: SuggestionCardWidget(
-                          onTap: () {
-                            showModalBottomSheet(
-                              context: context,
-                              backgroundColor: Colors.transparent,
-                              builder: (BuildContext context) {
-                                return Container(
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.white,
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(24),
-                                      topRight: Radius.circular(24),
-                                    ),
-                                  ),
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 15, horizontal: 26),
-                                  child: const ReserveBottomSheetWidget(),
-                                );
-                              },
-                            );
-                          },
-                          text: "reserve".tr,
-                          imagePath: AppImagePath.reserve,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SpaceWidget(spaceHeight: 12),
-                  TextWidget(
-                    text: "earnMoney".tr,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    fontColor: AppColors.black,
-                  ),
-                  const SpaceWidget(spaceHeight: 12),
-                  EarnMoneyCardWidget(
-                    onTap: () {
-                      _openBottomSheet(context);
-                    },
-                  ),
-                  const SpaceWidget(spaceHeight: 12),
-                  Container(
-                    height: ResponsiveUtils.height(50),
-                    padding: const EdgeInsets.all(10),
-                    decoration: const BoxDecoration(
-                      color: AppColors.greyLightest,
-                      borderRadius: BorderRadius.all(Radius.circular(50)),
+      body: Obx(() {
+        if (profileController.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            HomeScreenAppBar(
+              logoImagePath: AppImagePath.appLogo,
+              notificationIconPath: AppIconsPath.notificationIcon,
+              onNotificationPressed: () {
+                notificationController.fetchNotifications();
+                Get.toNamed(AppRoutes.notificationScreen);
+              },
+              badgeLabel: "1",
+              profileImagePath: profileController
+                          .profileData.value.data?.user?.image?.isNotEmpty ??
+                      false
+                  ? profileController.profileData.value.data!.user!.image!
+                  : AppImagePath.profileImage,
+            ),
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextWidget(
+                      text: "suggestions".tr,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      fontColor: AppColors.black,
                     ),
-                    child: Row(
+                    const SpaceWidget(spaceHeight: 12),
+                    Row(
                       children: [
-                        const TextWidget(
-                          text: "Interested in Receiving Deliveries?",
-                          fontSize: 14,
-                          fontColor: AppColors.black,
-                          fontWeight: FontWeight.w600,
+                        Expanded(
+                          flex: 1,
+                          child: SuggestionCardWidget(
+                            onTap: () {
+                              Get.toNamed(AppRoutes.deliveryTypeScreen);
+                            },
+                            text: "deliverParcel".tr,
+                            imagePath: AppImagePath.deliverParcel,
+                          ),
                         ),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              receivingDeliveries = !receivingDeliveries;
-                            });
-                          },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            width: 54,
-                            height: 27,
-                            padding: const EdgeInsets.symmetric(horizontal: 2),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: receivingDeliveries
-                                  ? AppColors.green
-                                  : AppColors.red,
-                            ),
-                            child: Stack(
-                              children: [
-                                Align(
-                                  alignment: receivingDeliveries
-                                      ? Alignment.centerLeft
-                                      : Alignment.centerRight,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 05),
-                                    child: Text(
-                                      receivingDeliveries ? 'ON' : 'OFF',
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
+                        const SpaceWidget(spaceWidth: 12),
+                        Expanded(
+                          flex: 1,
+                          child: SuggestionCardWidget(
+                            onTap: () {
+                              Get.toNamed(AppRoutes.senderDeliveryTypeScreen);
+                            },
+                            text: "sendParcel".tr,
+                            imagePath: AppImagePath.sendParcel,
+                          ),
+                        ),
+                        const SpaceWidget(spaceWidth: 12),
+                        Expanded(
+                          flex: 1,
+                          child: SuggestionCardWidget(
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                backgroundColor: Colors.transparent,
+                                builder: (BuildContext context) {
+                                  return Container(
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.white,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(24),
+                                        topRight: Radius.circular(24),
                                       ),
                                     ),
-                                  ),
-                                ),
-                                AnimatedAlign(
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                  alignment: receivingDeliveries
-                                      ? Alignment.centerRight
-                                      : Alignment.centerLeft,
-                                  child: Container(
-                                    width: 18,
-                                    height: 18,
-                                    decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 15, horizontal: 26),
+                                    child: const ReserveBottomSheetWidget(),
+                                  );
+                                },
+                              );
+                            },
+                            text: "reserve".tr,
+                            imagePath: AppImagePath.reserve,
                           ),
                         ),
                       ],
                     ),
-                  )
-                ],
+                    const SpaceWidget(spaceHeight: 12),
+                    TextWidget(
+                      text: "earnMoney".tr,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      fontColor: AppColors.black,
+                    ),
+                    const SpaceWidget(spaceHeight: 12),
+                    EarnMoneyCardWidget(
+                      onTap: () {
+                        _openBottomSheet(context);
+                      },
+                    ),
+                    const SpaceWidget(spaceHeight: 12),
+                    Container(
+                      height: ResponsiveUtils.height(50),
+                      padding: const EdgeInsets.all(10),
+                      decoration: const BoxDecoration(
+                        color: AppColors.greyLightest,
+                        borderRadius: BorderRadius.all(Radius.circular(50)),
+                      ),
+                      child: Row(
+                        children: [
+                          const TextWidget(
+                            text: "Interested in Receiving Deliveries?",
+                            fontSize: 14,
+                            fontColor: AppColors.black,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          const Spacer(),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                receivingDeliveries = !receivingDeliveries;
+                              });
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              width: 54,
+                              height: 27,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 2),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: receivingDeliveries
+                                    ? AppColors.green
+                                    : AppColors.red,
+                              ),
+                              child: Stack(
+                                children: [
+                                  Align(
+                                    alignment: receivingDeliveries
+                                        ? Alignment.centerLeft
+                                        : Alignment.centerRight,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 05),
+                                      child: Text(
+                                        receivingDeliveries ? 'ON' : 'OFF',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  AnimatedAlign(
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                    alignment: receivingDeliveries
+                                        ? Alignment.centerRight
+                                        : Alignment.centerLeft,
+                                    child: Container(
+                                      width: 18,
+                                      height: 18,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
-            ),
-          )
-        ],
-      ),
+            )
+          ],
+        );
+      }),
     );
   }
 }

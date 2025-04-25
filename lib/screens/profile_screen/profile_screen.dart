@@ -330,38 +330,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Stack(
                         alignment: Alignment.bottomLeft,
                         children: [
-                          Obx(() {
-                            if (profileController.isLoading.value) {
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            }
-                            return Padding(
-                              padding: const EdgeInsets.all(4),
-                              child: SizedBox(
-                                width: ResponsiveUtils.width(120),
-                                height: ResponsiveUtils.width(120),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(100),
-                                  child: AppImage(
-                                    url: profileController
-                                                .profileData
-                                                .value
-                                                .data
-                                                ?.user
-                                                ?.profileImage
-                                                ?.isNotEmpty ??
-                                            false
-                                        ? profileController.profileData.value
-                                            .data!.user!.profileImage!
-                                        : AppImagePath.profileImage,
-                                    height: 116,
-                                    width: 116,
-                                    fit: BoxFit.cover,
-                                  ),
+                          Padding(
+                            padding: const EdgeInsets.all(4),
+                            child: SizedBox(
+                              width: ResponsiveUtils.width(120),
+                              height: ResponsiveUtils.width(120),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(100),
+                                child: AppImage(
+                                  url: profileController.profileData.value.data
+                                              ?.user?.image?.isNotEmpty ??
+                                          false
+                                      ? profileController
+                                          .profileData.value.data!.user!.image!
+                                      : AppImagePath.profileImage,
+                                  height: 116,
+                                  width: 116,
+                                  fit: BoxFit.cover,
                                 ),
                               ),
-                            );
-                          }),
+                            ),
+                          ),
                           Positioned(
                             child: Align(
                               alignment: Alignment.bottomCenter,
@@ -449,7 +438,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                                 const SpaceWidget(spaceWidth: 6),
                                 TextWidget(
-                                  text: "orderCompleted".tr,
+                                  text:
+                                      "${profileController.profileData.value.data?.user?.totalOrders} "
+                                      "${"orderCompleted".tr}",
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,
                                   fontColor: AppColors.greyDark2,
@@ -470,7 +461,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                                 const SpaceWidget(spaceWidth: 6),
                                 TextWidget(
-                                  text: "orderDelivered".tr,
+                                  text:
+                                      "${profileController.profileData.value.data?.user?.totalDelivered} "
+                                      "${"orderDelivered".tr}",
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,
                                   fontColor: AppColors.greyDark2,
@@ -491,7 +484,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                                 const SpaceWidget(spaceWidth: 6),
                                 TextWidget(
-                                  text: "orderReceived".tr,
+                                  text:
+                                      "${profileController.profileData.value.data?.user?.totalReceivedParcels} "
+                                      "${"orderReceived".tr}",
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,
                                   fontColor: AppColors.greyDark2,
@@ -510,7 +505,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ProfileCardWidget(
                       titleText: "credits".tr,
                       subtitleText: "yourEarning".tr,
-                      additionalText: "yourEarningAmount".tr,
+                      additionalText:
+                          "${profileController.profileData.value.data?.user?.totalEarning} ",
                     ),
                     const Divider(
                       color: AppColors.grey,

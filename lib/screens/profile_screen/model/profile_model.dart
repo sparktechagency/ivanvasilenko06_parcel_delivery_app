@@ -109,7 +109,7 @@ class User {
   String? fullName;
   String? country;
   String? mobileNumber;
-  String? profileImage;
+  String? image;
   String? role;
   bool? isTrial;
   bool? isVerified;
@@ -147,7 +147,7 @@ class User {
     this.fullName,
     this.country,
     this.mobileNumber,
-    this.profileImage,
+    this.image,
     this.role,
     this.isTrial,
     this.isVerified,
@@ -190,7 +190,7 @@ class User {
         fullName: json["fullName"],
         country: json["country"],
         mobileNumber: json["mobileNumber"],
-        profileImage: json["profileImage"],
+        image: json["image"],
         role: json["role"],
         isTrial: json["isTrial"],
         isVerified: json["isVerified"],
@@ -249,7 +249,7 @@ class User {
         "fullName": fullName,
         "country": country,
         "mobileNumber": mobileNumber,
-        "profileImage": profileImage,
+        "image": image,
         "role": role,
         "isTrial": isTrial,
         "isVerified": isVerified,
