@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/controller/sending_parcel_controller.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/page_five.dart';
@@ -8,6 +9,7 @@ import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/page_six.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/page_three.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/page_two.dart';
+import 'package:parcel_delivery_app/services/reporsitory/location_repository/location_repository.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
@@ -22,17 +24,36 @@ class SenderDeliveryTypeScreen extends StatefulWidget {
 }
 
 class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
+  GoogleMapController? _mapController;
+  final LocationRepository _locationRepository = LocationRepository();
   int currentCarouselIndex = 0;
   ParcelController parcelController = Get.put(ParcelController());
+
+  Future<void> _getCurrentLocation() async {
+    final location = await _locationRepository.getCurrentLocation();
+    if (location != null && mounted) {
+      // Store the location in the controller so it's accessible by PageTwo
+      parcelController.currentLocationLatitude.value =
+          location.latitude.toString();
+      parcelController.currentLocationLongitude.value =
+          location.longitude.toString();
+
+      if (_mapController != null) {
+        _mapController?.animateCamera(
+          CameraUpdate.newLatLng(location),
+        );
+      }
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    // Initially set the delivery type and vehicle type
-    parcelController.selectedDeliveryType.value =
-        "non-professional"; // Default to non-professional
-    parcelController.selectedVehicleType.value =
-        'bike'; // Default vehicle for non-professional
+    parcelController.selectedDeliveryType.value = "non-professional";
+    parcelController.selectedVehicleType.value = 'bike';
+
+    // Get current location when screen loads
+    _getCurrentLocation();
   }
 
   final List<String> nonProfessionalImages = [
@@ -119,7 +140,9 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                   ),
                 ),
                 ButtonWidget(
-                  onPressed: () {
+                  onPressed: () async {
+                    // No need to fetch location again since we already have it
+                    // Just move to next step
                     parcelController.goToNextStep();
                   },
                   label: parcelController.currentStep.value == 5

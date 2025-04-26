@@ -20,6 +20,10 @@ class DeliveryScreenController extends GetxController {
   RxString pickupLocationLatitude = ''.obs;
   RxString pickupLocationLongitude = ''.obs;
 
+  // For storing current location lat/lng as strings
+  RxString currentLocationLatitude = ''.obs;
+  RxString currentLocationLongitude = ''.obs;
+
   // For storing starting/ending coordinates as LatLng
   Rxn<LatLng> startingCoordinates = Rxn<LatLng>();
   Rxn<LatLng> endingCoordinates = Rxn<LatLng>();

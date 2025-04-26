@@ -84,17 +84,15 @@ class _SummaryOfParcelScreenState extends State<SummaryOfParcelScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<DeliveryScreenController>();
-
-    // Fetching coordinates for starting and ending locations
     final startingLocation = controller.startingCoordinates.value;
     final endingLocation = controller.endingCoordinates.value;
 
     return Scaffold(
       backgroundColor: AppColors.white,
       body: isLoading
-          ? Center(
-              child:
-                  CircularProgressIndicator()) // Show loading spinner while fetching data
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -206,7 +204,6 @@ class _SummaryOfParcelScreenState extends State<SummaryOfParcelScreen> {
                           },
                         ),
                         const SpaceWidget(spaceHeight: 8),
-                        // Display destination location using FutureBuilder
                         FutureBuilder<String>(
                           future: _getAddress(endingLocation!.latitude,
                               endingLocation.longitude),

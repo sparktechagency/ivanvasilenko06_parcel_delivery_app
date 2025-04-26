@@ -1,0 +1,55 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:parcel_delivery_app/constants/app_colors.dart';
+import 'package:parcel_delivery_app/constants/app_image_path.dart';
+import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
+import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
+import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
+
+class SendRequestSuccessfully extends StatelessWidget {
+  const SendRequestSuccessfully({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(seconds: 2), () {
+        Get.back();
+      });
+    });
+    return Scaffold(
+      backgroundColor: AppColors.white,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Center(
+            child: ImageWidget(
+              height: 80,
+              width: 80,
+              imagePath: AppImagePath.hurrahImage,
+            ),
+          ),
+          const SpaceWidget(spaceHeight: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: TextWidget(
+              text: "hurray".tr,
+              fontSize: 33,
+              fontWeight: FontWeight.w600,
+              fontColor: AppColors.black,
+            ),
+          ),
+          const SpaceWidget(spaceHeight: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: TextWidget(
+              text: "hurraySentReSuccessfully".tr,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              fontColor: AppColors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

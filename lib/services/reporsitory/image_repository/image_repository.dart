@@ -27,10 +27,9 @@ class ImageMultipartUpload {
             final compressedFile = await compressImage(file);
             String fileName = compressedFile!.path.split('/').last;
             String? mimeType = lookupMimeType(file.path);
-// Add the file to FormData
             formData.files.add(
               MapEntry(
-                'images', // Key as per the API documentation
+                'image',
                 await MultipartFile.fromFile(
                   file.path,
                   filename: fileName,
@@ -42,7 +41,6 @@ class ImageMultipartUpload {
           }
         }
       }
-// Send the API request
       var data = await ApiPostServices()
           .apiPostServices(url: url, body: formData, statusCode: 201
 // token: AppStorage().getToken(),

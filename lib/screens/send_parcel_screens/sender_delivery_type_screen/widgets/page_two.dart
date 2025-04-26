@@ -4,11 +4,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/controller/sending_parcel_controller.dart';
+import 'package:parcel_delivery_app/services/reporsitory/location_repository/location_repository.dart';
 import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
-
-import '../../../../services/reporsitory/location_repository/location_repository.dart';
 
 class PageTwo extends StatefulWidget {
   const PageTwo({super.key});
@@ -30,13 +29,15 @@ class _PageTwoState extends State<PageTwo> {
   final FocusNode _endingFocusNode = FocusNode();
   Set<Marker> _markers = {};
   bool _mapInitialized = false;
+  Marker? _currentLocationMarker;
+  String? _currentLocationAddress;
+  bool _showCurrentLocationMarker =
+      false; // Initially hide current location marker
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
-
-    // Add listeners to focus nodes to handle keyboard visibility changes
     _startingFocusNode.addListener(() {
       if (_startingFocusNode.hasFocus) {
         setState(() {
@@ -67,10 +68,38 @@ class _PageTwoState extends State<PageTwo> {
   Future<void> _getCurrentLocation() async {
     final location = await _locationRepository.getCurrentLocation();
     if (location != null && mounted) {
+      // Create marker for current location but don't show it initially
+      _currentLocationMarker = Marker(
+        markerId: const MarkerId('current_location'),
+        position: location,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+        infoWindow: const InfoWindow(title: 'Current Location'),
+      );
+
+      // Start with empty markers set - don't add current location marker initially
       setState(() {
-        // Update any state variables if needed
+        _markers = {..._locationRepository.markers};
       });
 
+      // Get address for current location
+      try {
+        final address = await _locationRepository.getAddressFromLatLng(
+            location.latitude, location.longitude);
+        if (mounted) {
+          setState(() {
+            _currentLocationAddress = address;
+          });
+        }
+      } catch (e) {
+        debugPrint('Error getting address: $e');
+        if (mounted) {
+          setState(() {
+            _currentLocationAddress = "Your Current Location";
+          });
+        }
+      }
+
+      // Move camera to current location
       if (_mapController != null) {
         _mapController?.animateCamera(
           CameraUpdate.newLatLng(location),
@@ -96,14 +125,41 @@ class _PageTwoState extends State<PageTwo> {
       final predictions = await _locationRepository.placeAutoComplete(query);
       if (mounted) {
         setState(() {
-          _placePredictions = predictions;
+          // Add current location as first suggestion if searching for starting location
+          if (_activeLocationType == 'starting' &&
+              _currentLocationAddress != null) {
+            _placePredictions = [
+              {
+                'place_id': 'current_location',
+                'description':
+                    _currentLocationAddress ?? 'Your Current Location',
+                'is_current_location': true,
+              },
+              ...predictions
+            ];
+          } else {
+            _placePredictions = predictions;
+          }
           _isLoading = false;
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _placePredictions = [];
+          // Even on error, add current location option for starting location
+          if (_activeLocationType == 'starting' &&
+              _currentLocationAddress != null) {
+            _placePredictions = [
+              {
+                'place_id': 'current_location',
+                'description':
+                    _currentLocationAddress ?? 'Your Current Location',
+                'is_current_location': true,
+              }
+            ];
+          } else {
+            _placePredictions = [];
+          }
           _isLoading = false;
         });
       }
@@ -111,36 +167,75 @@ class _PageTwoState extends State<PageTwo> {
     }
   }
 
-  void _onStartingLocationSelected(String placeId, String description) async {
+  void _onStartingLocationSelected(String placeId, String description,
+      {bool isCurrentLocation = false}) async {
     // Update UI immediately
     setState(() {
       _placePredictions = [];
       startingController.text = description;
       _activeLocationType = '';
+
+      // Set flag to show/hide current location marker
+      _showCurrentLocationMarker = isCurrentLocation;
     });
 
     // Update controller
     Get.find<ParcelController>().setStartingLocation(description);
 
-    try {
-      // Fetch location details
-      final location =
-          await _locationRepository.fetchPlaceDetails(placeId, 'starting');
-
-      // Check if widget is still mounted before updating UI
-      if (location != null && mounted) {
-        // Move camera to the location
+    if (isCurrentLocation) {
+      // Use current location
+      if (_locationRepository.currentLocationCoordinates != null) {
         _mapController?.animateCamera(
-          CameraUpdate.newLatLng(location),
+          CameraUpdate.newLatLng(
+              _locationRepository.currentLocationCoordinates!),
         );
 
-        // Force UI update to refresh map
+        // Add current location marker and pickup marker
         setState(() {
-          _markers = _locationRepository.markers;
+          _markers = {};
+
+          // Only add current location marker when using current location as pickup
+          if (_currentLocationMarker != null && _showCurrentLocationMarker) {
+            _markers.add(_currentLocationMarker!);
+          }
+
+          // Add pickup marker at same location
+          final pickupMarker = Marker(
+            markerId: const MarkerId('starting_location'),
+            position: _locationRepository.currentLocationCoordinates!,
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueGreen),
+            infoWindow: const InfoWindow(title: 'Pickup Location'),
+          );
+
+          _markers.add(pickupMarker);
         });
       }
-    } catch (e) {
-      debugPrint('Error fetching starting location details: $e');
+    } else {
+      try {
+        // Fetch location details for selected place
+        final location =
+            await _locationRepository.fetchPlaceDetails(placeId, 'starting');
+
+        // Check if widget is still mounted before updating UI
+        if (location != null && mounted) {
+          // Move camera to the location
+          _mapController?.animateCamera(
+            CameraUpdate.newLatLng(location),
+          );
+
+          // Update markers - hide current location marker
+          setState(() {
+            // Start with empty set
+            _markers = {};
+
+            // Add repository markers (but not current location marker)
+            _markers.addAll(_locationRepository.markers);
+          });
+        }
+      } catch (e) {
+        debugPrint('Error fetching starting location details: $e');
+      }
     }
 
     // Unfocus keyboard
@@ -168,8 +263,17 @@ class _PageTwoState extends State<PageTwo> {
           CameraUpdate.newLatLng(location),
         );
 
+        // Update markers while maintaining current state of current location marker
         setState(() {
-          _markers = _locationRepository.markers;
+          // Start with empty set
+          _markers = {};
+
+          if (_showCurrentLocationMarker && _currentLocationMarker != null) {
+            _markers.add(_currentLocationMarker!);
+          }
+
+          // Add repository markers (destination and pickup)
+          _markers.addAll(_locationRepository.markers);
         });
       }
     } catch (e) {
@@ -204,14 +308,25 @@ class _PageTwoState extends State<PageTwo> {
           ),
           itemBuilder: (context, index) {
             final prediction = _placePredictions[index];
+            final bool isCurrentLocation =
+                prediction['is_current_location'] == true;
+
             return ListTile(
               dense: true,
               visualDensity: const VisualDensity(vertical: -2),
-              leading: const Icon(Icons.location_on,
-                  color: AppColors.greyDarkLight2, size: 18),
+              leading: Icon(
+                  isCurrentLocation ? Icons.my_location : Icons.location_on,
+                  color: isCurrentLocation
+                      ? AppColors.black
+                      : AppColors.greyDarkLight2,
+                  size: 18),
               title: Text(
                 prediction['description'],
-                style: const TextStyle(fontSize: 14),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight:
+                      isCurrentLocation ? FontWeight.w500 : FontWeight.normal,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -220,7 +335,8 @@ class _PageTwoState extends State<PageTwo> {
                 final description = prediction['description'];
 
                 if (_activeLocationType == 'starting') {
-                  _onStartingLocationSelected(placeId, description);
+                  _onStartingLocationSelected(placeId, description,
+                      isCurrentLocation: isCurrentLocation);
                 } else {
                   _onEndingLocationSelected(placeId, description);
                 }
@@ -273,6 +389,24 @@ class _PageTwoState extends State<PageTwo> {
                     _activeLocationType = 'starting';
                   });
                   _placeAutoComplete(query);
+                },
+                onTap: () {
+                  if (_startingFocusNode.hasFocus &&
+                      _activeLocationType == 'starting') {
+                    // Show current location option immediately when tapping on starting field
+                    if (_currentLocationAddress != null) {
+                      setState(() {
+                        _placePredictions = [
+                          {
+                            'place_id': 'current_location',
+                            'description': _currentLocationAddress ??
+                                'Your Current Location',
+                            'is_current_location': true,
+                          }
+                        ];
+                      });
+                    }
+                  }
                 },
                 style: const TextStyle(
                   color: AppColors.black,
@@ -343,9 +477,7 @@ class _PageTwoState extends State<PageTwo> {
           }
         },
         mapType: MapType.terrain,
-        markers: _locationRepository.markers.isNotEmpty
-            ? _locationRepository.markers
-            : _markers,
+        markers: _markers,
         polylines: _locationRepository.polyline != null
             ? {_locationRepository.polyline!}
             : {},

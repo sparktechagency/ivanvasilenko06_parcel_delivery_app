@@ -28,9 +28,7 @@ class CurrentOrderController extends GetxController {
       log("API response received: ${response.runtimeType}");
 
       try {
-        // Based on the error, response seems to be a Map<String, dynamic> already
         if (response is Map<String, dynamic>) {
-          // Check if there's a "body" key in the map that contains the actual data
           if (response.containsKey("body")) {
             var body = response["body"];
             if (body is Map<String, dynamic>) {
@@ -40,7 +38,6 @@ class CurrentOrderController extends GetxController {
                   CurrentOrderModel.fromJson(json.decode(body));
             }
           } else {
-            // If there's no "body" key, try to use the map directly
             currentOrdersModel.value = CurrentOrderModel.fromJson(response);
           }
 
@@ -55,12 +52,10 @@ class CurrentOrderController extends GetxController {
         return null;
       }
     } catch (ex) {
-      // Log the error and ensure loading is stopped
       log("Error in getCurrentOrder: ${ex.toString()}");
       return null;
     } finally {
-      // Make sure to stop the loading indicator regardless of success or failure
-      isLoading(false); // End loading
+      isLoading(false);
     }
   }
 }

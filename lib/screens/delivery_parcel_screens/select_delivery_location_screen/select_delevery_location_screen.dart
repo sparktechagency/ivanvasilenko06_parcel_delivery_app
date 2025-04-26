@@ -35,13 +35,14 @@ class _SelectDeliveryLocationScreenState
       TextEditingController();
   final TextEditingController _destinationController = TextEditingController();
 
-  // Focus nodes to track which field is active
   final FocusNode _pickupFocusNode = FocusNode();
   final FocusNode _destinationFocusNode = FocusNode();
 
   List<dynamic> _placePredictions = [];
   bool _isLoading = false;
   String _locationType = '';
+  bool _hasCurrentLocation = false;
+  String _formattedCurrentAddress = "Current Location";
 
   // Map controller
   GoogleMapController? _mapController;
@@ -51,29 +52,67 @@ class _SelectDeliveryLocationScreenState
   @override
   void initState() {
     super.initState();
-    // Initialize text fields with existing controller values (if any)
-    _pickupLocationController.text = controller.pickupLocation.value;
-    _destinationController.text = controller.selectedDeliveryLocation.value;
+    // Only populate text fields if they have values in the controller
+    if (controller.pickupLocation.value.isNotEmpty &&
+        controller.pickupLocation.value != "Current Location") {
+      _pickupLocationController.text = controller.pickupLocation.value;
+    }
+
+    if (controller.selectedDeliveryLocation.value.isNotEmpty) {
+      _destinationController.text = controller.selectedDeliveryLocation.value;
+    }
 
     // Add listeners to focus nodes
     _pickupFocusNode.addListener(() {
       if (_pickupFocusNode.hasFocus) {
         setState(() {
           _locationType = 'current';
+          if (_pickupLocationController.text.isEmpty && _hasCurrentLocation) {
+            _showCurrentLocationAsSuggestion();
+          }
         });
+      } else {
+        if (!_destinationFocusNode.hasFocus) {
+          Future.delayed(const Duration(milliseconds: 100), () {
+            if (mounted) {
+              setState(() {
+                _placePredictions = [];
+              });
+            }
+          });
+        }
       }
     });
-
     _destinationFocusNode.addListener(() {
       if (_destinationFocusNode.hasFocus) {
         setState(() {
           _locationType = 'destination';
         });
+      } else {
+        if (!_pickupFocusNode.hasFocus) {
+          Future.delayed(const Duration(milliseconds: 100), () {
+            if (mounted) {
+              setState(() {
+                _placePredictions = [];
+              });
+            }
+          });
+        }
       }
     });
-
-    // Get current location when screen initializes
     _getCurrentLocation();
+  }
+
+  void _showCurrentLocationAsSuggestion() {
+    setState(() {
+      _placePredictions = [
+        {
+          'place_id': 'current_location',
+          'description': 'Pick your current location',
+          'isCurrentLocation': true,
+        }
+      ];
+    });
   }
 
   @override
@@ -89,20 +128,49 @@ class _SelectDeliveryLocationScreenState
   Future<void> _getCurrentLocation() async {
     final location = await _locationRepository.getCurrentLocation();
     if (location != null && mounted) {
-      // Set current location as starting point
       controller.setStartingLocation(
-        "Current Location",
+        "", // Empty string instead of "Current Location"
         location,
       );
-      controller.pickupLocationLatitude.value = location.latitude.toString();
-      controller.pickupLocationLongitude.value = location.longitude.toString();
+      controller.currentLocationLatitude.value = location.latitude.toString();
+      controller.currentLocationLongitude.value = location.longitude.toString();
 
-      // Only update the text field if it's empty
-      if (_pickupLocationController.text.isEmpty) {
-        setState(() {
-          _pickupLocationController.text = "Current Location";
-        });
+      setState(() {
+        _hasCurrentLocation = true;
+      });
+
+      // Get address from coordinates (optional - for better UX)
+      try {
+        await _getAddressFromLatLng(location);
+      } catch (e) {
+        debugPrint('Error getting address: $e');
       }
+    }
+  }
+
+  // Get address from lat/lng (reverse geocoding)
+  Future<void> _getAddressFromLatLng(LatLng location) async {
+    final Uri uri = Uri.https(
+      'maps.googleapis.com',
+      'maps/api/geocode/json',
+      {
+        'latlng': '${location.latitude},${location.longitude}',
+        'key': apikey,
+      },
+    );
+
+    try {
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['results'] != null && data['results'].isNotEmpty) {
+          setState(() {
+            _formattedCurrentAddress = data['results'][0]['formatted_address'];
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error: $e');
     }
   }
 
@@ -110,9 +178,13 @@ class _SelectDeliveryLocationScreenState
   Future<void> placeAutoComplete(String query,
       {required String locationType}) async {
     if (query.isEmpty) {
-      setState(() {
-        _placePredictions = [];
-      });
+      if (locationType == 'current' && _hasCurrentLocation) {
+        _showCurrentLocationAsSuggestion();
+      } else {
+        setState(() {
+          _placePredictions = [];
+        });
+      }
       return;
     }
 
@@ -135,17 +207,38 @@ class _SelectDeliveryLocationScreenState
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          _placePredictions = data['predictions'];
+          if (locationType == 'current' && _hasCurrentLocation) {
+            // Add current location as first suggestion always
+            final predictions = data['predictions'] as List;
+            _placePredictions = [
+              {
+                'place_id': 'current_location',
+                'description': 'Pick your current location',
+                'isCurrentLocation': true,
+              },
+              ...predictions
+            ];
+          } else {
+            _placePredictions = data['predictions'];
+          }
         });
+      } else {
+        if (locationType == 'current' && _hasCurrentLocation) {
+          _showCurrentLocationAsSuggestion();
+        } else {
+          setState(() {
+            _placePredictions = [];
+          });
+        }
+      }
+    } catch (e) {
+      if (locationType == 'current' && _hasCurrentLocation) {
+        _showCurrentLocationAsSuggestion();
       } else {
         setState(() {
           _placePredictions = [];
         });
       }
-    } catch (e) {
-      setState(() {
-        _placePredictions = [];
-      });
       debugPrint('Error: $e');
     } finally {
       setState(() {
@@ -155,20 +248,37 @@ class _SelectDeliveryLocationScreenState
   }
 
   // Handle selection of a prediction
-  void onLocationSelected(String placeId, String description) async {
+  void onLocationSelected(String placeId, String description,
+      {bool isCurrentLocation = false}) async {
     setState(() {
       _placePredictions = [];
     });
 
     if (_locationType == 'current') {
-      _pickupLocationController.text = description;
-      controller.pickupLocation.value = description;
+      if (isCurrentLocation) {
+        // Use the actual current location data
+        _pickupLocationController.text = _formattedCurrentAddress;
+        controller.pickupLocation.value = _formattedCurrentAddress;
+
+        // No need to fetch place details, use existing location data
+        // This uses the lat/lng we already got from _getCurrentLocation()
+        if (controller.currentLocationLatitude.value.isNotEmpty &&
+            controller.currentLocationLongitude.value.isNotEmpty) {
+          controller.pickupLocationLatitude.value =
+              controller.currentLocationLatitude.value;
+          controller.pickupLocationLongitude.value =
+              controller.currentLocationLongitude.value;
+        }
+      } else {
+        _pickupLocationController.text = description;
+        controller.pickupLocation.value = description;
+        await fetchPlaceDetails(placeId);
+      }
     } else if (_locationType == 'destination') {
       _destinationController.text = description;
       controller.selectedDeliveryLocation.value = description;
+      await fetchPlaceDetails(placeId);
     }
-
-    await fetchPlaceDetails(placeId);
 
     // Unfocus keyboard
     FocusScope.of(context).unfocus();
@@ -176,6 +286,11 @@ class _SelectDeliveryLocationScreenState
 
   // Fetch lat/lng details from place_id
   Future<void> fetchPlaceDetails(String placeId) async {
+    // If the place ID is our custom 'current_location' ID, return early
+    if (placeId == 'current_location') {
+      return;
+    }
+
     final Uri uri = Uri.https(
       'maps.googleapis.com',
       'maps/api/place/details/json',
@@ -225,6 +340,27 @@ class _SelectDeliveryLocationScreenState
   }
 
   void _fetchParcelsAndProceed() {
+    if (controller.pickupLocation.value.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Please select a pickup location",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+    if (controller.selectedDeliveryLocation.value.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Please select a destination",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
     controller.fetchParcels();
     Get.toNamed(AppRoutes.chooseParcelForDeliveryScreen, arguments: {
       "deliveryType": controller.selectedDeliveryType.value,
@@ -232,6 +368,10 @@ class _SelectDeliveryLocationScreenState
       "pickupLatLng": controller.startingCoordinates.value,
       "deliveryLocation": controller.selectedDeliveryLocation.value,
       "deliveryLatLng": controller.endingCoordinates.value,
+
+      /// For getting current location
+      "currentLocationLatitude": controller.currentLocationLatitude.value,
+      "currentLocationLongitude": controller.currentLocationLongitude.value,
     });
 
     log('🆒 DeliveryType: ${controller.selectedDeliveryType.value}');
@@ -241,7 +381,7 @@ class _SelectDeliveryLocationScreenState
     log('🚩 DeliveryLatLng: ${controller.endingCoordinates.value}');
   }
 
-  // Build predictions list with icons (similar to PageTwo)
+  // Build predictions list with icons - BIGGER SIZE VERSION
   Widget _buildPredictionsList() {
     if (_placePredictions.isEmpty || _isLoading) {
       return const SizedBox.shrink();
@@ -251,7 +391,7 @@ class _SelectDeliveryLocationScreenState
       elevation: 4.0,
       borderRadius: BorderRadius.circular(8),
       child: Container(
-        constraints: const BoxConstraints(maxHeight: 200),
+        constraints: const BoxConstraints(maxHeight: 300),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
@@ -267,14 +407,24 @@ class _SelectDeliveryLocationScreenState
           ),
           itemBuilder: (context, index) {
             final prediction = _placePredictions[index];
+            final bool isCurrentLocation =
+                prediction['isCurrentLocation'] == true;
             return ListTile(
               dense: true,
-              visualDensity: const VisualDensity(vertical: -2),
-              leading: const Icon(Icons.location_on,
-                  color: AppColors.greyDarkLight2, size: 18),
+              visualDensity: const VisualDensity(vertical: -1),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+              leading: Icon(
+                isCurrentLocation ? Icons.my_location : Icons.location_on,
+                color: AppColors.greyDarkLight2,
+                size: 18,
+              ),
               title: Text(
                 prediction['description'],
-                style: const TextStyle(fontSize: 14),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight:
+                      isCurrentLocation ? FontWeight.w500 : FontWeight.normal,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -282,6 +432,7 @@ class _SelectDeliveryLocationScreenState
                 onLocationSelected(
                   prediction['place_id'],
                   prediction['description'],
+                  isCurrentLocation: isCurrentLocation,
                 );
               },
             );
@@ -311,7 +462,7 @@ class _SelectDeliveryLocationScreenState
       backgroundColor: Colors.white,
       body: GestureDetector(
         onTap: () {
-          // Close keyboard when tapping outside of text fields
+          // Close keyboard and clear suggestions when tapping outside
           FocusScope.of(context).unfocus();
           setState(() {
             _placePredictions = [];
@@ -374,6 +525,12 @@ class _SelectDeliveryLocationScreenState
                                   placeAutoComplete(query,
                                       locationType: 'current');
                                 },
+                                onTap: () {
+                                  if (_hasCurrentLocation &&
+                                      _pickupLocationController.text.isEmpty) {
+                                    _showCurrentLocationAsSuggestion();
+                                  }
+                                },
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w500,
                                   color: AppColors.black,
@@ -390,7 +547,11 @@ class _SelectDeliveryLocationScreenState
                                             controller.pickupLocation.value =
                                                 '';
                                             setState(() {
-                                              _placePredictions = [];
+                                              if (_hasCurrentLocation) {
+                                                _showCurrentLocationAsSuggestion();
+                                              } else {
+                                                _placePredictions = [];
+                                              }
                                             });
                                           },
                                         )

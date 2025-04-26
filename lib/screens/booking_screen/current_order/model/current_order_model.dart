@@ -257,11 +257,10 @@ class Datum {
   String? phoneNumber;
   List<String>? images;
   String? status;
-  List<dynamic>? deliveryRequests;
+  List<SenderId>? deliveryRequests;
   DateTime? createdAt;
   DateTime? updatedAt;
   int? v;
-  dynamic assignedDelivererId;
 
   Datum({
     this.id,
@@ -283,7 +282,6 @@ class Datum {
     this.createdAt,
     this.updatedAt,
     this.v,
-    this.assignedDelivererId,
   });
 
   factory Datum.fromRawJson(String str) => Datum.fromJson(json.decode(str));
@@ -320,7 +318,8 @@ class Datum {
         status: json["status"],
         deliveryRequests: json["deliveryRequests"] == null
             ? []
-            : List<dynamic>.from(json["deliveryRequests"]!.map((x) => x)),
+            : List<SenderId>.from(
+                json["deliveryRequests"]!.map((x) => SenderId.fromJson(x))),
         createdAt: json["createdAt"] == null
             ? null
             : DateTime.parse(json["createdAt"]),
@@ -328,7 +327,6 @@ class Datum {
             ? null
             : DateTime.parse(json["updatedAt"]),
         v: json["__v"],
-        assignedDelivererId: json["assignedDelivererId"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -350,11 +348,10 @@ class Datum {
         "status": status,
         "deliveryRequests": deliveryRequests == null
             ? []
-            : List<dynamic>.from(deliveryRequests!.map((x) => x)),
+            : List<dynamic>.from(deliveryRequests!.map((x) => x.toJson())),
         "createdAt": createdAt?.toIso8601String(),
         "updatedAt": updatedAt?.toIso8601String(),
         "__v": v,
-        "assignedDelivererId": assignedDelivererId,
       };
 }
 
@@ -390,14 +387,18 @@ class Location {
 class SenderId {
   String? id;
   String? fullName;
-  String? email;
+  String? mobileNumber;
   String? role;
+  String? email;
+  String? image;
 
   SenderId({
     this.id,
     this.fullName,
-    this.email,
+    this.mobileNumber,
     this.role,
+    this.email,
+    this.image,
   });
 
   factory SenderId.fromRawJson(String str) =>
@@ -408,14 +409,18 @@ class SenderId {
   factory SenderId.fromJson(Map<String, dynamic> json) => SenderId(
         id: json["_id"],
         fullName: json["fullName"],
-        email: json["email"],
+        mobileNumber: json["mobileNumber"],
         role: json["role"],
+        email: json["email"],
+        image: json["image"],
       );
 
   Map<String, dynamic> toJson() => {
         "_id": id,
         "fullName": fullName,
-        "email": email,
+        "mobileNumber": mobileNumber,
         "role": role,
+        "email": email,
+        "image": image,
       };
 }

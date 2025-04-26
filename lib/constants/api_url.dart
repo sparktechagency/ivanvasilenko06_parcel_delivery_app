@@ -12,7 +12,7 @@ class AppApiUrl {
   static const String getProfile = "/user/profile";
   static const String servicePromote = "$baseUrl/parcel/available";
   static const String deliverParcel = "$baseUrl/parcel/filtered";
-  static const String deliveryRequest = "$liveDomain/delivery/request-delivery";
+  static const String deliveryRequest = "$baseUrl/delivery/request-delivery";
   static const String getParcelInRadius = "$baseUrl/parcel/availableByRadius";
   static const String notifcations = "$baseUrl/notification";
   static const String getCurrentOrders = "$baseUrl/parcel/user-parcels";

@@ -20,6 +20,7 @@ import '../screens/delivery_parcel_screens/choose_parcel_for_delivery_screen/cho
 import '../screens/delivery_parcel_screens/delivery_type_screen/delivery_type_screen.dart';
 import '../screens/delivery_parcel_screens/parcel_for_delivery_screen/parcel_for_delivery_screen_radius.dart';
 import '../screens/delivery_parcel_screens/select_delivery_location_screen/select_delevery_location_screen.dart';
+import '../screens/delivery_parcel_screens/send_request_successfully/send_request_successfully.dart';
 import '../screens/delivery_parcel_screens/summary_of_parcel_screen/summary_of_parcel_screen.dart';
 import '../screens/history_screen/history_screen.dart';
 import '../screens/notification_screen/notification_screen.dart';
@@ -157,7 +158,7 @@ class RouteManager {
       ),
       GetPage(
         name: AppRoutes.sentRequestSuccessfully,
-        page: () => const SenderDeliveryTypeScreen(),
+        page: () => const SendRequestSuccessfully(),
         transition: Transition.rightToLeft,
       ),
       GetPage(

@@ -124,12 +124,9 @@ class SenderSummaryOfParcelScreen extends StatelessWidget {
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 3,
-                                // Number of tiles per row
                                 childAspectRatio: 1,
-                                // Aspect ratio of each tile
                                 mainAxisSpacing: 10,
-                                // Spacing between rows
-                                crossAxisSpacing: 10, // Spacing between columns
+                                crossAxisSpacing: 10,
                               ),
                               itemCount: controller.selectedImages.length,
                               itemBuilder: (context, index) {
@@ -186,8 +183,17 @@ class SenderSummaryOfParcelScreen extends StatelessWidget {
                   ),
                 ),
                 ButtonWidget(
-                  onPressed: () {
-                    controller.submitParcelData();
+                  onPressed: () async {
+                    // Set loading state to true
+                    controller.isLoading.value = true;
+                    controller.update();
+
+                    // Call the submitParcelData function
+                    await controller.submitParcelData();
+
+                    // Set loading state to false after completion
+                    controller.isLoading.value = false;
+                    controller.update();
                   },
                   label: "finish".tr,
                   textColor: AppColors.white,

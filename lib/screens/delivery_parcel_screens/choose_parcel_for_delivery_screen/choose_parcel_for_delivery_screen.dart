@@ -94,6 +94,9 @@ class _ChooseParcelForDeliveryScreenState
 
   @override
   Widget build(BuildContext context) {
+    // Retrieve arguments passed from the previous screen
+    final Map<String, dynamic>? args = Get.arguments;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.white,
@@ -114,13 +117,46 @@ class _ChooseParcelForDeliveryScreenState
 
         final parcels = controller.parcels;
 
-        LatLng initialLatLng = const LatLng(23.777176, 90.399452);
+        // Determine the initial camera position dynamically
+        LatLng? initialLatLng;
 
-        if (parcels.isNotEmpty &&
+        // Check if pickup location coordinates are available in arguments
+        if (args != null &&
+            args.containsKey("pickupLatitude") &&
+            args.containsKey("pickupLongitude")) {
+          final pickupLat = double.tryParse(args["pickupLatitude"]);
+          final pickupLng = double.tryParse(args["pickupLongitude"]);
+
+          if (pickupLat != null && pickupLng != null) {
+            initialLatLng = LatLng(pickupLat, pickupLng);
+          }
+        }
+
+        // If no pickup location, check for current location coordinates
+        if (initialLatLng == null &&
+            args != null &&
+            args.containsKey("currentLocationLatitude") &&
+            args.containsKey("currentLocationLongitude")) {
+          final currentLat = double.tryParse(args["currentLocationLatitude"]);
+          final currentLng = double.tryParse(args["currentLocationLongitude"]);
+
+          if (currentLat != null && currentLng != null) {
+            initialLatLng = LatLng(currentLat, currentLng);
+          }
+        }
+
+        // If parcels exist and have valid coordinates, override the initialLatLng
+        if (initialLatLng == null &&
+            parcels.isNotEmpty &&
             parcels.first.pickupLocation?.coordinates != null &&
             parcels.first.pickupLocation!.coordinates!.length == 2) {
           final coords = parcels.first.pickupLocation!.coordinates!;
           initialLatLng = LatLng(coords[1], coords[0]);
+        }
+
+        // If no valid coordinates are found, throw an error or handle it gracefully
+        if (initialLatLng == null) {
+          throw Exception("No valid initial location found");
         }
 
         final Set<Marker> markers = {};
@@ -144,20 +180,27 @@ class _ChooseParcelForDeliveryScreenState
                 ),
               );
             } else {
-              log('❌ Invalid  coOrdinate for ${parcel.title}');
+              log('❌ Invalid coordinate for ${parcel.title}');
             }
           } else {
-            log('❌ Missing  coOrdinate for ${parcel.title}');
+            log('❌ Missing coordinate for ${parcel.title}');
           }
         }
 
         return GoogleMap(
           initialCameraPosition: CameraPosition(
-            target: initialLatLng,
+            target: initialLatLng!,
             zoom: 12,
           ),
           markers: markers,
           onMapCreated: (_) {},
+          myLocationButtonEnabled: true,
+          myLocationEnabled: true,
+          scrollGesturesEnabled: true,
+          zoomGesturesEnabled: true,
+          tiltGesturesEnabled: true,
+          rotateGesturesEnabled: true,
+          zoomControlsEnabled: true,
         );
       }),
       bottomNavigationBar: Padding(
@@ -176,15 +219,6 @@ class _ChooseParcelForDeliveryScreenState
             ButtonWidget(
               onPressed: () {
                 controller.fetchDeliveryParcelsList();
-                // Get.toNamed(
-                //   AppRoutes.parcelForDeliveryScreen,
-                //   arguments: {
-                //     "deliveryType": controller.selectedDeliveryType.value,
-                //     "pickupLocation": controller.pickupLocation.value,
-                //     "deliveryLocation":
-                //         controller.selectedDeliveryLocation.value,
-                //   },
-                // );
                 Get.to(
                   const ParcelForDeliveryScreen(),
                   arguments: {

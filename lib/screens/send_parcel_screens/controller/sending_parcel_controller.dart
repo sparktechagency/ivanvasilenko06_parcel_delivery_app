@@ -30,6 +30,28 @@ class ParcelController extends GetxController {
   RxList<String> selectedImages = <String>[].obs;
   RxBool isLoading = false.obs;
 
+  // For storing current location lat/lng as strings
+  RxString currentLocationLatitude = ''.obs;
+  RxString currentLocationLongitude = ''.obs;
+
+  // Add these fields
+  final RxString startingLocationId = ''.obs;
+  final RxString endingLocationId = ''.obs;
+
+  // Add these methods
+  void setStartingLocationId(String id) {
+    startingLocationId.value = id;
+  }
+
+  void setEndingLocationId(String id) {
+    endingLocationId.value = id;
+  }
+
+  void setCurrentLocationCoordinates(String latitude, String longitude) {
+    currentLocationLatitude.value = latitude;
+    currentLocationLongitude.value = longitude;
+  }
+
   // Controllers
   final currentLocationController = TextEditingController();
   final destinationController = TextEditingController();

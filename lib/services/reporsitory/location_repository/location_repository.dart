@@ -1,14 +1,22 @@
-// location_repository.dart
-
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart' as geocoding;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:location/location.dart';
 import 'package:parcel_delivery_app/constants/api_key.dart';
+import 'package:parcel_delivery_app/constants/app_colors.dart';
 
 class LocationRepository {
+  static final LocationRepository _instance = LocationRepository._internal();
+
+  factory LocationRepository() {
+    return _instance;
+  }
+
+  LocationRepository._internal();
+
   // State variables
   bool _isLoading = false;
   List<dynamic> _placePredictions = [];
@@ -33,7 +41,20 @@ class LocationRepository {
 
   Polyline? get polyline => _polyline;
 
-  // Clear place predictions
+  // Setter for current location coordinates
+  set currentLocationCoordinates(LatLng? coordinates) {
+    _currentLocationCoordinates = coordinates;
+    if (coordinates != null) {
+      //addCurrentLocationMarker();
+    }
+  }
+
+  // Method to set current location coordinates
+  void setCurrentLocationCoordinates(LatLng coordinates) {
+    _currentLocationCoordinates = coordinates;
+    // addCurrentLocationMarker();
+  }
+
   void clearPlacePredictions() {
     _placePredictions = [];
   }
@@ -42,39 +63,59 @@ class LocationRepository {
   Future<LatLng?> getCurrentLocation() async {
     Location location = Location();
 
-    // Check if location service is enabled
-    bool serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        debugPrint("Location services are disabled");
-        return null;
-      }
-    }
-
-    // Check and request location permission
-    PermissionStatus permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        debugPrint("Location permission not granted");
-        return null;
-      }
-    }
-
-    // Get the current location data
     try {
+      // Check if location service is enabled
+      bool serviceEnabled = await location.serviceEnabled();
+      if (!serviceEnabled) {
+        serviceEnabled = await location.requestService();
+        if (!serviceEnabled) {
+          debugPrint("Location services are disabled");
+          return null;
+        }
+      }
+
+      // Check and request location permission
+      PermissionStatus permissionGranted = await location.hasPermission();
+      if (permissionGranted == PermissionStatus.denied) {
+        permissionGranted = await location.requestPermission();
+        if (permissionGranted != PermissionStatus.granted) {
+          debugPrint("Location permission not granted");
+          return null;
+        }
+      }
+
+      // Get the current location data
       LocationData locationData = await location.getLocation();
-      _currentLocationCoordinates =
-          LatLng(locationData.latitude!, locationData.longitude!);
-      return _currentLocationCoordinates;
+
+      // Only proceed if we have valid coordinates
+      if (locationData.latitude != null && locationData.longitude != null) {
+        _currentLocationCoordinates =
+            LatLng(locationData.latitude!, locationData.longitude!);
+        // addCurrentLocationMarker();
+        return _currentLocationCoordinates;
+      }
     } catch (e) {
       debugPrint("Error getting location: $e");
-      return null;
     }
+
+    return null;
   }
 
-  // Place auto-complete suggestions
+  Future<String> getAddressFromLatLng(double latitude, double longitude) async {
+    try {
+      List<geocoding.Placemark> placemarks =
+          await geocoding.placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        geocoding.Placemark place = placemarks[0];
+        return "${place.street}, ${place.locality}, ${place.administrativeArea}";
+      }
+    } catch (e) {
+      debugPrint("Error getting address: $e");
+    }
+    return "Your Current Location";
+  }
+
+  // Place auto-complete suggestions with debouncing
   Future<List<dynamic>> placeAutoComplete(String query) async {
     if (query.isEmpty) {
       _placePredictions = [];
@@ -83,26 +124,33 @@ class LocationRepository {
 
     _isLoading = true;
 
-    final Uri uri = Uri.https(
-      'maps.googleapis.com',
-      'maps/api/place/autocomplete/json',
-      {
-        'input': query,
-        'key': apikey,
-      },
-    );
-
     try {
+      final Uri uri = Uri.https(
+        'maps.googleapis.com',
+        'maps/api/place/autocomplete/json',
+        {
+          'input': query,
+          'key': apikey,
+        },
+      );
+
       final response = await http.get(uri);
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        _placePredictions = data['predictions'];
+        if (data['status'] == 'OK') {
+          _placePredictions = data['predictions'];
+        } else {
+          debugPrint('API Error: ${data['status']}');
+          _placePredictions = [];
+        }
       } else {
+        debugPrint('HTTP Error: ${response.statusCode}');
         _placePredictions = [];
       }
     } catch (e) {
+      debugPrint('Error in place autocomplete: $e');
       _placePredictions = [];
-      debugPrint('Error: $e');
     } finally {
       _isLoading = false;
     }
@@ -110,72 +158,76 @@ class LocationRepository {
     return _placePredictions;
   }
 
-  // Handle location selection
-  void onLocationSelected(String type, String description) {
-    clearPlacePredictions();
-  }
-
   // Fetch place details based on placeId
   Future<LatLng?> fetchPlaceDetails(String placeId, String locationType) async {
-    final Uri uri = Uri.https(
-      'maps.googleapis.com',
-      'maps/api/place/details/json',
-      {
-        'place_id': placeId,
-        'key': apikey,
-      },
-    );
+    if (placeId.isEmpty) {
+      debugPrint('Empty placeId provided');
+      return null;
+    }
 
     try {
+      final Uri uri = Uri.https(
+        'maps.googleapis.com',
+        'maps/api/place/details/json',
+        {
+          'place_id': placeId,
+          'fields': 'geometry',
+          'key': apikey,
+        },
+      );
+
       final response = await http.get(uri);
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final location = data['result']['geometry']['location'];
 
-        LatLng locationCoordinates = LatLng(location['lat'], location['lng']);
+        if (data['status'] == 'OK' && data['result'] != null) {
+          final location = data['result']['geometry']['location'];
+          LatLng locationCoordinates = LatLng(location['lat'], location['lng']);
 
-        if (locationType == 'starting') {
-          _startingLocationCoordinates = locationCoordinates;
-          _markers.removeWhere(
-              (marker) => marker.markerId.value == 'starting-location');
-          _markers.add(
-            Marker(
-              markerId: const MarkerId('starting-location'),
-              position: _startingLocationCoordinates!,
-              infoWindow: const InfoWindow(
-                title: 'Starting Location',
-                snippet: 'This is your starting location',
-              ),
-            ),
-          );
+          if (locationType == 'starting') {
+            _startingLocationCoordinates = locationCoordinates;
+            _updateMarker('starting-location', _startingLocationCoordinates!,
+                'Pickup Location');
+          } else {
+            _endingLocationCoordinates = locationCoordinates;
+            _updateMarker(
+                'ending-location', _endingLocationCoordinates!, 'Destination');
+          }
+
+          // If both locations are set, fetch directions
+          if (_startingLocationCoordinates != null &&
+              _endingLocationCoordinates != null) {
+            await fetchDirections();
+          }
+
+          return locationCoordinates;
         } else {
-          _endingLocationCoordinates = locationCoordinates;
-          _markers.removeWhere(
-              (marker) => marker.markerId.value == 'ending-location');
-          _markers.add(
-            Marker(
-              markerId: const MarkerId('ending-location'),
-              position: _endingLocationCoordinates!,
-              infoWindow: const InfoWindow(
-                title: 'Ending Location',
-                snippet: 'This is your ending location',
-              ),
-            ),
-          );
+          debugPrint('API Error: ${data['status']}');
         }
-
-        // If both locations are set, fetch directions
-        if (_startingLocationCoordinates != null &&
-            _endingLocationCoordinates != null) {
-          await fetchDirections();
-        }
-
-        return locationCoordinates;
+      } else {
+        debugPrint('HTTP Error: ${response.statusCode}');
       }
     } catch (e) {
-      debugPrint('Error: $e');
+      debugPrint('Error fetching place details: $e');
     }
+
     return null;
+  }
+
+  // Helper to update a marker
+  void _updateMarker(String markerId, LatLng position, String title) {
+    _markers.removeWhere((marker) => marker.markerId.value == markerId);
+    _markers.add(
+      Marker(
+        markerId: MarkerId(markerId),
+        position: position,
+        infoWindow: InfoWindow(
+          title: title,
+        ),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+      ),
+    );
   }
 
   // Fetch directions between starting and ending locations
@@ -185,31 +237,37 @@ class LocationRepository {
       return null;
     }
 
-    final String url =
-        'https://maps.googleapis.com/maps/api/directions/json?origin=${_startingLocationCoordinates!.latitude},${_startingLocationCoordinates!.longitude}&destination=${_endingLocationCoordinates!.latitude},${_endingLocationCoordinates!.longitude}&key=$apikey';
-
     try {
+      final String url =
+          'https://maps.googleapis.com/maps/api/directions/json?origin=${_startingLocationCoordinates!.latitude},${_startingLocationCoordinates!.longitude}&destination=${_endingLocationCoordinates!.latitude},${_endingLocationCoordinates!.longitude}&key=$apikey';
+
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final List<LatLng> polylineCoordinates =
-            _decodePolyline(data['routes'][0]['overview_polyline']['points']);
 
-        _polyline = Polyline(
-          polylineId: const PolylineId('route'),
-          points: polylineCoordinates,
-          color: Colors.black,
-          width: 5,
-        );
+        if (data['status'] == 'OK' && data['routes'].isNotEmpty) {
+          final List<LatLng> polylineCoordinates =
+              _decodePolyline(data['routes'][0]['overview_polyline']['points']);
 
-        return _polyline;
+          _polyline = Polyline(
+            polylineId: const PolylineId('route'),
+            points: polylineCoordinates,
+            color: AppColors.black,
+            width: 5,
+          );
+
+          return _polyline;
+        } else {
+          debugPrint('API Error: ${data['status']}');
+        }
       } else {
-        debugPrint('Error fetching directions: ${response.statusCode}');
+        debugPrint('HTTP Error: ${response.statusCode}');
       }
     } catch (e) {
-      debugPrint('Error: $e');
+      debugPrint('Error fetching directions: $e');
     }
+
     return null;
   }
 
@@ -250,5 +308,32 @@ class LocationRepository {
       );
     }
     return polylineCoordinates;
+  }
+
+  // //Add a marker for current location
+  // void addCurrentLocationMarker() {
+  //   if (_currentLocationCoordinates != null) {
+  //     _markers
+  //         .removeWhere((marker) => marker.markerId.value == 'current-location');
+  //     _markers.add(
+  //       Marker(
+  //         markerId: const MarkerId('current-location'),
+  //         position: _currentLocationCoordinates!,
+  //         infoWindow: const InfoWindow(
+  //           title: 'Current Location',
+  //           snippet: 'You are here',
+  //         ),
+  //         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+  //       ),
+  //     );
+  //   }
+  // }
+
+  // Clear all markers and polylines
+  void clearMapData() {
+    _markers.clear();
+    _polyline = null;
+    _startingLocationCoordinates = null;
+    _endingLocationCoordinates = null;
   }
 }
