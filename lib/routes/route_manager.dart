@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/screens/before_signups/country_select_page.dart';
 import 'package:parcel_delivery_app/screens/before_signups/language_select_page.dart';
+import 'package:parcel_delivery_app/screens/delivery_man_details/delivery_man_details.dart';
 import 'package:parcel_delivery_app/screens/home_screen/home_screen.dart';
 import 'package:parcel_delivery_app/screens/profile_screen/edit_profile.dart';
 import 'package:parcel_delivery_app/screens/radius_map_screen/radius_available_parcel/radius_avaiable_parcel.dart';
@@ -228,6 +229,10 @@ class RouteManager {
         page: () => EditProfile(),
         transition: Transition.rightToLeft,
       ),
+      GetPage(
+          name: AppRoutes.deliveryManDetails,
+          page: () => const DeliveryManDetails(),
+          transition: Transition.rightToLeft),
     ];
   }
 }

@@ -58,4 +58,10 @@ class CurrentOrderController extends GetxController {
       isLoading(false);
     }
   }
+
+  Future<void> refreshCurrentOrder() async {
+    isLoading(true);
+    await getCurrentOrder();
+    isLoading(false);
+  }
 }

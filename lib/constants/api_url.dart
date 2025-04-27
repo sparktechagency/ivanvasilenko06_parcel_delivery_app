@@ -17,5 +17,8 @@ class AppApiUrl {
   static const String notifcations = "$baseUrl/notification";
   static const String getCurrentOrders = "$baseUrl/parcel/user-parcels";
   static const String updateProfile = "$baseUrl/user/profile";
+  static const String acceptRequest = "$baseUrl/parcel/assign";
+  static const String cancelDeliveryRequest =
+      "$baseUrl/delivery/cancel-request";
   static const String token = "";
 }

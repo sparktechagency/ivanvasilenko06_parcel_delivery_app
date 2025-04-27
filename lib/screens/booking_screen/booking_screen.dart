@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/constants/app_strings.dart';
 import 'package:parcel_delivery_app/screens/booking_screen/current_order/controller/current_order_controller.dart';
+import 'package:parcel_delivery_app/screens/booking_screen/new_booking/controller/new_bookings_controller.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/app_images.dart';
@@ -29,12 +30,15 @@ class _BookingScreenState extends State<BookingScreen> {
   int _currentIndex = 0;
   Map<String, String> addressCache = {};
   String address = "Loading...";
+  String newBookingAddress = "Loading...";
   final PageController _pageController = PageController();
 
   final CurrentOrderController currentOrderController =
       Get.put(CurrentOrderController());
   final CurrentOrderController newBookingController =
       Get.put(CurrentOrderController());
+  final NewBookingsController newBookingsController =
+      Get.put(NewBookingsController());
 
   @override
   void initState() {
@@ -194,21 +198,18 @@ class _BookingScreenState extends State<BookingScreen> {
   // Function to get the address from coordinates with caching
   Future<void> _getAddress(double latitude, double longitude) async {
     final String key = '$latitude,$longitude';
-
-    // Check if the address for these coordinates is cached
     if (addressCache.containsKey(key)) {
       setState(() {
         address = addressCache[key]!;
       });
       return;
     }
-
     try {
       List<Placemark> placemarks =
           await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
         String newAddress =
-            '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].country}';
+            '${placemarks[0].locality}, ${placemarks[0].country}';
         setState(() {
           address = newAddress;
         });
@@ -221,6 +222,36 @@ class _BookingScreenState extends State<BookingScreen> {
     } catch (e) {
       setState(() {
         address = 'Error fetching address';
+      });
+    }
+  }
+
+  Future<void> newAddress(double latitude, double longitude) async {
+    final String key = '$latitude,$longitude';
+    if (addressCache.containsKey(key)) {
+      setState(() {
+        newBookingAddress = addressCache[key]!;
+      });
+      return;
+    }
+    try {
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        String newAddress =
+            '${placemarks[0].locality}, ${placemarks[0].country}';
+        setState(() {
+          newBookingAddress = newAddress;
+        });
+        addressCache[key] = newAddress; // Cache the address
+      } else {
+        setState(() {
+          newBookingAddress = 'No address found';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        newBookingAddress = 'Error fetching address';
       });
     }
   }
@@ -317,7 +348,7 @@ class _BookingScreenState extends State<BookingScreen> {
               },
               children: [
                 SingleChildScrollView(child: _currentOrderWidget()),
-                _newBookingWidget(),
+                SingleChildScrollView(child: _newBookingWidget()),
               ],
             ),
           ),
@@ -362,11 +393,20 @@ class _BookingScreenState extends State<BookingScreen> {
                     data[index].deliveryLocation?.coordinates;
                 final date =
                     formatDeliveryDate(data[index].deliveryEndTime ?? "");
-                if (deliverLocation != null && deliverLocation.length == 2) {
-                  final latitude = deliverLocation[1];
-                  final longitude = deliverLocation[0];
-                  _getAddress(latitude, longitude);
+                final isUserSender =
+                    data[index].senderId == data[index].senderId;
+
+                if (deliverLocation != null &&
+                    deliverLocation.length == 2 &&
+                    address == "Loading...") {
+                  // Schedule the address fetch for after this build cycle completes
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    final latitude = deliverLocation[1];
+                    final longitude = deliverLocation[0];
+                    _getAddress(latitude, longitude);
+                  });
                 }
+
                 return Column(
                   children: [
                     if (index > 0) const SpaceWidget(spaceHeight: 8),
@@ -472,20 +512,29 @@ class _BookingScreenState extends State<BookingScreen> {
                                     fontColor: AppColors.black,
                                   ),
                                   const SpaceWidget(spaceHeight: 20),
+                                  // Updated status text display logic
                                   TextWidget(
-                                    text: data[index].status ?? "",
+                                    text: data[index].status == "PENDING" ||
+                                            data[index].status == "REQUESTED" ||
+                                            data[index].status == "WAITING"
+                                        ? "Waiting"
+                                        : data[index].status == "IN_TRANSIT"
+                                            ? "In Transit"
+                                            : data[index].status == "DELIVERED"
+                                                ? "Delivered"
+                                                : "",
                                     fontSize: 13,
                                     fontWeight: FontWeight.w500,
-                                    fontColor: data[index].status == "PENDING"
+                                    fontColor: data[index].status ==
+                                                "PENDING" ||
+                                            data[index].status == "REQUESTED" ||
+                                            data[index].status == "WAITING"
                                         ? AppColors.red
                                         : data[index].status == "IN_TRANSIT"
                                             ? AppColors.green
                                             : data[index].status == "DELIVERED"
                                                 ? AppColors.green
-                                                : data[index].status ==
-                                                        "REQUESTED"
-                                                    ? AppColors.green
-                                                    : AppColors.black,
+                                                : AppColors.black,
                                   ),
                                   const SpaceWidget(spaceHeight: 12),
                                   Row(
@@ -541,14 +590,15 @@ class _BookingScreenState extends State<BookingScreen> {
                               children: [
                                 InkWell(
                                   onTap: () {
-                                    if (index < details.length &&
-                                        details[index] ==
-                                            AppStrings.parcelDetails) {
+                                    // Navigate to appropriate screen based on sender ID
+                                    if (isUserSender) {
                                       Get.toNamed(
-                                          AppRoutes.bookingParcelDetailsScreen);
+                                          AppRoutes.bookingParcelDetailsScreen,
+                                          arguments: data[index].id);
                                     } else {
                                       Get.toNamed(
-                                          AppRoutes.bookingViewDetailsScreen);
+                                          AppRoutes.bookingViewDetailsScreen,
+                                          arguments: data[index].id);
                                     }
                                   },
                                   splashColor: Colors.transparent,
@@ -562,9 +612,9 @@ class _BookingScreenState extends State<BookingScreen> {
                                       ),
                                       const SpaceWidget(spaceWidth: 8),
                                       TextWidget(
-                                        text: index < details.length
-                                            ? details[index]
-                                            : "Details",
+                                        text: isUserSender
+                                            ? "parcelDetails".tr
+                                            : "viewDetails".tr,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
                                         fontColor: AppColors.greyDark2,
@@ -579,22 +629,23 @@ class _BookingScreenState extends State<BookingScreen> {
                                 ),
                                 InkWell(
                                   onTap: () {
-                                    if (index < progress.length &&
-                                        progress[index] ==
-                                            "Finish Delivery".tr) {
+                                    // Handle appropriate action based on status and sender ID
+                                    if (data[index].status == "IN_TRANSIT") {
+                                      Get.toNamed(AppRoutes.deliveryManDetails,
+                                          arguments: data[index].id);
+                                    } else if (!isUserSender) {
                                       deliveryFinished();
                                     } else {
                                       Get.toNamed(
-                                          AppRoutes.cancelDeliveryScreen);
+                                          AppRoutes.cancelDeliveryScreen,
+                                          arguments: data[index].id);
                                     }
                                   },
                                   splashColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   child: Row(
                                     children: [
-                                      index < progress.length &&
-                                              progress[index] ==
-                                                  AppStrings.deliveryManDetails
+                                      data[index].status == "IN_TRANSIT"
                                           ? const IconWidget(
                                               icon:
                                                   AppIconsPath.deliverymanIcon,
@@ -603,29 +654,26 @@ class _BookingScreenState extends State<BookingScreen> {
                                               height: 14,
                                             )
                                           : const SizedBox.shrink(),
-                                      index < progress.length &&
-                                              progress[index] ==
-                                                  AppStrings.deliveryManDetails
+                                      data[index].status == "IN_TRANSIT"
                                           ? const SpaceWidget(spaceWidth: 8)
                                           : const SpaceWidget(spaceWidth: 0),
                                       SizedBox(
                                         width: ResponsiveUtils.width(120),
                                         child: TextWidget(
-                                          text: index < progress.length
-                                              ? progress[index]
-                                              : "",
+                                          text:
+                                              data[index].status == "IN_TRANSIT"
+                                                  ? "deliveryManDetails".tr
+                                                  : !isUserSender
+                                                      ? "Finish Delivery".tr
+                                                      : "removeFromMap".tr,
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
-                                          fontColor: index < progress.length &&
-                                                  progress[index] ==
-                                                      AppStrings
-                                                          .deliveryManDetails
-                                              ? AppColors.greyDark2
-                                              : index < progress.length &&
-                                                      progress[index] ==
-                                                          "Finish Delivery".tr
-                                                  ? AppColors.green
-                                                  : AppColors.red,
+                                          fontColor:
+                                              data[index].status == "IN_TRANSIT"
+                                                  ? AppColors.greyDark2
+                                                  : !isUserSender
+                                                      ? AppColors.green
+                                                      : AppColors.red,
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -653,9 +701,14 @@ class _BookingScreenState extends State<BookingScreen> {
   Widget _newBookingWidget() {
     return SingleChildScrollView(
       child: Obx(() {
-        final allParcels = newBookingController.currentOrdersModel.value.data;
+        final newBookingsController = Get.find<NewBookingsController>();
+        if (newBookingController.currentOrdersModel.value.data == null) {
+          newBookingController.getCurrentOrder();
+          return const Center(child: CircularProgressIndicator());
+        }
 
-        // Filter parcels that have delivery requests
+        final allParcels = newBookingController.currentOrdersModel.value.data;
+        // Filter only parcels that have deliveryRequests
         final parcelsWithRequests = allParcels
                 ?.where((parcel) =>
                     parcel.deliveryRequests != null &&
@@ -671,8 +724,11 @@ class _BookingScreenState extends State<BookingScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 50),
-                  const Icon(Icons.inbox_outlined,
-                      size: 60, color: AppColors.greyDarkLight),
+                  const Icon(
+                    Icons.inbox_outlined,
+                    size: 60,
+                    color: AppColors.greyDarkLight,
+                  ),
                   const SizedBox(height: 16),
                   TextWidget(
                     text: "noNewBookings".tr,
@@ -693,22 +749,22 @@ class _BookingScreenState extends State<BookingScreen> {
             ...List.generate(parcelsWithRequests.length, (index) {
               final parcel = parcelsWithRequests[index];
               final deliveryRequest = parcel.deliveryRequests!.first;
-
-              // Format the date for display
-              String formattedDate =
-                  formatDeliveryDate(parcel.deliveryEndTime ?? "");
-
-              // Get coordinates for pickup and delivery locations
-              final pickupLocation = parcel.pickupLocation?.coordinates;
+              String formattedDate = formatDeliveryDate(parcel.deliveryEndTime);
               final deliveryLocation = parcel.deliveryLocation?.coordinates;
 
-              // Format pickup and delivery locations as text (you may want to use geocoding here)
-              String locationText = "Pickup to delivery location";
-              if (pickupLocation != null && deliveryLocation != null) {
-                // This is a placeholder - ideally you'd use geocoding to get real addresses
-                locationText =
-                    "From (${pickupLocation[1]}, ${pickupLocation[0]}) to (${deliveryLocation[1]}, ${deliveryLocation[0]})";
-                // You could use your existing _getAddress method to get real addresses
+              // Track the request state locally using a unique key for the request
+              final String requestKey = '${parcel.id}-${deliveryRequest.id}';
+              final requestState =
+                  newBookingsController.requestStates[requestKey] ?? 'pending';
+
+              if (deliveryLocation != null &&
+                  deliveryLocation.length == 2 &&
+                  newBookingAddress == "Loading...") {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  final longitude = deliveryLocation[0];
+                  final latitude = deliveryLocation[1];
+                  newAddress(latitude, longitude);
+                });
               }
 
               return Container(
@@ -720,7 +776,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.greyDarkLight.withOpacity(0.1),
+                      color: AppColors.greyDarkLight.withAlpha(25),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -767,15 +823,13 @@ class _BookingScreenState extends State<BookingScreen> {
                                     ),
                                   ),
                                   const SpaceWidget(spaceWidth: 8),
-                                  Expanded(
-                                    child: TextWidget(
-                                      text: parcel.title ?? '',
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      fontColor: AppColors.greyDark2,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                                  TextWidget(
+                                    text: parcel.title ?? '',
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    fontColor: AppColors.greyDark2,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
                               ),
@@ -787,33 +841,14 @@ class _BookingScreenState extends State<BookingScreen> {
                                     color: AppColors.black,
                                     size: 12,
                                   ),
-                                  const SpaceWidget(spaceWidth: 4),
-                                  Expanded(
-                                    child: TextWidget(
-                                      text: locationText,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      fontColor: AppColors.greyDark2,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SpaceWidget(spaceHeight: 8),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.calendar_month,
-                                    color: AppColors.black,
-                                    size: 12,
-                                  ),
                                   const SpaceWidget(spaceWidth: 8),
                                   TextWidget(
-                                    text: formattedDate,
+                                    text: newBookingAddress,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                     fontColor: AppColors.greyDark2,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
                               ),
@@ -836,28 +871,36 @@ class _BookingScreenState extends State<BookingScreen> {
                                   ),
                                 ],
                               ),
-                              const SpaceWidget(spaceHeight: 16),
+                              const SpaceWidget(spaceHeight: 8),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.calendar_month,
+                                    color: AppColors.black,
+                                    size: 12,
+                                  ),
+                                  const SpaceWidget(spaceWidth: 8),
+                                  TextWidget(
+                                    text: formattedDate,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    fontColor: AppColors.greyDark2,
+                                  ),
+                                ],
+                              ),
+                              const SpaceWidget(spaceHeight: 8),
                             ],
                           ),
                         ),
                         // Right Column with price and publication date
                         Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             TextWidget(
                               text: "${AppStrings.currency} ${parcel.price}",
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                               fontColor: AppColors.black,
-                            ),
-                            const SpaceWidget(spaceHeight: 60),
-                            TextWidget(
-                              text: parcel.status ?? "REQUESTED",
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              fontColor: parcel.status == "REQUESTED"
-                                  ? AppColors.green
-                                  : AppColors.greyDark2,
                             ),
                           ],
                         ),
@@ -875,26 +918,44 @@ class _BookingScreenState extends State<BookingScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           InkWell(
-                            onTap: () {
-                              // Implement reject functionality
-                              // You would call an API to reject the request here
-                              //rejectDeliveryRequest(parcel.id, deliveryRequest.id);
-                            },
+                            onTap: requestState == 'accepted' ||
+                                    requestState == 'rejected'
+                                ? null // Disable if already acted upon
+                                : () async {
+                                    // Implement reject functionality
+                                    await newBookingsController
+                                        .rejectParcelRequest(
+                                      parcel.id ?? '',
+                                      deliveryRequest.id ?? '',
+                                    );
+                                  },
                             splashColor: Colors.transparent,
                             highlightColor: Colors.transparent,
                             child: Row(
                               children: [
-                                const Icon(
-                                  Icons.close,
-                                  color: AppColors.red,
+                                Icon(
+                                  requestState == 'rejected'
+                                      ? Icons.close
+                                      : Icons.close,
+                                  color: requestState == 'accepted'
+                                      ? AppColors.greyDark2
+                                      : (requestState == 'rejected'
+                                          ? AppColors.red
+                                          : AppColors.red),
                                   size: 18,
                                 ),
                                 const SpaceWidget(spaceWidth: 4),
                                 TextWidget(
-                                  text: "reject".tr,
+                                  text: requestState == 'rejected'
+                                      ? "rejected".tr
+                                      : "reject".tr,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  fontColor: AppColors.red,
+                                  fontColor: requestState == 'accepted'
+                                      ? AppColors.greyDark2
+                                      : (requestState == 'rejected'
+                                          ? AppColors.red
+                                          : AppColors.red),
                                 ),
                               ],
                             ),
@@ -905,55 +966,44 @@ class _BookingScreenState extends State<BookingScreen> {
                             color: AppColors.blackLighter,
                           ),
                           InkWell(
-                            onTap: () {
-                              // Implement view details functionality
-                              // viewDeliveryRequestDetails(parcel, deliveryRequest);
-                            },
+                            onTap: requestState == 'accepted' ||
+                                    requestState == 'rejected'
+                                ? null // Disable if already acted upon
+                                : () async {
+                                    // Implement accept functionality
+                                    await newBookingsController
+                                        .acceptParcelRequest(
+                                      parcel.id ?? '',
+                                      deliveryRequest.id ?? '',
+                                    );
+                                  },
                             splashColor: Colors.transparent,
                             highlightColor: Colors.transparent,
                             child: Row(
                               children: [
-                                const Icon(
-                                  Icons.remove_red_eye_outlined,
-                                  color: AppColors.black,
+                                Icon(
+                                  requestState == 'accepted'
+                                      ? Icons.check
+                                      : Icons.check,
+                                  color: requestState == 'rejected'
+                                      ? AppColors.greyDark2
+                                      : (requestState == 'accepted'
+                                          ? AppColors.green
+                                          : AppColors.green),
                                   size: 18,
                                 ),
                                 const SpaceWidget(spaceWidth: 4),
                                 TextWidget(
-                                  text: "view".tr,
+                                  text: requestState == 'accepted'
+                                      ? "accepted".tr
+                                      : "accept".tr,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  fontColor: AppColors.greyDark2,
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            width: 1,
-                            height: 24,
-                            color: AppColors.blackLighter,
-                          ),
-                          InkWell(
-                            onTap: () {
-                              // Implement accept functionality
-                              // You would call an API to accept the request here
-                              // acceptDeliveryRequest(parcel.id, deliveryRequest.id);
-                            },
-                            splashColor: Colors.transparent,
-                            highlightColor: Colors.transparent,
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.check,
-                                  color: AppColors.green,
-                                  size: 18,
-                                ),
-                                const SpaceWidget(spaceWidth: 4),
-                                TextWidget(
-                                  text: "accept".tr,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: AppColors.green,
+                                  fontColor: requestState == 'rejected'
+                                      ? AppColors.greyDark2
+                                      : (requestState == 'accepted'
+                                          ? AppColors.green
+                                          : AppColors.green),
                                 ),
                               ],
                             ),

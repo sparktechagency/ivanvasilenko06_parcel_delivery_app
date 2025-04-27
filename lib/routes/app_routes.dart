@@ -35,4 +35,5 @@ class AppRoutes {
   static const radiusAvailableParcel = '/radiusAvailableParcel';
   static const editProfile = '/editProfile';
   static const sentRequestSuccessfully = '/sentRequestSuccessfully';
+  static const deliveryManDetails = '/deliveryManDetails';
 }
