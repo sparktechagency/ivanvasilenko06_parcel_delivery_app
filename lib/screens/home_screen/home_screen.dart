@@ -69,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _openBottomSheet(BuildContext context) {
-    _getCurrentLocation(); // Get current location when opening the bottom sheet
+    _getCurrentLocation();
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -149,14 +149,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: Slider(
                           label:
-                              '${_currentValue.toStringAsFixed(0)} ${"km".tr}',
-                          value: _currentValue,
+                              '${_radiusController.radius.value.toStringAsFixed(0)} ${"km".tr}',
+                          value: _radiusController.radius.value,
                           min: 0,
                           max: 50,
                           divisions: 50,
                           onChanged: (value) {
                             setState(() {
-                              _currentValue = value;
+                              _radiusController.radius.value = value;
                             });
                             _radiusController.radius.value = value;
                           },
@@ -201,6 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             onPressed: () {
                               _radiusController.fetchParcelsInRadius();
                               Get.toNamed(AppRoutes.radiusMapScreen);
+                              log("😉😉😉😉😉😉😉😉 ${_radiusController.currentLocation.value?.latitude} ${_radiusController.currentLocation.value?.longitude}");
                             },
                             label: "next".tr,
                             textColor: AppColors.white,
@@ -255,7 +256,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           .profileData.value.data?.user?.image?.isNotEmpty ??
                       false
                   ? profileController.profileData.value.data!.user!.image!
-                  : AppImagePath.profileImage,
+                  : AppImagePath.dummyProfileImage,
             ),
             SingleChildScrollView(
               child: Padding(

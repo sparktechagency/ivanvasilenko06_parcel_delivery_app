@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -48,48 +49,109 @@ class _BookingScreenState extends State<BookingScreen> {
     super.initState();
   }
 
-  bool isReceived = false;
-  final List<String> images = [
-    AppImagePath.sendParcel,
-  ];
-
-  final List<String> names = [
-    AppStrings.parcel,
-    AppStrings.joshua,
-    AppStrings.parcel,
-  ];
-
-  final List<String> details = [
-    "parcelDetails".tr,
-    "viewDetails".tr,
-    "parcelDetails".tr,
-  ];
-
-  final List<String> status = [
-    "waiting".tr,
-    "",
-    "inTransit".tr,
-  ];
-
-  final List<String> progress = [
-    "removeFromMap".tr,
-    "Finish Delivery".tr,
-    "deliveryManDetails".tr,
-  ];
-
-  final List<String> received = [
-    "Delivery received?",
-    "Sending Successfully?",
-    "Delivery Completed?",
-  ];
-
-  List<String> statuses = ["not received", "not delivered", "not completed"];
-
   // Function to make a phone call
   final String phoneNumber = '+1234567890';
 
   // Replace with actual phone number
   final String message = 'Hello, this is a test message';
+
+  void _openBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                ),
+              ),
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      height: 5,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        color: AppColors.greyDark,
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                    ),
+                  ),
+                  const SpaceWidget(spaceHeight: 32),
+                  Center(
+                    child: TextWidget(
+                      text: "experience".tr,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      fontColor: AppColors.black,
+                    ),
+                  ),
+                  const SpaceWidget(spaceHeight: 10),
+                  Center(
+                    child: RatingBar.builder(
+                      initialRating: 1,
+                      minRating: 1,
+                      direction: Axis.horizontal,
+                      allowHalfRating: true,
+                      itemCount: 5,
+                      itemPadding: const EdgeInsets.symmetric(horizontal: 06),
+                      itemBuilder: (context, _) => const Icon(
+                        Icons.star_border,
+                        color: Colors.amber,
+                      ),
+                      onRatingUpdate: (rating) {
+                        print('Rating: $rating');
+                      },
+                    ),
+                  ),
+                  const SpaceWidget(spaceHeight: 16),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextWidget(
+                          text: AppStrings.veryBad,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          fontColor: AppColors.black,
+                        ),
+                        TextWidget(
+                          text: AppStrings.veryGood,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          fontColor: AppColors.black,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SpaceWidget(spaceHeight: 32),
+                  ButtonWidget(
+                    onPressed: () {
+                      Get.back(); // You can replace this with action like Get.offAll to Home screen after submit
+                    },
+                    label: "submit".tr,
+                    buttonWidth: double.infinity,
+                    buttonHeight: 50,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   Future<void> _makePhoneCall() async {
     final Uri launchUri = Uri(
@@ -184,6 +246,87 @@ class _BookingScreenState extends State<BookingScreen> {
                       backgroundColor: AppColors.green,
                       textColor: AppColors.white,
                       onPressed: () {},
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void removeParcelConfirmation(String parcelId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)), // Flat corners
+          ),
+          backgroundColor: AppColors.grey,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const TextWidget(
+                  text: 'Are you sure you want to remove this parcel?',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  fontColor: AppColors.black,
+                  textAlignment: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ButtonWidget(
+                      buttonWidth: 100,
+                      buttonHeight: 40,
+                      label: 'No',
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
+                      buttonRadius: BorderRadius.circular(10),
+                      backgroundColor: AppColors.white,
+                      textColor: AppColors.black,
+                      onPressed: () {
+                        Navigator.pop(context); // Close the dialog
+                      },
+                    ),
+                    ButtonWidget(
+                      buttonWidth: 100,
+                      buttonHeight: 40,
+                      label: 'Yes',
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 10),
+                      buttonRadius: BorderRadius.circular(10),
+                      backgroundColor: AppColors.green,
+                      textColor: AppColors.white,
+                      onPressed: () async {
+                        Navigator.pop(context); // Close the dialog first
+                        try {
+                          // Get the correct controller instance
+                          final controller = Get.find<NewBookingsController>();
+                          await controller.removeParcelFromMap(parcelId);
+                          await currentOrderController.getCurrentOrder();
+                          _currentIndex = 0;
+                          controller.update();
+                          _pageController.jumpToPage(0);
+
+                          Get.back();
+                        } catch (e) {
+                          // Close loading dialog
+                          Get.back();
+                          Get.snackbar(
+                            'Error',
+                            'Failed to remove parcel: ${e.toString()}',
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -399,7 +542,6 @@ class _BookingScreenState extends State<BookingScreen> {
                 if (deliverLocation != null &&
                     deliverLocation.length == 2 &&
                     address == "Loading...") {
-                  // Schedule the address fetch for after this build cycle completes
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     final latitude = deliverLocation[1];
                     final longitude = deliverLocation[0];
@@ -592,8 +734,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                   onTap: () {
                                     // Navigate to appropriate screen based on sender ID
                                     if (isUserSender) {
-                                      Get.toNamed(
-                                          AppRoutes.bookingParcelDetailsScreen,
+                                      Get.toNamed(AppRoutes.parcelDetailsScreen,
                                           arguments: data[index].id);
                                     } else {
                                       Get.toNamed(
@@ -635,10 +776,12 @@ class _BookingScreenState extends State<BookingScreen> {
                                           arguments: data[index].id);
                                     } else if (!isUserSender) {
                                       deliveryFinished();
+                                    } else if (data[index].status ==
+                                        "DELIVERED") {
+                                      _openBottomSheet();
                                     } else {
-                                      Get.toNamed(
-                                          AppRoutes.cancelDeliveryScreen,
-                                          arguments: data[index].id);
+                                      String parcelId = data[index].id ?? "";
+                                      removeParcelConfirmation(parcelId);
                                     }
                                   },
                                   splashColor: Colors.transparent,
@@ -665,13 +808,18 @@ class _BookingScreenState extends State<BookingScreen> {
                                                   ? "deliveryManDetails".tr
                                                   : !isUserSender
                                                       ? "Finish Delivery".tr
-                                                      : "removeFromMap".tr,
+                                                      : data[index].status ==
+                                                              "DELIVERED"
+                                                          ? "Giving Review".tr
+                                                          : "removeFromMap".tr,
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
                                           fontColor:
                                               data[index].status == "IN_TRANSIT"
                                                   ? AppColors.greyDark2
-                                                  : !isUserSender
+                                                  : !isUserSender ||
+                                                          data[index].status ==
+                                                              "DELIVERED"
                                                       ? AppColors.green
                                                       : AppColors.red,
                                           maxLines: 1,
@@ -731,7 +879,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   ),
                   const SizedBox(height: 16),
                   TextWidget(
-                    text: "noNewBookings".tr,
+                    text: "No New Bookings".tr,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                     fontColor: AppColors.greyDark2,
@@ -745,15 +893,18 @@ class _BookingScreenState extends State<BookingScreen> {
 
         return Column(
           children: [
-            const SpaceWidget(spaceHeight: 8),
+            const SpaceWidget(spaceHeight: 15),
             ...List.generate(parcelsWithRequests.length, (index) {
               final parcel = parcelsWithRequests[index];
-              final deliveryRequest = parcel.deliveryRequests!.first;
+              // Parse the deliveryRequest as a Map instead of accessing properties directly
+              final deliveryRequest =
+                  parcel.deliveryRequests!.first as Map<String, dynamic>;
               String formattedDate = formatDeliveryDate(parcel.deliveryEndTime);
               final deliveryLocation = parcel.deliveryLocation?.coordinates;
 
               // Track the request state locally using a unique key for the request
-              final String requestKey = '${parcel.id}-${deliveryRequest.id}';
+              final String requestKey =
+                  '${parcel.id}-${deliveryRequest["_id"] ?? ""}';
               final requestState =
                   newBookingsController.requestStates[requestKey] ?? 'pending';
 
@@ -797,14 +948,15 @@ class _BookingScreenState extends State<BookingScreen> {
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(100),
                                     child: AppImage(
-                                      url: deliveryRequest.image,
+                                      url: deliveryRequest["image"] ??
+                                          AppImagePath.dummyProfileImage,
                                       height: 40,
                                       width: 40,
                                     ),
                                   ),
                                   const SpaceWidget(spaceWidth: 8),
                                   TextWidget(
-                                    text: deliveryRequest.fullName ?? '',
+                                    text: deliveryRequest["fullName"] ?? '',
                                     fontSize: 15.5,
                                     fontWeight: FontWeight.w500,
                                     fontColor: AppColors.black,
@@ -862,7 +1014,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                   ),
                                   const SpaceWidget(spaceWidth: 8),
                                   TextWidget(
-                                    text: deliveryRequest.mobileNumber ??
+                                    text: deliveryRequest["mobileNumber"] ??
                                         parcel.phoneNumber ??
                                         '',
                                     fontSize: 12,
@@ -926,8 +1078,15 @@ class _BookingScreenState extends State<BookingScreen> {
                                     await newBookingsController
                                         .rejectParcelRequest(
                                       parcel.id ?? '',
-                                      deliveryRequest.id ?? '',
+                                      deliveryRequest["_id"] ?? '',
                                     );
+                                    await currentOrderController
+                                        .getCurrentOrder();
+                                    final controller =
+                                        Get.find<NewBookingsController>();
+                                    _currentIndex = 0;
+                                    controller.update();
+                                    _pageController.jumpToPage(1);
                                   },
                             splashColor: Colors.transparent,
                             highlightColor: Colors.transparent,
@@ -974,8 +1133,13 @@ class _BookingScreenState extends State<BookingScreen> {
                                     await newBookingsController
                                         .acceptParcelRequest(
                                       parcel.id ?? '',
-                                      deliveryRequest.id ?? '',
+                                      deliveryRequest["_id"] ?? '',
                                     );
+                                    final controller =
+                                        Get.find<NewBookingsController>();
+                                    _currentIndex = 0;
+                                    controller.update();
+                                    _pageController.jumpToPage(1);
                                   },
                             splashColor: Colors.transparent,
                             highlightColor: Colors.transparent,

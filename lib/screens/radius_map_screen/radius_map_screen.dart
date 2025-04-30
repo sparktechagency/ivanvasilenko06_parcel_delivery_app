@@ -1,5 +1,5 @@
-// radius_map_screen.dart - modifications
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
@@ -15,6 +15,8 @@ class RadiusMapScreen extends StatefulWidget {
 }
 
 class _RadiusMapScreenState extends State<RadiusMapScreen> {
+  String address = "Loading...";
+  Map<String, String> addressCache = {};
   late GoogleMapController mapController;
   final EarnMoneyRadiusController _radiusController = Get.find();
   bool isLoading = true;
@@ -23,6 +25,49 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
   void initState() {
     super.initState();
     _loadParcels();
+    _updateCurrentAddress();
+  }
+
+  // Add this method to update address whenever location changes
+  void _updateCurrentAddress() {
+    if (_radiusController.currentLocation.value != null) {
+      _getAddress(
+        _radiusController.currentLocation.value!.latitude,
+        _radiusController.currentLocation.value!.longitude,
+      );
+    }
+  }
+
+  Future<void> _getAddress(double latitude, double longitude) async {
+    if (latitude == 0 && longitude == 0) return;
+
+    final String key = '$latitude,$longitude';
+    if (addressCache.containsKey(key)) {
+      setState(() {
+        address = addressCache[key]!;
+      });
+      return;
+    }
+    try {
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        String newAddress =
+            '${placemarks[0].locality}, ${placemarks[0].country}';
+        setState(() {
+          address = newAddress;
+        });
+        addressCache[key] = newAddress; // Cache the address
+      } else {
+        setState(() {
+          address = 'No address found';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        address = 'Error fetching address';
+      });
+    }
   }
 
   Future<void> _loadParcels() async {
@@ -31,6 +76,9 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
     });
 
     await _radiusController.fetchParcelsInRadius();
+
+    // Update address after parcels are loaded and location is set
+    _updateCurrentAddress();
 
     setState(() {
       isLoading = false;
@@ -47,6 +95,11 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
           Obx(() {
             final currentLoc = _radiusController.currentLocation.value ??
                 const LatLng(23.7596, 90.4211); // Default location
+
+            // Update address when location changes
+            if (_radiusController.currentLocation.value != null) {
+              _updateCurrentAddress();
+            }
 
             return GoogleMap(
               onMapCreated: (GoogleMapController controller) {
@@ -80,6 +133,7 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
                   strokeWidth: 1,
                 )
               },
+              zoomControlsEnabled: false,
             );
           }),
 
@@ -89,7 +143,7 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
               child: CircularProgressIndicator(),
             ),
 
-          // Controls at the bottom
+          //Controls at the bottom
           Positioned(
             bottom: 20,
             left: 20,
@@ -132,6 +186,54 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
               ],
             ),
           ),
+          Positioned(
+              top: 40,
+              left: 0,
+              right: 0,
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(10),
+                height: 80,
+                decoration: BoxDecoration(
+                  color: AppColors.black.withAlpha(35),
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.location_on,
+                      color: AppColors.black,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            address, // Use the address state variable here
+                            style: const TextStyle(
+                              color: AppColors.black,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            "Radius of ${_radiusController.radius.value} km".tr,
+                            style: const TextStyle(
+                              color: AppColors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ))
         ],
       ),
     );

@@ -49,10 +49,29 @@ class LocationRepository {
     }
   }
 
+  set startingLocationCoordinates(LatLng? coordinates) {
+    _startingLocationCoordinates = coordinates;
+    if (coordinates != null) {
+      _updateMarker('starting-location', coordinates, 'Pickup Location');
+    }
+  }
+
   // Method to set current location coordinates
   void setCurrentLocationCoordinates(LatLng coordinates) {
     _currentLocationCoordinates = coordinates;
     // addCurrentLocationMarker();
+  }
+
+  // Add a method to set starting location coordinates
+  void setStartingLocationCoordinates(LatLng coordinates) {
+    _startingLocationCoordinates = coordinates;
+    _updateMarker('starting-location', coordinates, 'Pickup Location');
+  }
+
+  // Add a method to set ending location coordinates
+  void setEndingLocationCoordinates(LatLng coordinates) {
+    _endingLocationCoordinates = coordinates;
+    _updateMarker('ending-location', coordinates, 'Destination');
   }
 
   void clearPlacePredictions() {
@@ -218,6 +237,17 @@ class LocationRepository {
   // Helper to update a marker
   void _updateMarker(String markerId, LatLng position, String title) {
     _markers.removeWhere((marker) => marker.markerId.value == markerId);
+
+    // Set different colors for different marker types
+    BitmapDescriptor icon;
+    if (markerId == 'starting-location') {
+      icon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
+    } else if (markerId == 'ending-location') {
+      icon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
+    } else {
+      icon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
+    }
+
     _markers.add(
       Marker(
         markerId: MarkerId(markerId),
@@ -225,7 +255,7 @@ class LocationRepository {
         infoWindow: InfoWindow(
           title: title,
         ),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        icon: icon,
       ),
     );
   }
@@ -234,6 +264,8 @@ class LocationRepository {
   Future<Polyline?> fetchDirections() async {
     if (_startingLocationCoordinates == null ||
         _endingLocationCoordinates == null) {
+      debugPrint(
+          'Cannot fetch directions: Missing starting or ending location');
       return null;
     }
 
@@ -257,6 +289,8 @@ class LocationRepository {
             width: 5,
           );
 
+          debugPrint(
+              'Polyline created with ${polylineCoordinates.length} points');
           return _polyline;
         } else {
           debugPrint('API Error: ${data['status']}');

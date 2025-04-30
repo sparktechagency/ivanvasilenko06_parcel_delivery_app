@@ -156,6 +156,8 @@ class ErId {
   String? email;
   String? image;
 
+  int? avgRating;
+
   ErId({
     this.id,
     this.fullName,
@@ -163,6 +165,7 @@ class ErId {
     this.role,
     this.email,
     this.image,
+    this.avgRating,
   });
 
   factory ErId.fromRawJson(String str) => ErId.fromJson(json.decode(str));
@@ -176,6 +179,7 @@ class ErId {
         role: json["role"],
         email: json["email"],
         image: json["image"],
+        avgRating: json["avgRating"],
       );
 
   Map<String, dynamic> toJson() => {

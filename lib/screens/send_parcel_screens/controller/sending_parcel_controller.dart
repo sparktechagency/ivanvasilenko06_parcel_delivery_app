@@ -34,11 +34,11 @@ class ParcelController extends GetxController {
   RxString currentLocationLatitude = ''.obs;
   RxString currentLocationLongitude = ''.obs;
 
-  // Add these fields
+  // Location ID fields
   final RxString startingLocationId = ''.obs;
   final RxString endingLocationId = ''.obs;
 
-  // Add these methods
+  // Location methods
   void setStartingLocationId(String id) {
     startingLocationId.value = id;
   }
@@ -59,7 +59,7 @@ class ParcelController extends GetxController {
   final descriptionController = TextEditingController();
   final priceController = TextEditingController();
   final nameController = TextEditingController();
-  final phoneController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
 
   // Navigation
   PageController pageController = PageController();
@@ -108,6 +108,12 @@ class ParcelController extends GetxController {
         curve: Curves.easeInOut,
       );
     } else {
+      currentLocationController.dispose();
+      destinationController.dispose();
+      startingLocation.value = '';
+      endingLocation.value = '';
+      startingLocationId.value = '';
+      endingLocationId.value = '';
       Get.back();
     }
   }
@@ -132,12 +138,9 @@ class ParcelController extends GetxController {
         return true;
 
       case 3:
-        // Step 3: Description and Image Validation
-        if (titleController.text.trim().isEmpty ||
-            descriptionController.text.trim().isEmpty ||
-            selectedImages.isEmpty) {
-          AppSnackBar.error(
-              "Please fill title, description, and select at least one image.");
+        // Step 3: Title Validation (description and images optional)
+        if (titleController.text.trim().isEmpty) {
+          AppSnackBar.error("Please fill the title.");
           return false;
         }
         return true;
@@ -162,6 +165,50 @@ class ParcelController extends GetxController {
       default:
         return true;
     }
+  }
+
+  // Comprehensive validation for final submission
+  bool validateAllFields() {
+    // Step 1: Location Validation
+    if (startingLocation.isEmpty || endingLocation.isEmpty) {
+      AppSnackBar.error("Please fill both pickup and destination locations.");
+      return false;
+    }
+
+    // Step 2: Time Validation
+    if (startDateTime.value == null || endDateTime.value == null) {
+      AppSnackBar.error("Please select both delivery start and end time.");
+      return false;
+    }
+
+    // Step 3: Title Validation (only title is required, description is optional)
+    if (titleController.text.trim().isEmpty) {
+      AppSnackBar.error("Please fill the title.");
+      return false;
+    }
+
+    // Images are now optional
+
+    // Step 4: Price Validation
+    if (priceController.text.trim().isEmpty) {
+      AppSnackBar.error("Please enter the delivery price.");
+      return false;
+    }
+
+    // Step 5: Receiver Info Validation
+    if (nameController.text.trim().isEmpty ||
+        phoneController.text.trim().isEmpty) {
+      AppSnackBar.error("Please enter receiver name and phone number.");
+      return false;
+    }
+
+    // Vehicle type validation
+    if (selectedVehicleType.value.isEmpty) {
+      AppSnackBar.error("Please select a vehicle type.");
+      return false;
+    }
+
+    return true;
   }
 
   // Image logic
@@ -191,18 +238,18 @@ class ParcelController extends GetxController {
     return base64Encode(bytes);
   }
 
-  // Submission
+  // Submission with complete validation
   Future<void> submitParcelData() async {
+    // Validate all required fields before submission
+    if (!validateAllFields()) {
+      return;
+    }
+
     var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
     log("🔑 Authorization Token: $token");
 
     if (token.isEmpty) {
       AppSnackBar.error("Authorization token is missing.");
-      return;
-    }
-
-    if (selectedImages.isEmpty) {
-      AppSnackBar.error("Please select at least one image.");
       return;
     }
 

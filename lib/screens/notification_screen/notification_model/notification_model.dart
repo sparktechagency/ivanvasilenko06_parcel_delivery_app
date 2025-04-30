@@ -1,15 +1,15 @@
 class NotificationModel {
   String? status;
-  List<NotificationDataList>? notificationDataList;
+  List<NotificationDataList>? notificationData;
 
-  NotificationModel({this.status, this.notificationDataList});
+  NotificationModel({this.status, this.notificationData});
 
   NotificationModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     if (json['data'] != null) {
-      notificationDataList = <NotificationDataList>[];
+      notificationData = <NotificationDataList>[];
       json['data'].forEach((v) {
-        notificationDataList!.add(NotificationDataList.fromJson(v));
+        notificationData!.add(NotificationDataList.fromJson(v));
       });
     }
   }
@@ -17,8 +17,8 @@ class NotificationModel {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['status'] = status;
-    if (notificationDataList != null) {
-      data['data'] = notificationDataList!.map((v) => v.toJson()).toList();
+    if (notificationData != null) {
+      data['data'] = notificationData!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -31,20 +31,27 @@ class NotificationDataList {
   String? type;
   String? title;
   String? description;
+  String? mobileNumber;
+  String? phoneNumber;
   bool? isRead;
   String? createdAt;
   int? iV;
+  String? image;
 
-  NotificationDataList(
-      {this.sId,
-      this.userId,
-      this.message,
-      this.type,
-      this.title,
-      this.description,
-      this.isRead,
-      this.createdAt,
-      this.iV});
+  NotificationDataList({
+    this.sId,
+    this.userId,
+    this.message,
+    this.type,
+    this.title,
+    this.description,
+    this.mobileNumber,
+    this.phoneNumber,
+    this.isRead,
+    this.createdAt,
+    this.iV,
+    this.image,
+  });
 
   NotificationDataList.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -52,10 +59,13 @@ class NotificationDataList {
     message = json['message'];
     type = json['type'];
     title = json['title'];
+    mobileNumber = json['mobileNumber'];
+    phoneNumber = json['PhoneNumber'];
     description = json['description'];
     isRead = json['isRead'];
     createdAt = json['createdAt'];
     iV = json['__v'];
+    image = json['image'];
   }
 
   Map<String, dynamic> toJson() {
@@ -66,9 +76,12 @@ class NotificationDataList {
     data['type'] = type;
     data['title'] = title;
     data['description'] = description;
+    data['mobileNumber'] = mobileNumber;
+    data['PhoneNumber'] = phoneNumber;
     data['isRead'] = isRead;
     data['createdAt'] = createdAt;
     data['__v'] = iV;
+    data['image'] = image;
     return data;
   }
 }

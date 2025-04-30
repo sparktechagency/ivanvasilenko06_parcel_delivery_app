@@ -33,7 +33,7 @@ class _ChooseParcelForDeliveryScreenState
 
   Future<void> _loadCustomMarkerIcon() async {
     _customMarker = await BitmapDescriptor.fromAssetImage(
-      const ImageConfiguration(size: Size(30, 30)),
+      const ImageConfiguration(size: Size(20, 20)),
       'assets/icons/parcelIcon.png',
     );
     setState(() {});
@@ -46,7 +46,9 @@ class _ChooseParcelForDeliveryScreenState
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(16),
+        ),
       ),
       builder: (_) {
         return Padding(

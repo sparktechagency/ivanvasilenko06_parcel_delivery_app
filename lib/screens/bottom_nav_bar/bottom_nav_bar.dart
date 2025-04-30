@@ -18,8 +18,8 @@ class BottomNavScreen extends StatefulWidget {
 }
 
 class _BottomNavScreenState extends State<BottomNavScreen> {
-  int _currentIndex = 0;
   late List<Widget> tabs;
+  int _currentIndex = 0;
 
   @override
   void initState() {

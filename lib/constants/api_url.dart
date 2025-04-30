@@ -20,5 +20,10 @@ class AppApiUrl {
   static const String acceptRequest = "$baseUrl/parcel/assign";
   static const String cancelDeliveryRequest =
       "$baseUrl/delivery/cancel-request";
+  static const String deleteParcel = "$baseUrl/parcel/delete/";
+
+  static const String cancelDelivery = "$baseUrl/delivery/DevCancelparcel";
+
+  static const String cancelAssignDeliver = "$baseUrl/parcel/cancel-assignment";
   static const String token = "";
 }

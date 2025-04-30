@@ -31,8 +31,7 @@ class _PageTwoState extends State<PageTwo> {
   bool _mapInitialized = false;
   Marker? _currentLocationMarker;
   String? _currentLocationAddress;
-  bool _showCurrentLocationMarker =
-      false; // Initially hide current location marker
+  bool _showCurrentLocationMarker = false;
 
   @override
   void initState() {
@@ -68,7 +67,7 @@ class _PageTwoState extends State<PageTwo> {
   Future<void> _getCurrentLocation() async {
     final location = await _locationRepository.getCurrentLocation();
     if (location != null && mounted) {
-      // Create marker for current location but don't show it initially
+      // Create marker for current location
       _currentLocationMarker = Marker(
         markerId: const MarkerId('current_location'),
         position: location,
@@ -76,7 +75,6 @@ class _PageTwoState extends State<PageTwo> {
         infoWindow: const InfoWindow(title: 'Current Location'),
       );
 
-      // Start with empty markers set - don't add current location marker initially
       setState(() {
         _markers = {..._locationRepository.markers};
       });
@@ -174,8 +172,6 @@ class _PageTwoState extends State<PageTwo> {
       _placePredictions = [];
       startingController.text = description;
       _activeLocationType = '';
-
-      // Set flag to show/hide current location marker
       _showCurrentLocationMarker = isCurrentLocation;
     });
 
@@ -185,16 +181,20 @@ class _PageTwoState extends State<PageTwo> {
     if (isCurrentLocation) {
       // Use current location
       if (_locationRepository.currentLocationCoordinates != null) {
+        // Set starting location in repository - important for directions
+        _locationRepository.startingLocationCoordinates =
+            _locationRepository.currentLocationCoordinates;
+
         _mapController?.animateCamera(
           CameraUpdate.newLatLng(
               _locationRepository.currentLocationCoordinates!),
         );
 
-        // Add current location marker and pickup marker
+        // Update markers
         setState(() {
           _markers = {};
 
-          // Only add current location marker when using current location as pickup
+          // Add current location marker when using current location as pickup
           if (_currentLocationMarker != null && _showCurrentLocationMarker) {
             _markers.add(_currentLocationMarker!);
           }
@@ -203,13 +203,19 @@ class _PageTwoState extends State<PageTwo> {
           final pickupMarker = Marker(
             markerId: const MarkerId('starting_location'),
             position: _locationRepository.currentLocationCoordinates!,
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-                BitmapDescriptor.hueGreen),
+            icon:
+                BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
             infoWindow: const InfoWindow(title: 'Pickup Location'),
           );
 
           _markers.add(pickupMarker);
         });
+
+        // If we already have an ending location, fetch directions
+        if (_locationRepository.endingLocationCoordinates != null) {
+          await _locationRepository.fetchDirections();
+          setState(() {}); // Trigger rebuild to show polyline
+        }
       }
     } else {
       try {
@@ -229,9 +235,15 @@ class _PageTwoState extends State<PageTwo> {
             // Start with empty set
             _markers = {};
 
-            // Add repository markers (but not current location marker)
+            // Add repository markers (but not current location marker unless explicitly shown)
             _markers.addAll(_locationRepository.markers);
           });
+
+          // If we already have an ending location, fetch directions
+          if (_locationRepository.endingLocationCoordinates != null) {
+            await _locationRepository.fetchDirections();
+            setState(() {}); // Ensure UI updates to show polyline
+          }
         }
       } catch (e) {
         debugPrint('Error fetching starting location details: $e');
@@ -259,15 +271,17 @@ class _PageTwoState extends State<PageTwo> {
           await _locationRepository.fetchPlaceDetails(placeId, 'ending');
 
       if (location != null && mounted) {
+        // Move camera to the location
         _mapController?.animateCamera(
           CameraUpdate.newLatLng(location),
         );
 
-        // Update markers while maintaining current state of current location marker
+        // Update markers
         setState(() {
           // Start with empty set
           _markers = {};
 
+          // Add current location marker if needed
           if (_showCurrentLocationMarker && _currentLocationMarker != null) {
             _markers.add(_currentLocationMarker!);
           }
@@ -275,6 +289,15 @@ class _PageTwoState extends State<PageTwo> {
           // Add repository markers (destination and pickup)
           _markers.addAll(_locationRepository.markers);
         });
+
+        // After getting the end location, fetch directions if we have both points
+        if (_locationRepository.startingLocationCoordinates != null) {
+          // Explicitly fetch directions to ensure polylines are created
+          await _locationRepository.fetchDirections();
+
+          // Important: Update state after fetching directions to show polyline
+          setState(() {});
+        }
       }
     } catch (e) {
       debugPrint('Error fetching ending location details: $e');
@@ -474,6 +497,14 @@ class _PageTwoState extends State<PageTwo> {
               CameraUpdate.newLatLng(
                   _locationRepository.currentLocationCoordinates!),
             );
+
+            // Check if we already have start and end locations to draw polyline immediately
+            if (_locationRepository.startingLocationCoordinates != null &&
+                _locationRepository.endingLocationCoordinates != null) {
+              _locationRepository.fetchDirections().then((_) {
+                if (mounted) setState(() {});
+              });
+            }
           }
         },
         mapType: MapType.terrain,
@@ -538,7 +569,7 @@ class _PageTwoState extends State<PageTwo> {
                 ],
               ),
 
-              // Position predictions list properly - now with correct positioning
+              // Position predictions list properly
               if (_activeLocationType.isNotEmpty &&
                   _placePredictions.isNotEmpty)
                 Positioned(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/screens/booking_screen/current_order/controller/current_order_controller.dart';
-import 'package:parcel_delivery_app/widgets/image_widget/app_images.dart';
 
 import '../../../constants/app_colors.dart';
 import '../../../constants/app_image_path.dart';
@@ -66,40 +65,40 @@ class _NewBookingWidgetState extends State<NewBookingWidget> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(100),
-                                    child: AppImage(
-                                      url: newBookingController
-                                          .currentOrdersModel
-                                          .value
-                                          .data!
-                                          .first
-                                          .deliveryRequests
-                                          ?.first
-                                          .image,
-                                      height: 40,
-                                      width: 40,
-                                    ),
-                                  ),
-                                  const SpaceWidget(spaceWidth: 8),
-                                  TextWidget(
-                                    text: newBookingController
-                                            .currentOrdersModel
-                                            .value
-                                            .data
-                                            ?.first
-                                            .deliveryRequests
-                                            ?.first
-                                            .fullName ??
-                                        '',
-                                    fontSize: 15.5,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.black,
-                                  ),
-                                ],
-                              ),
+                              // Row(
+                              //   children: [
+                              //     ClipRRect(
+                              //       borderRadius: BorderRadius.circular(100),
+                              //       child: AppImage(
+                              //         url: newBookingController
+                              //             .currentOrdersModel
+                              //             .value
+                              //             .data!
+                              //             .first
+                              //             .deliveryRequests
+                              //             !.first
+                              //             .image,
+                              //         height: 40,
+                              //         width: 40,
+                              //       ),
+                              //     ),
+                              //     const SpaceWidget(spaceWidth: 8),
+                              //     TextWidget(
+                              //       text: newBookingController
+                              //               .currentOrdersModel
+                              //               .value
+                              //               .data
+                              //               ?.first
+                              //               .deliveryRequests
+                              //               ?.first
+                              //               .fullName ??
+                              //           '',
+                              //       fontSize: 15.5,
+                              //       fontWeight: FontWeight.w500,
+                              //       fontColor: AppColors.black,
+                              //     ),
+                              //   ],
+                              // ),
                               const SpaceWidget(spaceHeight: 16),
                               Row(
                                 children: [

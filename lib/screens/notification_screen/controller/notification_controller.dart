@@ -7,7 +7,7 @@ import 'package:parcel_delivery_app/services/apiServices/api_get_services.dart';
 
 class NotificationController extends GetxController {
   var isLoading = true.obs;
-  var notifications = <NotificationDataList>[].obs; // List of notifications
+  var notifications = <NotificationDataList>[].obs; // Correct list type
   var error = ''.obs;
 
   @override
@@ -25,7 +25,9 @@ class NotificationController extends GetxController {
 
       NotificationModel notificationModel =
           NotificationModel.fromJson(response);
-      notifications.assignAll(notificationModel.notificationDataList ?? []);
+
+      // Assign the correct data to notifications list
+      notifications.assignAll(notificationModel.notificationData ?? []);
     } catch (ex) {
       log("❎❎❎❎❎❎ Error fetching notifications: ${ex.toString()} ❎❎❎❎❎❎");
       error(ex.toString());

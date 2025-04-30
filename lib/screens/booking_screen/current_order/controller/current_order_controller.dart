@@ -17,14 +17,11 @@ class CurrentOrderController extends GetxController {
   }
 
   Future<CurrentOrderModel?> getCurrentOrder() async {
-    isLoading(true); // Start loading
+    isLoading(true);
     try {
-      // Make API call to fetch current orders
       final response = await ApiGetServices()
           .apiGetServices(AppApiUrl.getCurrentOrders, statusCode: 200);
 
-      // It seems the response is already a Map, not an HTTP response object
-      // So we need to handle it differently
       log("API response received: ${response.runtimeType}");
 
       try {
@@ -62,6 +59,5 @@ class CurrentOrderController extends GetxController {
   Future<void> refreshCurrentOrder() async {
     isLoading(true);
     await getCurrentOrder();
-    isLoading(false);
   }
 }
