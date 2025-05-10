@@ -28,17 +28,19 @@ class NewBookingsController extends GetxController {
     });
 
     try {
-      Response response =
+      // Response is now a Map<String, dynamic>
+      var response =
           await ApiPutServices().apiPutServices(url: url, body: body);
 
-      if (response.statusCode == 200) {
+      // Handle the response based on status field in the Map
+      if (response['status'] == 'success') {
         log('Parcel delivery updated successfully');
         final CurrentOrderController controller =
             Get.find<CurrentOrderController>();
         await controller.refreshCurrentOrder();
         Get.snackbar('Success', 'Delivery request accepted successfully');
       } else {
-        log('Failed to update parcel: ${response.statusCode}');
+        log('Failed to update parcel: ${response['message']}');
         Get.snackbar('Error', 'Failed to accept delivery request');
 
         // Revert state on failure
@@ -55,6 +57,47 @@ class NewBookingsController extends GetxController {
     }
   }
 
+  // Future<void> rejectParcelRequest(String parcelId, String delivererId) async {
+  //   const String url = AppApiUrl.cancelDeliveryRequest;
+  //   final String requestKey = '$parcelId-$delivererId';
+  //
+  //   // Update state immediately for better user experience
+  //   requestStates[requestKey] = 'rejected';
+  //   update();
+  //
+  //   final body = json.encode({
+  //     "parcelId": parcelId,
+  //     "delivererId": delivererId,
+  //   });
+  //
+  //   try {
+  //     Response response =
+  //         await ApiPostServices().apiPostServices(url: url, body: body);
+  //
+  //     if (response.statusCode == 200) {
+  //       log('Parcel delivery rejected successfully');
+  //       final CurrentOrderController controller =
+  //           Get.find<CurrentOrderController>();
+  //       await controller.refreshCurrentOrder();
+  //       Get.snackbar('Success', 'Delivery request rejected successfully');
+  //     } else {
+  //       log('Failed to reject parcel: ${response.statusCode}');
+  //       Get.snackbar('Error', 'Failed to reject delivery request');
+  //
+  //       // Revert state on failure
+  //       requestStates[requestKey] = 'pending';
+  //       update();
+  //     }
+  //   } catch (error) {
+  //     log('Error: $error');
+  //     Get.snackbar('Error', 'An error occurred while rejecting the request');
+  //
+  //     // Revert state on error
+  //     requestStates[requestKey] = 'pending';
+  //     update();
+  //   }
+  // }
+
   Future<void> rejectParcelRequest(String parcelId, String delivererId) async {
     const String url = AppApiUrl.cancelDeliveryRequest;
     final String requestKey = '$parcelId-$delivererId';
@@ -69,22 +112,24 @@ class NewBookingsController extends GetxController {
     });
 
     try {
-      Response response =
+      // Response is now a Map<String, dynamic>
+      var response =
           await ApiPostServices().apiPostServices(url: url, body: body);
 
-      if (response.statusCode == 200) {
+      // Handle the response based on the 'status' field in the Map
+      if (response['status'] == 'success') {
         log('Parcel delivery rejected successfully');
         final CurrentOrderController controller =
             Get.find<CurrentOrderController>();
         await controller.refreshCurrentOrder();
         Get.snackbar('Success', 'Delivery request rejected successfully');
       } else {
-        log('Failed to reject parcel: ${response.statusCode}');
+        log('Failed to reject parcel: ${response['message']}');
         Get.snackbar('Error', 'Failed to reject delivery request');
 
         // Revert state on failure
         requestStates[requestKey] = 'pending';
-        update();
+        requestStates.refresh();
       }
     } catch (error) {
       log('Error: $error');

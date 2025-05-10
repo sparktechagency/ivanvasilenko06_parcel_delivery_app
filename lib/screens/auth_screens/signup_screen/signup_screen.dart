@@ -1,9 +1,12 @@
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/screens/auth_screens/signup_screen/controller/signup_controller.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
+import 'package:parcel_delivery_app/widgets/phone_field_widget/phone_field_widget.dart';
+
 import '../../../widgets/space_widget/space_widget.dart';
 import '../../../widgets/text_field_widget/text_field_widget.dart';
 import '../../../widgets/text_widget/text_widgets.dart';
@@ -54,9 +57,20 @@ class SignupScreen extends StatelessWidget {
                   hintText: "enterEmail".tr,
                   maxLines: 1,
                 ),
+                const SpaceWidget(spaceHeight: 16),
 
+                IntlPhoneFieldWidget(
+                  hintText: "Enter Your Number".tr,
+                  controller: controller.phoneController,
+                  onChanged: (phone) {
+                    controller.updatePhoneNumber(phone.completeNumber);
+                    log(phone.completeNumber);
+                  },
+                  fillColor: AppColors.white,
+                  borderColor: AppColors.black,
+                  initialCountryCode: "IL",
+                ),
                 const SpaceWidget(spaceHeight: 20),
-
                 // Loading Indicator
                 Obx(() => controller.isLoading.value
                     ? const Center(child: CircularProgressIndicator())

@@ -45,7 +45,6 @@ class PageSix extends StatelessWidget {
           const SpaceWidget(spaceHeight: 16),
           IntlPhoneFieldWidget(
             controller: parcelController.phoneController,
-            // Bind the controller to the phone field
             hintText: "enterReceiversNumber".tr,
             onChanged: (phone) {
               parcelController.setReceiverNumber(phone.number);

@@ -525,7 +525,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ProfileCardWidget(
                       titleText: "phoneNumber".tr,
                       subtitleText: profileController
-                              .profileData.value.data?.user?.email ??
+                              .profileData.value.data?.user?.mobileNumber ??
+                          'N/A',
+                    ),
+                    const Divider(
+                      color: AppColors.grey,
+                      thickness: 1,
+                    ),
+                    ProfileCardWidget(
+                      titleText: "whatsapp".tr,
+                      subtitleText: profileController
+                              .profileData.value.data?.user?.mobileNumber ??
                           'N/A',
                     ),
                     const Divider(

@@ -1,3 +1,6 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:geocoding/geocoding.dart';
@@ -30,6 +33,7 @@ class BookingScreen extends StatefulWidget {
 class _BookingScreenState extends State<BookingScreen> {
   int _currentIndex = 0;
   Map<String, String> addressCache = {};
+  Map<String, String> newAddressCache = {};
   String address = "Loading...";
   String newBookingAddress = "Loading...";
   final PageController _pageController = PageController();
@@ -153,47 +157,105 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 
-  Future<void> _makePhoneCall() async {
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    if (phoneNumber.isEmpty) {
+      _showErrorSnackBar('No phone number available');
+      return;
+    }
+
+    // Clean the phone number
+    final String formattedNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
 
     try {
-      if (await canLaunchUrl(launchUri)) {
-        await launchUrl(launchUri);
+      // Use different approaches based on platform
+      if (Platform.isAndroid) {
+        // For Android, use Intent.ACTION_DIAL (doesn't require permission)
+        final Uri phoneUri = Uri.parse('tel:$formattedNumber');
+        await launchUrl(phoneUri,
+            mode: LaunchMode.externalNonBrowserApplication);
+      } else if (Platform.isIOS) {
+        // For iOS
+        final Uri phoneUri = Uri.parse('tel://$formattedNumber');
+        if (await canLaunchUrl(phoneUri)) {
+          await launchUrl(phoneUri);
+        } else {
+          throw 'Could not launch $phoneUri';
+        }
       } else {
-        _showErrorSnackBar('Could not launch phone call');
+        // For other platforms
+        final Uri phoneUri = Uri.parse('tel:$formattedNumber');
+        if (await canLaunchUrl(phoneUri)) {
+          await launchUrl(phoneUri);
+        } else {
+          throw 'Could not launch $phoneUri';
+        }
       }
     } catch (e) {
-      _showErrorSnackBar('An error occurred: $e');
+      log('Error launching phone call: $e');
+      _showErrorSnackBar('Error opening dialer: $e');
     }
   }
 
   // Function to send a message
-  Future<void> _sendMessage() async {
-    final Uri launchUri = Uri(
-      scheme: 'sms',
-      path: phoneNumber,
-      queryParameters: {'body': message},
-    );
+
+  Future<void> _openWhatsApp(String phoneNumber, String message) async {
+    if (phoneNumber.isEmpty) {
+      _showErrorSnackBar('No phone number available');
+      return;
+    }
+
+    // Format the phone number (remove any non-digit characters)
+    String formattedNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
 
     try {
-      if (await canLaunchUrl(launchUri)) {
-        await launchUrl(launchUri);
-      } else {
-        _showErrorSnackBar('Could not launch messaging app');
+      // Direct WhatsApp intent
+      if (Platform.isAndroid) {
+        // Try Android-specific direct intent first (most reliable)
+        final Uri androidUri = Uri.parse(
+            "intent://send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}#Intent;scheme=whatsapp;package=com.whatsapp;end");
+
+        if (await canLaunchUrl(androidUri)) {
+          await launchUrl(androidUri);
+          return;
+        }
       }
+
+      // Try the standard WhatsApp URL scheme
+      final Uri whatsappUri = Uri.parse(
+          "whatsapp://send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}");
+
+      if (await canLaunchUrl(whatsappUri)) {
+        await launchUrl(whatsappUri,
+            mode: LaunchMode.externalNonBrowserApplication);
+        return;
+      }
+
+      // Fallback to website (this should work on most devices)
+      final Uri webUri = Uri.parse(
+          "https://api.whatsapp.com/send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}");
+
+      if (await canLaunchUrl(webUri)) {
+        await launchUrl(webUri, mode: LaunchMode.externalApplication);
+        return;
+      }
+
+      log('Could not find any WhatsApp method that works');
+      _showErrorSnackBar('WhatsApp not installed or accessible');
     } catch (e) {
-      _showErrorSnackBar('An error occurred: $e');
-      print('An error occurred: $e');
+      log('Error opening WhatsApp: $e');
+      _showErrorSnackBar('Error opening WhatsApp');
     }
   }
 
   // Helper method to show error messages
   void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+    final scaffoldMessenger = ScaffoldMessenger.of(Get.context!);
+    scaffoldMessenger.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+      ),
     );
   }
 
@@ -338,7 +400,6 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 
-  // Function to get the address from coordinates with caching
   Future<void> _getAddress(double latitude, double longitude) async {
     final String key = '$latitude,$longitude';
     if (addressCache.containsKey(key)) {
@@ -352,7 +413,7 @@ class _BookingScreenState extends State<BookingScreen> {
           await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
         String newAddress =
-            '${placemarks[0].locality}, ${placemarks[0].country}';
+            '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].country}';
         setState(() {
           address = newAddress;
         });
@@ -371,9 +432,9 @@ class _BookingScreenState extends State<BookingScreen> {
 
   Future<void> newAddress(double latitude, double longitude) async {
     final String key = '$latitude,$longitude';
-    if (addressCache.containsKey(key)) {
+    if (newAddressCache.containsKey(key)) {
       setState(() {
-        newBookingAddress = addressCache[key]!;
+        newBookingAddress = newAddressCache[key]!;
       });
       return;
     }
@@ -382,11 +443,11 @@ class _BookingScreenState extends State<BookingScreen> {
           await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
         String newAddress =
-            '${placemarks[0].locality}, ${placemarks[0].country}';
+            '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].country}';
         setState(() {
           newBookingAddress = newAddress;
         });
-        addressCache[key] = newAddress; // Cache the address
+        newAddressCache[key] = newAddress; // Cache the address
       } else {
         setState(() {
           newBookingAddress = 'No address found';
@@ -534,6 +595,7 @@ class _BookingScreenState extends State<BookingScreen> {
               children: List.generate(data.length, (index) {
                 final deliverLocation =
                     data[index].deliveryLocation?.coordinates;
+                final pickupLocation = data[index].pickupLocation?.coordinates;
                 final date =
                     formatDeliveryDate(data[index].deliveryEndTime ?? "");
                 final isUserSender =
@@ -546,6 +608,15 @@ class _BookingScreenState extends State<BookingScreen> {
                     final latitude = deliverLocation[1];
                     final longitude = deliverLocation[0];
                     _getAddress(latitude, longitude);
+                  });
+                }
+                if (pickupLocation != null &&
+                    pickupLocation.length == 2 &&
+                    newBookingAddress == "Loading...") {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    final latitude = pickupLocation[1];
+                    final longitude = pickupLocation[0];
+                    newAddress(latitude, longitude);
                   });
                 }
 
@@ -598,11 +669,18 @@ class _BookingScreenState extends State<BookingScreen> {
                                         size: 12,
                                       ),
                                       const SpaceWidget(spaceWidth: 8),
-                                      TextWidget(
-                                        text: address,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        fontColor: AppColors.greyDark2,
+                                      SizedBox(
+                                        width: ResponsiveUtils.width(180),
+                                        child: TextWidget(
+                                          text:
+                                              "$newBookingAddress to $address",
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          fontColor: AppColors.greyDark2,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlignment: TextAlign.start,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -682,7 +760,9 @@ class _BookingScreenState extends State<BookingScreen> {
                                   Row(
                                     children: [
                                       InkWell(
-                                        onTap: _sendMessage,
+                                        onTap: () => _openWhatsApp(
+                                            data[index].phoneNumber ?? "",
+                                            "Hello, regarding your parcel delivery."),
                                         borderRadius:
                                             BorderRadius.circular(100),
                                         child: const CircleAvatar(
@@ -698,7 +778,8 @@ class _BookingScreenState extends State<BookingScreen> {
                                       ),
                                       const SpaceWidget(spaceWidth: 8),
                                       InkWell(
-                                        onTap: _makePhoneCall,
+                                        onTap: () => _makePhoneCall(
+                                            data[index].phoneNumber ?? ""),
                                         borderRadius:
                                             BorderRadius.circular(100),
                                         child: const CircleAvatar(
@@ -994,13 +1075,15 @@ class _BookingScreenState extends State<BookingScreen> {
                                     size: 12,
                                   ),
                                   const SpaceWidget(spaceWidth: 8),
-                                  TextWidget(
-                                    text: newBookingAddress,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.greyDark2,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                  Flexible(
+                                    child: TextWidget(
+                                      text: newBookingAddress,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      fontColor: AppColors.greyDark2,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -1038,6 +1121,52 @@ class _BookingScreenState extends State<BookingScreen> {
                                     fontWeight: FontWeight.w500,
                                     fontColor: AppColors.greyDark2,
                                   ),
+                                ],
+                              ),
+                              const SpaceWidget(spaceHeight: 8),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.delivery_dining_outlined,
+                                    color: AppColors.black,
+                                    size: 15,
+                                  ),
+                                  const SpaceWidget(spaceWidth: 8),
+                                  TextWidget(
+                                    text: allParcels?.first.deliveryType ==
+                                            'bike'
+                                        ? 'Bike'
+                                        : allParcels?.first.deliveryType ==
+                                                'bicycle'
+                                            ? 'Bicycle'
+                                            : allParcels?.first.deliveryType ==
+                                                    'car'
+                                                ? 'Car'
+                                                : allParcels?.first
+                                                            .deliveryType ==
+                                                        'taxi'
+                                                    ? 'Taxi'
+                                                    : allParcels?.first
+                                                                .deliveryType ==
+                                                            'truck'
+                                                        ? 'Truck'
+                                                        : allParcels?.first
+                                                                    .deliveryType ==
+                                                                'person'
+                                                            ? 'Person'
+                                                            : allParcels?.first
+                                                                        .deliveryType ==
+                                                                    'plane'
+                                                                ? 'Plane'
+                                                                : allParcels
+                                                                        ?.first
+                                                                        .deliveryType ??
+                                                                    '',
+                                    // Default empty string if null
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    fontColor: AppColors.greyDark2,
+                                  )
                                 ],
                               ),
                               const SpaceWidget(spaceHeight: 8),

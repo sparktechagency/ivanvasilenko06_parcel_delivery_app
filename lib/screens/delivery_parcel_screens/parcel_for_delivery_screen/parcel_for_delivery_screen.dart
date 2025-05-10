@@ -31,20 +31,35 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
   // Cache to store the fetched address based on coordinates
   Map<String, String> addressCache = {};
 
-  // Store the current address to update it only when coordinates change
-  String address = "Loading...";
+  @override
+  void initState() {
+    super.initState();
+    final deliveryScreenController = Get.find<DeliveryScreenController>();
+
+    // Pre-fetch addresses for all parcels after widget initialization
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      for (final parcel in deliveryScreenController.parcels) {
+        final deliveryCoordinates = parcel.deliveryLocation?.coordinates;
+        if (deliveryCoordinates != null && deliveryCoordinates.length == 2) {
+          final latitude = deliveryCoordinates[1];
+          final longitude = deliveryCoordinates[0];
+          _getAddress(latitude, longitude);
+        }
+      }
+    });
+  }
 
   // Function to get the address from coordinates with caching
   Future<void> _getAddress(double latitude, double longitude) async {
     final String key = '$latitude,$longitude';
 
-    // Check if the address for these coordinates is cached
+    // Skip if the address for these coordinates is already being fetched or cached
     if (addressCache.containsKey(key)) {
-      setState(() {
-        address = addressCache[key]!;
-      });
       return;
     }
+
+    // Set a placeholder while fetching
+    addressCache[key] = "Loading...";
 
     try {
       List<Placemark> placemarks =
@@ -52,19 +67,33 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
       if (placemarks.isNotEmpty) {
         String newAddress =
             '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].country}';
-        setState(() {
-          address = newAddress;
-        });
-        addressCache[key] = newAddress; // Cache the address
+
+        // Only update state if widget is still mounted
+        if (mounted) {
+          setState(() {
+            addressCache[key] = newAddress; // Cache the address
+          });
+        } else {
+          // Update cache even if widget is not mounted
+          addressCache[key] = newAddress;
+        }
       } else {
-        setState(() {
-          address = 'No address found';
-        });
+        if (mounted) {
+          setState(() {
+            addressCache[key] = 'No address found';
+          });
+        } else {
+          addressCache[key] = 'No address found';
+        }
       }
     } catch (e) {
-      setState(() {
-        address = 'Error fetching address';
-      });
+      if (mounted) {
+        setState(() {
+          addressCache[key] = 'Error fetching address';
+        });
+      } else {
+        addressCache[key] = 'Error fetching address';
+      }
     }
   }
 
@@ -81,6 +110,19 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
     } else {
       return "Unknown Date";
     }
+  }
+
+  // Helper method to get address from cache or return a default string
+  String getAddressForCoordinates(List<dynamic>? coordinates) {
+    if (coordinates == null || coordinates.length < 2) {
+      return "Address unavailable";
+    }
+
+    final latitude = coordinates[1];
+    final longitude = coordinates[0];
+    final key = '$latitude,$longitude';
+
+    return addressCache[key] ?? "Loading...";
   }
 
   @override
@@ -106,198 +148,237 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
           ),
           const SpaceWidget(spaceHeight: 16),
           Expanded(
-            child: ListView.separated(
-              itemCount: deliveryScreenController.parcels.length,
-              itemBuilder: (context, index) {
-                final parcel = deliveryScreenController.parcels[index];
-                final title = parcel.title ?? "Unknown Parcel";
-                final price = parcel.price ?? 0;
-                final date = formatDeliveryDate(parcel.deliveryEndTime);
-                // Extract the coordinates for the delivery location
-                final deliveryCoordinates =
-                    parcel.deliveryLocation?.coordinates;
+            // Using GetBuilder for more reliable UI updates
+            child: GetBuilder<DeliveryScreenController>(
+              builder: (controller) => ListView.separated(
+                itemCount: controller.parcels.length,
+                itemBuilder: (context, index) {
+                  final parcel = controller.parcels[index];
+                  final title = parcel.title ?? "Unknown Parcel";
+                  final price = parcel.price ?? 0;
+                  final date = formatDeliveryDate(parcel.deliveryEndTime);
+                  final parcelId = parcel.sId;
 
-                // Only fetch the address if coordinates are available and not already cached
-                if (deliveryCoordinates != null &&
-                    deliveryCoordinates.length == 2) {
-                  final latitude = deliveryCoordinates[1];
-                  final longitude = deliveryCoordinates[0];
-                  // Call _getAddress only if the address for these coordinates is not cached
-                  _getAddress(latitude, longitude);
-                }
+                  // Check if request is already sent for this parcel
+                  final isRequestSent = controller.isRequestSent(parcelId);
 
-                return Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: Row(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(100),
-                                  child: const ImageWidget(
-                                    imagePath: AppImagePath.sendParcel,
-                                    width: 40,
-                                    height: 40,
-                                  ),
-                                ),
-                                const SpaceWidget(spaceWidth: 10),
-                                Flexible(
-                                  child: TextWidget(
-                                    text: title,
-                                    fontSize: 15,
-                                    fontFamily: "AeonikTRIAL",
-                                    fontWeight: FontWeight.w600,
-                                    fontColor: AppColors.black,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                const SpaceWidget(spaceWidth: 10),
-                              ],
-                            ),
-                          ),
-                          TextWidget(
-                            text: "${AppStrings.currency} $price",
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            fontColor: AppColors.black,
-                          ),
-                        ],
-                      ),
-                      const SpaceWidget(spaceHeight: 8),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.location_on_rounded,
-                            color: AppColors.black,
-                            size: 12,
-                          ),
-                          const SpaceWidget(spaceWidth: 8),
-                          TextWidget(
-                            text: address,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            fontColor: AppColors.greyDark2,
-                          ),
-                        ],
-                      ),
-                      const SpaceWidget(spaceHeight: 8),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.calendar_month,
-                            color: AppColors.black,
-                            size: 12,
-                          ),
-                          const SpaceWidget(spaceWidth: 8),
-                          TextWidget(
-                            text: date,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            fontColor: AppColors.greyDark2,
-                          ),
-                        ],
-                      ),
-                      const SpaceWidget(spaceHeight: 12),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: AppColors.whiteLight,
-                          borderRadius: BorderRadius.circular(100),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
+                  // Debug log to verify status
+                  if (parcelId != null) {
+                    log("Parcel ID: $parcelId, Request Sent: $isRequestSent");
+                  }
+
+                  // Get the address from cache - no setState during build!
+                  final address = getAddressForCoordinates(
+                      parcel.deliveryLocation?.coordinates);
+
+                  return Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            InkWell(
-                              onTap: index == 2
-                                  ? null
-                                  : () {
-                                      final parcelId = parcel.sId;
-                                      if (parcelId != null &&
-                                          parcelId.isNotEmpty) {
-                                        deliveryScreenController
-                                            .sendParcelRequest(parcelId);
-                                        Get.toNamed(
-                                            AppRoutes.sentRequestSuccessfully);
-                                      } else {
-                                        AppSnackBar.error(
-                                            "Parcel ID is missing");
-                                      }
-                                    },
-                              splashColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
+                            Expanded(
+                              flex: 2,
                               child: Row(
                                 children: [
-                                  IconWidget(
-                                    icon: AppIconsPath.personAddIcon,
-                                    color: index == 2
-                                        ? Colors.grey
-                                        : AppColors.black,
-                                    width: 14,
-                                    height: 14,
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(100),
+                                    child: const ImageWidget(
+                                      imagePath: AppImagePath.sendParcel,
+                                      width: 40,
+                                      height: 40,
+                                    ),
                                   ),
-                                  const SpaceWidget(spaceWidth: 8),
-                                  TextWidget(
-                                    text: "sendRequest".tr,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.black,
+                                  const SpaceWidget(spaceWidth: 10),
+                                  Flexible(
+                                    child: TextWidget(
+                                      text: title,
+                                      fontSize: 15,
+                                      fontFamily: "AeonikTRIAL",
+                                      fontWeight: FontWeight.w600,
+                                      fontColor: AppColors.black,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
+                                  const SpaceWidget(spaceWidth: 10),
                                 ],
                               ),
                             ),
-                            Container(
-                              width: 1,
-                              height: 18,
-                              color: AppColors.blackLighter,
+                            TextWidget(
+                              text: "${AppStrings.currency} $price",
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              fontColor: AppColors.black,
                             ),
-                            InkWell(
-                              onTap: index == 2 || parcel.sId == null
-                                  ? null
-                                  : () {
-                                      if (parcel.sId != null) {
-                                        Get.toNamed(
-                                          AppRoutes.summaryOfParcelScreen,
-                                          arguments: parcel.sId,
-                                        );
-                                      }
-                                    },
-                              splashColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.visibility_outlined,
-                                    color: Colors.black,
-                                    size: 14,
-                                  ),
-                                  const SpaceWidget(spaceWidth: 8),
-                                  TextWidget(
-                                    text: "viewSummary".tr,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.black,
-                                  ),
-                                ],
+                          ],
+                        ),
+                        const SpaceWidget(spaceHeight: 8),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.location_on_rounded,
+                              color: AppColors.black,
+                              size: 12,
+                            ),
+                            const SpaceWidget(spaceWidth: 8),
+                            Flexible(
+                              child: TextWidget(
+                                text: address,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                fontColor: AppColors.greyDark2,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
                               ),
                             ),
                           ],
                         ),
-                      )
-                    ],
-                  ),
-                );
-              },
-              separatorBuilder: (_, __) {
-                return const SizedBox(height: 10);
-              },
+                        const SpaceWidget(spaceHeight: 8),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.calendar_month,
+                              color: AppColors.black,
+                              size: 12,
+                            ),
+                            const SpaceWidget(spaceWidth: 8),
+                            TextWidget(
+                              text: date,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              fontColor: AppColors.greyDark2,
+                            ),
+                          ],
+                        ),
+                        if (isRequestSent == true) ...[
+                          const SpaceWidget(spaceHeight: 8),
+                          const Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              SpaceWidget(spaceWidth: 8),
+                              TextWidget(
+                                text: "Request Sent",
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                fontColor: Colors.green,
+                              ),
+                            ],
+                          ),
+                        ],
+                        const SpaceWidget(spaceHeight: 12),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: AppColors.whiteLight,
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Opacity(
+                                opacity: (index == 2 ||
+                                        isRequestSent ||
+                                        parcelId == null)
+                                    ? 0.5
+                                    : 1.0,
+                                child: InkWell(
+                                  onTap: (index == 2 ||
+                                          isRequestSent ||
+                                          parcelId == null)
+                                      ? null
+                                      : () async {
+                                          if (parcelId != null &&
+                                              parcelId.isNotEmpty) {
+                                            // Use mounted check to update UI after request
+                                            await controller
+                                                .sendParcelRequest(parcelId);
+                                            if (mounted) {
+                                              setState(() {
+                                                // Force rebuild of this widget
+                                              });
+                                            }
+                                          } else {
+                                            AppSnackBar.error(
+                                                "Parcel ID is missing");
+                                          }
+                                        },
+                                  splashColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                  child: Row(
+                                    children: [
+                                      IconWidget(
+                                        icon: AppIconsPath.personAddIcon,
+                                        color: (index == 2 || isRequestSent)
+                                            ? Colors.grey
+                                            : AppColors.black,
+                                        width: 14,
+                                        height: 14,
+                                      ),
+                                      const SpaceWidget(spaceWidth: 8),
+                                      TextWidget(
+                                        text: isRequestSent
+                                            ? "Request Sent"
+                                            : "sendRequest".tr,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        fontColor: isRequestSent
+                                            ? Colors.grey
+                                            : AppColors.black,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                width: 1,
+                                height: 18,
+                                color: AppColors.blackLighter,
+                              ),
+                              InkWell(
+                                onTap: index == 2 || parcel.sId == null
+                                    ? null
+                                    : () {
+                                        if (parcel.sId != null) {
+                                          Get.toNamed(
+                                            AppRoutes.summaryOfParcelScreen,
+                                            arguments: parcel.sId,
+                                          );
+                                        }
+                                      },
+                                splashColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.visibility_outlined,
+                                      color: Colors.black,
+                                      size: 14,
+                                    ),
+                                    const SpaceWidget(spaceWidth: 8),
+                                    TextWidget(
+                                      text: "viewSummary".tr,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      fontColor: AppColors.black,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                },
+                separatorBuilder: (_, __) {
+                  return const SizedBox(height: 10);
+                },
+              ),
             ),
           ),
         ],

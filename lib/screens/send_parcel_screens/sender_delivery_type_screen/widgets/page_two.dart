@@ -280,22 +280,14 @@ class _PageTwoState extends State<PageTwo> {
         setState(() {
           // Start with empty set
           _markers = {};
-
-          // Add current location marker if needed
           if (_showCurrentLocationMarker && _currentLocationMarker != null) {
             _markers.add(_currentLocationMarker!);
           }
-
-          // Add repository markers (destination and pickup)
           _markers.addAll(_locationRepository.markers);
         });
 
-        // After getting the end location, fetch directions if we have both points
         if (_locationRepository.startingLocationCoordinates != null) {
-          // Explicitly fetch directions to ensure polylines are created
           await _locationRepository.fetchDirections();
-
-          // Important: Update state after fetching directions to show polyline
           setState(() {});
         }
       }

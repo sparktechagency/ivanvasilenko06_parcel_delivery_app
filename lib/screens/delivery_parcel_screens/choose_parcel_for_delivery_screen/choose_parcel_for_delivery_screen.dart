@@ -1,9 +1,12 @@
+import 'dart:convert'; // 🆕 for JSON decoding
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:intl/intl.dart'; // 🆕 for formatting date
+import 'package:http/http.dart' as http; // 🆕 for API requests
+import 'package:intl/intl.dart';
+import 'package:parcel_delivery_app/constants/api_key.dart'; // 🆕 for API key
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/screens/delivery_parcel_screens/controller/delivery_screens_controller.dart';
 import 'package:parcel_delivery_app/screens/delivery_parcel_screens/parcel_for_delivery_screen/parcel_for_delivery_screen.dart';
@@ -24,11 +27,13 @@ class _ChooseParcelForDeliveryScreenState
       Get.find<DeliveryScreenController>();
 
   BitmapDescriptor? _customMarker;
+  Set<Polyline> _polylines = {}; // 🆕 for polyline
 
   @override
   void initState() {
     super.initState();
     _loadCustomMarkerIcon();
+    _fetchRoute(); // 🆕 fetch route for polyline
   }
 
   Future<void> _loadCustomMarkerIcon() async {
@@ -37,6 +42,91 @@ class _ChooseParcelForDeliveryScreenState
       'assets/icons/parcelIcon.png',
     );
     setState(() {});
+  }
+
+  // 🆕 Fetch route coordinates from Google Directions API
+  Future<void> _fetchRoute() async {
+    final Map<String, dynamic>? args = Get.arguments;
+    if (args == null ||
+        !args.containsKey("pickupLatLng") ||
+        !args.containsKey("deliveryLatLng")) {
+      log('❌ Missing pickup or delivery coordinates');
+      return;
+    }
+
+    final LatLng pickupLatLng = args["pickupLatLng"];
+    final LatLng deliveryLatLng = args["deliveryLatLng"];
+
+    final Uri uri = Uri.https(
+      'maps.googleapis.com',
+      '/maps/api/directions/json',
+      {
+        'origin': '${pickupLatLng.latitude},${pickupLatLng.longitude}',
+        'destination': '${deliveryLatLng.latitude},${deliveryLatLng.longitude}',
+        'key': apikey,
+      },
+    );
+
+    try {
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'OK') {
+          final String polylinePoints =
+              data['routes'][0]['overview_polyline']['points'];
+          final List<LatLng> polylineCoordinates =
+              _decodePolyline(polylinePoints);
+
+          setState(() {
+            _polylines.add(
+              Polyline(
+                polylineId: const PolylineId('route'),
+                points: polylineCoordinates,
+                color: AppColors.black,
+                width: 6,
+              ),
+            );
+          });
+        } else {
+          log('❌ Directions API error: ${data['status']}');
+        }
+      } else {
+        log('❌ HTTP error: ${response.statusCode}');
+      }
+    } catch (e) {
+      log('❌ Error fetching route: $e');
+    }
+  }
+
+  // 🆕 Decode polyline points from encoded string
+  List<LatLng> _decodePolyline(String encoded) {
+    List<LatLng> points = [];
+    int index = 0, len = encoded.length;
+    int lat = 0, lng = 0;
+
+    while (index < len) {
+      int b, shift = 0, result = 0;
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lat += dlat;
+
+      shift = 0;
+      result = 0;
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lng += dlng;
+
+      points.add(LatLng(lat / 1E5, lng / 1E5));
+    }
+    return points;
   }
 
   void _showParcelDetailsBottomSheet(int index) {
@@ -96,7 +186,6 @@ class _ChooseParcelForDeliveryScreenState
 
   @override
   Widget build(BuildContext context) {
-    // Retrieve arguments passed from the previous screen
     final Map<String, dynamic>? args = Get.arguments;
 
     return Scaffold(
@@ -119,10 +208,8 @@ class _ChooseParcelForDeliveryScreenState
 
         final parcels = controller.parcels;
 
-        // Determine the initial camera position dynamically
         LatLng? initialLatLng;
 
-        // Check if pickup location coordinates are available in arguments
         if (args != null &&
             args.containsKey("pickupLatitude") &&
             args.containsKey("pickupLongitude")) {
@@ -134,7 +221,6 @@ class _ChooseParcelForDeliveryScreenState
           }
         }
 
-        // If no pickup location, check for current location coordinates
         if (initialLatLng == null &&
             args != null &&
             args.containsKey("currentLocationLatitude") &&
@@ -147,7 +233,6 @@ class _ChooseParcelForDeliveryScreenState
           }
         }
 
-        // If parcels exist and have valid coordinates, override the initialLatLng
         if (initialLatLng == null &&
             parcels.isNotEmpty &&
             parcels.first.pickupLocation?.coordinates != null &&
@@ -156,7 +241,6 @@ class _ChooseParcelForDeliveryScreenState
           initialLatLng = LatLng(coords[1], coords[0]);
         }
 
-        // If no valid coordinates are found, throw an error or handle it gracefully
         if (initialLatLng == null) {
           throw Exception("No valid initial location found");
         }
@@ -195,6 +279,8 @@ class _ChooseParcelForDeliveryScreenState
             zoom: 12,
           ),
           markers: markers,
+          polylines: _polylines,
+          // 🆕 add polylines to map
           onMapCreated: (_) {},
           myLocationButtonEnabled: true,
           myLocationEnabled: true,

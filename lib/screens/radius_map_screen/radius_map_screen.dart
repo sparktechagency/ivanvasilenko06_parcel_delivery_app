@@ -1,4 +1,8 @@
+import 'dart:developer';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -20,15 +24,44 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
   late GoogleMapController mapController;
   final EarnMoneyRadiusController _radiusController = Get.find();
   bool isLoading = true;
+  BitmapDescriptor customMarkerIcon = BitmapDescriptor.defaultMarker;
 
   @override
   void initState() {
     super.initState();
+    _loadCustomMarker();
     _loadParcels();
     _updateCurrentAddress();
   }
 
-  // Add this method to update address whenever location changes
+  Future<Uint8List> getBytesFromAsset(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
+    ui.Codec codec = await ui.instantiateImageCodec(
+      data.buffer.asUint8List(),
+      targetWidth: width,
+    );
+    ui.FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
+        .buffer
+        .asUint8List();
+  }
+
+  Future<void> _loadCustomMarker() async {
+    try {
+      final Uint8List markerIconBytes =
+          await getBytesFromAsset('assets/images/send.png', 100);
+
+      setState(() {
+        customMarkerIcon = BitmapDescriptor.fromBytes(markerIconBytes);
+      });
+    } catch (e) {
+      log('Error loading custom marker: $e');
+      setState(() {
+        customMarkerIcon = BitmapDescriptor.defaultMarker;
+      });
+    }
+  }
+
   void _updateCurrentAddress() {
     if (_radiusController.currentLocation.value != null) {
       _getAddress(
@@ -57,7 +90,7 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
         setState(() {
           address = newAddress;
         });
-        addressCache[key] = newAddress; // Cache the address
+        addressCache[key] = newAddress;
       } else {
         setState(() {
           address = 'No address found';
@@ -76,8 +109,6 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
     });
 
     await _radiusController.fetchParcelsInRadius();
-
-    // Update address after parcels are loaded and location is set
     _updateCurrentAddress();
 
     setState(() {
@@ -93,24 +124,14 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
         alignment: Alignment.bottomCenter,
         children: [
           Obx(() {
-            final currentLoc = _radiusController.currentLocation.value ??
-                const LatLng(23.7596, 90.4211); // Default location
-
-            // Update address when location changes
-            if (_radiusController.currentLocation.value != null) {
-              _updateCurrentAddress();
-            }
-
             return GoogleMap(
               onMapCreated: (GoogleMapController controller) {
                 mapController = controller;
-
-                // Add a circle to indicate the radius
                 if (_radiusController.currentLocation.value != null) {
                   mapController.animateCamera(
                     CameraUpdate.newCameraPosition(
                       CameraPosition(
-                        target: currentLoc,
+                        target: _radiusController.currentLocation.value!,
                         zoom: _getZoomLevel(_radiusController.radius.value),
                       ),
                     ),
@@ -118,21 +139,10 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
                 }
               },
               initialCameraPosition: CameraPosition(
-                target: currentLoc,
+                target: _radiusController.currentLocation.value!,
                 zoom: _getZoomLevel(_radiusController.radius.value),
               ),
-              markers: Set.from(_radiusController.markers),
-              circles: {
-                Circle(
-                  circleId: const CircleId('radius_circle'),
-                  center: currentLoc,
-                  radius: _radiusController.radius.value * 1000,
-                  // Convert km to meters
-                  fillColor: AppColors.black.withAlpha(25),
-                  strokeColor: AppColors.black,
-                  strokeWidth: 1,
-                )
-              },
+              markers: _createCustomMarkers(),
               zoomControlsEnabled: false,
             );
           }),
@@ -212,7 +222,7 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            address, // Use the address state variable here
+                            address,
                             style: const TextStyle(
                               color: AppColors.black,
                               fontSize: 14,
@@ -239,7 +249,6 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
     );
   }
 
-  // Helper method to calculate appropriate zoom level based on radius
   double _getZoomLevel(double radius) {
     double zoomLevel = 11;
     if (radius <= 1) {
@@ -254,5 +263,24 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
       zoomLevel = 10;
     }
     return zoomLevel;
+  }
+
+  Set<Marker> _createCustomMarkers() {
+    Set<Marker> customMarkers = {};
+
+    // Convert controller markers to custom markers
+    for (Marker marker in _radiusController.markers) {
+      customMarkers.add(
+        Marker(
+          markerId: marker.markerId,
+          position: marker.position,
+          infoWindow: marker.infoWindow,
+          icon: customMarkerIcon,
+          onTap: marker.onTap,
+        ),
+      );
+    }
+
+    return customMarkers;
   }
 }

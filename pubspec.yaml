@@ -79,6 +79,8 @@ dependencies:
   firebase_auth:
   cloud_firestore:
   google_sign_in: ^6.3.0
+  device_info_plus: ^11.3.0
+  intl_phone_number_input: ^0.7.4
 
 
 

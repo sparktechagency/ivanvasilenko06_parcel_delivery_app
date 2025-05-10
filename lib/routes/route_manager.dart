@@ -6,6 +6,7 @@ import 'package:parcel_delivery_app/screens/delivery_man_details/delivery_man_de
 import 'package:parcel_delivery_app/screens/home_screen/home_screen.dart';
 import 'package:parcel_delivery_app/screens/profile_screen/edit_profile.dart';
 import 'package:parcel_delivery_app/screens/radius_map_screen/radius_available_parcel/radius_avaiable_parcel.dart';
+import 'package:parcel_delivery_app/screens/radius_map_screen/radius_map_screen_details/radius_map_screen_details.dart';
 import 'package:parcel_delivery_app/screens/recent_publish_orders/recent_publish_order.dart';
 
 import '../screens/auth_screens/email_login_screen/email_login_screen.dart';
@@ -227,7 +228,7 @@ class RouteManager {
           transition: Transition.rightToLeft),
       GetPage(
         name: AppRoutes.editProfile,
-        page: () => EditProfile(),
+        page: () => const EditProfile(),
         transition: Transition.rightToLeft,
       ),
       GetPage(
@@ -240,6 +241,11 @@ class RouteManager {
         page: () => const ParcelDetailsScreen(),
         transition: Transition.rightToLeft,
       ),
+      GetPage(
+        name: AppRoutes.radiusMapScreenDetails,
+        page: () => const RadiusMapScreenDetails(),
+        transition: Transition.rightToLeft,
+      )
     ];
   }
 }

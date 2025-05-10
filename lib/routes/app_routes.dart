@@ -36,5 +36,6 @@ class AppRoutes {
   static const editProfile = '/editProfile';
   static const sentRequestSuccessfully = '/sentRequestSuccessfully';
   static const deliveryManDetails = '/deliveryManDetails';
+  static const radiusMapScreenDetails = '/radiusMapScreenDetails';
   static const parcelDetailsScreen = '/parcelDetailsScreen';
 }

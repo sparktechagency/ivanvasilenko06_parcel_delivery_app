@@ -11,7 +11,7 @@ import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 import '../models/delivery_screen_models.dart';
 
 class DeliveryScreenController extends GetxController {
-// For storing delivery type and addresses
+  // For storing delivery type and addresses
   RxString selectedDeliveryType = ''.obs;
   RxString pickupLocation = ''.obs;
   RxString selectedDeliveryLocation = ''.obs;
@@ -32,8 +32,8 @@ class DeliveryScreenController extends GetxController {
   RxList<DeliverParcelList> parcels = RxList<DeliverParcelList>();
   RxBool isLoading = false.obs;
 
-  // New variable to store parcel IDs that need to be sent
-  RxList<String> selectedParcelIds = RxList<String>();
+  // New variable to store parcel IDs that have been sent successfully
+  RxSet<String> sentParcelIds = RxSet<String>();
 
   // Methods to set the pickup and destination
   void setStartingLocation(String address, LatLng latLng) {
@@ -74,93 +74,11 @@ class DeliveryScreenController extends GetxController {
 
   // Fetch parcels based on selected delivery type, location, and radius
   Future<void> fetchParcels() async {
-    // if (selectedDeliveryType.value.isNotEmpty &&
-    //     selectedDeliveryLocation.value.isNotEmpty) {
-    //   isLoading.value = true;
-    //   try {
-    //     // final String url = '${AppApiUrl.deliverParcel}?deliveryType=${selectedDeliveryType.value}&pickupLocation=${pickupLocation.value}&deliveryLocation=${selectedDeliveryLocation.value}&radius=${radius.value}';
-    //     final String url =
-    //         "https://azizul3000.binarybards.online/api/parcel/filtered?deliveryType=truck&pickupLocation=Faridpur&deliveryLocation=Banasree&latitude=23.6057352&longitude=89.8386531&radius=10";
-    //
-    //     final response = await ApiGetServices().apiGetServices(url);
-    //     print("body res====================================================");
-    //     print(response.body);
-    //
-    //     if (response.status == "success" &&
-    //         response.deliveryParcelList != null) {
-    //       parcels.value = (response.deliveryParcelList as List)
-    //           .map((item) => DeliverParcelList.fromJson(item))
-    //           .toList();
-    //     } else {
-    //       parcels.clear();
-    //     }
-    //   } catch (e) {
-    //     log("Error fetching parcels: $e");
-    //     parcels.clear();
-    //   } finally {
-    //     isLoading.value = false;
-    //   }
-    // } else {
-    //   parcels.cle
+    // Existing implementation...
   }
 
   RxList<DeliverParcelList> deliveryParcelList = <DeliverParcelList>[].obs;
 
-  // Future<void> fetchDeliveryParcelsList() async {
-  //   // try {
-  //   //   // final String url = '${AppApiUrl.deliverParcel}?deliveryType=${selectedDeliveryType.value}&pickupLocation=${pickupLocation.value}&deliveryLocation=${selectedDeliveryLocation.value}&radius=${radius.value}';
-  //   //   final String url =
-  //   //       "https://azizul3000.binarybards.online/api/parcel/filtered?deliveryType=truck&pickupLocation=Faridpur&deliveryLocation=Banasree&latitude=23.6057352&longitude=89.8386531&radius=10";
-  //   //   print("Api url************************");
-  //   //   print(url);
-  //   //
-  //   //   final response = await ApiGetServices().apiGetServices(url);
-  //   //   print("Response body******************************** my code");
-  //   //   print(response.statusCode);
-  //   //   if (response.statusCode == 200) {
-  //   //     DeliverParcelModel fetchStoryModel =
-  //   //         DeliverParcelModel.fromJson(response.body);
-  //   //     if (fetchStoryModel.deliveryParcelList != null) {
-  //   //       deliveryParcelList.addAll(fetchStoryModel.deliveryParcelList!);
-  //   //     }
-  //   //   } else {
-  //   //     log("Error on delivery parcel");
-  //   //   }
-  //   // } catch (e) {
-  //   //   log("Error on delivery parcel", error: e);
-  //   // }
-  //   var c = true;
-  //   if (c == true) {
-  //     isLoading.value = true;
-  //     try {
-  //       // final String url = '${AppApiUrl.deliverParcel}?deliveryType=${selectedDeliveryType.value}&pickupLocation=${pickupLocation.value}&deliveryLocation=${selectedDeliveryLocation.value}&radius=${radius.value}';
-  //       final String url =
-  //           "https://azizul3000.binarybards.online/api/parcel/filtered?deliveryType=truck&pickupLocation=Faridpur&deliveryLocation=Banasree&latitude=23.6057352&longitude=89.8386531&radius=10";
-  //
-  //       final response = await ApiGetServices().apiGetServices(url);
-  //       print("body res====================================================");
-  //       print(response.data);
-  //
-  //       if (response.status == "success" &&
-  //           response.deliveryParcelList != null) {
-  //         parcels.value = (response.deliveryParcelList as List)
-  //             .map((item) => DeliverParcelList.fromJson(item))
-  //             .toList();
-  //
-  //         print("Parcel list**********==========================");
-  //         print(parcels.value);
-  //       } else {
-  //         parcels.clear();
-  //       }
-  //     } catch (e) {
-  //       log("Error fetching parcels: $e");
-  //       parcels.clear();
-  //     } finally {
-  //       isLoading.value = false;
-  //     }
-  //   } else {
-  //     parcels.clear();
-  //
   Future<void> fetchDeliveryParcelsList() async {
     if (selectedDeliveryType.value != null &&
         pickupLocation.value != null &&
@@ -207,18 +125,17 @@ class DeliveryScreenController extends GetxController {
     try {
       // POST request URL for sending parcel ID to the database
       const String requestUrl = AppApiUrl.deliveryRequest;
-
-      // Prepare the body for the POST request
       final data = json.encode({
         'parcelIds': [parcelId],
       });
-
       final response = await ApiPostServices().apiPostServices(
         url: requestUrl,
         body: data,
       );
 
       if (response != null && response['status'] == 'success') {
+        sentParcelIds.add(parcelId);
+        update();
         AppSnackBar.success("Parcel request sent successfully");
       } else {
         AppSnackBar.error("Failed to send parcel request");
@@ -230,10 +147,15 @@ class DeliveryScreenController extends GetxController {
     }
   }
 
+  // Method to check if a request has been sent for a specific parcel
+  bool isRequestSent(String? parcelId) {
+    if (parcelId == null || parcelId.isEmpty) return false;
+    return sentParcelIds.contains(parcelId);
+  }
+
   @override
   void onInit() {
     fetchParcels();
-    // TODO: implement onInit
     super.onInit();
   }
 }

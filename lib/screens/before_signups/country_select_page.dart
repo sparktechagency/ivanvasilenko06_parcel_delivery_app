@@ -1,8 +1,9 @@
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:country_picker/country_picker.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
+import 'package:parcel_delivery_app/screens/auth_screens/signup_screen/controller/signup_controller.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
@@ -16,18 +17,24 @@ class CountrySelectPage extends StatefulWidget {
 }
 
 class _CountrySelectPageState extends State<CountrySelectPage> {
-  final TextEditingController countryController =
-      TextEditingController(text: "Israel");
+  final SignUpScreenController controller = Get.put(SignUpScreenController());
   String _countryFlag = "🇮🇱";
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with Israel
+    controller.countryController.text = "Israel";
+  }
 
   void _pickCountry(BuildContext context) {
     showCountryPicker(
       context: context,
-      showPhoneCode: false, // Hide phone codes
+      showPhoneCode: false,
       onSelect: (Country country) {
         setState(() {
-          countryController.text = country.name; // Update country name
-          _countryFlag = country.flagEmoji; // Update flag
+          controller.countryController.text = country.name;
+          _countryFlag = country.flagEmoji;
         });
       },
     );
@@ -60,7 +67,7 @@ class _CountrySelectPageState extends State<CountrySelectPage> {
               ),
               const SpaceWidget(spaceHeight: 24),
               TextFormField(
-                controller: countryController,
+                controller: controller.countryController,
                 readOnly: true,
                 decoration: InputDecoration(
                   focusColor: AppColors.greyDarkLight2,

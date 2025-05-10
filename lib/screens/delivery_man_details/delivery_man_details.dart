@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
@@ -31,6 +33,9 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
       Get.find<NewBookingsController>();
   String parcelId = '';
   String address = "Loading...";
+  String pickUpAddress = "Loading...";
+
+  Map<String, String> pickUpAddressCache = {};
   Map<String, String> addressCache = {};
   var currentParcel;
   var deliveryMan;
@@ -80,7 +85,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
       }
     } catch (e) {
       _showErrorSnackBar('An error occurred: $e');
-      print('An error occurred: $e');
+      log('An error occurred: $e');
     }
   }
 
@@ -90,7 +95,10 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
         if (parcel.id == parcelId) {
           currentParcel = parcel;
           deliveryMan = parcel.assignedDelivererId;
+
+          // Make sure to call both functions to get addresses
           findAddressFromCoordinates();
+          findPickUpAddressFromCoordinates();
           break;
         }
       }
@@ -124,18 +132,86 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
       setState(() {
         address = 'Error fetching address';
       });
+      log("Error fetching delivery address: $e");
+    }
+  }
+
+  Future<void> pickAddress(double latitude, double longitude) async {
+    final String key = '$latitude,$longitude';
+    if (pickUpAddressCache.containsKey(key)) {
+      setState(() {
+        pickUpAddress = pickUpAddressCache[key]!;
+      });
+      return;
+    }
+    try {
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        String newAddress =
+            '${placemarks[0].locality}, ${placemarks[0].subAdministrativeArea}, ${placemarks[0].country}';
+        setState(() {
+          pickUpAddress = newAddress;
+        });
+        pickUpAddressCache[key] = newAddress;
+      } else {
+        setState(() {
+          pickUpAddress = 'No address found';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        pickUpAddress = 'Error fetching address';
+      });
+      log("Error fetching pickup address: $e");
     }
   }
 
   void findAddressFromCoordinates() {
-    if (currentParcel != null &&
-        currentParcel.deliveryLocation != null &&
-        currentParcel.deliveryLocation.coordinates != null &&
-        currentParcel.deliveryLocation.coordinates!.length == 2) {
-      double longitude = currentParcel.deliveryLocation.coordinates![0];
-      double latitude = currentParcel.deliveryLocation.coordinates![1];
+    try {
+      if (currentParcel != null &&
+          currentParcel.deliveryLocation != null &&
+          currentParcel.deliveryLocation.coordinates != null &&
+          currentParcel.deliveryLocation.coordinates!.length == 2) {
+        double longitude = currentParcel.deliveryLocation.coordinates![0];
+        double latitude = currentParcel.deliveryLocation.coordinates![1];
 
-      _getAddress(latitude, longitude);
+        log("Delivery coordinates: Lat $latitude, Long $longitude");
+        _getAddress(latitude, longitude);
+      } else {
+        setState(() {
+          address = 'Delivery location not available';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        address = 'Error processing delivery location';
+      });
+      log("Error in delivery coordinates: $e");
+    }
+  }
+
+  void findPickUpAddressFromCoordinates() {
+    try {
+      if (currentParcel != null &&
+          currentParcel.pickupLocation != null &&
+          currentParcel.pickupLocation.coordinates != null &&
+          currentParcel.pickupLocation.coordinates!.length == 2) {
+        double longitude = currentParcel.pickupLocation.coordinates![0];
+        double latitude = currentParcel.pickupLocation.coordinates![1];
+
+        log("Pickup coordinates: Lat $latitude, Long $longitude");
+        pickAddress(latitude, longitude);
+      } else {
+        setState(() {
+          pickUpAddress = 'Pickup location not available';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        pickUpAddress = 'Error processing pickup location';
+      });
+      log("Error in pickup coordinates: $e");
     }
   }
 
@@ -220,7 +296,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                                     size: 12,
                                   ),
                                   TextWidget(
-                                    text: "${deliveryMan?.avgRating}" ?? "N/A",
+                                    text: " ${deliveryMan?.avgRating}" ?? "N/A",
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                     fontColor: AppColors.white,
@@ -238,8 +314,8 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                                 child: IconWidget(
                                   icon: AppIconsPath.whatsAppIcon,
                                   color: AppColors.black,
-                                  width: 15,
-                                  height: 15,
+                                  width: 18,
+                                  height: 18,
                                 ),
                               ),
                             ),
@@ -253,7 +329,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                                 child: Icon(
                                   Icons.call,
                                   color: AppColors.black,
-                                  size: 15,
+                                  size: 18,
                                 ),
                               ),
                             ),
@@ -272,17 +348,23 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                         ),
                         const SpaceWidget(spaceHeight: 8),
                         SummaryInfoRowWidget(
-                          icon: AppIconsPath.profileIcon,
-                          label: "receiversName".tr,
-                          value: currentParcel?.name ?? "N/A",
+                          icon: AppIconsPath.ratingIcon,
+                          label: "Ratings".tr,
+                          value: "${deliveryMan?.avgRating}" ?? "N/A",
                         ),
                         const SpaceWidget(spaceHeight: 8),
                         SummaryInfoRowWidget(
                           icon: AppIconsPath.callIcon,
-                          label: "receiversNumber".tr,
-                          value: currentParcel?.phoneNumber ?? "N/A",
+                          label: "Phone Number".tr,
+                          value: deliveryMan?.mobileNumber ?? "N/A",
                         ),
                         const SpaceWidget(spaceHeight: 8),
+                        // SummaryInfoRowWidget(
+                        //   icon: AppIconsPath.profileIcon,
+                        //   label: "receiversName".tr,
+                        //   value: currentParcel?.name ?? "N/A",
+                        // ),
+                        // const SpaceWidget(spaceHeight: 8),
                         SummaryInfoRowWidget(
                           icon: AppIconsPath.deliveryTimeIcon,
                           label: "deliveryTimeText".tr,
@@ -292,6 +374,12 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                         const SpaceWidget(spaceHeight: 8),
                         SummaryInfoRowWidget(
                           icon: AppIconsPath.destinationIcon,
+                          label: "currentLocationText".tr,
+                          value: pickUpAddress,
+                        ),
+                        const SpaceWidget(spaceHeight: 8),
+                        SummaryInfoRowWidget(
+                          icon: AppIconsPath.currentLocationIcon,
                           label: "destinationText".tr,
                           value: address,
                         ),
