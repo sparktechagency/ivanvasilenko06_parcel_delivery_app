@@ -143,6 +143,17 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
                 zoom: _getZoomLevel(_radiusController.radius.value),
               ),
               markers: _createCustomMarkers(),
+              circles: {
+                Circle(
+                  circleId: const CircleId('radius_circle'),
+                  center: _radiusController.currentLocation.value!,
+                  radius: _radiusController.radius.value * 1000,
+                  // Convert km to meters
+                  fillColor: AppColors.black.withAlpha(51),
+                  strokeColor: AppColors.black,
+                  strokeWidth: 1,
+                )
+              },
               zoomControlsEnabled: false,
             );
           }),
