@@ -24,8 +24,8 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
   final CurrentOrderController controller = Get.find<CurrentOrderController>();
 
   // Regular String variables for address and pickupAddress
-  String address = ""; // Delivery address
-  String pickupAddress = ""; // Pickup address
+  String address = "";
+  String pickupAddress = "";
 
   Map<String, String> addressCache = {};
   var currentParcel;

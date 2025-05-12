@@ -216,7 +216,7 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
                 padding: const EdgeInsets.all(10),
                 height: 80,
                 decoration: BoxDecoration(
-                  color: AppColors.black.withAlpha(35),
+                  color: AppColors.black.withAlpha(50),
                   borderRadius: BorderRadius.circular(50),
                 ),
                 child: Row(
@@ -242,7 +242,8 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
                           ),
                           const SizedBox(height: 5),
                           Text(
-                            "Radius of ${_radiusController.radius.value} km".tr,
+                            "Radius of ${_radiusController.radius.value.toStringAsFixed(2)} km"
+                                .tr,
                             style: const TextStyle(
                               color: AppColors.black,
                               fontSize: 16,

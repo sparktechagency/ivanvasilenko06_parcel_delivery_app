@@ -7,11 +7,13 @@ import 'package:intl/intl.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
+import 'package:parcel_delivery_app/constants/app_strings.dart';
+import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
 
-import '../../cancel_delivery_screen/widgets/summary_info_row_widget.dart';
+import '../../booking_parcel_details_screen/widgets/summary_info_row_widget.dart';
 
 class RadiusMapScreenDetails extends StatefulWidget {
   const RadiusMapScreenDetails({super.key});
@@ -25,11 +27,13 @@ class _RadiusMapScreenDetailsState extends State<RadiusMapScreenDetails> {
   bool isLoading = true;
   bool hasError = false;
   String errorMessage = '';
+  String pickupAddress = '';
+  String deliveryAddress = '';
+  Map<String, String> addressCache = {};
 
   @override
   void initState() {
     super.initState();
-    // Safely retrieve the parcel details passed as arguments
     try {
       final args = Get.arguments;
       if (args == null || args is! Map<String, dynamic>) {
@@ -44,7 +48,6 @@ class _RadiusMapScreenDetailsState extends State<RadiusMapScreenDetails> {
       parcel = args;
       log("Received parcel data: $parcel");
 
-      // Validate required fields
       if (!_validateParcelData()) {
         setState(() {
           hasError = true;
@@ -54,6 +57,7 @@ class _RadiusMapScreenDetailsState extends State<RadiusMapScreenDetails> {
         return;
       }
 
+      _loadAddresses();
       setState(() {
         isLoading = false;
       });
@@ -68,7 +72,6 @@ class _RadiusMapScreenDetailsState extends State<RadiusMapScreenDetails> {
   }
 
   bool _validateParcelData() {
-    // Check if essential data exists
     final hasPickupLocation = parcel["pickupLocation"] != null &&
         parcel["pickupLocation"]["coordinates"] != null &&
         parcel["pickupLocation"]["coordinates"].length >= 2;
@@ -80,12 +83,47 @@ class _RadiusMapScreenDetailsState extends State<RadiusMapScreenDetails> {
     return hasPickupLocation && hasDeliveryLocation;
   }
 
+  Future<void> _loadAddresses() async {
+    if (parcel["pickupLocation"] != null &&
+        parcel["pickupLocation"]["coordinates"] != null) {
+      double latitude = double.tryParse(
+              parcel["pickupLocation"]["coordinates"][1].toString()) ??
+          0.0;
+      double longitude = double.tryParse(
+              parcel["pickupLocation"]["coordinates"][0].toString()) ??
+          0.0;
+      pickupAddress = await _getAddress(latitude, longitude);
+    }
+
+    if (parcel["deliveryLocation"] != null &&
+        parcel["deliveryLocation"]["coordinates"] != null) {
+      double latitude = double.tryParse(
+              parcel["deliveryLocation"]["coordinates"][1].toString()) ??
+          0.0;
+      double longitude = double.tryParse(
+              parcel["deliveryLocation"]["coordinates"][0].toString()) ??
+          0.0;
+      deliveryAddress = await _getAddress(latitude, longitude);
+    }
+
+    setState(() {});
+  }
+
   Future<String> _getAddress(double latitude, double longitude) async {
+    final String key = '$latitude,$longitude';
+
+    if (addressCache.containsKey(key)) {
+      return addressCache[key]!;
+    }
+
     try {
       List<Placemark> placemarks =
           await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
-        return '${placemarks[0].street ?? ''}, ${placemarks[0].locality ?? ''}, ${placemarks[0].country ?? ''}';
+        String address =
+            '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].country}';
+        addressCache[key] = address;
+        return address;
       }
       return 'No address found';
     } catch (e) {
@@ -96,13 +134,27 @@ class _RadiusMapScreenDetailsState extends State<RadiusMapScreenDetails> {
 
   String formatDeliveryDate(String? deliveryEndTime) {
     if (deliveryEndTime == null) return "N/A";
-
     try {
       final parsedDate = DateTime.parse(deliveryEndTime);
-      return DateFormat('yyyy-MM-dd , hh:mm').format(parsedDate);
+      return '${parsedDate.day}.${parsedDate.month}-${parsedDate.year}';
     } catch (e) {
       log("Date parsing error: $e");
       return "Invalid Date Format";
+    }
+  }
+
+  String _getFormattedDeliveryTime(Map<String, dynamic> parcel) {
+    try {
+      if (parcel["deliveryStartTime"] != null &&
+          parcel["deliveryEndTime"] != null) {
+        final startDate = DateTime.parse(parcel["deliveryStartTime"]);
+        final endDate = DateTime.parse(parcel["deliveryEndTime"]);
+        return "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
+      } else {
+        return "N/A"; // Return N/A if either time is null
+      }
+    } catch (e) {
+      return "N/A"; // Return N/A if there's an error in parsing
     }
   }
 
@@ -150,7 +202,7 @@ class _RadiusMapScreenDetailsState extends State<RadiusMapScreenDetails> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: TextWidget(
-                        text: "summaryOfParcel".tr,
+                        text: "summary".tr,
                         fontSize: 24,
                         fontWeight: FontWeight.w600,
                         fontColor: AppColors.black,
@@ -163,7 +215,6 @@ class _RadiusMapScreenDetailsState extends State<RadiusMapScreenDetails> {
                         child: Column(
                           children: [
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(100),
@@ -174,11 +225,15 @@ class _RadiusMapScreenDetailsState extends State<RadiusMapScreenDetails> {
                                   ),
                                 ),
                                 const SpaceWidget(spaceWidth: 8),
-                                TextWidget(
-                                  text: parcel["title"] ?? "Unknown Parcel",
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w500,
-                                  fontColor: AppColors.black,
+                                Flexible(
+                                  child: TextWidget(
+                                    text: parcel["title"] ?? "Parcel",
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w500,
+                                    fontColor: AppColors.black,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
                               ],
                             ),
@@ -189,15 +244,17 @@ class _RadiusMapScreenDetailsState extends State<RadiusMapScreenDetails> {
                             ),
                             const SpaceWidget(spaceHeight: 16),
                             SummaryInfoRowWidget(
-                              image: AppImagePath.profileImage,
+                              icon: AppIconsPath.profileIcon,
                               label: "sendersName".tr,
-                              value: parcel["senderName"] ?? "N/A",
+                              value:
+                                  parcel["senderId"]["fullName"].toString() ??
+                                      "N/A",
                             ),
                             const SpaceWidget(spaceHeight: 8),
                             SummaryInfoRowWidget(
                               icon: AppIconsPath.profileIcon,
                               label: "receiversName".tr,
-                              value: parcel["receiverName"] ?? "N/A",
+                              value: parcel["name"] ?? "N/A",
                             ),
                             const SpaceWidget(spaceHeight: 8),
                             SummaryInfoRowWidget(
@@ -209,94 +266,33 @@ class _RadiusMapScreenDetailsState extends State<RadiusMapScreenDetails> {
                             SummaryInfoRowWidget(
                               icon: AppIconsPath.deliveryTimeIcon,
                               label: "deliveryTimeText".tr,
-                              value:
-                                  formatDeliveryDate(parcel["deliveryEndTime"]),
+                              value: _getFormattedDeliveryTime(parcel),
                             ),
                             const SpaceWidget(spaceHeight: 8),
-                            FutureBuilder<String>(
-                              future: _getAddress(
-                                double.tryParse(parcel["pickupLocation"]
-                                            ["coordinates"][1]
-                                        .toString()) ??
-                                    0.0,
-                                double.tryParse(parcel["pickupLocation"]
-                                            ["coordinates"][0]
-                                        .toString()) ??
-                                    0.0,
-                              ),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return SummaryInfoRowWidget(
-                                    icon: AppIconsPath.destinationIcon,
-                                    label: "pickupLocationText".tr,
-                                    value: "Loading address...",
-                                  );
-                                } else if (snapshot.hasError) {
-                                  return SummaryInfoRowWidget(
-                                    icon: AppIconsPath.destinationIcon,
-                                    label: "pickupLocationText".tr,
-                                    value: "Error fetching address",
-                                  );
-                                } else {
-                                  return SummaryInfoRowWidget(
-                                    icon: AppIconsPath.destinationIcon,
-                                    label: "pickupLocationText".tr,
-                                    value: snapshot.data ??
-                                        "Address not available",
-                                  );
-                                }
-                              },
+                            // Use the regular String variables now
+                            SummaryInfoRowWidget(
+                              icon: AppIconsPath.destinationIcon,
+                              label: "currentLocationText".tr,
+                              value: pickupAddress,
                             ),
                             const SpaceWidget(spaceHeight: 8),
-                            FutureBuilder<String>(
-                              future: _getAddress(
-                                double.tryParse(parcel["deliveryLocation"]
-                                            ["coordinates"][1]
-                                        .toString()) ??
-                                    0.0,
-                                double.tryParse(parcel["deliveryLocation"]
-                                            ["coordinates"][0]
-                                        .toString()) ??
-                                    0.0,
-                              ),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return SummaryInfoRowWidget(
-                                    icon: AppIconsPath.currentLocationIcon,
-                                    label: "deliveryLocationText".tr,
-                                    value: "Loading address...",
-                                  );
-                                } else if (snapshot.hasError) {
-                                  return SummaryInfoRowWidget(
-                                    icon: AppIconsPath.currentLocationIcon,
-                                    label: "deliveryLocationText".tr,
-                                    value: "Error fetching address",
-                                  );
-                                } else {
-                                  return SummaryInfoRowWidget(
-                                    icon: AppIconsPath.currentLocationIcon,
-                                    label: "deliveryLocationText".tr,
-                                    value: snapshot.data ??
-                                        "Address not available",
-                                  );
-                                }
-                              },
+                            SummaryInfoRowWidget(
+                              icon: AppIconsPath.currentLocationIcon,
+                              label: "destinationText".tr,
+                              value: deliveryAddress,
                             ),
                             const SpaceWidget(spaceHeight: 8),
                             SummaryInfoRowWidget(
                               icon: AppIconsPath.priceIcon,
-                              label: "Price",
-                              value: parcel["price"] != null
-                                  ? "${parcel["price"]}"
-                                  : "Not set",
+                              label: "price".tr,
+                              value:
+                                  "${AppStrings.currency} ${parcel["price"] ?? "N/A"}",
                             ),
                             const SpaceWidget(spaceHeight: 8),
                             SummaryInfoRowWidget(
                               icon: AppIconsPath.descriptionIcon,
                               label: "descriptionText".tr,
-                              value: parcel["description"] ?? "N/A",
+                              value: parcel["description"] ?? "No Description",
                             ),
                           ],
                         ),
@@ -320,33 +316,14 @@ class _RadiusMapScreenDetailsState extends State<RadiusMapScreenDetails> {
                   borderRadius: BorderRadius.circular(100),
                 ),
                 elevation: 3,
-                child: const CircleAvatar(
+                child: CircleAvatar(
                   backgroundColor: AppColors.white,
-                  radius: 25,
-                  child: Icon(
+                  radius: ResponsiveUtils.width(25),
+                  child: const Icon(
                     Icons.arrow_back,
                     color: AppColors.black,
                   ),
                 ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Get.back();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.black,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: TextWidget(
-                text: "sendRequest".tr,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                fontColor: AppColors.white,
               ),
             ),
           ],

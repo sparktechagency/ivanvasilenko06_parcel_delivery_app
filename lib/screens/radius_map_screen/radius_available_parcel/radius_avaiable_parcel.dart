@@ -117,9 +117,9 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
         // Build a more complete address string
         final placemark = placemarks[0];
         final List<String> addressParts = [
-          placemark.street ?? '',
-          placemark.administrativeArea ?? '',
-          placemark.country ?? ''
+          placemark.locality ?? '',
+          // placemark.administrativeArea ?? '',
+          // placemark.country ?? ''
         ].where((part) => part.isNotEmpty).toList();
 
         String address = addressParts.join(', ');
@@ -250,7 +250,7 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                           final endDate =
                               DateTime.parse(parcel["deliveryEndTime"]);
                           formattedDate =
-                              "${DateFormat('dd-MM-yyyy').format(startDate)} to ${DateFormat('dd-MM-yyyy').format(endDate)}";
+                              "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
                         } catch (e) {
                           log("Error parsing dates: $e");
                         }
@@ -325,57 +325,14 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                                     size: 14,
                                   ),
                                   const SpaceWidget(spaceWidth: 8),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        isPickupLoading
-                                            ? const SizedBox(
-                                                height: 15,
-                                                width: 15,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                  valueColor:
-                                                      AlwaysStoppedAnimation<
-                                                              Color>(
-                                                          AppColors.greyDark),
-                                                ),
-                                              )
-                                            : TextWidget(
-                                                text: "$pickupAddress To",
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w500,
-                                                fontColor: AppColors.greyDark2,
-                                                maxLines: 3,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                        const SpaceWidget(spaceHeight: 8),
-                                        isDeliveryLoading
-                                            ? const SizedBox(
-                                                height: 15,
-                                                width: 15,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                  valueColor:
-                                                      AlwaysStoppedAnimation<
-                                                              Color>(
-                                                          AppColors.greyDark),
-                                                ),
-                                              )
-                                            : TextWidget(
-                                                text: deliveryAddress,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w500,
-                                                fontColor: AppColors.greyDark2,
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                      ],
-                                    ),
-                                  )
+                                  TextWidget(
+                                    text: "$pickupAddress To $deliveryAddress",
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    fontColor: AppColors.greyDark2,
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ],
                               ),
                               const SpaceWidget(spaceHeight: 8),
