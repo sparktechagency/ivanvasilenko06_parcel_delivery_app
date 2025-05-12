@@ -12,7 +12,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_constant.dart';
 import '../../constants/app_image_path.dart';
-import '../../constants/app_strings.dart';
 import '../../controller/language_controller.dart';
 import '../../services/appStroage/share_helper.dart';
 import '../../utils/app_size.dart';
@@ -362,15 +361,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   color: AppColors.yellow,
                                   borderRadius: BorderRadius.circular(100),
                                 ),
-                                child: const Row(
+                                child: Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.star_rounded,
                                       color: AppColors.white,
                                       size: 12,
                                     ),
+                                    const SpaceWidget(spaceWidth: 4),
                                     TextWidget(
-                                      text: AppStrings.ratings,
+                                      text: profileController.profileData.value
+                                          .data!.user!.avgRating
+                                          .toString(),
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                       fontColor: AppColors.white,

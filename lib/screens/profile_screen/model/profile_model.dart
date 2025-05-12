@@ -142,6 +142,8 @@ class User {
   String? instagram;
   String? whatsapp;
 
+  int? avgRating;
+
   User({
     this.id,
     this.fullName,
@@ -179,6 +181,7 @@ class User {
     this.facebook,
     this.instagram,
     this.whatsapp,
+    this.avgRating,
   });
 
   factory User.fromRawJson(String str) => User.fromJson(json.decode(str));
@@ -242,6 +245,7 @@ class User {
         facebook: json["facebook"],
         instagram: json["instagram"],
         whatsapp: json["whatsapp"],
+        avgRating: json["avgRating"],
       );
 
   Map<String, dynamic> toJson() => {
