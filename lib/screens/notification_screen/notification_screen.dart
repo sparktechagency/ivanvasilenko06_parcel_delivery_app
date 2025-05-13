@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
@@ -35,6 +36,53 @@ class _NotificationScreenState extends State<NotificationScreen>
   AddressService addressService = AddressService();
   String address = "Loading...";
   String newBookingAddress = "Loading...";
+  late NotificationController controller;
+
+  Map<String, String> addressCache = {};
+  Map<String, String> locationToAddressCache = {};
+
+  // Function to fetch and return address from coordinates
+  Future<String> getAddressFromCoordinates(
+      double latitude, double longitude) async {
+    final String key = '$latitude,$longitude';
+    if (locationToAddressCache.containsKey(key)) {
+      return locationToAddressCache[key]!;
+    }
+
+    try {
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        String newAddress = '${placemarks[0].locality}';
+        locationToAddressCache[key] = newAddress;
+        return newAddress;
+      } else {
+        return 'No address found';
+      }
+    } catch (e) {
+      log('Error fetching address: $e');
+      return 'Error fetching address';
+    }
+  }
+
+  // Store address by parcel ID
+  void cacheAddressForParcel(String parcelId, String addressType,
+      double latitude, double longitude) async {
+    final cacheKey = '${parcelId}_${addressType}';
+    if (!addressCache.containsKey(cacheKey)) {
+      String fetchedAddress =
+          await getAddressFromCoordinates(latitude, longitude);
+      setState(() {
+        addressCache[cacheKey] = fetchedAddress;
+      });
+    }
+  }
+
+  // Get address for a specific parcel
+  String getParcelAddress(String parcelId, String addressType) {
+    final cacheKey = '${parcelId}_${addressType}';
+    return addressCache[cacheKey] ?? 'Loading...';
+  }
 
   // Method to get the regular address
   Future<void> _getAddress(double latitude, double longitude) async {
@@ -56,6 +104,7 @@ class _NotificationScreenState extends State<NotificationScreen>
   @override
   void initState() {
     super.initState();
+    controller = Get.put(NotificationController());
     _tabController = TabController(length: 2, vsync: this);
     _setupScrollListener();
   }
@@ -64,9 +113,7 @@ class _NotificationScreenState extends State<NotificationScreen>
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
-        final controller = Get.find<NotificationController>();
         if (_tabController.index == 0) {
-          // First tab - load more notifications
           controller.loadMoreNotifications();
         }
       }
@@ -75,7 +122,6 @@ class _NotificationScreenState extends State<NotificationScreen>
     _scrollController2.addListener(() {
       if (_scrollController2.position.pixels >=
           _scrollController2.position.maxScrollExtent - 200) {
-        final controller = Get.find<NotificationController>();
         if (_tabController.index == 1) {
           // Second tab - load more parcel notifications
           controller.loadMoreParcelNotifications();
@@ -125,8 +171,6 @@ class _NotificationScreenState extends State<NotificationScreen>
           return;
         }
       }
-
-      // Try the standard WhatsApp URL scheme
       final Uri whatsappUri = Uri.parse(
           "whatsapp://send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}");
 
@@ -135,8 +179,6 @@ class _NotificationScreenState extends State<NotificationScreen>
             mode: LaunchMode.externalNonBrowserApplication);
         return;
       }
-
-      // Fallback to website (this should work on most devices)
       final Uri webUri = Uri.parse(
           "https://api.whatsapp.com/send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}");
 
@@ -144,7 +186,6 @@ class _NotificationScreenState extends State<NotificationScreen>
         await launchUrl(webUri, mode: LaunchMode.externalApplication);
         return;
       }
-
       log('Could not find any WhatsApp method that works');
       _showErrorSnackBar('WhatsApp not installed or accessible');
     } catch (e) {
@@ -164,10 +205,44 @@ class _NotificationScreenState extends State<NotificationScreen>
     );
   }
 
+  String _getTimeAgo(String? createdAt) {
+    try {
+      if (createdAt == null) {
+        return "Unknown time";
+      }
+
+      // Parse the createdAt timestamp (assumed to be in UTC, e.g., "2025-05-13T09:02:30.511Z")
+      final DateTime createdDate = DateTime.parse(createdAt).toUtc();
+
+      // Current time in UTC+6 (based on provided time: 07:08 PM +06, May 13, 2025)
+      final DateTime now = DateTime.now().toUtc().add(const Duration(hours: 6));
+
+      // Calculate the difference
+      final Duration difference = now.difference(createdDate);
+
+      if (difference.inSeconds < 60) {
+        return "just now";
+      } else if (difference.inMinutes < 60) {
+        return "${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} ago";
+      } else if (difference.inHours < 24) {
+        return "${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago";
+      } else if (difference.inDays < 30) {
+        return "${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago";
+      } else if (difference.inDays < 365) {
+        final months = (difference.inDays / 30).floor();
+        return "$months month${months == 1 ? '' : 's'} ago";
+      } else {
+        final years = (difference.inDays / 365).floor();
+        return "$years year${years == 1 ? '' : 's'} ago";
+      }
+    } catch (e) {
+      log("Error in _getTimeAgo: $e");
+      return "Unknown time";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final NotificationController controller = Get.put(NotificationController());
-
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Stack(
@@ -219,13 +294,11 @@ class _NotificationScreenState extends State<NotificationScreen>
                   ),
                   tabs: const [
                     Tab(text: "Parcel/Delivery Updates"),
-                    Tab(text: "Interested In Delivery"),
+                    Tab(text: "Available Deliveries"),
                   ],
                 ),
               ),
-
               const SpaceWidget(spaceHeight: 16),
-
               // Tab Bar View
               Expanded(
                 child: TabBarView(
@@ -269,7 +342,6 @@ class _NotificationScreenState extends State<NotificationScreen>
                           ),
                         );
                       }
-
                       return SingleChildScrollView(
                         controller: _scrollController,
                         child: Column(
@@ -291,15 +363,12 @@ class _NotificationScreenState extends State<NotificationScreen>
                                   fontColor: AppColors.black,
                                 ),
                               ),
-
                               // Display regular notifications
-                              ...controller
-                                  .notificationModel.value!.data!.notifications!
-                                  .map((notification) =>
-                                      _buildRegularNotificationCard(
-                                          notification))
-                                  .toList(),
-
+                              ...List.generate(
+                                controller.notificationModel.value!.data!
+                                    .notifications!.length,
+                                (index) => _buildRegularNotificationCard(index),
+                              ),
                               if (controller.isLoading.value &&
                                   controller.currentPage.value > 1)
                                 const Center(
@@ -317,7 +386,6 @@ class _NotificationScreenState extends State<NotificationScreen>
                         ),
                       );
                     }),
-
                     //////////////////// Second Tab - Interested In Delivery
                     Obx(() {
                       if (controller.isParcelLoading.value &&
@@ -329,19 +397,26 @@ class _NotificationScreenState extends State<NotificationScreen>
                         return Center(
                             child: Text("Error: ${controller.parcelError}"));
                       }
-                      if (controller.parcelNotifications.isEmpty) {
+
+                      int totalNotifications = 0;
+                      for (var parcelData in controller.parcelNotifications) {
+                        if (parcelData.data?.notifications != null) {
+                          totalNotifications +=
+                              parcelData.data!.notifications!.length;
+                        }
+                      }
+
+                      if (totalNotifications == 0) {
                         return const Center(
                             child: Text(
                                 "No interested delivery notifications available."));
                       }
+
                       return ListView.builder(
                         controller: _scrollController2,
-                        itemCount: controller.parcelNotifications.length,
+                        itemCount: totalNotifications,
                         itemBuilder: (context, index) {
-                          final notification =
-                              controller.parcelNotifications[index];
-                          return _buildParcelNotificationCard(
-                              notification.data!.notifications!.first);
+                          return _buildParcelNotificationCard(index);
                         },
                       );
                     })
@@ -381,13 +456,31 @@ class _NotificationScreenState extends State<NotificationScreen>
     );
   }
 
-  Widget _buildParcelNotificationCard(notification) {
+  Widget _buildParcelNotificationCard(int index) {
+    // Find which parcel notification this index belongs to
+    int currentIndex = index;
+    dynamic notification;
+
+    for (var parcelData in controller.parcelNotifications) {
+      if (parcelData.data?.notifications != null) {
+        if (currentIndex < parcelData.data!.notifications!.length) {
+          notification = parcelData.data!.notifications![currentIndex];
+          break;
+        } else {
+          currentIndex -= parcelData.data!.notifications!.length;
+        }
+      }
+    }
+
+    if (notification == null) {
+      return const SizedBox(); // Return empty widget if notification not found
+    }
+
     String title = notification.title ?? "Parcel";
     String message = notification.message ?? "No details available";
-    String address =
-        notification.description ?? "Western Wall to 4 Idan street";
     String phoneNumber = notification.phoneNumber ?? "+375 292316347";
     DateTime? createdAtDate;
+    String timeAgo = _getTimeAgo(notification.createdAt.toString());
     try {
       createdAtDate = notification.createdAt != null
           ? DateTime.parse(notification.createdAt!)
@@ -399,28 +492,52 @@ class _NotificationScreenState extends State<NotificationScreen>
     String date = createdAtDate != null
         ? DateFormat('dd.MM.yyyy').format(createdAtDate)
         : "24.04.2024";
-    bool isRead = notification.isRead ?? false;
-    bool isAccepted = notification.type == "accepted";
     bool isRejected = notification.type == "rejected";
     bool isRequestedDelivery = notification.type == "requested";
     String? deliveryPersonName = notification.userId;
     double? rating = notification.avgRating?.toDouble();
     int price = notification.price ?? 150;
 
+    ///// Location
+    final String notificationId = notification.id;
+    double? pickupLocationLat = notification.pickupLocation?.latitude;
+    double? pickupLocationLong = notification.pickupLocation?.longitude;
+    double? deliveryLocationLat = notification.deliveryLocation?.latitude;
+    double? deliveryLocationLong = notification.deliveryLocation?.longitude;
+
+    // Trigger address loading if coordinates are available
+    if (pickupLocationLat != null && pickupLocationLong != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        cacheAddressForParcel(
+            notificationId, 'pickup', pickupLocationLat, pickupLocationLong);
+      });
+    }
+    if (deliveryLocationLat != null && deliveryLocationLong != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        cacheAddressForParcel(notificationId, 'delivery', deliveryLocationLat,
+            deliveryLocationLong);
+      });
+    }
+    // Get the specific pickup and delivery addresses for this notification
+    final pickupAddress = getParcelAddress(notificationId, 'pickup');
+    final deliveryAddress = getParcelAddress(notificationId, 'delivery');
+
+    //// Date and Time Formatting
+    //////////////// Date Formateed
+    String formattedDate = "N/A";
+    try {
+      final startDate =
+          DateTime.parse(notification.deliveryStartTime.toString());
+      final endDate = DateTime.parse(notification.deliveryEndTime.toString());
+      formattedDate =
+          "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
+    } catch (e) {
+      log("Error parsing dates: $e");
+    }
+    /////////////
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.greyLight),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.black.withAlpha(18),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
+      margin: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
         children: [
           Container(
@@ -428,14 +545,19 @@ class _NotificationScreenState extends State<NotificationScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title and Price
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.inventory_2,
-                            size: 16, color: AppColors.greyDark2),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: const ImageWidget(
+                            imagePath: AppImagePath.sendParcel,
+                            width: 40,
+                            height: 40,
+                          ),
+                        ),
                         const SpaceWidget(spaceWidth: 4),
                         TextWidget(
                           text: title,
@@ -445,134 +567,126 @@ class _NotificationScreenState extends State<NotificationScreen>
                         ),
                       ],
                     ),
-                    Row(
-                      children: [
-                        const Icon(Icons.receipt,
-                            size: 16, color: AppColors.greyDark2),
-                        const SpaceWidget(spaceWidth: 4),
-                        TextWidget(
-                          text: "$price",
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          fontColor: AppColors.black,
-                        ),
-                      ],
+                    TextWidget(
+                      text: "${AppStrings.currency} $price",
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      fontColor: AppColors.black,
                     ),
                   ],
                 ),
-
                 const SpaceWidget(spaceHeight: 12),
-
-                // Address
+                // Address - now using cached addresses specific to this notification
                 Row(
                   children: [
                     const Icon(Icons.location_on,
                         size: 16, color: AppColors.greyDark2),
                     const SpaceWidget(spaceWidth: 8),
-                    Expanded(
-                      child: TextWidget(
-                        text: address,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        fontColor: AppColors.greyDark2,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SpaceWidget(spaceHeight: 8),
-
-                // Phone number
-                Row(
-                  children: [
-                    const Icon(Icons.phone,
-                        size: 16, color: AppColors.greyDark2),
-                    const SpaceWidget(spaceWidth: 8),
-                    Expanded(
-                      child: TextWidget(
-                        text: phoneNumber,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        fontColor: AppColors.greyDark2,
-                      ),
-                    ),
-                    if (isRequestedDelivery) ...[
-                      const TextWidget(
-                        text: "Request sent",
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        fontColor: AppColors.greyDark2,
-                      ),
-                    ],
-
-                    // WhatsApp and Call buttons
-                    InkWell(
-                      onTap: () => _openWhatsApp(phoneNumber, message),
-                      borderRadius: BorderRadius.circular(100),
-                      child: const CircleAvatar(
-                        backgroundColor: AppColors.whiteDark,
-                        radius: 16,
-                        child: Icon(
-                          Icons.message,
-                          color: AppColors.black,
-                          size: 16,
-                        ),
-                      ),
-                    ),
-                    const SpaceWidget(spaceWidth: 8),
-                    InkWell(
-                      onTap: () => _makePhoneCall(phoneNumber),
-                      borderRadius: BorderRadius.circular(100),
-                      child: const CircleAvatar(
-                        backgroundColor: AppColors.whiteDark,
-                        radius: 16,
-                        child: Icon(
-                          Icons.call,
-                          color: AppColors.black,
-                          size: 16,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SpaceWidget(spaceHeight: 8),
-
-                // Date
-                Row(
-                  children: [
-                    const Icon(Icons.calendar_today,
-                        size: 16, color: AppColors.greyDark2),
-                    const SpaceWidget(spaceWidth: 8),
                     TextWidget(
-                      text: date,
+                      text: "$pickupAddress to $deliveryAddress",
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                       fontColor: AppColors.greyDark2,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
 
-                const SpaceWidget(spaceHeight: 12),
+                const SpaceWidget(spaceHeight: 8),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.calendar_month,
+                      color: AppColors.black,
+                      size: 12,
+                    ),
+                    const SpaceWidget(spaceWidth: 8),
+                    TextWidget(
+                      text: formattedDate,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      fontColor: AppColors.greyDark,
+                    ),
+                  ],
+                ),
+                const SpaceWidget(spaceHeight: 8),
 
-                // Status
-                if (isAccepted)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(
-                      color: AppColors.whiteDark,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Center(
-                      child: TextWidget(
-                        text: "Accepted",
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        fontColor: AppColors.black,
-                      ),
-                    ),
+                const SpaceWidget(spaceHeight: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextWidget(
+                    text: timeAgo,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                    fontColor: AppColors.greyDark,
                   ),
+                ),
+                const SpaceWidget(spaceHeight: 8),
+
+                // Buttons
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: AppColors.whiteLight,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      InkWell(
+                        onTap: () {},
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        child: Row(
+                          children: [
+                            const IconWidget(
+                              icon: AppIconsPath.personAddIcon,
+                              color: AppColors.black,
+                              width: 14,
+                              height: 14,
+                            ),
+                            const SpaceWidget(spaceWidth: 8),
+                            TextWidget(
+                              text: "requestSent".tr,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              fontColor: AppColors.black,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width: 1,
+                        height: 18,
+                        color: AppColors.blackLighter,
+                      ),
+                      InkWell(
+                        onTap: () {},
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.visibility_outlined,
+                              color: Colors.black,
+                              size: 14,
+                            ),
+                            const SpaceWidget(spaceWidth: 8),
+                            TextWidget(
+                              text: "viewSummary".tr,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              fontColor: AppColors.black,
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                )
               ],
             ),
           ),
@@ -682,8 +796,11 @@ class _NotificationScreenState extends State<NotificationScreen>
     );
   }
 
-  // Build a card for regular notifications
-  Widget _buildRegularNotificationCard(notification) {
+  Widget _buildRegularNotificationCard(int index) {
+    // Access the notification from the controller directly using the index
+    final notification =
+        controller.notificationModel.value!.data!.notifications![index];
+
     String title = notification.title ?? "Notification";
     String name = notification.name ?? "Unknown";
     String message = notification.message ?? "No details available";
@@ -692,36 +809,51 @@ class _NotificationScreenState extends State<NotificationScreen>
     String mobileNumber = notification.mobileNumber ?? "+972 54-123-4567";
     String type = notification.type ?? "";
     String price = notification.price?.toString() ?? "0";
+    String timeAgo = _getTimeAgo(notification.createdAt);
+
+    final String notificationId = notification.sId ?? 'unknown_id';
     // Safely handle location coordinates
     double? pickupLocationLat = notification.pickupLocation?.latitude;
     double? pickupLocationLong = notification.pickupLocation?.longitude;
     double? deliveryLocationLat = notification.deliveryLocation?.latitude;
     double? deliveryLocationLong = notification.deliveryLocation?.longitude;
 
-    if (pickupLocationLat != null &&
-        pickupLocationLong != null &&
-        deliveryLocationLat != null &&
-        deliveryLocationLong != null) {
-      _getAddress(pickupLocationLat, pickupLocationLong);
-      newAddress(deliveryLocationLat, deliveryLocationLong);
+    // Trigger address loading if coordinates are available
+    if (pickupLocationLat != null && pickupLocationLong != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        cacheAddressForParcel(
+            notificationId, 'pickup', pickupLocationLat, pickupLocationLong);
+      });
+    }
+    if (deliveryLocationLat != null && deliveryLocationLong != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        cacheAddressForParcel(notificationId, 'delivery', deliveryLocationLat,
+            deliveryLocationLong);
+      });
     }
 
-    DateTime? createdAtDate;
+    // Get the specific pickup and delivery addresses for this notification
+    final pickupAddress = getParcelAddress(notificationId, 'pickup');
+    final deliveryAddress = getParcelAddress(notificationId, 'delivery');
+
+    //// Date and Time Formatting
+    //////////////// Date Formateed
+    String formattedDate = "N/A";
     try {
-      createdAtDate = notification.createdAt != null
-          ? DateTime.parse(notification.createdAt!)
-          : null;
+      final startDate =
+          DateTime.parse(notification.deliveryStartTime.toString());
+      final endDate = DateTime.parse(notification.deliveryEndTime.toString());
+      formattedDate =
+          "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
     } catch (e) {
-      createdAtDate = null;
+      log("Error parsing dates: $e");
     }
+    /////////////
 
-    String date = createdAtDate != null
-        ? DateFormat('MMM dd, yyyy - hh:mm a').format(createdAtDate)
-        : "Unknown date";
     bool isRead = notification.isRead ?? false;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 23, vertical: 12),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -774,7 +906,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                       ),
                     )
                   : const SizedBox(),
-              Spacer(),
+              const Spacer(),
               TextWidget(
                 text: "${AppStrings.currency} $price",
                 fontSize: 16,
@@ -795,7 +927,7 @@ class _NotificationScreenState extends State<NotificationScreen>
               SizedBox(
                 width: ResponsiveUtils.width(180),
                 child: TextWidget(
-                  text: "$address to $newBookingAddress",
+                  text: "$pickupAddress to $deliveryAddress",
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                   fontColor: AppColors.greyDark2,
@@ -810,77 +942,87 @@ class _NotificationScreenState extends State<NotificationScreen>
           type.toString() == "Requested-Delivery"
               ? const SizedBox()
               : Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(
-                      Icons.call,
-                      color: AppColors.black,
-                      size: 12,
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.call,
+                          color: AppColors.black,
+                          size: 12,
+                        ),
+                        const SpaceWidget(spaceWidth: 8),
+                        TextWidget(
+                          text: mobileNumber,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          fontColor: AppColors.greyDark2,
+                        ),
+                      ],
                     ),
-                    const SpaceWidget(spaceWidth: 8),
-                    TextWidget(
-                      text: mobileNumber,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      fontColor: AppColors.greyDark2,
-                    ),
+                    type == "Cancelled"
+                        ? const SizedBox()
+                        : Row(
+                            children: [
+                              InkWell(
+                                onTap: () => _openWhatsApp(mobileNumber,
+                                    "Hello, regarding your parcel delivery."),
+                                borderRadius: BorderRadius.circular(100),
+                                child: const CircleAvatar(
+                                  backgroundColor: AppColors.whiteDark,
+                                  radius: 18,
+                                  child: IconWidget(
+                                    icon: AppIconsPath.whatsAppIcon,
+                                    color: AppColors.black,
+                                    width: 18,
+                                    height: 18,
+                                  ),
+                                ),
+                              ),
+                              const SpaceWidget(spaceWidth: 8),
+                              InkWell(
+                                onTap: () => _makePhoneCall(mobileNumber),
+                                borderRadius: BorderRadius.circular(100),
+                                child: const CircleAvatar(
+                                  backgroundColor: AppColors.whiteDark,
+                                  radius: 18,
+                                  child: Icon(
+                                    Icons.call,
+                                    color: AppColors.black,
+                                    size: 18,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                   ],
                 ),
           const SpaceWidget(spaceHeight: 8),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  const Icon(
-                    Icons.calendar_month,
-                    color: AppColors.black,
-                    size: 12,
-                  ),
-                  const SpaceWidget(spaceWidth: 8),
-                  TextWidget(
-                    text: date,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    fontColor: AppColors.greyDark,
-                  ),
-                ],
+              const Icon(
+                Icons.calendar_month,
+                color: AppColors.black,
+                size: 12,
               ),
-              type == "Cancelled"
-                  ? const SizedBox()
-                  : Row(
-                      children: [
-                        InkWell(
-                          onTap: () => _openWhatsApp(mobileNumber,
-                              "Hello, regarding your parcel delivery."),
-                          borderRadius: BorderRadius.circular(100),
-                          child: const CircleAvatar(
-                            backgroundColor: AppColors.whiteDark,
-                            radius: 18,
-                            child: IconWidget(
-                              icon: AppIconsPath.whatsAppIcon,
-                              color: AppColors.black,
-                              width: 18,
-                              height: 18,
-                            ),
-                          ),
-                        ),
-                        const SpaceWidget(spaceWidth: 8),
-                        InkWell(
-                          onTap: () => _makePhoneCall(mobileNumber),
-                          borderRadius: BorderRadius.circular(100),
-                          child: const CircleAvatar(
-                            backgroundColor: AppColors.whiteDark,
-                            radius: 18,
-                            child: Icon(
-                              Icons.call,
-                              color: AppColors.black,
-                              size: 18,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+              const SpaceWidget(spaceWidth: 8),
+              TextWidget(
+                text: formattedDate,
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                fontColor: AppColors.greyDark,
+              ),
             ],
+          ),
+          const SpaceWidget(spaceHeight: 12),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextWidget(
+              text: timeAgo,
+              fontWeight: FontWeight.w500,
+              fontSize: 12,
+              fontColor: AppColors.greyDark,
+            ),
           ),
           const SpaceWidget(spaceHeight: 12),
           type == "Accepted"
@@ -918,6 +1060,4 @@ class _NotificationScreenState extends State<NotificationScreen>
       ),
     );
   }
-
-// Function to make a phone call
 }

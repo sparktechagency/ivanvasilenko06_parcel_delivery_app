@@ -67,8 +67,13 @@ class Notification {
   String? mobileNumber;
   String? image;
   int? price;
+  Location? pickupLocation;
+  Location? deliveryLocation;
+  String? parcelId;
   int? avgRating;
   String? description;
+  String? deliveryStartTime;
+  String? deliveryEndTime;
   bool? isRead;
   DateTime? createdAt;
   int? v;
@@ -83,7 +88,12 @@ class Notification {
     this.mobileNumber,
     this.image,
     this.price,
+    this.pickupLocation,
+    this.deliveryLocation,
+    this.parcelId,
     this.avgRating,
+    this.deliveryStartTime,
+    this.deliveryEndTime,
     this.description,
     this.isRead,
     this.createdAt,
@@ -97,15 +107,24 @@ class Notification {
 
   factory Notification.fromJson(Map<String, dynamic> json) => Notification(
         id: json["_id"],
-        userId: json["userId"]!,
+        userId: json["userId"],
         message: json["message"],
-        type: typeValues.map[json["type"]]!,
+        type: json["type"] == null ? null : typeValues.map[json["type"]],
         title: json["title"],
         phoneNumber: json["phoneNumber"],
         mobileNumber: json["mobileNumber"],
         image: json["image"],
         price: json["price"],
+        pickupLocation: json["pickupLocation"] == null
+            ? null
+            : Location.fromJson(json["pickupLocation"]),
+        deliveryLocation: json["deliveryLocation"] == null
+            ? null
+            : Location.fromJson(json["deliveryLocation"]),
+        parcelId: json["parcelId"],
         avgRating: json["AvgRating"],
+        deliveryStartTime: json["deliveryStartTime"],
+        deliveryEndTime: json["deliveryEndTime"],
         description: json["description"],
         isRead: json["isRead"],
         createdAt: json["createdAt"] == null
@@ -116,14 +135,19 @@ class Notification {
 
   Map<String, dynamic> toJson() => {
         "_id": id,
-        "userId": userIdValues.reverse[userId],
+        "userId": userId,
         "message": message,
-        "type": typeValues.reverse[type],
+        "type": type == null ? null : typeValues.reverse[type],
         "title": title,
         "phoneNumber": phoneNumber,
         "mobileNumber": mobileNumber,
         "image": image,
         "price": price,
+        "pickupLocation": pickupLocation?.toJson(),
+        "deliveryLocation": deliveryLocation?.toJson(),
+        "deliveryStartTime": deliveryStartTime,
+        "deliveryEndTime": deliveryEndTime,
+        "parcelId": parcelId,
         "AvgRating": avgRating,
         "description": description,
         "isRead": isRead,
@@ -132,14 +156,38 @@ class Notification {
       };
 }
 
+class Location {
+  double? latitude;
+  double? longitude;
+  String? id;
+
+  Location({
+    this.latitude,
+    this.longitude,
+    this.id,
+  });
+
+  factory Location.fromRawJson(String str) =>
+      Location.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory Location.fromJson(Map<String, dynamic> json) => Location(
+        latitude: json["latitude"]?.toDouble(),
+        longitude: json["longitude"]?.toDouble(),
+        id: json["_id"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "latitude": latitude,
+        "longitude": longitude,
+        "_id": id,
+      };
+}
+
 enum Type { SEND_PARCEL }
 
 final typeValues = EnumValues({"send_parcel": Type.SEND_PARCEL});
-
-enum UserId { THE_680_A5_FABD6030_C12_C9155707 }
-
-final userIdValues = EnumValues(
-    {"680a5fabd6030c12c9155707": UserId.THE_680_A5_FABD6030_C12_C9155707});
 
 class Pagination {
   int? total;

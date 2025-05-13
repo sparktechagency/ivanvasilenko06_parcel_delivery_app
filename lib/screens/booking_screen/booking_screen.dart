@@ -33,9 +33,7 @@ class BookingScreen extends StatefulWidget {
 class _BookingScreenState extends State<BookingScreen> {
   int _currentIndex = 0;
   Map<String, String> addressCache = {};
-  Map<String, String> newAddressCache = {};
-  String address = "Loading...";
-  String newBookingAddress = "Loading...";
+  Map<String, String> locationToAddressCache = {};
   final PageController _pageController = PageController();
 
   final CurrentOrderController currentOrderController =
@@ -58,6 +56,49 @@ class _BookingScreenState extends State<BookingScreen> {
 
   // Replace with actual phone number
   final String message = 'Hello, this is a test message';
+
+  // Function to fetch and return address from coordinates
+  Future<String> getAddressFromCoordinates(
+      double latitude, double longitude) async {
+    final String key = '$latitude,$longitude';
+    if (locationToAddressCache.containsKey(key)) {
+      return locationToAddressCache[key]!;
+    }
+
+    try {
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        String newAddress = '${placemarks[0].locality}';
+        locationToAddressCache[key] = newAddress;
+        return newAddress;
+      } else {
+        return 'No address found';
+      }
+    } catch (e) {
+      log('Error fetching address: $e');
+      return 'Error fetching address';
+    }
+  }
+
+  // Store address by parcel ID
+  void cacheAddressForParcel(String parcelId, String addressType,
+      double latitude, double longitude) async {
+    final cacheKey = '${parcelId}_${addressType}';
+    if (!addressCache.containsKey(cacheKey)) {
+      String fetchedAddress =
+          await getAddressFromCoordinates(latitude, longitude);
+      setState(() {
+        addressCache[cacheKey] = fetchedAddress;
+      });
+    }
+  }
+
+  // Get address for a specific parcel
+  String getParcelAddress(String parcelId, String addressType) {
+    final cacheKey = '${parcelId}_${addressType}';
+    return addressCache[cacheKey] ?? 'Loading...';
+  }
 
   void _openBottomSheet() {
     showModalBottomSheet(
@@ -141,7 +182,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   const SpaceWidget(spaceHeight: 32),
                   ButtonWidget(
                     onPressed: () {
-                      Get.back(); // You can replace this with action like Get.offAll to Home screen after submit
+                      Get.back();
                     },
                     label: "submit".tr,
                     buttonWidth: double.infinity,
@@ -400,81 +441,6 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 
-  Future<void> _getAddress(double latitude, double longitude) async {
-    final String key = '$latitude,$longitude';
-    if (addressCache.containsKey(key)) {
-      setState(() {
-        address = addressCache[key]!;
-      });
-      return;
-    }
-    try {
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(latitude, longitude);
-      if (placemarks.isNotEmpty) {
-        String newAddress =
-            '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].country}';
-        setState(() {
-          address = newAddress;
-        });
-        addressCache[key] = newAddress; // Cache the address
-      } else {
-        setState(() {
-          address = 'No address found';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        address = 'Error fetching address';
-      });
-    }
-  }
-
-  Future<void> newAddress(double latitude, double longitude) async {
-    final String key = '$latitude,$longitude';
-    if (newAddressCache.containsKey(key)) {
-      setState(() {
-        newBookingAddress = newAddressCache[key]!;
-      });
-      return;
-    }
-    try {
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(latitude, longitude);
-      if (placemarks.isNotEmpty) {
-        String newAddress =
-            '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].country}';
-        setState(() {
-          newBookingAddress = newAddress;
-        });
-        newAddressCache[key] = newAddress; // Cache the address
-      } else {
-        setState(() {
-          newBookingAddress = 'No address found';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        newBookingAddress = 'Error fetching address';
-      });
-    }
-  }
-
-  String formatDeliveryDate(dynamic deliveryEndTime) {
-    if (deliveryEndTime is String) {
-      try {
-        final parsedDate = DateTime.parse(deliveryEndTime);
-        return DateFormat('yyyy-MM-dd , hh:mm').format(parsedDate);
-      } catch (e) {
-        return "Invalid Date Format";
-      }
-    } else if (deliveryEndTime is DateTime) {
-      return DateFormat('yyyy-MM-dd , hh:mm').format(deliveryEndTime);
-    } else {
-      return "Unknown Date";
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -593,32 +559,50 @@ class _BookingScreenState extends State<BookingScreen> {
             scrollDirection: Axis.vertical,
             child: Column(
               children: List.generate(data.length, (index) {
+                final parcelId = data[index].id ?? "";
                 final deliverLocation =
                     data[index].deliveryLocation?.coordinates;
                 final pickupLocation = data[index].pickupLocation?.coordinates;
-                final date =
-                    formatDeliveryDate(data[index].deliveryEndTime ?? "");
+
+                // Request address fetching for this parcel
+                if (deliverLocation != null && deliverLocation.length == 2) {
+                  final latitude = deliverLocation[1];
+                  final longitude = deliverLocation[0];
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    cacheAddressForParcel(
+                        parcelId, 'delivery', latitude, longitude);
+                  });
+                }
+
+                if (pickupLocation != null && pickupLocation.length == 2) {
+                  final latitude = pickupLocation[1];
+                  final longitude = pickupLocation[0];
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    cacheAddressForParcel(
+                        parcelId, 'pickup', latitude, longitude);
+                  });
+                }
+
+                // Get the delivery and pickup addresses for this specific parcel
+                final deliveryAddress = getParcelAddress(parcelId, 'delivery');
+                final pickupAddress = getParcelAddress(parcelId, 'pickup');
+
+                //////////////// Date Formateed
+                String formattedDate = "N/A";
+                try {
+                  final startDate =
+                      DateTime.parse(data[index].deliveryStartTime.toString());
+                  final endDate =
+                      DateTime.parse(data[index].deliveryEndTime.toString());
+                  formattedDate =
+                      "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
+                } catch (e) {
+                  log("Error parsing dates: $e");
+                }
+                /////////////
+
                 final isUserSender =
                     data[index].senderId == data[index].senderId;
-
-                if (deliverLocation != null &&
-                    deliverLocation.length == 2 &&
-                    address == "Loading...") {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    final latitude = deliverLocation[1];
-                    final longitude = deliverLocation[0];
-                    _getAddress(latitude, longitude);
-                  });
-                }
-                if (pickupLocation != null &&
-                    pickupLocation.length == 2 &&
-                    newBookingAddress == "Loading...") {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    final latitude = pickupLocation[1];
-                    final longitude = pickupLocation[0];
-                    newAddress(latitude, longitude);
-                  });
-                }
 
                 return Column(
                   children: [
@@ -669,18 +653,15 @@ class _BookingScreenState extends State<BookingScreen> {
                                         size: 12,
                                       ),
                                       const SpaceWidget(spaceWidth: 8),
-                                      SizedBox(
-                                        width: ResponsiveUtils.width(180),
-                                        child: TextWidget(
-                                          text:
-                                              "$newBookingAddress to $address",
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                          fontColor: AppColors.greyDark2,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          textAlignment: TextAlign.start,
-                                        ),
+                                      TextWidget(
+                                        text:
+                                            "$pickupAddress to $deliveryAddress",
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        fontColor: AppColors.greyDark2,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlignment: TextAlign.start,
                                       ),
                                     ],
                                   ),
@@ -711,7 +692,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                       ),
                                       const SpaceWidget(spaceWidth: 8),
                                       TextWidget(
-                                        text: date,
+                                        text: formattedDate,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
                                         fontColor: AppColors.greyDark2,
@@ -977,11 +958,25 @@ class _BookingScreenState extends State<BookingScreen> {
             const SpaceWidget(spaceHeight: 15),
             ...List.generate(parcelsWithRequests.length, (index) {
               final parcel = parcelsWithRequests[index];
+              final parcelId = parcel.id ?? "";
               // Parse the deliveryRequest as a Map instead of accessing properties directly
               final deliveryRequest =
                   parcel.deliveryRequests!.first as Map<String, dynamic>;
-              String formattedDate = formatDeliveryDate(parcel.deliveryEndTime);
+
+              String formattedDate = "N/A";
+              try {
+                final startDate =
+                    DateTime.parse(parcel.deliveryStartTime.toString());
+                final endDate =
+                    DateTime.parse(parcel.deliveryEndTime.toString());
+                formattedDate =
+                    "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
+              } catch (e) {
+                log("Error parsing dates: $e");
+              }
+
               final deliveryLocation = parcel.deliveryLocation?.coordinates;
+              final pickupLocation = parcel.pickupLocation?.coordinates;
 
               // Track the request state locally using a unique key for the request
               final String requestKey =
@@ -989,15 +984,28 @@ class _BookingScreenState extends State<BookingScreen> {
               final requestState =
                   newBookingsController.requestStates[requestKey] ?? 'pending';
 
-              if (deliveryLocation != null &&
-                  deliveryLocation.length == 2 &&
-                  newBookingAddress == "Loading...") {
+              // Request address fetching for this parcel
+              if (deliveryLocation != null && deliveryLocation.length == 2) {
+                final latitude = deliveryLocation[1];
+                final longitude = deliveryLocation[0];
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  final longitude = deliveryLocation[0];
-                  final latitude = deliveryLocation[1];
-                  newAddress(latitude, longitude);
+                  cacheAddressForParcel(
+                      parcelId, 'delivery', latitude, longitude);
                 });
               }
+
+              if (pickupLocation != null && pickupLocation.length == 2) {
+                final latitude = pickupLocation[1];
+                final longitude = pickupLocation[0];
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  cacheAddressForParcel(
+                      parcelId, 'pickup', latitude, longitude);
+                });
+              }
+
+              // Get addresses for this specific parcel
+              final deliveryAddress = getParcelAddress(parcelId, 'delivery');
+              final pickupAddress = getParcelAddress(parcelId, 'pickup');
 
               return Container(
                 width: double.infinity,
@@ -1077,7 +1085,8 @@ class _BookingScreenState extends State<BookingScreen> {
                                   const SpaceWidget(spaceWidth: 8),
                                   Flexible(
                                     child: TextWidget(
-                                      text: newBookingAddress,
+                                      text:
+                                          "$pickupAddress to $deliveryAddress",
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                       fontColor: AppColors.greyDark2,

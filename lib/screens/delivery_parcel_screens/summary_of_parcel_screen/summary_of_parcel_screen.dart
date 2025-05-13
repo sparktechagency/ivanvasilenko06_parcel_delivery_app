@@ -26,8 +26,13 @@ class SummaryOfParcelScreen extends StatefulWidget {
 
 class _SummaryOfParcelScreenState extends State<SummaryOfParcelScreen> {
   late final String parcelId;
-  late DeliverParcelList parcel;
+  DeliverParcelList? parcel;
   bool isLoading = true;
+  String address = "";
+  String pickupAddress = "";
+  String exactPickupLocation = "";
+  String exactDeliveryLocation = "";
+  Map<String, String> addressCache = {};
 
   @override
   void initState() {
@@ -40,7 +45,30 @@ class _SummaryOfParcelScreenState extends State<SummaryOfParcelScreen> {
   Future<void> fetchParcelDetails(String id) async {
     final deliveryScreenController = Get.find<DeliveryScreenController>();
     try {
+      // Find specific parcel by ID
       parcel = deliveryScreenController.parcels.firstWhere((p) => p.sId == id);
+
+      // Fetch addresses after finding the parcel
+      if (parcel != null) {
+        // Check for delivery location coordinates
+        if (parcel!.deliveryLocation != null &&
+            parcel!.deliveryLocation!.coordinates != null &&
+            parcel!.deliveryLocation!.coordinates!.length == 2) {
+          double longitude = parcel!.deliveryLocation!.coordinates![0];
+          double latitude = parcel!.deliveryLocation!.coordinates![1];
+          await _getAddress(latitude, longitude, false);
+        }
+
+        // Check for pickup location coordinates
+        if (parcel!.pickupLocation != null &&
+            parcel!.pickupLocation!.coordinates != null &&
+            parcel!.pickupLocation!.coordinates!.length == 2) {
+          double longitude = parcel!.pickupLocation!.coordinates![0];
+          double latitude = parcel!.pickupLocation!.coordinates![1];
+          await _getAddress(latitude, longitude, true);
+        }
+      }
+
       setState(() {
         isLoading = false;
       });
@@ -52,41 +80,94 @@ class _SummaryOfParcelScreenState extends State<SummaryOfParcelScreen> {
     }
   }
 
-  // Function to get the address from coordinates
-  Future<String> _getAddress(double latitude, double longitude) async {
+  // Function to get address based on latitude and longitude
+  Future<void> _getAddress(
+      double latitude, double longitude, bool isPickup) async {
+    final String key = '$latitude,$longitude';
+    String addressType = isPickup ? "Pickup" : "Delivery";
+
+    if (addressCache.containsKey(key)) {
+      // Use cached address if available
+      setState(() {
+        if (isPickup) {
+          pickupAddress = addressCache[key]!;
+        } else {
+          address = addressCache[key]!;
+        }
+      });
+      return;
+    }
+
     try {
       List<Placemark> placemarks =
           await placemarkFromCoordinates(latitude, longitude);
+
       if (placemarks.isNotEmpty) {
-        return '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].country}';
+        String newAddress =
+            '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
+
+        String exactLocation =
+            '${placemarks[0].street}, ${placemarks[0].subLocality}, '
+            '${placemarks[0].locality}, ${placemarks[0].administrativeArea}, '
+            '${placemarks[0].postalCode}, ${placemarks[0].country}';
+        addressCache[key] = newAddress;
+        setState(() {
+          if (isPickup) {
+            pickupAddress = newAddress;
+            exactPickupLocation = exactLocation;
+          } else {
+            address = newAddress;
+            exactDeliveryLocation = exactLocation;
+          }
+        });
+      } else {
+        // If no address is found
+        setState(() {
+          if (isPickup) {
+            pickupAddress = 'No pickup address found';
+            exactPickupLocation = 'No exact pickup location found';
+          } else {
+            address = 'No delivery address found';
+            exactDeliveryLocation = 'No exact delivery location found';
+          }
+        });
       }
-      return 'No address found';
     } catch (e) {
-      return 'Error fetching address';
+      // If an error occurs while fetching the address
+      setState(() {
+        if (isPickup) {
+          pickupAddress = 'Error fetching pickup address';
+          exactPickupLocation = 'Error fetching exact pickup location';
+        } else {
+          address = 'Error fetching delivery address';
+          exactDeliveryLocation = 'Error fetching exact delivery location';
+        }
+      });
     }
   }
 
-  String formatDeliveryDate(dynamic deliveryEndTime) {
-    if (deliveryEndTime is String) {
-      try {
-        final parsedDate = DateTime.parse(deliveryEndTime);
-        return DateFormat('yyyy-MM-dd , hh:mm').format(parsedDate);
-      } catch (e) {
-        return "Invalid Date Format";
+  String _getFormattedDeliveryTime(currentParcel) {
+    log("deliveryStartTime: ${currentParcel?.deliveryStartTime}");
+    log("deliveryEndTime: ${currentParcel?.deliveryEndTime}");
+    try {
+      if (currentParcel?.deliveryStartTime != null &&
+          currentParcel?.deliveryEndTime != null) {
+        final startDate =
+            DateTime.parse(currentParcel.deliveryStartTime.toString());
+        final endDate =
+            DateTime.parse(currentParcel.deliveryEndTime.toString());
+        return "${DateFormat('dd.MM').format(startDate)} to ${DateFormat('dd.MM').format(endDate)}";
+      } else {
+        return "N/A";
       }
-    } else if (deliveryEndTime is DateTime) {
-      return DateFormat('yyyy-MM-dd , hh:mm').format(deliveryEndTime);
-    } else {
-      return "Unknown Date";
+    } catch (e) {
+      log("Error in _getFormattedDeliveryTime: $e");
+      return "N/A";
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<DeliveryScreenController>();
-    final startingLocation = controller.startingCoordinates.value;
-    final endingLocation = controller.endingCoordinates.value;
-
     return Scaffold(
       backgroundColor: AppColors.white,
       body: isLoading
@@ -125,7 +206,7 @@ class _SummaryOfParcelScreenState extends State<SummaryOfParcelScreen> {
                             ),
                             const SpaceWidget(spaceWidth: 8),
                             TextWidget(
-                              text: parcel.title ?? "Unknown Parcel",
+                              text: parcel?.title ?? "Unknown Parcel",
                               // Display parcel title
                               fontSize: 18,
                               fontWeight: FontWeight.w500,
@@ -142,117 +223,59 @@ class _SummaryOfParcelScreenState extends State<SummaryOfParcelScreen> {
                         SummaryInfoRowWidget(
                           image: AppImagePath.profileImage,
                           label: "sendersName".tr,
-                          value: parcel.senderId?.fullName ??
+                          value: parcel?.senderId?.fullName ??
                               "N/A", // Sender's name
                         ),
-                        // const SpaceWidget(spaceHeight: 8),
-                        // SummaryInfoRowWidget(
-                        //   icon: AppIconsPath.ratingIcon,
-                        //   label: "ratingsText".tr,
-                        //   value: AppStrings.ratings, // Rating text
-                        // ),
                         const SpaceWidget(spaceHeight: 8),
                         SummaryInfoRowWidget(
                           icon: AppIconsPath.profileIcon,
                           label: "receiversName".tr,
-                          value: parcel.name ?? "N/A",
+                          value: parcel?.name ?? "N/A",
                         ),
                         const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.callIcon,
-                          label: "receiversNumber".tr,
-                          value: parcel.phoneNumber ?? "N/A",
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
+                        // SummaryInfoRowWidget(
+                        //   icon: AppIconsPath.callIcon,
+                        //   label: "receiversNumber".tr,
+                        //   value: parcel?.phoneNumber ?? "N/A",
+                        // ),
+                        //const SpaceWidget(spaceHeight: 8),
                         SummaryInfoRowWidget(
                           icon: AppIconsPath.deliveryTimeIcon,
                           label: "deliveryTimeText".tr,
-                          value: formatDeliveryDate(parcel.deliveryEndTime),
+                          value: _getFormattedDeliveryTime(parcel),
                         ),
                         const SpaceWidget(spaceHeight: 8),
                         // Display starting location using FutureBuilder
-                        FutureBuilder<String>(
-                          future: _getAddress(startingLocation!.latitude,
-                              startingLocation.longitude),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return SummaryInfoRowWidget(
-                                icon: AppIconsPath.destinationIcon,
-                                label: "currentLocationText".tr,
-                                value: "Loading address...",
-                              );
-                            } else if (snapshot.hasError) {
-                              return SummaryInfoRowWidget(
-                                icon: AppIconsPath.destinationIcon,
-                                label: "currentLocationText".tr,
-                                value: "Error fetching address",
-                              );
-                            } else if (snapshot.hasData) {
-                              return SummaryInfoRowWidget(
-                                icon: AppIconsPath.destinationIcon,
-                                label: "currentLocationText".tr,
-                                value: snapshot.data ?? "Address not available",
-                              );
-                            } else {
-                              return SummaryInfoRowWidget(
-                                icon: AppIconsPath.destinationIcon,
-                                label: "currentLocationText".tr,
-                                value: "No data",
-                              );
-                            }
-                          },
+                        SummaryInfoRowWidget(
+                          icon: AppIconsPath.destinationIcon,
+                          label: "currentLocationText".tr,
+                          value: exactPickupLocation.isNotEmpty
+                              ? exactPickupLocation
+                              : pickupAddress, // Exact pickup location
                         ),
                         const SpaceWidget(spaceHeight: 8),
-                        FutureBuilder<String>(
-                          future: _getAddress(endingLocation!.latitude,
-                              endingLocation.longitude),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return SummaryInfoRowWidget(
-                                icon: AppIconsPath.currentLocationIcon,
-                                label: "destinationText".tr,
-                                value: "Loading address...",
-                              );
-                            } else if (snapshot.hasError) {
-                              return SummaryInfoRowWidget(
-                                icon: AppIconsPath.currentLocationIcon,
-                                label: "destinationText".tr,
-                                value: "Error fetching address",
-                              );
-                            } else if (snapshot.hasData) {
-                              return SummaryInfoRowWidget(
-                                icon: AppIconsPath.currentLocationIcon,
-                                label: "destinationText".tr,
-                                value: snapshot.data ?? "Address not available",
-                              );
-                            } else {
-                              return SummaryInfoRowWidget(
-                                icon: AppIconsPath.currentLocationIcon,
-                                label: "destinationText".tr,
-                                value: "No data",
-                              );
-                            }
-                          },
+                        SummaryInfoRowWidget(
+                          icon: AppIconsPath.currentLocationIcon,
+                          label: "destinationText".tr,
+                          value: exactDeliveryLocation.isNotEmpty
+                              ? exactDeliveryLocation
+                              : address, // Exact delivery location
                         ),
-                        const SpaceWidget(spaceHeight: 8),
                         // Display price
                         SummaryInfoRowWidget(
                           icon: AppIconsPath.priceIcon,
                           label: "Price",
-                          value: parcel.price != null
-                              ? "${parcel.price}"
+                          value: parcel?.price != null
+                              ? "${parcel!.price}"
                               : "Not set",
                         ),
                         const SpaceWidget(spaceHeight: 8),
                         SummaryInfoRowWidget(
-                          icon: AppIconsPath.descriptionIcon,
-                          label: "descriptionText".tr,
-                          value: controller.parcels.isNotEmpty
-                              ? "${controller.parcels.first.description}"
-                              : "N/A}", // Description
-                        ),
+                            icon: AppIconsPath.descriptionIcon,
+                            label: "descriptionText".tr,
+                            value: parcel?.description ??
+                                "No description" // Get this specific parcel's description
+                            ),
                       ],
                     ),
                   ),

@@ -86,8 +86,8 @@ class NotificationController extends GetxController {
   Future<void> fetchParcelNotifications({int page = 1}) async {
     try {
       if (page == 1) {
-        isParcelLoading(true); // Set loading state for the first page
-        parcelError(''); // Reset any previous error
+        isParcelLoading(true);
+        parcelError('');
       }
 
       final response = await ApiGetServices().apiGetServices(

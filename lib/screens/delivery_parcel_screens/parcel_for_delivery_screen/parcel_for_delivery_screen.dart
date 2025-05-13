@@ -30,99 +30,56 @@ class ParcelForDeliveryScreen extends StatefulWidget {
 class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
   // Cache to store the fetched address based on coordinates
   Map<String, String> addressCache = {};
+  Map<String, String> locationToAddressCache = {};
 
   @override
   void initState() {
     super.initState();
     final deliveryScreenController = Get.find<DeliveryScreenController>();
-
-    // Pre-fetch addresses for all parcels after widget initialization
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      for (final parcel in deliveryScreenController.parcels) {
-        final deliveryCoordinates = parcel.deliveryLocation?.coordinates;
-        if (deliveryCoordinates != null && deliveryCoordinates.length == 2) {
-          final latitude = deliveryCoordinates[1];
-          final longitude = deliveryCoordinates[0];
-          _getAddress(latitude, longitude);
-        }
-      }
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {});
   }
 
-  // Function to get the address from coordinates with caching
-  Future<void> _getAddress(double latitude, double longitude) async {
+  // Function to fetch and return address from coordinates
+  Future<String> getAddressFromCoordinates(
+      double latitude, double longitude) async {
     final String key = '$latitude,$longitude';
-
-    // Skip if the address for these coordinates is already being fetched or cached
-    if (addressCache.containsKey(key)) {
-      return;
+    if (locationToAddressCache.containsKey(key)) {
+      return locationToAddressCache[key]!;
     }
-
-    // Set a placeholder while fetching
-    addressCache[key] = "Loading...";
 
     try {
       List<Placemark> placemarks =
           await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
-        String newAddress =
-            '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].country}';
-
-        // Only update state if widget is still mounted
-        if (mounted) {
-          setState(() {
-            addressCache[key] = newAddress; // Cache the address
-          });
-        } else {
-          // Update cache even if widget is not mounted
-          addressCache[key] = newAddress;
-        }
+        String newAddress = '${placemarks[0].locality}';
+        locationToAddressCache[key] = newAddress;
+        return newAddress;
       } else {
-        if (mounted) {
-          setState(() {
-            addressCache[key] = 'No address found';
-          });
-        } else {
-          addressCache[key] = 'No address found';
-        }
+        return 'No address found';
       }
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          addressCache[key] = 'Error fetching address';
-        });
-      } else {
-        addressCache[key] = 'Error fetching address';
-      }
+      log('Error fetching address: $e');
+      return 'Error fetching address';
     }
   }
 
-  String formatDeliveryDate(dynamic deliveryEndTime) {
-    if (deliveryEndTime is String) {
-      try {
-        final parsedDate = DateTime.parse(deliveryEndTime);
-        return DateFormat('yyyy-MM-dd , hh:mm').format(parsedDate);
-      } catch (e) {
-        return "Invalid Date Format";
-      }
-    } else if (deliveryEndTime is DateTime) {
-      return DateFormat('yyyy-MM-dd , hh:mm').format(deliveryEndTime);
-    } else {
-      return "Unknown Date";
+  // Store address by parcel ID
+  void cacheAddressForParcel(String parcelId, String addressType,
+      double latitude, double longitude) async {
+    final cacheKey = '${parcelId}_${addressType}';
+    if (!addressCache.containsKey(cacheKey)) {
+      String fetchedAddress =
+          await getAddressFromCoordinates(latitude, longitude);
+      setState(() {
+        addressCache[cacheKey] = fetchedAddress;
+      });
     }
   }
 
-  // Helper method to get address from cache or return a default string
-  String getAddressForCoordinates(List<dynamic>? coordinates) {
-    if (coordinates == null || coordinates.length < 2) {
-      return "Address unavailable";
-    }
-
-    final latitude = coordinates[1];
-    final longitude = coordinates[0];
-    final key = '$latitude,$longitude';
-
-    return addressCache[key] ?? "Loading...";
+  // Get address for a specific parcel
+  String getParcelAddress(String parcelId, String addressType) {
+    final cacheKey = '${parcelId}_${addressType}';
+    return addressCache[cacheKey] ?? 'Loading...';
   }
 
   @override
@@ -156,8 +113,49 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
                   final parcel = controller.parcels[index];
                   final title = parcel.title ?? "Unknown Parcel";
                   final price = parcel.price ?? 0;
-                  final date = formatDeliveryDate(parcel.deliveryEndTime);
                   final parcelId = parcel.sId;
+
+                  /////// Show the exact location
+                  final pickupLocation = parcel.pickupLocation?.coordinates;
+                  final deliveryLocation = parcel.deliveryLocation?.coordinates;
+
+                  // Request address fetching for this parcel
+                  if (deliveryLocation != null &&
+                      deliveryLocation.length == 2) {
+                    final latitude = deliveryLocation[1];
+                    final longitude = deliveryLocation[0];
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      cacheAddressForParcel(
+                          parcelId!, 'delivery', latitude, longitude);
+                    });
+                  }
+
+                  if (pickupLocation != null && pickupLocation.length == 2) {
+                    final latitude = pickupLocation[1];
+                    final longitude = pickupLocation[0];
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      cacheAddressForParcel(
+                          parcelId!, 'pickup', latitude, longitude);
+                    });
+                  }
+
+                  // Get the delivery and pickup addresses for this specific parcel
+                  final deliveryAddress =
+                      getParcelAddress(parcelId!, 'delivery');
+                  final pickupAddress = getParcelAddress(parcelId, 'pickup');
+
+                  ///////// Show the Date with appropriate format
+                  String formattedDate = "N/A";
+                  try {
+                    final startDate =
+                        DateTime.parse(parcel.deliveryStartTime.toString());
+                    final endDate =
+                        DateTime.parse(parcel.deliveryEndTime.toString());
+                    formattedDate =
+                        "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
+                  } catch (e) {
+                    log("Error parsing dates: $e");
+                  }
 
                   // Check if request is already sent for this parcel
                   final isRequestSent = controller.isRequestSent(parcelId);
@@ -166,11 +164,6 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
                   if (parcelId != null) {
                     log("Parcel ID: $parcelId, Request Sent: $isRequestSent");
                   }
-
-                  // Get the address from cache - no setState during build!
-                  final address = getAddressForCoordinates(
-                      parcel.deliveryLocation?.coordinates);
-
                   return Padding(
                     padding: const EdgeInsets.all(14),
                     child: Column(
@@ -225,7 +218,7 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
                             const SpaceWidget(spaceWidth: 8),
                             Flexible(
                               child: TextWidget(
-                                text: address,
+                                text: "$pickupAddress to $deliveryAddress",
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 fontColor: AppColors.greyDark2,
@@ -245,7 +238,7 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
                             ),
                             const SpaceWidget(spaceWidth: 8),
                             TextWidget(
-                              text: date,
+                              text: formattedDate,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                               fontColor: AppColors.greyDark2,

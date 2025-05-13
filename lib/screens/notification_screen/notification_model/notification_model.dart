@@ -58,6 +58,8 @@ class Notifications {
   String? phoneNumber;
   String? mobileNumber;
   String? image;
+  String? deliveryStartTime;
+  String? deliveryEndTime;
   String? name;
   int? price;
   int? avgRating;
@@ -82,6 +84,8 @@ class Notifications {
       this.description,
       this.isRead,
       this.createdAt,
+      this.deliveryStartTime,
+      this.deliveryEndTime,
       this.name,
       this.pickupLocation,
       this.deliveryLocation,
@@ -100,6 +104,8 @@ class Notifications {
     price = json['price'];
     avgRating = json['AvgRating'];
     description = json['description'];
+    deliveryStartTime = json['deliveryStartTime'];
+    deliveryEndTime = json['deliveryEndTime'];
     isRead = json['isRead'];
     createdAt = json['createdAt'];
     iV = json['__v'];
@@ -125,6 +131,8 @@ class Notifications {
     data['price'] = price;
     data['AvgRating'] = avgRating;
     data['description'] = description;
+    data['deliveryStartTime'] = deliveryStartTime;
+    data['deliveryEndTime'] = deliveryEndTime;
     data['isRead'] = isRead;
     data['createdAt'] = createdAt;
     data['__v'] = iV;

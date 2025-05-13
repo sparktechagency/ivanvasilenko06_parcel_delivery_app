@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
@@ -26,6 +29,8 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
   // Regular String variables for address and pickupAddress
   String address = "";
   String pickupAddress = "";
+  String exactPickupLocation = "";
+  String exactDeliveryLocation = "";
 
   Map<String, String> addressCache = {};
   var currentParcel;
@@ -36,17 +41,15 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
   Future<void> _getAddress(
       double latitude, double longitude, bool isPickup) async {
     final String key = '$latitude,$longitude';
-    String addressType = isPickup
-        ? "Pickup"
-        : "Delivery"; // Use this to differentiate pickup and delivery address
+    String addressType = isPickup ? "Pickup" : "Delivery";
 
     if (addressCache.containsKey(key)) {
       // Use cached address if available
       setState(() {
         if (isPickup) {
-          pickupAddress = addressCache[key]!; // Set pickup address
+          pickupAddress = addressCache[key]!;
         } else {
-          address = addressCache[key]!; // Set delivery address
+          address = addressCache[key]!;
         }
       });
       return;
@@ -58,17 +61,20 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
 
       if (placemarks.isNotEmpty) {
         String newAddress =
-            '${placemarks[0].locality}, ${placemarks[0].subAdministrativeArea}, ${placemarks[0].country}';
+            '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
 
-        // Cache the address
+        String exactLocation =
+            '${placemarks[0].street}, ${placemarks[0].subLocality}, '
+            '${placemarks[0].locality}, ${placemarks[0].administrativeArea}, '
+            '${placemarks[0].postalCode}, ${placemarks[0].country}';
         addressCache[key] = newAddress;
-
-        // Set the address based on whether it's pickup or delivery
         setState(() {
           if (isPickup) {
-            pickupAddress = newAddress; // Set pickup address
+            pickupAddress = newAddress;
+            exactPickupLocation = exactLocation;
           } else {
-            address = newAddress; // Set delivery address
+            address = newAddress;
+            exactDeliveryLocation = exactLocation;
           }
         });
       } else {
@@ -76,8 +82,10 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
         setState(() {
           if (isPickup) {
             pickupAddress = 'No pickup address found';
+            exactPickupLocation = 'No exact pickup location found';
           } else {
             address = 'No delivery address found';
+            exactDeliveryLocation = 'No exact delivery location found';
           }
         });
       }
@@ -86,8 +94,10 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
       setState(() {
         if (isPickup) {
           pickupAddress = 'Error fetching pickup address';
+          exactPickupLocation = 'Error fetching exact pickup location';
         } else {
           address = 'Error fetching delivery address';
+          exactDeliveryLocation = 'Error fetching exact delivery location';
         }
       });
     }
@@ -96,14 +106,12 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
   // Function to find both pickup and delivery addresses from coordinates
   void findAddressesFromCoordinates() {
     if (currentParcel != null) {
-      // Checking deliveryLocation coordinates
       if (currentParcel.deliveryLocation != null &&
           currentParcel.deliveryLocation.coordinates != null &&
           currentParcel.deliveryLocation.coordinates!.length == 2) {
         double longitude = currentParcel.deliveryLocation.coordinates![0];
         double latitude = currentParcel.deliveryLocation.coordinates![1];
-
-        _getAddress(latitude, longitude, false); // false for delivery
+        _getAddress(latitude, longitude, false);
       }
 
       // Checking pickupLocation coordinates
@@ -113,7 +121,7 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
         double longitude = currentParcel.pickupLocation.coordinates![0];
         double latitude = currentParcel.pickupLocation.coordinates![1];
 
-        _getAddress(latitude, longitude, true); // true for pickup
+        _getAddress(latitude, longitude, true);
       }
     }
   }
@@ -139,20 +147,23 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
     }
   }
 
-  String _formatDeliveryDate(dynamic dateInput) {
-    if (dateInput == null) return '';
+  String _getFormattedDeliveryTime(currentParcel) {
+    log("deliveryStartTime: ${currentParcel?.deliveryStartTime}");
+    log("deliveryEndTime: ${currentParcel?.deliveryEndTime}");
     try {
-      DateTime date;
-      if (dateInput is DateTime) {
-        date = dateInput;
-      } else if (dateInput is String) {
-        date = DateTime.parse(dateInput);
+      if (currentParcel?.deliveryStartTime != null &&
+          currentParcel?.deliveryEndTime != null) {
+        final startDate =
+            DateTime.parse(currentParcel.deliveryStartTime.toString());
+        final endDate =
+            DateTime.parse(currentParcel.deliveryEndTime.toString());
+        return "${DateFormat('dd.MM').format(startDate)} to ${DateFormat('dd.MM').format(endDate)}";
       } else {
-        return '';
+        return "N/A";
       }
-      return '${date.day}/${date.month}/${date.year}';
     } catch (e) {
-      return '';
+      log("Error in _getFormattedDeliveryTime: $e");
+      return "N/A";
     }
   }
 
@@ -233,22 +244,24 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
                         SummaryInfoRowWidget(
                           icon: AppIconsPath.deliveryTimeIcon,
                           label: "deliveryTimeText".tr,
-                          value: _formatDeliveryDate(
-                              currentParcel?.deliveryStartTime),
+                          value: _getFormattedDeliveryTime(currentParcel),
                         ),
                         const SpaceWidget(spaceHeight: 8),
                         // Use the regular String variables now
                         SummaryInfoRowWidget(
                           icon: AppIconsPath.destinationIcon,
                           label: "currentLocationText".tr,
-                          value: address, // Use the regular address String
+                          value: exactPickupLocation.isNotEmpty
+                              ? exactPickupLocation
+                              : pickupAddress, // Exact pickup location
                         ),
                         const SpaceWidget(spaceHeight: 8),
                         SummaryInfoRowWidget(
                           icon: AppIconsPath.currentLocationIcon,
                           label: "destinationText".tr,
-                          value:
-                              pickupAddress, // Use the regular pickupAddress String
+                          value: exactDeliveryLocation.isNotEmpty
+                              ? exactDeliveryLocation
+                              : address, // Exact delivery location
                         ),
                         const SpaceWidget(spaceHeight: 8),
                         SummaryInfoRowWidget(

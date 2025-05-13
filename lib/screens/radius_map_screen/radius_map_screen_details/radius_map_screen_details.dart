@@ -121,7 +121,7 @@ class _RadiusMapScreenDetailsState extends State<RadiusMapScreenDetails> {
           await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
         String address =
-            '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].country}';
+            '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
         addressCache[key] = address;
         return address;
       }
@@ -151,10 +151,10 @@ class _RadiusMapScreenDetailsState extends State<RadiusMapScreenDetails> {
         final endDate = DateTime.parse(parcel["deliveryEndTime"]);
         return "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
       } else {
-        return "N/A"; // Return N/A if either time is null
+        return "N/A";
       }
     } catch (e) {
-      return "N/A"; // Return N/A if there's an error in parsing
+      return "N/A";
     }
   }
 
@@ -257,12 +257,12 @@ class _RadiusMapScreenDetailsState extends State<RadiusMapScreenDetails> {
                               value: parcel["name"] ?? "N/A",
                             ),
                             const SpaceWidget(spaceHeight: 8),
-                            SummaryInfoRowWidget(
-                              icon: AppIconsPath.callIcon,
-                              label: "receiversNumber".tr,
-                              value: parcel["phoneNumber"] ?? "N/A",
-                            ),
-                            const SpaceWidget(spaceHeight: 8),
+                            // SummaryInfoRowWidget(
+                            //   icon: AppIconsPath.callIcon,
+                            //   label: "receiversNumber".tr,
+                            //   value: parcel["phoneNumber"] ?? "N/A",
+                            // ),
+                            // const SpaceWidget(spaceHeight: 8),
                             SummaryInfoRowWidget(
                               icon: AppIconsPath.deliveryTimeIcon,
                               label: "deliveryTimeText".tr,
