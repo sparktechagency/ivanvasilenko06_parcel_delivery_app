@@ -255,7 +255,7 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
                     )
                   ],
                 ),
-              ))
+              )),
         ],
       ),
     );

@@ -30,6 +30,7 @@ import '../screens/notification_screen/notification_screen.dart';
 import '../screens/onboarding_screen/onboarding_screen.dart';
 import '../screens/profile_screen/profile_screen.dart';
 import '../screens/radius_map_screen/radius_map_screen.dart';
+import '../screens/recent_publish_order_details/recent_publish_order_details.dart';
 import '../screens/send_parcel_screens/hurrah_screen/hurrah_screen.dart';
 import '../screens/send_parcel_screens/sender_delivery_type_screen/sender_delivery_type_screen.dart';
 import '../screens/send_parcel_screens/sender_summary_of_parcel_screen/sender_summary_of_parcel_screen.dart';
@@ -245,7 +246,12 @@ class RouteManager {
         name: AppRoutes.radiusMapScreenDetails,
         page: () => const RadiusMapScreenDetails(),
         transition: Transition.rightToLeft,
-      )
+      ),
+      GetPage(
+        name: AppRoutes.serviceScreenDeliveryDetails,
+        page: () => DeliveryDetailsScreen(parcelId: Get.arguments),
+        transition: Transition.rightToLeft,
+      ),
     ];
   }
 }

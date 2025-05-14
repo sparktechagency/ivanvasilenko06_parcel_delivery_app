@@ -158,4 +158,11 @@ class DeliveryScreenController extends GetxController {
     fetchParcels();
     super.onInit();
   }
+
+  @override
+  void onClose() {
+    pickupLocation.value = '';
+    selectedDeliveryLocation.value = '';
+    super.onClose();
+  }
 }

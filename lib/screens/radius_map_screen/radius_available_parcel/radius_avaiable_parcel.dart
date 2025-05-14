@@ -118,16 +118,12 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
         final placemark = placemarks[0];
         final List<String> addressParts = [
           placemark.locality ?? '',
-          // placemark.administrativeArea ?? '',
-          // placemark.country ?? ''
         ].where((part) => part.isNotEmpty).toList();
 
         String address = addressParts.join(', ');
 
-        // Cache the address
         addressCache[key] = address;
 
-        // Update UI
         _updateAddress(parcelId, address, isPickup);
       } else {
         _handleAddressError(parcelId, isPickup, "No address found");
@@ -271,7 +267,6 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                             : deliveryAddresses[parcelId] ??
                                 "Address unavailable";
 
-                        // Check if parcel request has been sent using DeliveryScreenController
                         final bool hasRequestSent =
                             _deliveryController.isRequestSent(parcelId);
 
@@ -352,7 +347,6 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                                   ),
                                 ],
                               ),
-                              // Add "Request Sent" text indicator like in ParcelForDeliveryScreen
                               if (hasRequestSent) ...[
                                 const SpaceWidget(spaceHeight: 8),
                                 const Row(

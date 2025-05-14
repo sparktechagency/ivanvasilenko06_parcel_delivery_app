@@ -20,6 +20,7 @@ import '../../constants/app_icons_path.dart';
 import '../../constants/app_image_path.dart';
 import '../../widgets/icon_widget/icon_widget.dart';
 import '../../widgets/image_widget/image_widget.dart';
+import '../delivery_parcel_screens/controller/delivery_screens_controller.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -100,6 +101,9 @@ class _NotificationScreenState extends State<NotificationScreen>
       newBookingAddress = result;
     });
   }
+
+  final DeliveryScreenController _deliveryController =
+      Get.put(DeliveryScreenController());
 
   @override
   void initState() {
@@ -477,8 +481,6 @@ class _NotificationScreenState extends State<NotificationScreen>
     }
 
     String title = notification.title ?? "Parcel";
-    String message = notification.message ?? "No details available";
-    String phoneNumber = notification.phoneNumber ?? "+375 292316347";
     DateTime? createdAtDate;
     String timeAgo = _getTimeAgo(notification.createdAt.toString());
     try {
@@ -488,10 +490,6 @@ class _NotificationScreenState extends State<NotificationScreen>
     } catch (e) {
       createdAtDate = null;
     }
-
-    String date = createdAtDate != null
-        ? DateFormat('dd.MM.yyyy').format(createdAtDate)
-        : "24.04.2024";
     bool isRejected = notification.type == "rejected";
     bool isRequestedDelivery = notification.type == "requested";
     String? deliveryPersonName = notification.userId;
@@ -534,7 +532,11 @@ class _NotificationScreenState extends State<NotificationScreen>
     } catch (e) {
       log("Error parsing dates: $e");
     }
-    /////////////
+
+    /// Parcel ID
+    String parcelId = notification.parcelId.toString();
+
+    final bool hasSentRequest = controller.isRequestSent(parcelId);
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -611,16 +613,34 @@ class _NotificationScreenState extends State<NotificationScreen>
                   ],
                 ),
                 const SpaceWidget(spaceHeight: 8),
-
-                const SpaceWidget(spaceHeight: 8),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextWidget(
-                    text: timeAgo,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 12,
-                    fontColor: AppColors.greyDark,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    hasSentRequest == false
+                        ? const SizedBox()
+                        : const Row(
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
+                                size: 12,
+                              ),
+                              SpaceWidget(spaceWidth: 8),
+                              TextWidget(
+                                text: "Request Sent",
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                fontColor: Colors.green,
+                              ),
+                            ],
+                          ),
+                    TextWidget(
+                      text: timeAgo,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 12,
+                      fontColor: AppColors.greyDark,
+                    ),
+                  ],
                 ),
                 const SpaceWidget(spaceHeight: 8),
 
@@ -632,165 +652,53 @@ class _NotificationScreenState extends State<NotificationScreen>
                     color: AppColors.whiteLight,
                     borderRadius: BorderRadius.circular(100),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      InkWell(
-                        onTap: () {},
-                        splashColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        child: Row(
-                          children: [
-                            const IconWidget(
-                              icon: AppIconsPath.personAddIcon,
-                              color: AppColors.black,
-                              width: 14,
-                              height: 14,
-                            ),
-                            const SpaceWidget(spaceWidth: 8),
-                            TextWidget(
-                              text: "requestSent".tr,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              fontColor: AppColors.black,
-                            ),
-                          ],
+                  child: InkWell(
+                    onTap: hasSentRequest
+                        ? null
+                        : () async {
+                            try {
+                              await _deliveryController
+                                  .sendParcelRequest(parcelId);
+                              controller.sentParcelIds.add(parcelId);
+                              AppSnackBar.success("Request sent successfully");
+                              setState(() {});
+                            } catch (e) {
+                              AppSnackBar.error("Error: ${e.toString()}");
+                              log("Error sending parcel request: $e");
+                            } finally {
+                              if (Get.isDialogOpen == true) {
+                                Get.back();
+                              }
+                            }
+                          },
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconWidget(
+                          icon: AppIconsPath.personAddIcon,
+                          color: hasSentRequest ? Colors.grey : AppColors.black,
+                          width: 14,
+                          height: 14,
                         ),
-                      ),
-                      Container(
-                        width: 1,
-                        height: 18,
-                        color: AppColors.blackLighter,
-                      ),
-                      InkWell(
-                        onTap: () {},
-                        splashColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.visibility_outlined,
-                              color: Colors.black,
-                              size: 14,
-                            ),
-                            const SpaceWidget(spaceWidth: 8),
-                            TextWidget(
-                              text: "viewSummary".tr,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              fontColor: AppColors.black,
-                            ),
-                          ],
+                        const SpaceWidget(spaceWidth: 8),
+                        TextWidget(
+                          text: hasSentRequest
+                              ? "requestSent".tr
+                              : "sendRequest".tr,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          fontColor:
+                              hasSentRequest ? Colors.grey : AppColors.black,
                         ),
-                      )
-                    ],
+                      ],
+                    ),
                   ),
                 )
               ],
             ),
           ),
-          if (isRequestedDelivery && deliveryPersonName != null)
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: AppColors.greyLight),
-                ),
-              ),
-              child: Column(
-                children: [
-                  // Delivery person info with rating
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          TextWidget(
-                            text: deliveryPersonName,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            fontColor: AppColors.black,
-                          ),
-                        ],
-                      ),
-                      if (rating != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.amber,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.star,
-                                  size: 14, color: Colors.white),
-                              const SpaceWidget(spaceWidth: 4),
-                              TextWidget(
-                                text: rating.toStringAsFixed(1),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                fontColor: Colors.white,
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-
-                  const SpaceWidget(spaceHeight: 12),
-
-                  // Action buttons
-                  Row(
-                    children: [
-                      if (isRejected)
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              // Handle reject action
-                            },
-                            icon: const Icon(Icons.close, color: Colors.red),
-                            label: const Text("Reject"),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Colors.red,
-                              side: const BorderSide(color: Colors.red),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
-                        ),
-                      if (isRejected) const SpaceWidget(spaceWidth: 12),
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            // Handle view or accept action
-                          },
-                          icon: Icon(
-                            isRejected ? Icons.visibility : Icons.check,
-                            color: isRejected ? Colors.black : Colors.green,
-                          ),
-                          label: Text(isRejected ? "View" : "Accept"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor:
-                                isRejected ? Colors.black : Colors.green,
-                            side: BorderSide(
-                              color: isRejected ? Colors.black : Colors.green,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
         ],
       ),
     );

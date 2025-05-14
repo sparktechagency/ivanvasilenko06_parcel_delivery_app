@@ -121,6 +121,7 @@ class _EditProfileState extends State<EditProfile> {
               controller: nameController,
               hintText: "Enter your full name",
               maxLines: 1,
+              keyboardType: TextInputType.text,
             ),
             const SpaceWidget(spaceHeight: 10),
             TextWidget(
@@ -134,6 +135,7 @@ class _EditProfileState extends State<EditProfile> {
               controller: faceBookController,
               hintText: "Enter your Facebook",
               maxLines: 1,
+              keyboardType: TextInputType.text,
             ),
             const SpaceWidget(spaceHeight: 10),
             TextWidget(
@@ -147,6 +149,7 @@ class _EditProfileState extends State<EditProfile> {
               controller: instaController,
               hintText: "Enter your Instagram",
               maxLines: 1,
+              keyboardType: TextInputType.text,
             ),
             const SpaceWidget(spaceHeight: 10),
             TextWidget(
@@ -160,56 +163,69 @@ class _EditProfileState extends State<EditProfile> {
               controller: whastappController,
               hintText: "Enter your WhatsApp",
               maxLines: 1,
+              keyboardType: TextInputType.number,
             ),
             const SpaceWidget(spaceHeight: 20),
-            Obx(() => ButtonWidget(
-                  onPressed: _profileController.isLoading.value
-                      ? null
-                      : () async {
-                          // Get the user ID from profileData
-                          final userId = _profileController
-                              .profileData.value.data?.user?.id;
-                          if (userId == null || userId.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text("User ID not found")),
-                            );
-                            return;
-                          }
-
-                          // Call the updateProfile function with the updated data
-                          await _profileController.updateProfile(
-                            fullName: nameController.text.trim(),
-                            facebook: faceBookController.text.trim(),
-                            instagram: instaController.text.trim(),
-                            whatsapp: whastappController.text.trim(),
-                            ID: userId,
-                            // Pass the user ID
-                            Image: _selectedImage,
-                          );
-
-                          // Show success or error message
-                          if (_profileController
-                              .errorMessage.value.isNotEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      _profileController.errorMessage.value)),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content:
-                                      Text("Profile updated successfully")),
-                            );
-                            // Navigation is handled in updateProfile() with Get.back()
-                          }
-                        },
-                  label: "Edit Profile".tr,
-                  buttonHeight: 50,
-                  buttonWidth: double.infinity,
-                )),
+            Obx(() => _profileController.isLoading.value
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.black,
+                    ),
+                  )
+                : ButtonWidget(
+                    onPressed: () async {
+                      final userId =
+                          _profileController.profileData.value.data?.user?.id;
+                      if (userId == null || userId.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("User ID not found")),
+                        );
+                        return;
+                      }
+                      await _profileController.updateProfile(
+                        fullName: nameController.text.trim(),
+                        facebook: faceBookController.text.trim(),
+                        instagram: instaController.text.trim(),
+                        whatsapp: whastappController.text.trim(),
+                        ID: userId,
+                        Image: _selectedImage,
+                      );
+                      if (_profileController.errorMessage.value.isNotEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content:
+                                  Text(_profileController.errorMessage.value)),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text("Profile updated successfully")),
+                        );
+                        // Navigation is handled in updateProfile() with Get.back()
+                      }
+                    },
+                    label: "Edit Profile".tr,
+                    buttonHeight: 50,
+                    buttonWidth: double.infinity,
+                  )),
             const SpaceWidget(spaceHeight: 30),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 08),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            InkWell(
+              onTap: () => Get.back(),
+              child: const CircleAvatar(
+                backgroundColor: AppColors.white,
+                radius: 25,
+                child: Icon(Icons.arrow_back, color: AppColors.black),
+              ),
+            ),
+            const SizedBox(),
           ],
         ),
       ),

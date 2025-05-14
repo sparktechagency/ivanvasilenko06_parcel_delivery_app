@@ -13,12 +13,13 @@ import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
+import 'package:parcel_delivery_app/widgets/image_widget/app_images.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_button_widget/text_button_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
 
-import '../recent_publish_order_details/recent_publish_order_details.dart';
+import '../profile_screen/controller/profile_controller.dart';
 
 class ServicesScreen extends StatefulWidget {
   const ServicesScreen({super.key});
@@ -29,6 +30,8 @@ class ServicesScreen extends StatefulWidget {
 
 class _ServicesScreenState extends State<ServicesScreen> {
   double _currentValue = 5.0;
+  var controller = Get.put(ServiceController());
+  final ProfileController profileController = Get.put(ProfileController());
 
   void _openBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -195,262 +198,320 @@ class _ServicesScreenState extends State<ServicesScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    profileController.getProfileInfo();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    var controller = Get.put(ServiceController());
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SpaceWidget(spaceHeight: 48),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextWidget(
-                  text: "services".tr,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                  fontColor: AppColors.black,
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      tooltip: "Notifications",
-                      onPressed: () {
-                        Get.toNamed(AppRoutes.notificationScreen);
-                      },
-                      icon: const Badge(
-                        isLabelVisible: true,
-                        label: Text('1'),
-                        backgroundColor: AppColors.red,
-                        child: IconWidget(
-                          icon: AppIconsPath.notificationIcon,
-                          width: 24,
-                          height: 24,
+      body: Obx(() {
+        if (profileController.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SpaceWidget(spaceHeight: 48),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextWidget(
+                    text: "services".tr,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    fontColor: AppColors.black,
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        tooltip: "Notifications",
+                        onPressed: () {
+                          Get.toNamed(AppRoutes.notificationScreen);
+                        },
+                        icon: const Badge(
+                          isLabelVisible: true,
+                          label: Text('1'),
+                          backgroundColor: AppColors.red,
+                          child: IconWidget(
+                            icon: AppIconsPath.notificationIcon,
+                            width: 24,
+                            height: 24,
+                          ),
                         ),
                       ),
-                    ),
-                    const SpaceWidget(spaceWidth: 12),
-                    const ImageWidget(
-                      height: 40,
-                      width: 40,
-                      imagePath: AppImagePath.profileImage,
-                    )
-                  ],
-                )
-              ],
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Obx(
-                  () => controller.loading.value
-                      ? const Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.black,
-                          ),
-                        )
-                      : Column(
-                          children: [
-                            const SpaceWidget(spaceHeight: 25),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  flex: 1,
-                                  child: SuggestionCardWidget(
-                                    onTap: () {
-                                      Get.toNamed(AppRoutes.deliveryTypeScreen);
-                                    },
-                                    text: "deliverParcel".tr,
-                                    imagePath: AppImagePath.deliverParcel,
-                                  ),
-                                ),
-                                const SpaceWidget(spaceWidth: 16),
-                                Expanded(
-                                  flex: 1,
-                                  child: SuggestionCardWidget(
-                                    onTap: () {
-                                      Get.toNamed(
-                                          AppRoutes.senderDeliveryTypeScreen);
-                                    },
-                                    text: "sendParcel".tr,
-                                    imagePath: AppImagePath.sendParcel,
-                                  ),
-                                ),
-                                const SpaceWidget(spaceWidth: 16),
-                                Expanded(
-                                  flex: 1,
-                                  child: SuggestionCardWidget(
-                                    onTap: () {
-                                      showModalBottomSheet(
-                                        context: context,
-                                        backgroundColor: Colors.transparent,
-                                        builder: (BuildContext context) {
-                                          return Container(
-                                            decoration: const BoxDecoration(
-                                              color: AppColors.white,
-                                              borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(24),
-                                                topRight: Radius.circular(24),
-                                              ),
-                                            ),
-                                            width: double.infinity,
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 24, horizontal: 32),
-                                            child:
-                                                const ReserveBottomSheetWidget(),
-                                          );
-                                        },
-                                      );
-                                    },
-                                    text: "reserve".tr,
-                                    imagePath: AppImagePath.reserve,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SpaceWidget(spaceHeight: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                TextWidget(
-                                  text: "recentPublishedOrders".tr,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  fontColor: AppColors.black,
-                                ),
-                                TextButtonWidget(
-                                  onPressed: () {
-                                    Get.toNamed(AppRoutes.recentpublishorder);
-                                  },
-                                  text: "viewAll".tr,
-                                  textColor: AppColors.black,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ],
-                            ),
-                            const SpaceWidget(spaceHeight: 14),
-                            ...List.generate(
-                                controller.recentParcelList.length > 4
-                                    ? 4
-                                    : controller.recentParcelList.length,
-                                (index) {
-                              ServiceScreenModel item =
-                                  controller.recentParcelList[index]
-                                      as ServiceScreenModel;
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 10),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const ImageWidget(
-                                            height: 51,
-                                            width: 65,
-                                            imagePath: AppImagePath.sendParcel),
-                                        const SpaceWidget(spaceWidth: 12),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            TextWidget(
-                                              text: item.serviceScreenDataList !=
-                                                          null &&
-                                                      item.serviceScreenDataList!
-                                                          .isNotEmpty
-                                                  ? item.serviceScreenDataList!
-                                                      .first.title!
-                                                  : "Title not available",
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w500,
-                                              fontColor: AppColors.black,
-                                            ),
-                                            const SpaceWidget(spaceHeight: 4),
-                                            TextWidget(
-                                              text: item.serviceScreenDataList
-                                                      ?.first.title ??
-                                                  "Title not available",
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w500,
-                                              fontColor: AppColors.black,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        const TextWidget(
-                                          text: "${AppStrings.currency} 150",
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          fontColor: AppColors.black,
-                                        ),
-                                        TextButtonWidget(
-                                          onPressed: () {
-                                            final dataList =
-                                                item.serviceScreenDataList;
-                                            if (dataList != null &&
-                                                dataList.isNotEmpty) {
-                                              Get.to(() =>
-                                                  DeliveryDetailsScreen(
-                                                      item: dataList.first));
-                                            } else {
-                                              AppSnackBar.error(
-                                                  "Parcel details not available.");
-                                            }
-                                          },
-                                          text: "seeDetails".tr,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w400,
-                                          textColor: AppColors.greyDark2,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }),
-                            const SpaceWidget(spaceHeight: 14),
-                            const ClipRRect(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(12)),
-                              child: ImageWidget(
-                                height: 180,
-                                width: double.infinity,
-                                imagePath: AppImagePath.servicesImage,
-                              ),
-                            ),
-                            const SpaceWidget(spaceHeight: 14),
-                            ButtonWidget(
-                              onPressed: () {
-                                _openBottomSheet(context);
-                              },
-                              label: "earnMoneyInYourRadius".tr,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              buttonWidth: double.infinity,
-                              buttonHeight: 50,
-                              prefixIcon: AppIconsPath.earnMoneyRadiusIcon,
-                            ),
-                            const SpaceWidget(spaceHeight: 100),
-                          ],
+                      const SpaceWidget(spaceWidth: 12),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: AppImage(
+                          url: profileController.profileData.value.data?.user
+                                      ?.image?.isNotEmpty ??
+                                  false
+                              ? profileController
+                                  .profileData.value.data!.user!.image!
+                              : AppImagePath.dummyProfileImage,
+                          height: 40,
+                          width: 40,
                         ),
-                ),
+                      )
+                    ],
+                  )
+                ],
               ),
-            )
-          ],
-        ),
-      ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Obx(
+                    () => controller.loading.value
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.black,
+                            ),
+                          )
+                        : Column(
+                            children: [
+                              const SpaceWidget(spaceHeight: 25),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    flex: 1,
+                                    child: SuggestionCardWidget(
+                                      onTap: () {
+                                        Get.toNamed(
+                                            AppRoutes.deliveryTypeScreen);
+                                      },
+                                      text: "deliverParcel".tr,
+                                      imagePath: AppImagePath.deliverParcel,
+                                    ),
+                                  ),
+                                  const SpaceWidget(spaceWidth: 16),
+                                  Expanded(
+                                    flex: 1,
+                                    child: SuggestionCardWidget(
+                                      onTap: () {
+                                        Get.toNamed(
+                                            AppRoutes.senderDeliveryTypeScreen);
+                                      },
+                                      text: "sendParcel".tr,
+                                      imagePath: AppImagePath.sendParcel,
+                                    ),
+                                  ),
+                                  const SpaceWidget(spaceWidth: 16),
+                                  Expanded(
+                                    flex: 1,
+                                    child: SuggestionCardWidget(
+                                      onTap: () {
+                                        showModalBottomSheet(
+                                          context: context,
+                                          backgroundColor: Colors.transparent,
+                                          builder: (BuildContext context) {
+                                            return Container(
+                                              decoration: const BoxDecoration(
+                                                color: AppColors.white,
+                                                borderRadius: BorderRadius.only(
+                                                  topLeft: Radius.circular(24),
+                                                  topRight: Radius.circular(24),
+                                                ),
+                                              ),
+                                              width: double.infinity,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 24,
+                                                      horizontal: 32),
+                                              child:
+                                                  const ReserveBottomSheetWidget(),
+                                            );
+                                          },
+                                        );
+                                      },
+                                      text: "reserve".tr,
+                                      imagePath: AppImagePath.reserve,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SpaceWidget(spaceHeight: 16),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  TextWidget(
+                                    text: "recentPublishedOrders".tr,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    fontColor: AppColors.black,
+                                  ),
+                                  TextButtonWidget(
+                                    onPressed: () {
+                                      Get.toNamed(AppRoutes.recentpublishorder);
+                                    },
+                                    text: "viewAll".tr,
+                                    textColor: AppColors.black,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ],
+                              ),
+                              const SpaceWidget(spaceHeight: 14),
+                              if (controller.recentParcelList.isEmpty)
+                                const Center(
+                                  child: TextWidget(
+                                    text: "No recent orders available",
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    fontColor: AppColors.greyDark2,
+                                  ),
+                                )
+                              else
+                                ...List.generate(
+                                  controller.recentParcelList.length > 4
+                                      ? 4
+                                      : controller.recentParcelList.length,
+                                  (index) {
+                                    ServiceScreenModel item =
+                                        controller.recentParcelList[index];
+                                    // Safely access data or provide default values
+                                    String title = "Title not available";
+                                    if (item.data != null &&
+                                        item.data!.isNotEmpty &&
+                                        item.data!.first.title != null) {
+                                      title = item.data!.first.title!;
+                                    }
+
+                                    return Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 10),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              const ImageWidget(
+                                                height: 51,
+                                                width: 65,
+                                                imagePath:
+                                                    AppImagePath.sendParcel,
+                                              ),
+                                              const SpaceWidget(spaceWidth: 12),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  TextWidget(
+                                                    text: item.data?.first
+                                                            .title ??
+                                                        "Title not available",
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontColor: AppColors.black,
+                                                  ),
+                                                  const SpaceWidget(
+                                                      spaceHeight: 4),
+                                                  TextWidget(
+                                                    text: item
+                                                            .data?.first.name ??
+                                                        "Status not available",
+                                                    // Display status
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontColor: AppColors.black,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              TextWidget(
+                                                text:
+                                                    "${AppStrings.currency} ${item.data?.first.price.toString()}",
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                                fontColor: AppColors.black,
+                                              ),
+                                              TextButtonWidget(
+                                                onPressed: () {
+                                                  final dataList = item.data;
+                                                  if (dataList != null &&
+                                                      dataList.isNotEmpty &&
+                                                      dataList.first.id !=
+                                                          null) {
+                                                    const String routeName =
+                                                        AppRoutes
+                                                            .serviceScreenDeliveryDetails;
+
+                                                    if (routeName.isNotEmpty) {
+                                                      try {
+                                                        Get.toNamed(routeName,
+                                                            arguments: dataList
+                                                                .first.id);
+                                                      } catch (e) {
+                                                        AppSnackBar.error(
+                                                            "Navigation error: ${e.toString()}");
+                                                      }
+                                                    } else {
+                                                      AppSnackBar.error(
+                                                          "Route name is not properly defined.");
+                                                    }
+                                                  } else {
+                                                    AppSnackBar.error(
+                                                        "Parcel details not available or ID is missing.");
+                                                  }
+                                                },
+                                                text: "seeDetails".tr,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w400,
+                                                textColor: AppColors.greyDark2,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              const SpaceWidget(spaceHeight: 14),
+                              const ClipRRect(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(12)),
+                                child: ImageWidget(
+                                  height: 180,
+                                  width: double.infinity,
+                                  imagePath: AppImagePath.servicesImage,
+                                ),
+                              ),
+                              const SpaceWidget(spaceHeight: 14),
+                              ButtonWidget(
+                                onPressed: () {
+                                  _openBottomSheet(context);
+                                },
+                                label: "earnMoneyInYourRadius".tr,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                                buttonWidth: double.infinity,
+                                buttonHeight: 50,
+                                prefixIcon: AppIconsPath.earnMoneyRadiusIcon,
+                              ),
+                              const SpaceWidget(spaceHeight: 100),
+                            ],
+                          ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        );
+      }),
     );
   }
 }

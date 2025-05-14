@@ -27,11 +27,18 @@ class NotificationController extends GetxController {
   var parcelTotalPages = 1.obs;
   var hasMoreParcelNotifications = true.obs;
 
+  RxSet<String> sentParcelIds = RxSet<String>();
+
   @override
   void onInit() {
     super.onInit();
     fetchNotifications();
     fetchParcelNotifications();
+  }
+
+  bool isRequestSent(String? parcelId) {
+    if (parcelId == null || parcelId.isEmpty) return false;
+    return sentParcelIds.contains(parcelId);
   }
 
   Future<void> fetchNotifications({int page = 1}) async {
