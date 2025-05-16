@@ -157,7 +157,8 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
             DateTime.parse(currentParcel.deliveryStartTime.toString());
         final endDate =
             DateTime.parse(currentParcel.deliveryEndTime.toString());
-        return "${DateFormat('dd.MM').format(startDate)} to ${DateFormat('dd.MM').format(endDate)}";
+        final formatter = DateFormat('dd.MM • hh:mm a');
+        return "${formatter.format(startDate)} to ${formatter.format(endDate)}";
       } else {
         return "N/A";
       }

@@ -19,8 +19,8 @@ class SignUpScreenController extends GetxController {
   GlobalKey<FormState> signUpFormKey = GlobalKey<FormState>();
   final DeviceInfo _deviceInfo = DeviceInfo();
   String? countryCode;
-  final RxString completePhoneNumber =
-      ''.obs; // Update the phone number when changed in the UI
+  final RxString completePhoneNumber = ''.obs;
+
   void updatePhoneNumber(String phoneNumber) {
     completePhoneNumber.value = phoneNumber;
   }

@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
@@ -118,11 +119,11 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
           await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
         String newAddress =
-            '${placemarks[0].locality}, ${placemarks[0].subAdministrativeArea}, ${placemarks[0].country}';
+            '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
         setState(() {
           address = newAddress;
         });
-        addressCache[key] = newAddress; // Cache the address
+        addressCache[key] = newAddress;
       } else {
         setState(() {
           address = 'No address found';
@@ -149,7 +150,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
           await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
         String newAddress =
-            '${placemarks[0].locality}, ${placemarks[0].subAdministrativeArea}, ${placemarks[0].country}';
+            '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
         setState(() {
           pickUpAddress = newAddress;
         });
@@ -212,6 +213,27 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
         pickUpAddress = 'Error processing pickup location';
       });
       log("Error in pickup coordinates: $e");
+    }
+  }
+
+  String _getFormattedDeliveryTime(currentParcel) {
+    log("deliveryStartTime: ${currentParcel?.deliveryStartTime}");
+    log("deliveryEndTime: ${currentParcel?.deliveryEndTime}");
+    try {
+      if (currentParcel?.deliveryStartTime != null &&
+          currentParcel?.deliveryEndTime != null) {
+        final startDate =
+            DateTime.parse(currentParcel.deliveryStartTime.toString());
+        final endDate =
+            DateTime.parse(currentParcel.deliveryEndTime.toString());
+        final formatter = DateFormat('dd.MM • hh:mm a');
+        return "${formatter.format(startDate)} to ${formatter.format(endDate)}";
+      } else {
+        return "N/A";
+      }
+    } catch (e) {
+      log("Error in _getFormattedDeliveryTime: $e");
+      return "N/A";
     }
   }
 
@@ -368,8 +390,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                         SummaryInfoRowWidget(
                           icon: AppIconsPath.deliveryTimeIcon,
                           label: "deliveryTimeText".tr,
-                          value: _formatDeliveryDate(
-                              currentParcel?.deliveryEndTime),
+                          value: _getFormattedDeliveryTime(currentParcel),
                         ),
                         const SpaceWidget(spaceHeight: 8),
                         SummaryInfoRowWidget(

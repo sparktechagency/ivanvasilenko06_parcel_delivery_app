@@ -76,6 +76,8 @@ class Notification {
   String? deliveryEndTime;
   bool? isRead;
   DateTime? createdAt;
+
+  DateTime? localCreatedAt;
   int? v;
 
   Notification({
@@ -97,6 +99,7 @@ class Notification {
     this.description,
     this.isRead,
     this.createdAt,
+    this.localCreatedAt,
     this.v,
   });
 
@@ -130,6 +133,9 @@ class Notification {
         createdAt: json["createdAt"] == null
             ? null
             : DateTime.parse(json["createdAt"]),
+        localCreatedAt: json["localCreatedAt"] == null
+            ? null
+            : DateTime.parse(json["localCreatedAt"]),
         v: json["__v"],
       );
 
@@ -152,6 +158,7 @@ class Notification {
         "description": description,
         "isRead": isRead,
         "createdAt": createdAt?.toIso8601String(),
+        "localCreatedAt": localCreatedAt?.toIso8601String(),
         "__v": v,
       };
 }

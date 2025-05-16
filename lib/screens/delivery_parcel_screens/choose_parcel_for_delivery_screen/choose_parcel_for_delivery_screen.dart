@@ -1,10 +1,8 @@
 import 'dart:convert'; // for JSON decoding
 import 'dart:developer';
 import 'dart:math' as math; // for distance calculation
-import 'dart:ui' as ui; // Added for custom marker
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Added for ByteData
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http; // for API requests
@@ -29,53 +27,18 @@ class _ChooseParcelForDeliveryScreenState
   final DeliveryScreenController controller =
       Get.find<DeliveryScreenController>();
 
-  BitmapDescriptor? _customMarker;
   BitmapDescriptor _pickupMarker =
       BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
   BitmapDescriptor _destinationMarker =
       BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
   Set<Polyline> _polylines = {};
+  List<LatLng> _routePoints = [];
+  GoogleMapController? _mapController;
 
   @override
   void initState() {
     super.initState();
-    _loadCustomMarkerIcon();
     _fetchRoute(); // fetch route for polyline
-  }
-
-  // Method adapted from RadiusMapScreen to get bytes from asset
-  Future<Uint8List> getBytesFromAsset(String path, int width) async {
-    ByteData data = await rootBundle.load(path);
-    ui.Codec codec = await ui.instantiateImageCodec(
-      data.buffer.asUint8List(),
-      targetWidth: width,
-    );
-    ui.FrameInfo fi = await codec.getNextFrame();
-    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
-        .buffer
-        .asUint8List();
-  }
-
-  Future<void> _loadCustomMarkerIcon() async {
-    try {
-      // Load custom marker for parcels using the method from RadiusMapScreen
-      final Uint8List markerIconBytes =
-          await getBytesFromAsset('assets/images/send.png', 150);
-
-      _customMarker = BitmapDescriptor.fromBytes(markerIconBytes);
-
-      setState(() {});
-    } catch (e) {
-      log('Error loading custom marker: $e');
-      // Fallback to default markers
-      _customMarker = BitmapDescriptor.defaultMarker;
-      _pickupMarker =
-          BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
-      ;
-      _destinationMarker =
-          BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
-      setState(() {});
-    }
   }
 
   // Calculate distance between two coordinates in kilometers using the Haversine formula
@@ -99,6 +62,35 @@ class _ChooseParcelForDeliveryScreenState
     double distance = earthRadius * c;
 
     return distance;
+  }
+
+  // Calculate the bounds of the polyline to fit it on screen
+  LatLngBounds _getPolylineBounds(List<LatLng> points) {
+    double? minLat, maxLat, minLng, maxLng;
+
+    for (final point in points) {
+      if (minLat == null || point.latitude < minLat) {
+        minLat = point.latitude;
+      }
+      if (maxLat == null || point.latitude > maxLat) {
+        maxLat = point.latitude;
+      }
+      if (minLng == null || point.longitude < minLng) {
+        minLng = point.longitude;
+      }
+      if (maxLng == null || point.longitude > maxLng) {
+        maxLng = point.longitude;
+      }
+    }
+
+    // Add some padding to the bounds
+    final latPadding = (maxLat! - minLat!) * 0.15;
+    final lngPadding = (maxLng! - minLng!) * 0.15;
+
+    return LatLngBounds(
+      southwest: LatLng(minLat! - latPadding, minLng! - lngPadding),
+      northeast: LatLng(maxLat! + latPadding, maxLng! + lngPadding),
+    );
   }
 
   // Fetch route coordinates from Google Directions API
@@ -134,6 +126,8 @@ class _ChooseParcelForDeliveryScreenState
           final List<LatLng> polylineCoordinates =
               _decodePolyline(polylinePoints);
 
+          _routePoints = polylineCoordinates;
+
           setState(() {
             _polylines.add(
               Polyline(
@@ -144,6 +138,14 @@ class _ChooseParcelForDeliveryScreenState
               ),
             );
           });
+
+          // Update camera to show full route if map controller is ready
+          if (_mapController != null && _routePoints.isNotEmpty) {
+            final bounds = _getPolylineBounds(_routePoints);
+            _mapController!.animateCamera(
+              CameraUpdate.newLatLngBounds(bounds, 50),
+            );
+          }
         } else {
           log('❌ Directions API error: ${data['status']}');
         }
@@ -362,33 +364,7 @@ class _ChooseParcelForDeliveryScreenState
           );
         }
 
-        // Add parcel markers
-        for (int i = 0; i < parcels.length; i++) {
-          final parcel = parcels[i];
-          final coOrdinate = parcel.pickupLocation?.coordinates;
-
-          if (coOrdinate != null) {
-            final lat = double.tryParse(coOrdinate[1].toString());
-            final lng = double.tryParse(coOrdinate[0].toString());
-
-            if (lat != null && lng != null) {
-              log('✅ Showing parcel ${parcel.title} at ($lat, $lng)');
-
-              markers.add(
-                Marker(
-                  markerId: MarkerId('pickup-$i'),
-                  position: LatLng(lat, lng),
-                  icon: _customMarker ?? BitmapDescriptor.defaultMarker,
-                  onTap: () => _showParcelDetailsBottomSheet(i),
-                ),
-              );
-            } else {
-              log('❌ Invalid coordinate for ${parcel.title}');
-            }
-          } else {
-            log('❌ Missing coordinate for ${parcel.title}');
-          }
-        }
+        // We're NOT adding parcel markers here anymore as requested
 
         return GoogleMap(
           initialCameraPosition: CameraPosition(
@@ -397,8 +373,17 @@ class _ChooseParcelForDeliveryScreenState
           ),
           markers: markers,
           polylines: _polylines,
-          // add polylines to map
-          onMapCreated: (_) {},
+          onMapCreated: (GoogleMapController controller) {
+            _mapController = controller;
+
+            // If we already have route points, fit them on the map
+            if (_routePoints.isNotEmpty) {
+              final bounds = _getPolylineBounds(_routePoints);
+              _mapController!.animateCamera(
+                CameraUpdate.newLatLngBounds(bounds, 50),
+              );
+            }
+          },
           myLocationButtonEnabled: true,
           myLocationEnabled: true,
           scrollGesturesEnabled: true,

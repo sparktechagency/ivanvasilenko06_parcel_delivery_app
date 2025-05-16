@@ -104,7 +104,7 @@ class SenderSummaryOfParcelScreen extends StatelessWidget {
                           SummaryInfoRowWidget(
                             icon: AppIconsPath.callIcon,
                             label: "receiversNumber".tr,
-                            value: "+972${controller.phoneController.text}",
+                            value: controller.completePhoneNumber.value,
                           ),
                           const SpaceWidget(spaceHeight: 8),
                           SummaryInfoRowWidget(

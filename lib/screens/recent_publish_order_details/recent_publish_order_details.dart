@@ -158,21 +158,10 @@ class _DeliveryDetailsScreenState extends State<DeliveryDetailsScreen> {
           address += place.locality!;
         }
 
-        if (place.subAdministrativeArea != null &&
-            place.subAdministrativeArea!.isNotEmpty) {
-          if (address.isNotEmpty) address += ', ';
-          address += place.subAdministrativeArea!;
-        }
-
         if (place.administrativeArea != null &&
             place.administrativeArea!.isNotEmpty) {
           if (address.isNotEmpty) address += ', ';
           address += place.administrativeArea!;
-        }
-
-        if (place.country != null && place.country!.isNotEmpty) {
-          if (address.isNotEmpty) address += ', ';
-          address += place.country!;
         }
 
         if (address.isEmpty) {
@@ -189,27 +178,23 @@ class _DeliveryDetailsScreenState extends State<DeliveryDetailsScreen> {
     }
   }
 
-  String formatDeliveryDate(String? deliveryEndTime) {
-    if (deliveryEndTime == null) return "N/A";
+  String _getFormattedDeliveryTime(currentParcel) {
+    log("deliveryStartTime: ${currentParcel?.deliveryStartTime}");
+    log("deliveryEndTime: ${currentParcel?.deliveryEndTime}");
     try {
-      final parsedDate = DateTime.parse(deliveryEndTime);
-      return '${parsedDate.day}.${parsedDate.month}-${parsedDate.year}';
-    } catch (e) {
-      log("Date parsing error: $e");
-      return "Invalid Date Format";
-    }
-  }
-
-  String _getFormattedDeliveryTime(dynamic parcel) {
-    try {
-      if (parcel.deliveryStartTime != null && parcel.deliveryEndTime != null) {
-        final startDate = DateTime.parse(parcel.deliveryStartTime);
-        final endDate = DateTime.parse(parcel.deliveryEndTime);
-        return "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
+      if (currentParcel?.deliveryStartTime != null &&
+          currentParcel?.deliveryEndTime != null) {
+        final startDate =
+            DateTime.parse(currentParcel.deliveryStartTime.toString());
+        final endDate =
+            DateTime.parse(currentParcel.deliveryEndTime.toString());
+        final formatter = DateFormat('dd.MM • hh:mm a');
+        return "${formatter.format(startDate)} to ${formatter.format(endDate)}";
       } else {
         return "N/A";
       }
     } catch (e) {
+      log("Error in _getFormattedDeliveryTime: $e");
       return "N/A";
     }
   }

@@ -398,7 +398,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         const Spacer(),
                         TextWidget(
-                          text: "israel".tr,
+                          text: profileController
+                                  .profileData.value.data?.user?.country ??
+                              'N/A',
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           fontColor: AppColors.black,
@@ -413,8 +415,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SpaceWidget(spaceHeight: 12),
                     InkWell(
+                      splashColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
                       onTap: () {
-                        Get.toNamed(AppRoutes.historyScreen);
+                        // Get.toNamed(AppRoutes.historyScreen);
                       },
                       borderRadius: BorderRadius.circular(100),
                       child: Container(

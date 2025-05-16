@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/controller/sending_parcel_controller.dart';
@@ -44,10 +46,13 @@ class PageSix extends StatelessWidget {
           ),
           const SpaceWidget(spaceHeight: 16),
           IntlPhoneFieldWidget(
-            controller: parcelController.phoneController,
             hintText: "enterReceiversNumber".tr,
+            controller: parcelController.phoneController,
             onChanged: (phone) {
-              parcelController.setReceiverNumber(phone.number);
+              parcelController.updatePhoneNumber(phone.completeNumber);
+              log("Complete number: ${phone.completeNumber}");
+              log("Country code: ${phone.countryCode}");
+              log("Number without code: ${phone.number}");
             },
             fillColor: AppColors.white,
             borderColor: AppColors.black,

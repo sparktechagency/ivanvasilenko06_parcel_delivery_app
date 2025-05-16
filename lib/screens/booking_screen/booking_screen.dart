@@ -52,10 +52,8 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   // Function to make a phone call
-  final String phoneNumber = '+1234567890';
 
   // Replace with actual phone number
-  final String message = 'Hello, this is a test message';
 
   // Function to fetch and return address from coordinates
   Future<String> getAddressFromCoordinates(
@@ -270,10 +268,9 @@ class _BookingScreenState extends State<BookingScreen> {
             mode: LaunchMode.externalNonBrowserApplication);
         return;
       }
-
       // Fallback to website (this should work on most devices)
       final Uri webUri = Uri.parse(
-          "https://api.whatsapp.com/send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}");
+          "https://api.whatsapp.com/send?phone=$formattedNumber&text");
 
       if (await canLaunchUrl(webUri)) {
         await launchUrl(webUri, mode: LaunchMode.externalApplication);
@@ -409,7 +406,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       backgroundColor: AppColors.green,
                       textColor: AppColors.white,
                       onPressed: () async {
-                        Navigator.pop(context); // Close the dialog first
+                        Navigator.pop(context);
                         try {
                           // Get the correct controller instance
                           final controller = Get.find<NewBookingsController>();
@@ -461,7 +458,6 @@ class _BookingScreenState extends State<BookingScreen> {
           const SpaceWidget(spaceHeight: 24),
 
           ///<This one is tab bar  ===================>
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
@@ -832,7 +828,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                 ),
                                 InkWell(
                                   onTap: () {
-                                    // Handle appropriate action based on status and sender ID
+                                    //
                                     if (data[index].status == "IN_TRANSIT") {
                                       Get.toNamed(AppRoutes.deliveryManDetails,
                                           arguments: data[index].id);
@@ -1024,168 +1020,90 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
                 child: Column(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Left Column with user details
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(100),
-                                    child: AppImage(
-                                      url: deliveryRequest["image"] ??
-                                          AppImagePath.dummyProfileImage,
-                                      height: 40,
-                                      width: 40,
-                                    ),
-                                  ),
-                                  const SpaceWidget(spaceWidth: 8),
-                                  TextWidget(
-                                    text: deliveryRequest["fullName"] ?? '',
-                                    fontSize: 15.5,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.black,
-                                  ),
-                                ],
+                        Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(100),
+                              child: AppImage(
+                                url: deliveryRequest["image"] ??
+                                    AppImagePath.dummyProfileImage,
+                                height: 40,
+                                width: 40,
                               ),
-                              const SpaceWidget(spaceHeight: 16),
-                              Row(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(100),
-                                    child: const ImageWidget(
-                                      imagePath: AppImagePath.sendParcel,
-                                      height: 14,
-                                      width: 14,
-                                    ),
-                                  ),
-                                  const SpaceWidget(spaceWidth: 8),
-                                  TextWidget(
-                                    text: parcel.title ?? '',
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.greyDark2,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
+                            ),
+                            const SpaceWidget(spaceWidth: 8),
+                            SizedBox(
+                              width: deliveryRequest["fullName"].length <= 8
+                                  ? ResponsiveUtils.width(60)
+                                  : ResponsiveUtils.width(180),
+                              child: TextWidget(
+                                text: deliveryRequest["fullName"] ?? '',
+                                fontSize: 15.5,
+                                fontWeight: FontWeight.w500,
+                                fontColor: AppColors.black,
+                                overflow: TextOverflow.ellipsis,
+                                textAlignment: TextAlign.start,
+                                maxLines: 1,
                               ),
-                              const SpaceWidget(spaceHeight: 8),
-                              Row(
+                            ),
+                            const SpaceWidget(spaceWidth: 5),
+                            Container(
+                              width: ResponsiveUtils.width(45),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.yellow,
+                                borderRadius: BorderRadius.circular(100),
+                              ),
+                              child: Row(
                                 children: [
                                   const Icon(
-                                    Icons.location_on_rounded,
-                                    color: AppColors.black,
+                                    Icons.star_rounded,
+                                    color: AppColors.white,
                                     size: 12,
                                   ),
-                                  const SpaceWidget(spaceWidth: 8),
-                                  Flexible(
-                                    child: TextWidget(
-                                      text:
-                                          "$pickupAddress to $deliveryAddress",
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      fontColor: AppColors.greyDark2,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SpaceWidget(spaceHeight: 8),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.phone,
-                                    color: AppColors.black,
-                                    size: 12,
-                                  ),
-                                  const SpaceWidget(spaceWidth: 8),
+                                  const SpaceWidget(spaceWidth: 4),
                                   TextWidget(
-                                    text: deliveryRequest["mobileNumber"] ??
-                                        parcel.phoneNumber ??
+                                    text: deliveryRequest["avgRating"]
+                                            .toString() ??
                                         '',
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.greyDark2,
+                                    fontColor: AppColors.white,
                                   ),
                                 ],
                               ),
-                              const SpaceWidget(spaceHeight: 8),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.calendar_month,
-                                    color: AppColors.black,
-                                    size: 12,
-                                  ),
-                                  const SpaceWidget(spaceWidth: 8),
-                                  TextWidget(
-                                    text: formattedDate,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.greyDark2,
-                                  ),
-                                ],
-                              ),
-                              const SpaceWidget(spaceHeight: 8),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.delivery_dining_outlined,
-                                    color: AppColors.black,
-                                    size: 15,
-                                  ),
-                                  const SpaceWidget(spaceWidth: 8),
-                                  TextWidget(
-                                    text: allParcels?.first.deliveryType ==
-                                            'bike'
-                                        ? 'Bike'
-                                        : allParcels?.first.deliveryType ==
-                                                'bicycle'
-                                            ? 'Bicycle'
-                                            : allParcels?.first.deliveryType ==
-                                                    'car'
-                                                ? 'Car'
-                                                : allParcels?.first
-                                                            .deliveryType ==
-                                                        'taxi'
-                                                    ? 'Taxi'
-                                                    : allParcels?.first
-                                                                .deliveryType ==
-                                                            'truck'
-                                                        ? 'Truck'
-                                                        : allParcels?.first
-                                                                    .deliveryType ==
-                                                                'person'
-                                                            ? 'Person'
-                                                            : allParcels?.first
-                                                                        .deliveryType ==
-                                                                    'plane'
-                                                                ? 'Plane'
-                                                                : allParcels
-                                                                        ?.first
-                                                                        .deliveryType ??
-                                                                    '',
-                                    // Default empty string if null
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.greyDark2,
-                                  )
-                                ],
-                              ),
-                              const SpaceWidget(spaceHeight: 8),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                        // Right Column with price and publication date
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        const SpaceWidget(spaceHeight: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            Row(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(100),
+                                  child: const ImageWidget(
+                                    imagePath: AppImagePath.sendParcel,
+                                    height: 14,
+                                    width: 14,
+                                  ),
+                                ),
+                                const SpaceWidget(spaceWidth: 8),
+                                TextWidget(
+                                  text: parcel.title ?? '',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  fontColor: AppColors.greyDark2,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
                             TextWidget(
                               text: "${AppStrings.currency} ${parcel.price}",
                               fontSize: 16,
@@ -1194,8 +1112,109 @@ class _BookingScreenState extends State<BookingScreen> {
                             ),
                           ],
                         ),
+                        const SpaceWidget(spaceHeight: 8),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.location_on_rounded,
+                              color: AppColors.black,
+                              size: 12,
+                            ),
+                            const SpaceWidget(spaceWidth: 8),
+                            Flexible(
+                              child: TextWidget(
+                                text: "$pickupAddress to $deliveryAddress",
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                fontColor: AppColors.greyDark2,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SpaceWidget(spaceHeight: 8),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.phone,
+                              color: AppColors.black,
+                              size: 12,
+                            ),
+                            const SpaceWidget(spaceWidth: 8),
+                            TextWidget(
+                              text: deliveryRequest["mobileNumber"] ??
+                                  parcel.phoneNumber ??
+                                  '',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              fontColor: AppColors.greyDark2,
+                            ),
+                          ],
+                        ),
+                        const SpaceWidget(spaceHeight: 8),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.calendar_month,
+                              color: AppColors.black,
+                              size: 12,
+                            ),
+                            const SpaceWidget(spaceWidth: 8),
+                            TextWidget(
+                              text: formattedDate,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              fontColor: AppColors.greyDark2,
+                            ),
+                          ],
+                        ),
+                        const SpaceWidget(spaceHeight: 8),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.delivery_dining_outlined,
+                              color: AppColors.black,
+                              size: 15,
+                            ),
+                            const SpaceWidget(spaceWidth: 8),
+                            TextWidget(
+                              text: allParcels?.first.deliveryType == 'bike'
+                                  ? 'Bike'
+                                  : allParcels?.first.deliveryType == 'bicycle'
+                                      ? 'Bicycle'
+                                      : allParcels?.first.deliveryType == 'car'
+                                          ? 'Car'
+                                          : allParcels?.first.deliveryType ==
+                                                  'taxi'
+                                              ? 'Taxi'
+                                              : allParcels?.first
+                                                          .deliveryType ==
+                                                      'truck'
+                                                  ? 'Truck'
+                                                  : allParcels?.first
+                                                              .deliveryType ==
+                                                          'person'
+                                                      ? 'Person'
+                                                      : allParcels?.first
+                                                                  .deliveryType ==
+                                                              'plane'
+                                                          ? 'Plane'
+                                                          : allParcels?.first
+                                                                  .deliveryType ??
+                                                              '',
+                              // Default empty string if null
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              fontColor: AppColors.greyDark2,
+                            )
+                          ],
+                        ),
+                        const SpaceWidget(spaceHeight: 8),
                       ],
                     ),
+                    // Right Column with price and publication date
+
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(14),

@@ -244,6 +244,8 @@
 // }
 
 /////////////Testing Perpourse
+import 'dart:developer';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -305,12 +307,14 @@ class NotificationService {
   }
 
   void _handleForegroundMessage(RemoteMessage message) {
-    print(
-        'Received message in foreground: ${message.notification?.title}, ${message.notification?.body}');
+    log('Received message in foreground: ${message.notification?.title}, ${message.notification?.body}');
     Get.snackbar(message.notification?.title ?? 'Notification',
         message.notification?.body ?? 'You have a new message.',
         backgroundColor: AppColors.black, colorText: Colors.white, onTap: (x) {
-      Get.toNamed(AppRoutes.notificationScreen);
+      Get.toNamed(
+        AppRoutes.notificationScreen,
+        arguments: {'tabIndex': 1}, // send the desired tab index here
+      );
     });
 
     // Add navigation logic here if needed
@@ -323,15 +327,17 @@ class NotificationService {
 
     Get.toNamed(AppRoutes.notificationScreen);
 
-    print('Handling a background message: ${message.messageId}');
+    log('Handling a background message: ${message.messageId}');
     // Additional background handling logic can be added here
   }
 
   void _handleNotificationNavigation(RemoteMessage message) {
-    Get.toNamed(AppRoutes.notificationScreen);
+    Get.toNamed(
+      AppRoutes.notificationScreen,
+      arguments: {'tabIndex': 1},
+    );
 
-    print(
-        'Navigating to notification screen due to message: ${message.notification?.title}');
+    log('Navigating to notification screen due to message: ${message.notification?.title}');
     // Implement your navigation logic here
     // Example: Get.toNamed(AppRoute.notification);
   }

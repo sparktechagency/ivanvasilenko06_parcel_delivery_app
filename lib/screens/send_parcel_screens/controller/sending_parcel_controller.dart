@@ -52,6 +52,12 @@ class ParcelController extends GetxController {
     currentLocationLongitude.value = longitude;
   }
 
+  final RxString completePhoneNumber = ''.obs;
+
+  void updatePhoneNumber(String phoneNumber) {
+    completePhoneNumber.value = phoneNumber;
+  }
+
   // Controllers
   final currentLocationController = TextEditingController();
   final destinationController = TextEditingController();
@@ -266,7 +272,7 @@ class ParcelController extends GetxController {
         'title': titleController.text,
         'description': descriptionController.text,
         'name': nameController.text,
-        'phoneNumber': phoneController.text,
+        'phoneNumber': completePhoneNumber.value,
       };
 
       await ImageMultipartUpload().imageUploadWithData2(

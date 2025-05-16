@@ -62,6 +62,15 @@ class LocationRepository {
     // addCurrentLocationMarker();
   }
 
+  void clearPolylines() {
+    _polyline = null;
+  }
+
+  void clearLocationCoordinates() {
+    startingLocationCoordinates = null;
+    _endingLocationCoordinates = null;
+  }
+
   // Add a method to set starting location coordinates
   void setStartingLocationCoordinates(LatLng coordinates) {
     _startingLocationCoordinates = coordinates;

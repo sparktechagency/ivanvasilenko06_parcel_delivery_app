@@ -36,6 +36,8 @@ class _PageTwoState extends State<PageTwo> {
   @override
   void initState() {
     super.initState();
+    // Clear existing polylines and markers when initializing
+    _clearPreviousRouteData();
     _getCurrentLocation();
     _startingFocusNode.addListener(() {
       if (_startingFocusNode.hasFocus) {
@@ -56,12 +58,29 @@ class _PageTwoState extends State<PageTwo> {
 
   @override
   void dispose() {
+    // Clear the polyline and location data when leaving the screen
+    _clearPreviousRouteData();
+
     startingController.dispose();
     endingController.dispose();
     _mapController?.dispose();
     _startingFocusNode.dispose();
     _endingFocusNode.dispose();
     super.dispose();
+  }
+
+  // New method to clear previous route data
+  void _clearPreviousRouteData() {
+    // Clear polylines in the repository
+    _locationRepository.clearPolylines();
+
+    // Clear stored coordinates
+    _locationRepository.clearLocationCoordinates();
+
+    // Clear markers
+    setState(() {
+      _markers = {};
+    });
   }
 
   Future<void> _getCurrentLocation() async {
@@ -489,14 +508,6 @@ class _PageTwoState extends State<PageTwo> {
               CameraUpdate.newLatLng(
                   _locationRepository.currentLocationCoordinates!),
             );
-
-            // Check if we already have start and end locations to draw polyline immediately
-            if (_locationRepository.startingLocationCoordinates != null &&
-                _locationRepository.endingLocationCoordinates != null) {
-              _locationRepository.fetchDirections().then((_) {
-                if (mounted) setState(() {});
-              });
-            }
           }
         },
         mapType: MapType.terrain,

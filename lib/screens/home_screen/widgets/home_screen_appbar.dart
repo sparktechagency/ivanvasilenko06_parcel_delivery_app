@@ -45,7 +45,7 @@ class HomeScreenAppBar extends StatelessWidget {
                 tooltip: "Notifications",
                 onPressed: onNotificationPressed,
                 icon: Badge(
-                  isLabelVisible: true,
+                  isLabelVisible: false,
                   label: Text(badgeLabel),
                   backgroundColor: AppColors.red,
                   child: IconWidget(

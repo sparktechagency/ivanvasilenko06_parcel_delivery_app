@@ -236,8 +236,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
                           Get.toNamed(AppRoutes.notificationScreen);
                         },
                         icon: const Badge(
-                          isLabelVisible: true,
-                          label: Text('1'),
+                          isLabelVisible: false,
+                          label: Text(''),
                           backgroundColor: AppColors.red,
                           child: IconWidget(
                             icon: AppIconsPath.notificationIcon,

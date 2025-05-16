@@ -9,7 +9,6 @@ import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/screens/delivery_parcel_screens/controller/delivery_screens_controller.dart';
 import 'package:parcel_delivery_app/screens/delivery_parcel_screens/summary_of_parcel_screen/widgets/summary_info_row_widget.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
-import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 
 import '../../../constants/app_colors.dart';
@@ -106,10 +105,8 @@ class _SummaryOfParcelScreenState extends State<SummaryOfParcelScreen> {
         String newAddress =
             '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
 
-        String exactLocation =
-            '${placemarks[0].street}, ${placemarks[0].subLocality}, '
-            '${placemarks[0].locality}, ${placemarks[0].administrativeArea}, '
-            '${placemarks[0].postalCode}, ${placemarks[0].country}';
+        String exactLocation = '${placemarks[0].street}, '
+            '${placemarks[0].locality}, ${placemarks[0].administrativeArea},';
         addressCache[key] = newAddress;
         setState(() {
           if (isPickup) {
@@ -308,20 +305,20 @@ class _SummaryOfParcelScreenState extends State<SummaryOfParcelScreen> {
                 ),
               ),
             ),
-            ButtonWidget(
-              onPressed: () {
-                Get.back();
-              },
-              label: "sendRequest".tr,
-              textColor: AppColors.white,
-              buttonWidth: 180,
-              buttonHeight: 50,
-              icon: Icons.arrow_forward,
-              iconColor: AppColors.white,
-              fontWeight: FontWeight.w500,
-              fontSize: 16,
-              iconSize: 20,
-            ),
+            // ButtonWidget(
+            //   onPressed: () {
+            //     Get.back();
+            //   },
+            //   label: "sendRequest".tr,
+            //   textColor: AppColors.white,
+            //   buttonWidth: 180,
+            //   buttonHeight: 50,
+            //   icon: Icons.arrow_forward,
+            //   iconColor: AppColors.white,
+            //   fontWeight: FontWeight.w500,
+            //   fontSize: 16,
+            //   iconSize: 20,
+            // ),
           ],
         ),
       ),

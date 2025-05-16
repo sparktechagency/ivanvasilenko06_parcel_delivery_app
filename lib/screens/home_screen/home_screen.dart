@@ -248,7 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 notificationController.fetchNotifications();
                 Get.toNamed(AppRoutes.notificationScreen);
               },
-              badgeLabel: "1",
+              badgeLabel: "",
               profileImagePath: profileController
                           .profileData.value.data?.user?.image?.isNotEmpty ??
                       false

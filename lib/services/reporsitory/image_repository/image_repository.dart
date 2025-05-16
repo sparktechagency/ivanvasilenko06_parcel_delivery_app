@@ -46,7 +46,7 @@ class ImageMultipartUpload {
 // token: AppStorage().getToken(),
               );
       if (data != null) {
-        AppSnackBar.success("Image uploaded successfully");
+        //AppSnackBar.success("Image uploaded successfully");
         GET.Get.toNamed(AppRoutes.hurrahScreen);
       }
     } catch (e) {

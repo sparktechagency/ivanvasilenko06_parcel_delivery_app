@@ -111,6 +111,11 @@ class _NotificationScreenState extends State<NotificationScreen>
     controller = Get.put(NotificationController());
     _tabController = TabController(length: 2, vsync: this);
     _setupScrollListener();
+    _tabController.addListener(() {
+      if (_tabController.index == 1 && controller.parcelNotifications.isEmpty) {
+        controller.fetchParcelNotifications();
+      }
+    });
   }
 
   void _setupScrollListener() {
