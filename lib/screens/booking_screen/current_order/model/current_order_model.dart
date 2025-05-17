@@ -52,6 +52,8 @@ class Datum {
   int? v;
   ErId? assignedDelivererId;
 
+  String? typeParcel;
+
   Datum({
     this.id,
     this.senderId,
@@ -73,6 +75,7 @@ class Datum {
     this.updatedAt,
     this.v,
     this.assignedDelivererId,
+    this.typeParcel,
   });
 
   factory Datum.fromRawJson(String str) => Datum.fromJson(json.decode(str));
@@ -119,6 +122,7 @@ class Datum {
         assignedDelivererId: json["assignedDelivererId"] == null
             ? null
             : ErId.fromJson(json["assignedDelivererId"]),
+        typeParcel: json["typeParcel"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -145,6 +149,7 @@ class Datum {
         "updatedAt": updatedAt?.toIso8601String(),
         "__v": v,
         "assignedDelivererId": assignedDelivererId?.toJson(),
+        "typeParcel": typeParcel,
       };
 }
 

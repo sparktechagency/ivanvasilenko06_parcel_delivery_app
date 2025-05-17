@@ -734,43 +734,57 @@ class _BookingScreenState extends State<BookingScreen> {
                                                 : AppColors.black,
                                   ),
                                   const SpaceWidget(spaceHeight: 12),
-                                  Row(
-                                    children: [
-                                      InkWell(
-                                        onTap: () => _openWhatsApp(
-                                            data[index].phoneNumber ?? "",
-                                            "Hello, regarding your parcel delivery."),
-                                        borderRadius:
-                                            BorderRadius.circular(100),
-                                        child: const CircleAvatar(
-                                          backgroundColor: AppColors.whiteDark,
-                                          radius: 18,
-                                          child: IconWidget(
-                                            icon: AppIconsPath.whatsAppIcon,
-                                            color: AppColors.black,
-                                            width: 18,
-                                            height: 18,
+                                  // Here's the fixed condition - using OR (||) instead of AND (&&)
+                                  if (data[index].status == "IN_TRANSIT" ||
+                                      data[index].status == "DELIVERED") ...[
+                                    Row(
+                                      children: [
+                                        InkWell(
+                                          onTap: () => _openWhatsApp(
+                                              data[index]
+                                                      .assignedDelivererId
+                                                      ?.mobileNumber
+                                                      .toString() ??
+                                                  "",
+                                              "Hello, regarding your parcel delivery."),
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                          child: const CircleAvatar(
+                                            backgroundColor:
+                                                AppColors.whiteDark,
+                                            radius: 18,
+                                            child: IconWidget(
+                                              icon: AppIconsPath.whatsAppIcon,
+                                              color: AppColors.black,
+                                              width: 18,
+                                              height: 18,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      const SpaceWidget(spaceWidth: 8),
-                                      InkWell(
-                                        onTap: () => _makePhoneCall(
-                                            data[index].phoneNumber ?? ""),
-                                        borderRadius:
-                                            BorderRadius.circular(100),
-                                        child: const CircleAvatar(
-                                          backgroundColor: AppColors.whiteDark,
-                                          radius: 18,
-                                          child: Icon(
-                                            Icons.call,
-                                            color: AppColors.black,
-                                            size: 18,
+                                        const SpaceWidget(spaceWidth: 8),
+                                        InkWell(
+                                          onTap: () => _makePhoneCall(
+                                              data[index]
+                                                      .assignedDelivererId
+                                                      ?.mobileNumber
+                                                      .toString() ??
+                                                  ""),
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                          child: const CircleAvatar(
+                                            backgroundColor:
+                                                AppColors.whiteDark,
+                                            radius: 18,
+                                            child: Icon(
+                                              Icons.call,
+                                              color: AppColors.black,
+                                              size: 18,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
+                                      ],
+                                    ),
+                                  ],
                                   const SpaceWidget(spaceHeight: 8),
                                 ],
                               ),
@@ -1134,25 +1148,25 @@ class _BookingScreenState extends State<BookingScreen> {
                           ],
                         ),
                         const SpaceWidget(spaceHeight: 8),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.phone,
-                              color: AppColors.black,
-                              size: 12,
-                            ),
-                            const SpaceWidget(spaceWidth: 8),
-                            TextWidget(
-                              text: deliveryRequest["mobileNumber"] ??
-                                  parcel.phoneNumber ??
-                                  '',
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              fontColor: AppColors.greyDark2,
-                            ),
-                          ],
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
+                        // Row(
+                        //   children: [
+                        //     const Icon(
+                        //       Icons.phone,
+                        //       color: AppColors.black,
+                        //       size: 12,
+                        //     ),
+                        //     const SpaceWidget(spaceWidth: 8),
+                        //     TextWidget(
+                        //       text: deliveryRequest["mobileNumber"] ??
+                        //           parcel.phoneNumber ??
+                        //           '',
+                        //       fontSize: 12,
+                        //       fontWeight: FontWeight.w500,
+                        //       fontColor: AppColors.greyDark2,
+                        //     ),
+                        //   ],
+                        // ),
+                        // const SpaceWidget(spaceHeight: 8),
                         Row(
                           children: [
                             const Icon(

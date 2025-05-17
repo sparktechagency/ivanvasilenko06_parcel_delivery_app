@@ -214,19 +214,21 @@ class _NotificationScreenState extends State<NotificationScreen>
     );
   }
 
-  String _getTimeAgo(String? createdAt) {
+  String _getTimeAgo(String? localCreatedAt) {
     try {
-      if (createdAt == null) {
+      if (localCreatedAt == null) {
         return "Unknown time";
       }
 
-      // Parse the createdAt timestamp (assumed to be in UTC, e.g., "2025-05-13T09:02:30.511Z")
-      final DateTime createdDate = DateTime.parse(createdAt).toUtc();
+      // Define the format of the input time string (e.g., "2025-05-17 03:19 PM")
+      final DateFormat formatter = DateFormat("yyyy-MM-dd hh:mm a");
 
-      // Current time in UTC+6 (based on provided time: 07:08 PM +06, May 13, 2025)
-      final DateTime now = DateTime.now().toUtc().add(const Duration(hours: 6));
+      // Parse the input time as local DateTime
+      final DateTime createdDate = formatter.parse(localCreatedAt);
 
-      // Calculate the difference
+      // Current local time
+      final DateTime now = DateTime.now();
+
       final Duration difference = now.difference(createdDate);
 
       if (difference.inSeconds < 60) {
@@ -487,7 +489,7 @@ class _NotificationScreenState extends State<NotificationScreen>
 
     String title = notification.title ?? "Parcel";
     DateTime? createdAtDate;
-    String timeAgo = _getTimeAgo(notification.createdAt.toString());
+    String timeAgo = _getTimeAgo(notification.localCreatedAt.toString());
     try {
       createdAtDate = notification.createdAt != null
           ? DateTime.parse(notification.createdAt!)
@@ -529,13 +531,31 @@ class _NotificationScreenState extends State<NotificationScreen>
     //////////////// Date Formateed
     String formattedDate = "N/A";
     try {
-      final startDate =
-          DateTime.parse(notification.deliveryStartTime.toString());
-      final endDate = DateTime.parse(notification.deliveryEndTime.toString());
-      formattedDate =
-          "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
+      if (notification.deliveryStartTime != null &&
+          notification.deliveryEndTime != null) {
+        // First try parsing with the expected format
+        DateFormat dateFormat = DateFormat("yyyy-MM-dd hh:mm a");
+        final startDate =
+            dateFormat.parse(notification.deliveryStartTime.toString());
+        final endDate =
+            dateFormat.parse(notification.deliveryEndTime.toString());
+
+        formattedDate =
+            "${DateFormat('dd.MM').format(startDate)} to ${DateFormat('dd.MM').format(endDate)}";
+      }
     } catch (e) {
       log("Error parsing dates: $e");
+      try {
+        // Fallback: try parsing ISO format if the first attempt fails
+        final startDate =
+            DateTime.parse(notification.deliveryStartTime.toString());
+        final endDate = DateTime.parse(notification.deliveryEndTime.toString());
+        formattedDate =
+            "${DateFormat('dd.MM').format(startDate)} to ${DateFormat('dd.MM').format(endDate)}";
+      } catch (e) {
+        log("Error parsing dates (fallback): $e");
+        formattedDate = "N/A";
+      }
     }
 
     /// Parcel ID
