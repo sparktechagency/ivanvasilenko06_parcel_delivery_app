@@ -14,12 +14,12 @@ class NotificationController extends GetxController {
   var isNotificationReceived = false.obs;
   var receivingDeliveries = true.obs;
 
-  // Variables for parcel notifications
+  //! Variables for parcel notifications
   var parcelNotifications = <NotifyParcelModel>[].obs;
   var isParcelLoading = true.obs;
   var parcelError = ''.obs;
 
-  // Pagination variables
+  //! Pagination variables
   var currentPage = 1.obs;
   var totalPages = 1.obs;
   var hasMoreNotifications = true.obs;
@@ -44,7 +44,8 @@ class NotificationController extends GetxController {
   Future<void> fetchNotifications({int page = 1}) async {
     try {
       if (page == 1) {
-        isLoading(true); // Set loading state for first page only
+        isLoading(true); 
+        //! Set loading state for first page only
       }
 
       final response = await ApiGetServices().apiGetServices(
@@ -53,18 +54,18 @@ class NotificationController extends GetxController {
           body: {});
 
       if (response != null) {
-        // Parse the response into the NotificationModel
+        //! Parse the response into the NotificationModel
         NotificationModel newNotifications =
             NotificationModel.fromJson(response);
 
-        // Handle pagination
+        //! Handle pagination
         if (newNotifications.data?.pagination != null) {
           totalPages.value = newNotifications.data!.pagination!.pages ?? 1;
           currentPage.value = page;
           hasMoreNotifications.value = currentPage.value < totalPages.value;
         }
 
-        // Set the model
+        //! Set the model
         if (page == 1) {
           notificationModel.value = newNotifications;
         } else if (notificationModel.value != null &&
@@ -72,7 +73,7 @@ class NotificationController extends GetxController {
             newNotifications.data != null &&
             newNotifications.data!.notifications != null &&
             notificationModel.value!.data!.notifications != null) {
-          // Add new notifications to the existing list
+          //! Add new notifications to the existing list
           notificationModel.value!.data!.notifications!
               .addAll(newNotifications.data!.notifications!);
           notificationModel.refresh();
@@ -105,7 +106,7 @@ class NotificationController extends GetxController {
       if (response != null) {
         NotifyParcelModel parcelModel = NotifyParcelModel.fromJson(response);
 
-        // Handle pagination
+        //! Handle pagination
         if (parcelModel.data?.pagination != null) {
           parcelTotalPages.value = parcelModel.data!.pagination!.pages ?? 1;
           parcelCurrentPage.value = page;
@@ -113,16 +114,19 @@ class NotificationController extends GetxController {
               parcelCurrentPage.value < parcelTotalPages.value;
         }
 
-        // Add the notifications to the list
+        //! Add the notifications to the list
         if (parcelModel.data?.notifications != null &&
             parcelModel.data!.notifications!.isNotEmpty) {
           if (page == 1) {
-            parcelNotifications.clear(); // Clear the list for the first page
+            parcelNotifications.clear(); 
+            //! Clear the list for the first page
           }
-          parcelNotifications.add(parcelModel); // Add new data
+          parcelNotifications.add(parcelModel); 
+          //! Add new data
           log("✅ Parcel notifications fetched: Page $page");
         } else {
-          if (page == 1) parcelNotifications.clear(); // Clear if no data
+          if (page == 1) parcelNotifications.clear(); 
+          //! Clear if no data
           log("⚠️ No parcel notifications found");
         }
       } else {
@@ -169,7 +173,8 @@ class NotificationController extends GetxController {
       log("❎❎❎❎❎❎ Error updating delivery notification status: ${ex.toString()} ❎❎❎❎❎❎");
       errorMessage(ex.toString());
       return receivingDeliveries
-          .value; // Return previous value if request fails
+          .value; 
+          //! Return previous value if request fails
     } finally {
       isLoading(false);
     }

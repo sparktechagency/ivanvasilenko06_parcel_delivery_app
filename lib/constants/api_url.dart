@@ -32,5 +32,9 @@ class AppApiUrl {
       "$baseUrl/notification/update-status";
 
   static const String notifyParcel = "$baseUrl/notification/parcelNotify";
+
+  static const String givingReview = "$baseUrl//delivery/review";
+
+  static const String finishedDelivery = "$baseUrl/delivery/update-status";
   static const String token = "";
 }

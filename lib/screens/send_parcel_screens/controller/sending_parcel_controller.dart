@@ -30,15 +30,15 @@ class ParcelController extends GetxController {
   RxList<String> selectedImages = <String>[].obs;
   RxBool isLoading = false.obs;
 
-  // For storing current location lat/lng as strings
+  //! For storing current location lat/lng as strings
   RxString currentLocationLatitude = ''.obs;
   RxString currentLocationLongitude = ''.obs;
 
-  // Location ID fields
+  //! Location ID fields
   final RxString startingLocationId = ''.obs;
   final RxString endingLocationId = ''.obs;
 
-  // Location methods
+  //! Location methods
   void setStartingLocationId(String id) {
     startingLocationId.value = id;
   }
@@ -58,7 +58,7 @@ class ParcelController extends GetxController {
     completePhoneNumber.value = phoneNumber;
   }
 
-  // Controllers
+  //! Controllers
   final currentLocationController = TextEditingController();
   final destinationController = TextEditingController();
   final titleController = TextEditingController();
@@ -67,7 +67,7 @@ class ParcelController extends GetxController {
   final nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
 
-  // Navigation
+  //! Navigation
   PageController pageController = PageController();
   PageController tabController = PageController();
   CarouselSliderController carouselController = CarouselSliderController();
@@ -75,7 +75,7 @@ class ParcelController extends GetxController {
 
   final ImagePicker _picker = ImagePicker();
 
-  // Setters
+  //! Setters
   void setStartingLocation(String location) =>
       startingLocation.value = location;
 
@@ -91,7 +91,7 @@ class ParcelController extends GetxController {
 
   void setReceiverNumber(String number) => phoneController.text = number;
 
-  // Step navigation with validation
+  //! Step navigation with validation
   void goToNextStep() {
     if (!validateCurrentStep()) return;
 
@@ -127,7 +127,7 @@ class ParcelController extends GetxController {
   bool validateCurrentStep() {
     switch (currentStep.value) {
       case 1:
-        // Step 1: Location Validation
+        //! Step 1: Location Validation
         if (startingLocation.isEmpty || endingLocation.isEmpty) {
           AppSnackBar.error(
               "Please fill both pickup and destination locations.");
@@ -136,7 +136,7 @@ class ParcelController extends GetxController {
         return true;
 
       case 2:
-        // Step 2: Time Validation
+        //! Step 2: Time Validation
         if (startDateTime.value == null || endDateTime.value == null) {
           AppSnackBar.error("Please select both delivery start and end time.");
           return false;
@@ -144,7 +144,7 @@ class ParcelController extends GetxController {
         return true;
 
       case 3:
-        // Step 3: Title Validation (description and images optional)
+        //! Step 3: Title Validation (description and images optional)
         if (titleController.text.trim().isEmpty) {
           AppSnackBar.error("Please fill the title.");
           return false;
@@ -152,7 +152,7 @@ class ParcelController extends GetxController {
         return true;
 
       case 4:
-        // Step 4: Price Validation
+        //! Step 4: Price Validation
         if (priceController.text.trim().isEmpty) {
           AppSnackBar.error("Please enter the delivery price.");
           return false;
@@ -160,7 +160,7 @@ class ParcelController extends GetxController {
         return true;
 
       case 5:
-        // Step 5: Receiver Info Validation
+        //! Step 5: Receiver Info Validation
         if (nameController.text.trim().isEmpty ||
             phoneController.text.trim().isEmpty) {
           AppSnackBar.error("Please enter receiver name and phone number.");
@@ -173,42 +173,42 @@ class ParcelController extends GetxController {
     }
   }
 
-  // Comprehensive validation for final submission
+  //! Comprehensive validation for final submission
   bool validateAllFields() {
-    // Step 1: Location Validation
+    //! Step 1: Location Validation
     if (startingLocation.isEmpty || endingLocation.isEmpty) {
       AppSnackBar.error("Please fill both pickup and destination locations.");
       return false;
     }
 
-    // Step 2: Time Validation
+    //! Step 2: Time Validation
     if (startDateTime.value == null || endDateTime.value == null) {
       AppSnackBar.error("Please select both delivery start and end time.");
       return false;
     }
 
-    // Step 3: Title Validation (only title is required, description is optional)
+    //! Step 3: Title Validation (only title is required, description is optional)
     if (titleController.text.trim().isEmpty) {
       AppSnackBar.error("Please fill the title.");
       return false;
     }
 
-    // Images are now optional
+    //! Images are now optional
 
-    // Step 4: Price Validation
+    //! Step 4: Price Validation
     if (priceController.text.trim().isEmpty) {
       AppSnackBar.error("Please enter the delivery price.");
       return false;
     }
 
-    // Step 5: Receiver Info Validation
+    //! Step 5: Receiver Info Validation
     if (nameController.text.trim().isEmpty ||
         phoneController.text.trim().isEmpty) {
       AppSnackBar.error("Please enter receiver name and phone number.");
       return false;
     }
 
-    // Vehicle type validation
+    //! Vehicle type validation
     if (selectedVehicleType.value.isEmpty) {
       AppSnackBar.error("Please select a vehicle type.");
       return false;
@@ -217,7 +217,7 @@ class ParcelController extends GetxController {
     return true;
   }
 
-  // Image logic
+  //! Image logic
   Future<void> pickImages() async {
     try {
       final List<XFile> images = await _picker.pickMultiImage();
@@ -246,7 +246,7 @@ class ParcelController extends GetxController {
 
   // Submission with complete validation
   Future<void> submitParcelData() async {
-    // Validate all required fields before submission
+    //! Validate all required fields before submission
     if (!validateAllFields()) {
       return;
     }
@@ -287,7 +287,6 @@ class ParcelController extends GetxController {
       isLoading.value = false;
     }
   }
-
   void resetAllFields() {
     selectedDeliveryType.value = 'non-professional';
     selectedVehicleType.value = '';

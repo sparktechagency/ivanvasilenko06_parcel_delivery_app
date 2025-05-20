@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
@@ -29,25 +28,25 @@ class RadiusAvailableParcel extends StatefulWidget {
 class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
   final EarnMoneyRadiusController _radiusController = Get.find();
 
-  // Get the DeliveryScreenController instead of managing local state
+  //! Get the DeliveryScreenController instead of managing local state
   final DeliveryScreenController _deliveryController =
       Get.put(DeliveryScreenController());
 
-  // Cache for addresses to avoid multiple API calls for the same coordinates
+  //! Cache for addresses to avoid multiple API calls for the same coordinates
   Map<String, String> addressCache = {};
 
-  // Maps to store addresses for each parcel
+  //! Maps to store addresses for each parcel
   Map<String, String> pickupAddresses = {};
   Map<String, String> deliveryAddresses = {};
 
-  // Loading states for addresses
+  //! Loading states for addresses
   Map<String, bool> pickupAddressLoading = {};
   Map<String, bool> deliveryAddressLoading = {};
 
   @override
   void initState() {
     super.initState();
-    // Set initial loading states and load addresses
+    //! Set initial loading states and load addresses
     _initializeAddressStates();
   }
 
@@ -56,13 +55,13 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
       for (var parcel in _radiusController.parcelsInRadius) {
         final parcelId = parcel["_id"];
 
-        // Initialize loading states
+        //! Initialize loading states
         setState(() {
           pickupAddressLoading[parcelId] = true;
           deliveryAddressLoading[parcelId] = true;
         });
 
-        // Load addresses
+        //! Load addresses
         _loadParcelAddresses(parcel);
       }
     }
@@ -71,7 +70,7 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
   void _loadParcelAddresses(dynamic parcel) {
     final parcelId = parcel["_id"];
 
-    // Safely extract coordinates with null checks
+    //! Safely extract coordinates with null checks
     final pickupCoordinates = parcel["pickupLocation"]?["coordinates"];
     final deliveryCoordinates = parcel["deliveryLocation"]?["coordinates"];
 
@@ -103,7 +102,7 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
 
     final String key = '$latitude,$longitude';
 
-    // Check cache first
+    //! Check cache first
     if (addressCache.containsKey(key)) {
       _updateAddress(parcelId, addressCache[key]!, isPickup);
       return;
@@ -114,7 +113,7 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
           await placemarkFromCoordinates(latitude, longitude);
 
       if (placemarks.isNotEmpty) {
-        // Build a more complete address string
+        //! Build a more complete address string
         final placemark = placemarks[0];
         final List<String> addressParts = [
           placemark.locality ?? '',
@@ -200,11 +199,11 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
-                        Icons.search_off,
-                        size: 64,
-                        color: AppColors.greyDark,
-                      ),
+                      const ImageWidget(
+                          imagePath: AppImagePath.sendParcel,
+                          width: 80,
+                          height: 80,
+                        ),
                       const SpaceWidget(spaceHeight: 16),
                       TextWidget(
                         text: "No Parcel Found".tr,
@@ -223,7 +222,6 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                   ),
                 );
               }
-
               return RefreshIndicator(
                 onRefresh: () async {
                   _initializeAddressStates();
@@ -237,8 +235,7 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                       (index) {
                         final parcel = _radiusController.parcelsInRadius[index];
                         final parcelId = parcel["_id"] ?? "unknown";
-
-                        // Format dates
+                        //! Format dates
                         String formattedDate = "N/A";
                         try {
                           final startDate =
@@ -250,26 +247,21 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                         } catch (e) {
                           log("Error parsing dates: $e");
                         }
-
-                        // Get address display values
+                        //! Get address display values
                         final bool isPickupLoading =
                             pickupAddressLoading[parcelId] ?? true;
                         final bool isDeliveryLoading =
                             deliveryAddressLoading[parcelId] ?? true;
-
                         final String pickupAddress = isPickupLoading
                             ? "Loading pickup address..."
                             : pickupAddresses[parcelId] ??
                                 "Address unavailable";
-
                         final String deliveryAddress = isDeliveryLoading
                             ? "Loading delivery address..."
                             : deliveryAddresses[parcelId] ??
                                 "Address unavailable";
-
                         final bool hasRequestSent =
                             _deliveryController.isRequestSent(parcelId);
-
                         return Padding(
                           padding: const EdgeInsets.all(16),
                           child: Column(
@@ -310,7 +302,7 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                                 ],
                               ),
                               const SpaceWidget(spaceHeight: 12),
-                              // Address section - From
+                              //! Address section - From
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -384,7 +376,7 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                                       onTap: hasRequestSent
                                           ? null
                                           : () {
-                                              // Use DeliveryScreenController to send the request
+                                              //! Use DeliveryScreenController to send the request
                                               _deliveryController
                                                   .sendParcelRequest(parcelId);
                                             },
@@ -419,23 +411,21 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                                       height: 18,
                                       color: AppColors.blackLighter,
                                     ),
-                                    // In radius_avaiable_parcel.dart file
-// Locate this code block in your onTap handler for "View Summary" button
-
+                                    //! In radius_avaiable_parcel.dart file
+//! Locate this code block in your onTap handler for "View Summary" button
                                     InkWell(
                                       onTap: () {
                                         if (parcel != null) {
                                           // Debug the parcel object to ensure it's not null
                                           log("Navigating with parcel: $parcel");
 
-                                          // Check if parcel has required coordinates
+                                          //! Check if parcel has required coordinates
                                           final pickupCoords =
                                               parcel["pickupLocation"]
                                                   ?["coordinates"];
                                           final deliveryCoords =
                                               parcel["deliveryLocation"]
                                                   ?["coordinates"];
-
                                           if (pickupCoords == null ||
                                               deliveryCoords == null) {
                                             Get.snackbar(
@@ -446,12 +436,10 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                                             );
                                             return;
                                           }
-
-                                          // Make a copy of the parcel to avoid reference issues
+                                          //! Make a copy of the parcel to avoid reference issues
                                           final parcelCopy =
                                               Map<String, dynamic>.from(parcel);
-
-                                          // Navigate with the parcel data
+                                          //! Navigate with the parcel data
                                           Get.toNamed(
                                             AppRoutes.radiusMapScreenDetails,
                                             arguments: parcelCopy,

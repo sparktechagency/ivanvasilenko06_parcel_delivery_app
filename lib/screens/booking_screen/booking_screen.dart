@@ -51,11 +51,11 @@ class _BookingScreenState extends State<BookingScreen> {
     super.initState();
   }
 
-  // Function to make a phone call
+  //! Function to make a phone call
 
-  // Replace with actual phone number
+  //! Replace with actual phone number
 
-  // Function to fetch and return address from coordinates
+  //! Function to fetch and return address from coordinates
   Future<String> getAddressFromCoordinates(
       double latitude, double longitude) async {
     final String key = '$latitude,$longitude';
@@ -79,7 +79,7 @@ class _BookingScreenState extends State<BookingScreen> {
     }
   }
 
-  // Store address by parcel ID
+  //! Store address by parcel ID
   void cacheAddressForParcel(String parcelId, String addressType,
       double latitude, double longitude) async {
     final cacheKey = '${parcelId}_${addressType}';
@@ -92,13 +92,15 @@ class _BookingScreenState extends State<BookingScreen> {
     }
   }
 
-  // Get address for a specific parcel
+  //! Get address for a specific parcel
   String getParcelAddress(String parcelId, String addressType) {
     final cacheKey = '${parcelId}_${addressType}';
     return addressCache[cacheKey] ?? 'Loading...';
   }
 
   void _openBottomSheet() {
+    double selectedRating = 1.0;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -141,7 +143,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   const SpaceWidget(spaceHeight: 10),
                   Center(
                     child: RatingBar.builder(
-                      initialRating: 1,
+                      initialRating: selectedRating,
                       minRating: 1,
                       direction: Axis.horizontal,
                       allowHalfRating: true,
@@ -152,6 +154,9 @@ class _BookingScreenState extends State<BookingScreen> {
                         color: Colors.amber,
                       ),
                       onRatingUpdate: (rating) {
+                        setState(() {
+                          selectedRating = rating;
+                        });
                         print('Rating: $rating');
                       },
                     ),
@@ -179,7 +184,12 @@ class _BookingScreenState extends State<BookingScreen> {
                   ),
                   const SpaceWidget(spaceHeight: 32),
                   ButtonWidget(
-                    onPressed: () {
+                    onPressed: () async {
+                      // Set the rating value in the controller
+                      final currentOrderController =
+                          Get.find<CurrentOrderController>();
+                      currentOrderController.rating.value = selectedRating;
+                      await currentOrderController.givingReview();
                       Get.back();
                     },
                     label: "submit".tr,
@@ -202,18 +212,18 @@ class _BookingScreenState extends State<BookingScreen> {
       return;
     }
 
-    // Clean the phone number
+    //! Clean the phone number
     final String formattedNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
 
     try {
-      // Use different approaches based on platform
+      //! Use different approaches based on platform
       if (Platform.isAndroid) {
-        // For Android, use Intent.ACTION_DIAL (doesn't require permission)
+        //! For Android, use Intent.ACTION_DIAL (doesn't require permission)
         final Uri phoneUri = Uri.parse('tel:$formattedNumber');
         await launchUrl(phoneUri,
             mode: LaunchMode.externalNonBrowserApplication);
       } else if (Platform.isIOS) {
-        // For iOS
+        //! For iOS
         final Uri phoneUri = Uri.parse('tel://$formattedNumber');
         if (await canLaunchUrl(phoneUri)) {
           await launchUrl(phoneUri);
@@ -221,7 +231,7 @@ class _BookingScreenState extends State<BookingScreen> {
           throw 'Could not launch $phoneUri';
         }
       } else {
-        // For other platforms
+        //! For other platforms
         final Uri phoneUri = Uri.parse('tel:$formattedNumber');
         if (await canLaunchUrl(phoneUri)) {
           await launchUrl(phoneUri);
@@ -235,7 +245,7 @@ class _BookingScreenState extends State<BookingScreen> {
     }
   }
 
-  // Function to send a message
+  //! Function to send a message
 
   Future<void> _openWhatsApp(String phoneNumber, String message) async {
     if (phoneNumber.isEmpty) {
@@ -243,13 +253,13 @@ class _BookingScreenState extends State<BookingScreen> {
       return;
     }
 
-    // Format the phone number (remove any non-digit characters)
+    //! Format the phone number (remove any non-digit characters)
     String formattedNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
 
     try {
-      // Direct WhatsApp intent
+      //! Direct WhatsApp intent
       if (Platform.isAndroid) {
-        // Try Android-specific direct intent first (most reliable)
+        //! Try Android-specific direct intent first (most reliable)
         final Uri androidUri = Uri.parse(
             "intent://send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}#Intent;scheme=whatsapp;package=com.whatsapp;end");
 
@@ -259,7 +269,7 @@ class _BookingScreenState extends State<BookingScreen> {
         }
       }
 
-      // Try the standard WhatsApp URL scheme
+      //! Try the standard WhatsApp URL scheme
       final Uri whatsappUri = Uri.parse(
           "whatsapp://send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}");
 
@@ -268,7 +278,7 @@ class _BookingScreenState extends State<BookingScreen> {
             mode: LaunchMode.externalNonBrowserApplication);
         return;
       }
-      // Fallback to website (this should work on most devices)
+      //! Fallback to website (this should work on most devices)
       final Uri webUri = Uri.parse(
           "https://api.whatsapp.com/send?phone=$formattedNumber&text");
 
@@ -408,7 +418,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       onPressed: () async {
                         Navigator.pop(context);
                         try {
-                          // Get the correct controller instance
+                          //! Get the correct controller instance
                           final controller = Get.find<NewBookingsController>();
                           await controller.removeParcelFromMap(parcelId);
                           await currentOrderController.getCurrentOrder();
@@ -457,7 +467,7 @@ class _BookingScreenState extends State<BookingScreen> {
           ),
           const SpaceWidget(spaceHeight: 24),
 
-          ///<This one is tab bar  ===================>
+          //! <This one is tab bar  ===================>
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
@@ -559,7 +569,6 @@ class _BookingScreenState extends State<BookingScreen> {
                 final deliverLocation =
                     data[index].deliveryLocation?.coordinates;
                 final pickupLocation = data[index].pickupLocation?.coordinates;
-
                 // Request address fetching for this parcel
                 if (deliverLocation != null && deliverLocation.length == 2) {
                   final latitude = deliverLocation[1];
@@ -579,11 +588,11 @@ class _BookingScreenState extends State<BookingScreen> {
                   });
                 }
 
-                // Get the delivery and pickup addresses for this specific parcel
+                //! Get the delivery and pickup addresses for this specific parcel
                 final deliveryAddress = getParcelAddress(parcelId, 'delivery');
                 final pickupAddress = getParcelAddress(parcelId, 'pickup');
 
-                //////////////// Date Formateed
+                //! Date Formateed
                 String formattedDate = "N/A";
                 try {
                   final startDate =
@@ -595,11 +604,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 } catch (e) {
                   log("Error parsing dates: $e");
                 }
-                /////////////
-
-                final isUserSender =
-                    data[index].senderId == data[index].senderId;
-
+                //!
                 return Column(
                   children: [
                     if (index > 0) const SpaceWidget(spaceHeight: 8),
@@ -709,34 +714,51 @@ class _BookingScreenState extends State<BookingScreen> {
                                     fontColor: AppColors.black,
                                   ),
                                   const SpaceWidget(spaceHeight: 20),
-                                  // Updated status text display logic
-                                  TextWidget(
-                                    text: data[index].status == "PENDING" ||
-                                            data[index].status == "REQUESTED" ||
-                                            data[index].status == "WAITING"
-                                        ? "Waiting"
-                                        : data[index].status == "IN_TRANSIT"
-                                            ? "In Transit"
-                                            : data[index].status == "DELIVERED"
-                                                ? "Delivered"
-                                                : "",
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: data[index].status ==
-                                                "PENDING" ||
-                                            data[index].status == "REQUESTED" ||
-                                            data[index].status == "WAITING"
-                                        ? AppColors.red
-                                        : data[index].status == "IN_TRANSIT"
-                                            ? AppColors.green
-                                            : data[index].status == "DELIVERED"
-                                                ? AppColors.green
-                                                : AppColors.black,
-                                  ),
+
+                                  // Only show status for sendParcel type
+                                  if (data[index].typeParcel.toString() ==
+                                      "sendParcel") ...[
+                                    TextWidget(
+                                      text: data[index].status == "PENDING" ||
+                                              data[index].status ==
+                                                  "REQUESTED" ||
+                                              data[index].status == "WAITING"
+                                          ? "Waiting"
+                                          : data[index].status == "IN_TRANSIT"
+                                              ? "In Transit"
+                                              : data[index].status ==
+                                                      "DELIVERED"
+                                                  ? "Delivered"
+                                                  : "",
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      fontColor: data[index].status ==
+                                                  "PENDING" ||
+                                              data[index].status ==
+                                                  "REQUESTED" ||
+                                              data[index].status == "WAITING"
+                                          ? AppColors.red
+                                          : data[index].status == "IN_TRANSIT"
+                                              ? AppColors.green
+                                              : data[index].status ==
+                                                      "DELIVERED"
+                                                  ? AppColors.green
+                                                  : AppColors.black,
+                                    ),
+                                  ],
                                   const SpaceWidget(spaceHeight: 12),
-                                  // Here's the fixed condition - using OR (||) instead of AND (&&)
-                                  if (data[index].status == "IN_TRANSIT" ||
-                                      data[index].status == "DELIVERED") ...[
+
+                                  // Show contact buttons for both sendParcel and deliveryRequest if in transit
+                                  if ((data[index].typeParcel.toString() ==
+                                              "sendParcel" &&
+                                          data[index].status == "IN_TRANSIT") ||
+                                      (data[index].typeParcel.toString() ==
+                                              "deliveryRequest" &&
+                                          data[index].status == "IN_TRANSIT") ||
+                                      (data[index].typeParcel.toString() ==
+                                              "assignedParcel" &&
+                                          data[index].status ==
+                                              "IN_TRANSIT")) ...[
                                     Row(
                                       children: [
                                         InkWell(
@@ -804,13 +826,13 @@ class _BookingScreenState extends State<BookingScreen> {
                               children: [
                                 InkWell(
                                   onTap: () {
-                                    // Navigate to appropriate screen based on sender ID
-                                    if (isUserSender) {
-                                      Get.toNamed(AppRoutes.parcelDetailsScreen,
+                                    // Navigate to appropriate screen based on type
+                                    if (data[index].typeParcel.toString() ==
+                                        "deliveryRequest") {
+                                      Get.toNamed(AppRoutes.viewDetailsScreen,
                                           arguments: data[index].id);
                                     } else {
-                                      Get.toNamed(
-                                          AppRoutes.bookingViewDetailsScreen,
+                                      Get.toNamed(AppRoutes.parcelDetailsScreen,
                                           arguments: data[index].id);
                                     }
                                   },
@@ -825,9 +847,11 @@ class _BookingScreenState extends State<BookingScreen> {
                                       ),
                                       const SpaceWidget(spaceWidth: 8),
                                       TextWidget(
-                                        text: isUserSender
-                                            ? "parcelDetails".tr
-                                            : "viewDetails".tr,
+                                        text:
+                                            data[index].typeParcel.toString() ==
+                                                    "deliveryRequest"
+                                                ? "viewDetails".tr
+                                                : "parcelDetails".tr,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
                                         fontColor: AppColors.greyDark2,
@@ -842,58 +866,86 @@ class _BookingScreenState extends State<BookingScreen> {
                                 ),
                                 InkWell(
                                   onTap: () {
-                                    //
-                                    if (data[index].status == "IN_TRANSIT") {
-                                      Get.toNamed(AppRoutes.deliveryManDetails,
-                                          arguments: data[index].id);
-                                    } else if (!isUserSender) {
-                                      deliveryFinished();
-                                    } else if (data[index].status ==
-                                        "DELIVERED") {
-                                      _openBottomSheet();
+                                    // Handle actions based on parcel type and status
+                                    if (data[index].typeParcel.toString() ==
+                                        "deliveryRequest") {
+                                      // For deliveryRequest type
+                                      if (data[index].status == "IN_TRANSIT") {
+                                        // Finish delivery option
+                                        deliveryFinished();
+                                      } else if (data[index].status ==
+                                              "REQUESTED" ||
+                                          data[index].status == "PENDING" ||
+                                          data[index].status == "WAITING") {
+                                        // Cancel delivery option
+                                        String parcelId = data[index].id ?? "";
+                                        removeParcelConfirmation(parcelId);
+                                      }
+                                    } else if (data[index]
+                                            .typeParcel
+                                            .toString() ==
+                                        "assignedParcel") {
+                                      // For finished Delivery
+                                      if (data[index].status == "IN_TRANSIT") {
+                                        deliveryFinished();
+                                      }
                                     } else {
-                                      String parcelId = data[index].id ?? "";
-                                      removeParcelConfirmation(parcelId);
+                                      // For sendParcel type
+                                      if (data[index].status == "IN_TRANSIT") {
+                                        Get.toNamed(
+                                            AppRoutes.deliveryManDetails,
+                                            arguments: data[index].id);
+                                      } else if (data[index].status ==
+                                          "DELIVERED") {
+                                        final currentOrderController =
+                                            Get.find<CurrentOrderController>();
+                                        // Set parcel ID and user ID for review
+                                        currentOrderController.parcelID.value =
+                                            data[index].id ?? "";
+                                        currentOrderController.userID.value =
+                                            data[index]
+                                                    .assignedDelivererId
+                                                    ?.id ??
+                                                "";
+                                        _openBottomSheet();
+                                      } else {
+                                        // Remove from map option
+                                        String parcelId = data[index].id ?? "";
+                                        removeParcelConfirmation(parcelId);
+                                      }
                                     }
                                   },
                                   splashColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   child: Row(
                                     children: [
-                                      data[index].status == "IN_TRANSIT"
-                                          ? const IconWidget(
-                                              icon:
-                                                  AppIconsPath.deliverymanIcon,
-                                              color: AppColors.greyDark2,
-                                              width: 14,
-                                              height: 14,
-                                            )
-                                          : const SizedBox.shrink(),
-                                      data[index].status == "IN_TRANSIT"
-                                          ? const SpaceWidget(spaceWidth: 8)
-                                          : const SpaceWidget(spaceWidth: 0),
+                                      // Show deliveryman icon only for sendParcel in transit
+                                      if (data[index].typeParcel.toString() ==
+                                              "sendParcel" &&
+                                          data[index].status == "IN_TRANSIT")
+                                        const IconWidget(
+                                          icon: AppIconsPath.deliverymanIcon,
+                                          color: AppColors.greyDark2,
+                                          width: 14,
+                                          height: 14,
+                                        ),
+
+                                      if (data[index].typeParcel.toString() ==
+                                              "sendParcel" &&
+                                          data[index].status == "IN_TRANSIT")
+                                        const SpaceWidget(spaceWidth: 8)
+                                      else
+                                        const SpaceWidget(spaceWidth: 0),
+
                                       SizedBox(
                                         width: ResponsiveUtils.width(120),
                                         child: TextWidget(
                                           text:
-                                              data[index].status == "IN_TRANSIT"
-                                                  ? "deliveryManDetails".tr
-                                                  : !isUserSender
-                                                      ? "Finish Delivery".tr
-                                                      : data[index].status ==
-                                                              "DELIVERED"
-                                                          ? "Giving Review".tr
-                                                          : "removeFromMap".tr,
+                                              _getActionButtonText(data[index]),
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
-                                          fontColor:
-                                              data[index].status == "IN_TRANSIT"
-                                                  ? AppColors.greyDark2
-                                                  : !isUserSender ||
-                                                          data[index].status ==
-                                                              "DELIVERED"
-                                                      ? AppColors.green
-                                                      : AppColors.red,
+                                          fontColor: _getActionButtonColor(
+                                              data[index]),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -918,6 +970,64 @@ class _BookingScreenState extends State<BookingScreen> {
     });
   }
 
+  // Helper method to determine the action button text based on parcel type and status
+  String _getActionButtonText(dynamic parcel) {
+    if (parcel.typeParcel.toString() == "deliveryRequest") {
+      // For deliveryRequest type
+      if (parcel.status == "IN_TRANSIT") {
+        return "Finish Delivery".tr;
+      } else if (parcel.status == "REQUESTED" ||
+          parcel.status == "PENDING" ||
+          parcel.status == "WAITING") {
+        return "Cancel Delivery".tr;
+      }
+    } else if (parcel.typeParcel.toString() == "assignedParcel") {
+      // For finished Delivery
+      if (parcel.status == "IN_TRANSIT") {
+        return "Finish Delivery".tr;
+      }
+    } else {
+      // For sendParcel type
+      if (parcel.status == "IN_TRANSIT") {
+        return "deliveryManDetails".tr;
+      } else if (parcel.status == "DELIVERED") {
+        return "Giving Review".tr;
+      } else {
+        return "removeFromMap".tr;
+      }
+    }
+    return ""; // Default fallback
+  }
+
+  // Helper method to determine the action button color based on parcel type and status
+  Color _getActionButtonColor(dynamic parcel) {
+    if (parcel.typeParcel.toString() == "deliveryRequest") {
+      // For deliveryRequest type
+      if (parcel.status == "IN_TRANSIT") {
+        return AppColors.green; // Green for finish delivery
+      } else if (parcel.status == "REQUESTED" ||
+          parcel.status == "PENDING" ||
+          parcel.status == "WAITING") {
+        return AppColors.red; // Red for cancel delivery
+      }
+    } else if (parcel.typeParcel.toString() == "assignedParcel") {
+      // For finished Delivery
+      if (parcel.status == "IN_TRANSIT") {
+        return AppColors.green;
+      }
+    } else {
+      // For sendParcel type
+      if (parcel.status == "IN_TRANSIT") {
+        return AppColors.greyDark2;
+      } else if (parcel.status == "DELIVERED") {
+        return AppColors.green; // Green for giving review
+      } else {
+        return AppColors.red;
+      }
+    }
+    return AppColors.black; // Default fallback
+  }
+
   Widget _newBookingWidget() {
     return SingleChildScrollView(
       child: Obx(() {
@@ -931,6 +1041,7 @@ class _BookingScreenState extends State<BookingScreen> {
         // Filter only parcels that have deliveryRequests
         final parcelsWithRequests = allParcels
                 ?.where((parcel) =>
+                    parcel.typeParcel == "sendParcel" &&
                     parcel.deliveryRequests != null &&
                     parcel.deliveryRequests!.isNotEmpty)
                 .toList() ??
@@ -1042,8 +1153,7 @@ class _BookingScreenState extends State<BookingScreen> {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(100),
                               child: AppImage(
-                                url: deliveryRequest["image"] ??
-                                    AppImagePath.dummyProfileImage,
+                                url: deliveryRequest["image"],
                                 height: 40,
                                 width: 40,
                               ),

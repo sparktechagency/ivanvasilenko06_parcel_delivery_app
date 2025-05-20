@@ -42,7 +42,7 @@ class _NotificationScreenState extends State<NotificationScreen>
   Map<String, String> addressCache = {};
   Map<String, String> locationToAddressCache = {};
 
-  // Function to fetch and return address from coordinates
+  //! Function to fetch and return address from coordinates
   Future<String> getAddressFromCoordinates(
       double latitude, double longitude) async {
     final String key = '$latitude,$longitude';
@@ -66,7 +66,7 @@ class _NotificationScreenState extends State<NotificationScreen>
     }
   }
 
-  // Store address by parcel ID
+  //! Store address by parcel ID
   void cacheAddressForParcel(String parcelId, String addressType,
       double latitude, double longitude) async {
     final cacheKey = '${parcelId}_${addressType}';
@@ -79,13 +79,13 @@ class _NotificationScreenState extends State<NotificationScreen>
     }
   }
 
-  // Get address for a specific parcel
+  //! Get address for a specific parcel
   String getParcelAddress(String parcelId, String addressType) {
     final cacheKey = '${parcelId}_${addressType}';
     return addressCache[cacheKey] ?? 'Loading...';
   }
 
-  // Method to get the regular address
+  //! Method to get the regular address
   Future<void> _getAddress(double latitude, double longitude) async {
     String result = await addressService.getAddress(latitude, longitude);
     setState(() {
@@ -93,7 +93,7 @@ class _NotificationScreenState extends State<NotificationScreen>
     });
   }
 
-  // Method to get the new booking address
+  //! Method to get the new booking address
   Future<void> newAddress(double latitude, double longitude) async {
     String result =
         await addressService.getNewBookingAddress(latitude, longitude);
@@ -165,13 +165,13 @@ class _NotificationScreenState extends State<NotificationScreen>
       return;
     }
 
-    // Format the phone number (remove any non-digit characters)
+    //! Format the phone number (remove any non-digit characters)
     String formattedNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
 
     try {
-      // Direct WhatsApp intent
+      //! Direct WhatsApp intent
       if (Platform.isAndroid) {
-        // Try Android-specific direct intent first (most reliable)
+        //! Try Android-specific direct intent first (most reliable)
         final Uri androidUri = Uri.parse(
             "intent://send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}#Intent;scheme=whatsapp;package=com.whatsapp;end");
 
@@ -202,7 +202,6 @@ class _NotificationScreenState extends State<NotificationScreen>
       _showErrorSnackBar('Error opening WhatsApp');
     }
   }
-
   void _showErrorSnackBar(String message) {
     final scaffoldMessenger = ScaffoldMessenger.of(Get.context!);
     scaffoldMessenger.showSnackBar(
@@ -220,17 +219,15 @@ class _NotificationScreenState extends State<NotificationScreen>
         return "Unknown time";
       }
 
-      // Define the format of the input time string (e.g., "2025-05-17 03:19 PM")
+      //! Define the format of the input time string (e.g., "2025-05-17 03:19 PM")
       final DateFormat formatter = DateFormat("yyyy-MM-dd hh:mm a");
 
-      // Parse the input time as local DateTime
+      //! Parse the input time as local DateTime
       final DateTime createdDate = formatter.parse(localCreatedAt);
 
-      // Current local time
+      //! Current local time
       final DateTime now = DateTime.now();
-
       final Duration difference = now.difference(createdDate);
-
       if (difference.inSeconds < 60) {
         return "just now";
       } else if (difference.inMinutes < 60) {
@@ -315,7 +312,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    //////////////////// First Tab - Parcel/Delivery Updates
+                    //! First Tab - Parcel/Delivery Updates
                     Obx(() {
                       final bool isLoading = controller.isLoading.value;
                       final bool hasError = controller.errorMessage.isNotEmpty;
@@ -326,13 +323,11 @@ class _NotificationScreenState extends State<NotificationScreen>
                                   null ||
                               controller.notificationModel.value!.data!
                                   .notifications!.isEmpty;
-
                       if (isLoading && isEmpty) {
                         return const Center(
                           child: CircularProgressIndicator(),
                         );
                       }
-
                       if (hasError && isEmpty) {
                         return Center(
                           child: Text("Error: ${controller.errorMessage}"),
@@ -374,7 +369,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                                   fontColor: AppColors.black,
                                 ),
                               ),
-                              // Display regular notifications
+                              //! Display regular notifications
                               ...List.generate(
                                 controller.notificationModel.value!.data!
                                     .notifications!.length,
@@ -391,13 +386,13 @@ class _NotificationScreenState extends State<NotificationScreen>
                                 ),
                             ],
 
-                            // Add some space at the bottom
+                            //! Add some space at the bottom
                             const SizedBox(height: 20),
                           ],
                         ),
                       );
                     }),
-                    //////////////////// Second Tab - Interested In Delivery
+                    //! Second Tab - Interested In Delivery
                     Obx(() {
                       if (controller.isParcelLoading.value &&
                           controller.parcelNotifications.isEmpty) {
@@ -408,7 +403,6 @@ class _NotificationScreenState extends State<NotificationScreen>
                         return Center(
                             child: Text("Error: ${controller.parcelError}"));
                       }
-
                       int totalNotifications = 0;
                       for (var parcelData in controller.parcelNotifications) {
                         if (parcelData.data?.notifications != null) {
@@ -416,13 +410,11 @@ class _NotificationScreenState extends State<NotificationScreen>
                               parcelData.data!.notifications!.length;
                         }
                       }
-
                       if (totalNotifications == 0) {
                         return const Center(
                             child: Text(
                                 "No interested delivery notifications available."));
                       }
-
                       return ListView.builder(
                         controller: _scrollController2,
                         itemCount: totalNotifications,
@@ -468,7 +460,7 @@ class _NotificationScreenState extends State<NotificationScreen>
   }
 
   Widget _buildParcelNotificationCard(int index) {
-    // Find which parcel notification this index belongs to
+    //! Find which parcel notification this index belongs to
     int currentIndex = index;
     dynamic notification;
 
@@ -484,33 +476,28 @@ class _NotificationScreenState extends State<NotificationScreen>
     }
 
     if (notification == null) {
-      return const SizedBox(); // Return empty widget if notification not found
+      return const SizedBox(); 
+      //! Return empty widget if notification not found
     }
 
     String title = notification.title ?? "Parcel";
-    DateTime? createdAtDate;
     String timeAgo = _getTimeAgo(notification.localCreatedAt.toString());
     try {
-      createdAtDate = notification.createdAt != null
-          ? DateTime.parse(notification.createdAt!)
-          : null;
     } catch (e) {
-      createdAtDate = null;
+      log("Error in _buildParcelNotificationCard: $e");
+      timeAgo = "Unknown time";
     }
-    bool isRejected = notification.type == "rejected";
-    bool isRequestedDelivery = notification.type == "requested";
-    String? deliveryPersonName = notification.userId;
-    double? rating = notification.avgRating?.toDouble();
+    notification.avgRating?.toDouble();
     int price = notification.price ?? 150;
 
-    ///// Location
+    //! Location
     final String notificationId = notification.id;
     double? pickupLocationLat = notification.pickupLocation?.latitude;
     double? pickupLocationLong = notification.pickupLocation?.longitude;
     double? deliveryLocationLat = notification.deliveryLocation?.latitude;
     double? deliveryLocationLong = notification.deliveryLocation?.longitude;
 
-    // Trigger address loading if coordinates are available
+    //! Trigger address loading if coordinates are available
     if (pickupLocationLat != null && pickupLocationLong != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         cacheAddressForParcel(
@@ -523,17 +510,16 @@ class _NotificationScreenState extends State<NotificationScreen>
             deliveryLocationLong);
       });
     }
-    // Get the specific pickup and delivery addresses for this notification
+    //! Get the specific pickup and delivery addresses for this notification
     final pickupAddress = getParcelAddress(notificationId, 'pickup');
     final deliveryAddress = getParcelAddress(notificationId, 'delivery');
 
-    //// Date and Time Formatting
-    //////////////// Date Formateed
+    //! Date and Time Formatting
     String formattedDate = "N/A";
     try {
       if (notification.deliveryStartTime != null &&
           notification.deliveryEndTime != null) {
-        // First try parsing with the expected format
+        //! First try parsing with the expected format
         DateFormat dateFormat = DateFormat("yyyy-MM-dd hh:mm a");
         final startDate =
             dateFormat.parse(notification.deliveryStartTime.toString());
@@ -546,7 +532,7 @@ class _NotificationScreenState extends State<NotificationScreen>
     } catch (e) {
       log("Error parsing dates: $e");
       try {
-        // Fallback: try parsing ISO format if the first attempt fails
+        //! Fallback: try parsing ISO format if the first attempt fails
         final startDate =
             DateTime.parse(notification.deliveryStartTime.toString());
         final endDate = DateTime.parse(notification.deliveryEndTime.toString());
@@ -558,11 +544,9 @@ class _NotificationScreenState extends State<NotificationScreen>
       }
     }
 
-    /// Parcel ID
+    //! Parcel ID
     String parcelId = notification.parcelId.toString();
-
     final bool hasSentRequest = controller.isRequestSent(parcelId);
-
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
@@ -603,7 +587,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                   ],
                 ),
                 const SpaceWidget(spaceHeight: 12),
-                // Address - now using cached addresses specific to this notification
+                //! Address - now using cached addresses specific to this notification
                 Row(
                   children: [
                     const Icon(Icons.location_on,
@@ -669,7 +653,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                 ),
                 const SpaceWidget(spaceHeight: 8),
 
-                // Buttons
+                //! Buttons
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
@@ -730,7 +714,7 @@ class _NotificationScreenState extends State<NotificationScreen>
   }
 
   Widget _buildRegularNotificationCard(int index) {
-    // Access the notification from the controller directly using the index
+    //! Access the notification from the controller directly using the index
     final notification =
         controller.notificationModel.value!.data!.notifications![index];
 
@@ -745,13 +729,13 @@ class _NotificationScreenState extends State<NotificationScreen>
     String timeAgo = _getTimeAgo(notification.createdAt);
 
     final String notificationId = notification.sId ?? 'unknown_id';
-    // Safely handle location coordinates
+    //! Safely handle location coordinates
     double? pickupLocationLat = notification.pickupLocation?.latitude;
     double? pickupLocationLong = notification.pickupLocation?.longitude;
     double? deliveryLocationLat = notification.deliveryLocation?.latitude;
     double? deliveryLocationLong = notification.deliveryLocation?.longitude;
 
-    // Trigger address loading if coordinates are available
+    //! Trigger address loading if coordinates are available
     if (pickupLocationLat != null && pickupLocationLong != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         cacheAddressForParcel(
@@ -765,12 +749,11 @@ class _NotificationScreenState extends State<NotificationScreen>
       });
     }
 
-    // Get the specific pickup and delivery addresses for this notification
+    //! Get the specific pickup and delivery addresses for this notification
     final pickupAddress = getParcelAddress(notificationId, 'pickup');
     final deliveryAddress = getParcelAddress(notificationId, 'delivery');
 
-    //// Date and Time Formatting
-    //////////////// Date Formateed
+    //! Date and Time Formatting
     String formattedDate = "N/A";
     try {
       final startDate =
@@ -781,7 +764,7 @@ class _NotificationScreenState extends State<NotificationScreen>
     } catch (e) {
       log("Error parsing dates: $e");
     }
-    /////////////
+
 
     bool isRead = notification.isRead ?? false;
 

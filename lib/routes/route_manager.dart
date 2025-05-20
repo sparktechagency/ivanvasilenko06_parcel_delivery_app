@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:parcel_delivery_app/screens/before_signups/country_select_page.dart';
 import 'package:parcel_delivery_app/screens/before_signups/language_select_page.dart';
 import 'package:parcel_delivery_app/screens/booking_screen/parcel_details_screen/parcel_details_screen.dart';
+import 'package:parcel_delivery_app/screens/booking_screen/parcel_details_screen/view_details_screen.dart';
 import 'package:parcel_delivery_app/screens/delivery_man_details/delivery_man_details.dart';
 import 'package:parcel_delivery_app/screens/home_screen/home_screen.dart';
 import 'package:parcel_delivery_app/screens/profile_screen/edit_profile.dart';
@@ -250,6 +251,11 @@ class RouteManager {
       GetPage(
         name: AppRoutes.serviceScreenDeliveryDetails,
         page: () => DeliveryDetailsScreen(parcelId: Get.arguments),
+        transition: Transition.rightToLeft,
+      ),
+      GetPage(
+        name: AppRoutes.viewDetailsScreen,
+        page: () => const ViewDetailsScreen(),
         transition: Transition.rightToLeft,
       ),
     ];

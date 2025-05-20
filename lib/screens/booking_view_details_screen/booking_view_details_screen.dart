@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -61,7 +63,7 @@ class _BookingViewDetailsScreenState extends State<BookingViewDetailsScreen> {
       }
     } catch (e) {
       _showErrorSnackBar('An error occurred: $e');
-      print('An error occurred: $e');
+      log('An error occurred: $e');
     }
   }
 

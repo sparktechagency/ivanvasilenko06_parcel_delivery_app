@@ -35,12 +35,6 @@ void main() async {
   Map<String, Map<String, String>> languages = await dep.init();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(
-    // DevicePreview(
-    //   enabled: !kReleaseMode,
-    //   builder: (context) => MainApp(
-    //     languages: languages,
-    //   ), // Wrap your app
-    // ),
     MainApp(
       languages: languages,
     ),

@@ -16,14 +16,14 @@ import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
 
 import '../../booking_parcel_details_screen/widgets/summary_info_row_widget.dart';
 
-class ParcelDetailsScreen extends StatefulWidget {
-  const ParcelDetailsScreen({super.key});
+class ViewDetailsScreen extends StatefulWidget {
+  const ViewDetailsScreen({super.key});
 
   @override
-  State<ParcelDetailsScreen> createState() => _ParcelDetailsScreenState();
+  State<ViewDetailsScreen> createState() => _ViewDetailsScreenState();
 }
 
-class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
+class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
   final CurrentOrderController controller = Get.find<CurrentOrderController>();
 
   // Regular String variables for address and pickupAddress
@@ -47,9 +47,9 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
       // Use cached address if available
       setState(() {
         if (isPickup) {
-          pickupAddress = addressCache[key] ?? "No pickup address found";
+          pickupAddress = addressCache[key]!;
         } else {
-          address = addressCache[key]?? "No delivery address found";
+          address = addressCache[key]!;
         }
       });
       return;
@@ -235,26 +235,27 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
                           value: currentParcel?.name ?? "Receiver Name",
                         ),
                         const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.callIcon,
-                          label: "receiversNumber".tr,
-                          value: currentParcel?.phoneNumber ??
-                              "Receiver Phone Number",
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
+                        if (currentParcel?.status == "IN_TRANSIT") ...[
+                          SummaryInfoRowWidget(
+                            icon: AppIconsPath.callIcon,
+                            label: "receiversNumber".tr,
+                            value: currentParcel?.phoneNumber ??
+                                "Receiver Phone Number",
+                          ),
+                          const SpaceWidget(spaceHeight: 8),
+                        ],
                         SummaryInfoRowWidget(
                           icon: AppIconsPath.deliveryTimeIcon,
                           label: "deliveryTimeText".tr,
                           value: _getFormattedDeliveryTime(currentParcel),
                         ),
                         const SpaceWidget(spaceHeight: 8),
-                        // Use the regular String variables now
                         SummaryInfoRowWidget(
                           icon: AppIconsPath.destinationIcon,
                           label: "currentLocationText".tr,
                           value: exactPickupLocation.isNotEmpty
                               ? exactPickupLocation
-                              : pickupAddress, // Exact pickup location
+                              : pickupAddress,
                         ),
                         const SpaceWidget(spaceHeight: 8),
                         SummaryInfoRowWidget(
@@ -262,7 +263,7 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
                           label: "destinationText".tr,
                           value: exactDeliveryLocation.isNotEmpty
                               ? exactDeliveryLocation
-                              : address, // Exact delivery location
+                              : address,
                         ),
                         const SpaceWidget(spaceHeight: 8),
                         SummaryInfoRowWidget(

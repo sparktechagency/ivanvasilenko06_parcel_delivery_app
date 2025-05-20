@@ -281,20 +281,35 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                       children: [
                         Row(
                           children: [
+                            // Profile Image with null check
                             ClipRRect(
                               borderRadius: BorderRadius.circular(100),
-                              child: AppImage(
-                                url: deliveryMan.image ??
-                                    AppImagePath.dummyProfileImage,
-                                height: 40,
-                                width: 40,
-                              ),
+                              child: deliveryMan?.image != null
+                                  ? AppImage(
+                                      url: deliveryMan.image,
+                                      height: 40,
+                                      width: 40,
+                                    )
+                                  : Container(
+                                      height: 40,
+                                      width: 40,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.grey.withOpacity(0.3),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.person,
+                                        color: AppColors.grey,
+                                        size: 24,
+                                      ),
+                                    ),
                             ),
                             const SpaceWidget(spaceWidth: 8),
+
+                            // Name with null check
                             Flexible(
                               child: TextWidget(
                                 text: deliveryMan?.fullName ?? "Not Assigned",
-                                // text: currentParcel?.title ?? "Parcel",
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                                 fontColor: AppColors.black,
@@ -302,33 +317,41 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                               ),
                             ),
                             const SpaceWidget(spaceWidth: 8),
-                            Container(
-                              width: ResponsiveUtils.width(45),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: AppColors.yellow,
-                                borderRadius: BorderRadius.circular(100),
+
+                            // Rating with null check - Fixed the rating text issue
+                            if (deliveryMan?.avgRating != null)
+                              Container(
+                                width: ResponsiveUtils.width(45),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.yellow,
+                                  borderRadius: BorderRadius.circular(100),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.star_rounded,
+                                      color: AppColors.white,
+                                      size: 12,
+                                    ),
+                                    TextWidget(
+                                      text: " ${deliveryMan?.avgRating}",
+                                      // Fixed: removed the ?? "N/A"
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      fontColor: AppColors.white,
+                                    ),
+                                  ],
+                                ),
                               ),
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.star_rounded,
-                                    color: AppColors.white,
-                                    size: 12,
-                                  ),
-                                  TextWidget(
-                                    text: " ${deliveryMan?.avgRating}" ?? "N/A",
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.white,
-                                  ),
-                                ],
-                              ),
-                            ),
                             const SpaceWidget(spaceWidth: 8),
+
+                            // Message button with null check for the onTap function
                             InkWell(
-                              onTap: _sendMessage,
+                              onTap: deliveryMan?.mobileNumber != null
+                                  ? _sendMessage
+                                  : null,
                               borderRadius: BorderRadius.circular(100),
                               child: const CircleAvatar(
                                 backgroundColor: AppColors.whiteDark,
@@ -342,8 +365,12 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                               ),
                             ),
                             const SpaceWidget(spaceWidth: 8),
+
+                            // Call button with null check for the onTap function
                             InkWell(
-                              onTap: _makePhoneCall,
+                              onTap: deliveryMan?.mobileNumber != null
+                                  ? _makePhoneCall
+                                  : null,
                               borderRadius: BorderRadius.circular(100),
                               child: const CircleAvatar(
                                 backgroundColor: AppColors.whiteDark,
