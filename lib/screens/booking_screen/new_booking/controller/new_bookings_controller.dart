@@ -38,10 +38,10 @@ class NewBookingsController extends GetxController {
         final CurrentOrderController controller =
             Get.find<CurrentOrderController>();
         await controller.refreshCurrentOrder();
-        Get.snackbar('Success', 'Delivery request accepted successfully');
+        // Get.snackbar('Success', 'Delivery request accepted successfully');
       } else {
         log('Failed to update parcel: ${response['message']}');
-        Get.snackbar('Error', 'Failed to accept delivery request');
+        // Get.snackbar('Error', 'Failed to accept delivery request');
 
         // Revert state on failure
         requestStates[requestKey] = 'pending';
@@ -49,7 +49,7 @@ class NewBookingsController extends GetxController {
       }
     } catch (error) {
       log('Error: $error');
-      Get.snackbar('Error', 'An error occurred while accepting the request');
+      // Get.snackbar('Error', 'An error occurred while accepting the request');
 
       // Revert state on error
       requestStates[requestKey] = 'pending';
@@ -122,10 +122,10 @@ class NewBookingsController extends GetxController {
         final CurrentOrderController controller =
             Get.find<CurrentOrderController>();
         await controller.refreshCurrentOrder();
-        Get.snackbar('Success', 'Delivery request rejected successfully');
+        // Get.snackbar('Success', 'Delivery request rejected successfully');
       } else {
         log('Failed to reject parcel: ${response['message']}');
-        Get.snackbar('Error', 'Failed to reject delivery request');
+        // Get.snackbar('Error', 'Failed to reject delivery request');
 
         // Revert state on failure
         requestStates[requestKey] = 'pending';
@@ -133,7 +133,7 @@ class NewBookingsController extends GetxController {
       }
     } catch (error) {
       log('Error: $error');
-      Get.snackbar('Error', 'An error occurred while rejecting the request');
+      // Get.snackbar('Error', 'An error occurred while rejecting the request');
 
       // Revert state on error
       requestStates[requestKey] = 'pending';
@@ -157,13 +157,13 @@ class NewBookingsController extends GetxController {
         await controller.getCurrentOrder();
         update(); // Use update() instead of refresh() if using GetX
 
-        Get.snackbar(
-          'Success',
-          'Parcel removed successfully',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: AppColors.green.withOpacity(0.1),
-          colorText: AppColors.green,
-        );
+        // Get.snackbar(
+        //   'Success',
+        //   'Parcel removed successfully',
+        //   snackPosition: SnackPosition.BOTTOM,
+        //   backgroundColor: AppColors.green.withOpacity(0.1),
+        //   colorText: AppColors.green,
+        // );
       }
       // Check if response is a Response object (the expected type)
       else if (response is Response) {
@@ -174,29 +174,29 @@ class NewBookingsController extends GetxController {
           await controller.getCurrentOrder();
           update(); // Use update() instead of refresh() if using GetX
 
-          Get.snackbar(
-            'Success',
-            'Parcel removed successfully',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: AppColors.green.withOpacity(0.1),
-            colorText: AppColors.green,
-          );
+          // Get.snackbar(
+          //   'Success',
+          //   'Parcel removed successfully',
+          //   snackPosition: SnackPosition.BOTTOM,
+          //   backgroundColor: AppColors.green.withOpacity(0.1),
+          //   colorText: AppColors.green,
+          // );
         } else {
           log('Failed to remove parcel: ${response.statusCode}');
-          Get.snackbar(
-            'Error',
-            'Failed to remove parcel: ${response.statusCode}',
-            snackPosition: SnackPosition.BOTTOM,
-          );
+          // Get.snackbar(
+          //   'Error',
+          //   'Failed to remove parcel: ${response.statusCode}',
+          //   snackPosition: SnackPosition.BOTTOM,
+          // );
         }
       } else {
         // Fallback for unexpected response type
         log('Unexpected response type: ${response.runtimeType}');
-        Get.snackbar(
-          'Error',
-          'Unexpected response from server',
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        // Get.snackbar(
+        //   'Error',
+        //   'Unexpected response from server',
+        //   snackPosition: SnackPosition.BOTTOM,
+        // );
       }
     } catch (error) {
       log('Error: $error');
@@ -221,20 +221,20 @@ class NewBookingsController extends GetxController {
         await controller.getCurrentOrder();
         update();
 
-        Get.snackbar(
-          'Success',
-          'Delivery cancelled successfully',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: AppColors.green.withAlpha(25),
-          colorText: AppColors.green,
-        );
+        // Get.snackbar(
+        //   'Success',
+        //   'Delivery cancelled successfully',
+        //   snackPosition: SnackPosition.BOTTOM,
+        //   backgroundColor: AppColors.green.withAlpha(25),
+        //   colorText: AppColors.green,
+        // );
       } else {
         log('Failed to cancel delivery: ${response.statusCode}');
-        Get.snackbar(
-          'Error',
-          'Failed to cancel delivery: ${response.statusCode}',
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        // Get.snackbar(
+        //   'Error',
+        //   'Failed to cancel delivery: ${response.statusCode}',
+        //   snackPosition: SnackPosition.BOTTOM,
+        // );
       }
     } catch (error) {
       log('Error: $error');

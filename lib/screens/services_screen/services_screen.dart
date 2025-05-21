@@ -456,16 +456,16 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                                             arguments: dataList
                                                                 .first.id);
                                                       } catch (e) {
-                                                        AppSnackBar.error(
-                                                            "Navigation error: ${e.toString()}");
+                                                        // AppSnackBar.error(
+                                                        //     "Navigation error: ${e.toString()}");
                                                       }
                                                     } else {
-                                                      AppSnackBar.error(
-                                                          "Route name is not properly defined.");
+                                                      // AppSnackBar.error(
+                                                      //     "Route name is not properly defined.");
                                                     }
                                                   } else {
-                                                    AppSnackBar.error(
-                                                        "Parcel details not available or ID is missing.");
+                                                    // AppSnackBar.error(
+                                                    //     "Parcel details not available or ID is missing.");
                                                   }
                                                 },
                                                 text: "seeDetails".tr,

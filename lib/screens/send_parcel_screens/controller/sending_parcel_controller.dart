@@ -129,8 +129,8 @@ class ParcelController extends GetxController {
       case 1:
         //! Step 1: Location Validation
         if (startingLocation.isEmpty || endingLocation.isEmpty) {
-          AppSnackBar.error(
-              "Please fill both pickup and destination locations.");
+          // AppSnackBar.error(
+          //     "Please fill both pickup and destination locations.");
           return false;
         }
         return true;
@@ -138,7 +138,7 @@ class ParcelController extends GetxController {
       case 2:
         //! Step 2: Time Validation
         if (startDateTime.value == null || endDateTime.value == null) {
-          AppSnackBar.error("Please select both delivery start and end time.");
+          // AppSnackBar.error("Please select both delivery start and end time.");
           return false;
         }
         return true;
@@ -146,7 +146,7 @@ class ParcelController extends GetxController {
       case 3:
         //! Step 3: Title Validation (description and images optional)
         if (titleController.text.trim().isEmpty) {
-          AppSnackBar.error("Please fill the title.");
+          // AppSnackBar.error("Please fill the title.");
           return false;
         }
         return true;
@@ -154,7 +154,7 @@ class ParcelController extends GetxController {
       case 4:
         //! Step 4: Price Validation
         if (priceController.text.trim().isEmpty) {
-          AppSnackBar.error("Please enter the delivery price.");
+          // AppSnackBar.error("Please enter the delivery price.");
           return false;
         }
         return true;
@@ -163,7 +163,7 @@ class ParcelController extends GetxController {
         //! Step 5: Receiver Info Validation
         if (nameController.text.trim().isEmpty ||
             phoneController.text.trim().isEmpty) {
-          AppSnackBar.error("Please enter receiver name and phone number.");
+          // AppSnackBar.error("Please enter receiver name and phone number.");
           return false;
         }
         return true;
@@ -177,19 +177,19 @@ class ParcelController extends GetxController {
   bool validateAllFields() {
     //! Step 1: Location Validation
     if (startingLocation.isEmpty || endingLocation.isEmpty) {
-      AppSnackBar.error("Please fill both pickup and destination locations.");
+      // AppSnackBar.error("Please fill both pickup and destination locations.");
       return false;
     }
 
     //! Step 2: Time Validation
     if (startDateTime.value == null || endDateTime.value == null) {
-      AppSnackBar.error("Please select both delivery start and end time.");
+      // AppSnackBar.error("Please select both delivery start and end time.");
       return false;
     }
 
     //! Step 3: Title Validation (only title is required, description is optional)
     if (titleController.text.trim().isEmpty) {
-      AppSnackBar.error("Please fill the title.");
+      // AppSnackBar.error("Please fill the title.");
       return false;
     }
 
@@ -197,20 +197,20 @@ class ParcelController extends GetxController {
 
     //! Step 4: Price Validation
     if (priceController.text.trim().isEmpty) {
-      AppSnackBar.error("Please enter the delivery price.");
+      // AppSnackBar.error("Please enter the delivery price.");
       return false;
     }
 
     //! Step 5: Receiver Info Validation
     if (nameController.text.trim().isEmpty ||
         phoneController.text.trim().isEmpty) {
-      AppSnackBar.error("Please enter receiver name and phone number.");
+      // AppSnackBar.error("Please enter receiver name and phone number.");
       return false;
     }
 
     //! Vehicle type validation
     if (selectedVehicleType.value.isEmpty) {
-      AppSnackBar.error("Please select a vehicle type.");
+      // AppSnackBar.error("Please select a vehicle type.");
       return false;
     }
 
@@ -224,10 +224,10 @@ class ParcelController extends GetxController {
       if (images.isNotEmpty) {
         selectedImages.addAll(images.map((img) => File(img.path).path));
       } else {
-        AppSnackBar.error("No images selected.");
+        // AppSnackBar.error("No images selected.");
       }
     } catch (e) {
-      AppSnackBar.error("Failed to pick images: $e");
+      // AppSnackBar.error("Failed to pick images: $e");
     }
   }
 
@@ -255,7 +255,7 @@ class ParcelController extends GetxController {
     log("🔑 Authorization Token: $token");
 
     if (token.isEmpty) {
-      AppSnackBar.error("Authorization token is missing.");
+      // AppSnackBar.error("Authorization token is missing.");
       return;
     }
 
@@ -282,7 +282,7 @@ class ParcelController extends GetxController {
       );
     } catch (e) {
       log("❌ Error submitting parcel: $e");
-      AppSnackBar.error("Failed to submit parcel data.");
+      // AppSnackBar.error("Failed to submit parcel data.");
     } finally {
       isLoading.value = false;
     }

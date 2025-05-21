@@ -341,23 +341,23 @@ class _SelectDeliveryLocationScreenState
 
   void _fetchParcelsAndProceed() {
     if (controller.pickupLocation.value.isEmpty) {
-      Get.snackbar(
-        "Error",
-        "Please select a pickup location",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      // Get.snackbar(
+      //   "Error",
+      //   "Please select a pickup location",
+      //   snackPosition: SnackPosition.BOTTOM,
+      //   backgroundColor: Colors.red,
+      //   colorText: Colors.white,
+      // );
       return;
     }
     if (controller.selectedDeliveryLocation.value.isEmpty) {
-      Get.snackbar(
-        "Error",
-        "Please select a destination",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      // Get.snackbar(
+      //   "Error",
+      //   "Please select a destination",
+      //   snackPosition: SnackPosition.BOTTOM,
+      //   backgroundColor: Colors.red,
+      //   colorText: Colors.white,
+      // );
       return;
     }
 

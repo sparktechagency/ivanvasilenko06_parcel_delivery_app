@@ -341,8 +341,8 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
                                                   });
                                                 }
                                               } else {
-                                                AppSnackBar.error(
-                                                    "Parcel ID is missing");
+                                                // AppSnackBar.error(
+                                                //     "Parcel ID is missing");
                                               }
                                             },
                                       splashColor: Colors.transparent,

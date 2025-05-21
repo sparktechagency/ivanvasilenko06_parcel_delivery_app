@@ -28,7 +28,7 @@ class VerifyEmailController extends GetxController {
       email = Get.arguments["email"] ?? "";
       isFromLogin = Get.arguments["isFromLogin"] ?? false;
     } else {
-      AppSnackBar.error("Invalid email. Try again.");
+      // AppSnackBar.error("Invalid email. Try again.");
       Get.back();
     }
   }
@@ -48,7 +48,7 @@ class VerifyEmailController extends GetxController {
 
   Future<void> verifyOtp() async {
     if (otpController.text.isEmpty) {
-      AppSnackBar.error("Please enter the OTP");
+      // AppSnackBar.error("Please enter the OTP");
       return;
     }
     try {
@@ -114,11 +114,11 @@ class VerifyEmailController extends GetxController {
           Get.offAll(() => const BottomNavScreen());
         }
       } else {
-        AppSnackBar.error("Invalid OTP. Please try again.");
+        // AppSnackBar.error("Invalid OTP. Please try again.");
       }
     } catch (e) {
       log("Error in email verification: $e");
-      AppSnackBar.error("An error occurred. Please try again.");
+      // AppSnackBar.error("An error occurred. Please try again.");
     } finally {
       isLoading.value = false;
     }

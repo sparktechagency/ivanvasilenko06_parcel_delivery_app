@@ -428,12 +428,12 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                                                   ?["coordinates"];
                                           if (pickupCoords == null ||
                                               deliveryCoords == null) {
-                                            Get.snackbar(
-                                              "Error",
-                                              "Parcel location coordinates are missing.",
-                                              snackPosition:
-                                                  SnackPosition.BOTTOM,
-                                            );
+                                            // Get.snackbar(
+                                            //   "Error",
+                                            //   "Parcel location coordinates are missing.",
+                                            //   snackPosition:
+                                            //       SnackPosition.BOTTOM,
+                                            // );
                                             return;
                                           }
                                           //! Make a copy of the parcel to avoid reference issues
@@ -446,11 +446,11 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                                           );
                                         } else {
                                           log("Parcel is null or missing required fields");
-                                          Get.snackbar(
-                                            "Error",
-                                            "Parcel details are missing.",
-                                            snackPosition: SnackPosition.BOTTOM,
-                                          );
+                                          // Get.snackbar(
+                                          //   "Error",
+                                          //   "Parcel details are missing.",
+                                          //   snackPosition: SnackPosition.BOTTOM,
+                                          // );
                                         }
                                       },
                                       splashColor: Colors.transparent,

@@ -58,12 +58,12 @@ class LoginScreenController extends GetxController {
           debugPrint("✳️✳️✳️✳️✳️✳️✳️✳️✳️✳️ $fcmToken");
           debugPrint("📱📱📱 DeviceId: $deviceId, DeviceType: $deviceType");
         } else {
-          Get.snackbar("Error", "Failed to send OTP. Please try again.");
+          // Get.snackbar("Error", "Failed to send OTP. Please try again.");
         }
       }
     } catch (e) {
       log("Error from login click button: $e");
-      Get.snackbar("Error", "An error occurred. Please try again.");
+      // Get.snackbar("Error", "An error occurred. Please try again.");
     } finally {
       isLoading.value = false;
     }
@@ -105,7 +105,7 @@ class LoginScreenController extends GetxController {
         }
       } catch (e) {
         log("Error from sign-up click button: $e");
-        Get.snackbar("Error", "An error occurred. Please try again.");
+        // Get.snackbar("Error", "An error occurred. Please try again.");
       } finally {
         isGoogleLoading(false);
       }

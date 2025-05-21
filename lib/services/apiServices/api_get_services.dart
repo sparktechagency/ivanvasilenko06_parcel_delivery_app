@@ -86,14 +86,14 @@ class ApiGetServices {
       }
     } on SocketException catch (e) {
       errorLog('api socket exception', e);
-      AppSnackBar.error("Check Your Internet Connection");
+      // AppSnackBar.error("Check Your Internet Connection");
       return null;
     } on TimeoutException catch (e) {
       errorLog('api time out exception', e);
       return null;
     } on DioException catch (e) {
       if (e.response != null && e.response?.statusCode == 400) {
-        AppSnackBar.error("${e.response?.data["message"]}");
+        // AppSnackBar.error("${e.response?.data["message"]}");
       }
       errorLog('api dio exception', e);
       return null;

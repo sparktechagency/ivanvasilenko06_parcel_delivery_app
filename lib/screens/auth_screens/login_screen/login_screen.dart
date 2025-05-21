@@ -72,15 +72,15 @@ class LoginScreen extends StatelessWidget {
                   const SpaceWidget(spaceHeight: 16),
                   CustomInkWellButton(
                     onTap: () {
-                      Get.snackbar(
-                        "Sign with Email Comming Soon",
-                        "This Feature will be implemented Now You can Sing up with your Email",
-                        backgroundColor: AppColors.green,
-                        colorText: Colors.white,
-                        snackPosition: SnackPosition.TOP,
-                        duration: const Duration(seconds: 2),
-                        margin: const EdgeInsets.all(10),
-                      );
+                      // Get.snackbar(
+                      //   "Sign with Email Comming Soon",
+                      //   "This Feature will be implemented Now You can Sing up with your Email",
+                      //   backgroundColor: AppColors.green,
+                      //   colorText: Colors.white,
+                      //   snackPosition: SnackPosition.TOP,
+                      //   duration: const Duration(seconds: 2),
+                      //   margin: const EdgeInsets.all(10),
+                      // );
                     },
                     icon: AppIconsPath.emailIcon,
                     text: "continueWithEmail".tr,

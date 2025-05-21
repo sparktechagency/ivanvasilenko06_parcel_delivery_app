@@ -17,6 +17,7 @@ class CurrentOrderController extends GetxController {
   var userID = "".obs;
 
   var finishedParcelId = "".obs;
+  var parcelStatus = "".obs;
 
   @override
   void onInit() {
@@ -70,12 +71,12 @@ class CurrentOrderController extends GetxController {
 
       // Validate required fields
       if (parcelID.value.isEmpty) {
-        AppSnackBar.error("Parcel information is missing");
+        // AppSnackBar.error("Parcel information is missing");
         return;
       }
 
       if (userID.value.isEmpty) {
-        AppSnackBar.error("Delivery person information is missing");
+        // AppSnackBar.error("Delivery person information is missing");
         return;
       }
 
@@ -111,7 +112,7 @@ class CurrentOrderController extends GetxController {
         await refreshCurrentOrder();
       } else {
         log("Failed to give review");
-        AppSnackBar.error("Failed to submit your review. Please try again.");
+        // AppSnackBar.error("Failed to submit your review. Please try again.");
       }
     } catch (ex) {
       // Close loading dialog if open
@@ -120,7 +121,7 @@ class CurrentOrderController extends GetxController {
       }
 
       log("Error in givingReview: ${ex.toString()}");
-      AppSnackBar.error("Something went wrong : ${ex.toString()}");
+      // AppSnackBar.error("Something went wrong : ${ex.toString()}");
     } finally {
       isLoading(false);
     }
@@ -131,6 +132,7 @@ class CurrentOrderController extends GetxController {
     try {
       final Map<String, dynamic> body = {
         "parcelId": finishedParcelId.value,
+        "status": parcelStatus.value,
       };
       final response = await ApiPostServices().apiPostServices(
           url: AppApiUrl.finishedDelivery, body: body, statusCode: 200);
@@ -140,7 +142,7 @@ class CurrentOrderController extends GetxController {
         await refreshCurrentOrder();
       } else {
         log("Failed to finish delivery");
-        AppSnackBar.error("Failed to finish delivery. Please try again.");
+        // AppSnackBar.error("Failed to finish delivery. Please try again.");
       }
     } catch (ex) {
       log("Error in finishedDelivery: ${ex.toString()}");

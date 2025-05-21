@@ -155,7 +155,7 @@ class _NotificationScreenState extends State<NotificationScreen>
     try {
       await launchUrl(launchUri);
     } catch (e) {
-      AppSnackBar.error('Could not launch phone call: $e');
+      // AppSnackBar.error('Could not launch phone call: $e');
     }
   }
 
@@ -672,7 +672,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                               AppSnackBar.success("Request sent successfully");
                               setState(() {});
                             } catch (e) {
-                              AppSnackBar.error("Error: ${e.toString()}");
+                              // AppSnackBar.error("Error: ${e.toString()}");
                               log("Error sending parcel request: $e");
                             } finally {
                               if (Get.isDialogOpen == true) {

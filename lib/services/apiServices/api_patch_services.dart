@@ -30,12 +30,12 @@ class ApiPatchServices {
         return response.data;
       } else {
         // Handle cases where status code is different
-        AppSnackBar.error("Unexpected response: ${response.statusCode} ${response.statusMessage}");
+        // AppSnackBar.error("Unexpected response: ${response.statusCode} ${response.statusMessage}");
         return null;
       }
     } on SocketException catch (e) {
       errorLog('api socket exception', e);
-      AppSnackBar.error("Check Your Internet Connection");
+      // AppSnackBar.error("Check Your Internet Connection");
       return null;
     } on TimeoutException catch (e) {
       errorLog('api time out exception', e);

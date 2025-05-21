@@ -46,7 +46,7 @@ class AppApi {
               return handler.resolve(await _dio.fetch(error.requestOptions));
             } else {
               // Token refresh failed, clear storage and redirect to login
-              AppSnackBar.error("Sign in again!");
+              // AppSnackBar.error("Sign in again!");
               AppAuthStorage().storageClear();
               Get.offAllNamed(AppRoutes.loginScreen);
               return handler.next(error);

@@ -25,7 +25,7 @@ class ServiceController extends GetxController {
       var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
       if (token == null || token.isEmpty) {
         log("Error: No token found in SharedPreferences");
-        AppSnackBar.error('Authentication token missing. Please log in again.');
+        // AppSnackBar.error('Authentication token missing. Please log in again.');
         loading.value = false;
         return;
       }
@@ -39,8 +39,8 @@ class ServiceController extends GetxController {
       // Check if response is valid
       if (response == null || response.isEmpty) {
         log("Error: Empty or null API response");
-        AppSnackBar.error(
-            'Failed to load parcels. Empty response from server.');
+        // AppSnackBar.error(
+        //     'Failed to load parcels. Empty response from server.');
         recentParcelList.clear();
         loading.value = false;
         return;
@@ -53,7 +53,7 @@ class ServiceController extends GetxController {
 
         if (dataList.isEmpty) {
           log("No parcels found in API response");
-          AppSnackBar.error('No parcels found.');
+          // AppSnackBar.error('No parcels found.');
         } else {
           // Create individual ServiceScreenModel objects for each parcel
           for (var parcel in dataList) {
@@ -74,12 +74,12 @@ class ServiceController extends GetxController {
         }
       } else {
         log("API Error: ${response["message"] ?? "Unknown error"}");
-        AppSnackBar.error(response["message"] ?? 'Failed to load parcels.');
+        // AppSnackBar.error(response["message"] ?? 'Failed to load parcels.');
         recentParcelList.clear();
       }
     } catch (e, stackTrace) {
       log("Error fetching parcel list: $e", stackTrace: stackTrace);
-      AppSnackBar.error('Failed to load parcels. Please try again later.');
+      // AppSnackBar.error('Failed to load parcels. Please try again later.');
       recentParcelList.clear();
     } finally {
       loading.value = false;
@@ -119,7 +119,7 @@ class ServiceController extends GetxController {
       var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
       if (token == null || token.isEmpty) {
         log("Error: No token found in SharedPreferences");
-        AppSnackBar.error('Authentication token missing. Please log in again.');
+        // AppSnackBar.error('Authentication token missing. Please log in again.');
         return null;
       }
 
@@ -131,7 +131,7 @@ class ServiceController extends GetxController {
 
       if (response == null || response.isEmpty) {
         log("Error: Empty or null API response");
-        AppSnackBar.error('Failed to load parcel details.');
+        // AppSnackBar.error('Failed to load parcel details.');
         return null;
       }
 
@@ -142,14 +142,14 @@ class ServiceController extends GetxController {
         return parcel;
       } else {
         log("API Error: ${response["message"] ?? "Unknown error"}");
-        AppSnackBar.error(
-            response["message"] ?? 'Failed to load parcel details.');
+        // AppSnackBar.error(
+        //     response["message"] ?? 'Failed to load parcel details.');
         return null;
       }
     } catch (e) {
       log("Error fetching parcel details: $e");
-      AppSnackBar.error(
-          'Failed to load parcel details. Please try again later.');
+      // AppSnackBar.error(
+      //     'Failed to load parcel details. Please try again later.');
       return null;
     } finally {
       detailLoading.value = false;

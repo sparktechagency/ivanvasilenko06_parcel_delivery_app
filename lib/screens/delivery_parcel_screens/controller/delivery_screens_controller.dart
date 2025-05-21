@@ -117,7 +117,7 @@ class DeliveryScreenController extends GetxController {
 
   Future<void> sendParcelRequest(String parcelId) async {
     if (parcelId.isEmpty) {
-      AppSnackBar.error("No parcel selected");
+      // AppSnackBar.error("No parcel selected");
       return;
     }
 
@@ -138,10 +138,10 @@ class DeliveryScreenController extends GetxController {
         update();
         AppSnackBar.success("Parcel request sent successfully");
       } else {
-        AppSnackBar.error("Failed to send parcel request");
+        // AppSnackBar.error("Failed to send parcel request");
       }
     } catch (e) {
-      AppSnackBar.error("Error sending parcel request: $e");
+      // AppSnackBar.error("Error sending parcel request: $e");
     } finally {
       isLoading.value = false;
     }

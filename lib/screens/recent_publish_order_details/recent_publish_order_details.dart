@@ -45,7 +45,7 @@ class _DeliveryDetailsScreenState extends State<DeliveryDetailsScreen> {
 
       // Check if parcelId is provided
       if (widget.parcelId == null) {
-        AppSnackBar.error('Parcel ID is missing.');
+        // AppSnackBar.error('Parcel ID is missing.');
         isLoading.value = false;
         return;
       }
@@ -66,13 +66,13 @@ class _DeliveryDetailsScreenState extends State<DeliveryDetailsScreen> {
 
       // If parcel not found in the list, show error
       if (parcelDetails.value == null) {
-        AppSnackBar.error('Parcel details not found.');
+        // AppSnackBar.error('Parcel details not found.');
       } else {
         // Load addresses after parcel details are found
         await _loadAddresses();
       }
     } catch (e) {
-      AppSnackBar.error('Failed to load parcel details: $e');
+      // AppSnackBar.error('Failed to load parcel details: $e');
     } finally {
       isLoading.value = false;
     }

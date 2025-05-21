@@ -212,6 +212,70 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  void showDeleteProfile(String profileId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)), // Flat corners
+          ),
+          backgroundColor: AppColors.grey,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const TextWidget(
+                  text: 'Are you sure Delete your profile?',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  fontColor: AppColors.black,
+                  textAlignment: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ButtonWidget(
+                      buttonWidth: 100,
+                      buttonHeight: 40,
+                      label: 'No',
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
+                      buttonRadius: BorderRadius.circular(10),
+                      backgroundColor: AppColors.white,
+                      textColor: AppColors.black,
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    ButtonWidget(
+                      buttonWidth: 100,
+                      buttonHeight: 40,
+                      label: 'Yes',
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 10),
+                      buttonRadius: BorderRadius.circular(10),
+                      backgroundColor: AppColors.black,
+                      textColor: AppColors.white,
+                      onPressed: () {
+                        profileController.deleteProfile(profileId);
+                        SharePrefsHelper.remove(SharedPreferenceValue.token);
+                        Get.toNamed(AppRoutes.splashScreen);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -286,7 +350,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Get.toNamed(AppRoutes.editProfile);
                         } else if (value == 4) {
                           showLogoutDialog();
-                        } else if (value == 5) {}
+                        } else if (value == 5) {
+                          showDeleteProfile(profileController
+                              .profileData.value.data!.user!.id!);
+                        }
                       },
                       splashRadius: 6,
                       itemBuilder: (context) => [

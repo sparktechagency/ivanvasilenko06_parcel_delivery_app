@@ -307,7 +307,7 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 
-  void deliveryFinished() {
+  void deliveryFinished(String parcelId, String status) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -355,7 +355,30 @@ class _BookingScreenState extends State<BookingScreen> {
                       buttonRadius: BorderRadius.circular(10),
                       backgroundColor: AppColors.green,
                       textColor: AppColors.white,
-                      onPressed: () {},
+                      onPressed: () async {
+                        try {
+                          final currentOrderController =
+                              Get.find<CurrentOrderController>();
+                          // Set the parcel ID to finish
+                          currentOrderController.finishedParcelId.value =
+                              parcelId;
+                          currentOrderController.parcelStatus.value = status;
+                          // Call the finishedDelivery method
+                          currentOrderController.finishedDelivery();
+                          await currentOrderController.getCurrentOrder();
+                          _currentIndex = 0;
+                          currentOrderController.update();
+                          _pageController.jumpToPage(0);
+                          Get.back();
+                        } catch (e) {
+                          Get.back();
+                          // Get.snackbar(
+                          //   'Error',
+                          //   'Failed to finished Delivery Parcel : ${e.toString()}',
+                          //   snackPosition: SnackPosition.BOTTOM,
+                          // );
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -430,11 +453,11 @@ class _BookingScreenState extends State<BookingScreen> {
                         } catch (e) {
                           // Close loading dialog
                           Get.back();
-                          Get.snackbar(
-                            'Error',
-                            'Failed to remove parcel: ${e.toString()}',
-                            snackPosition: SnackPosition.BOTTOM,
-                          );
+                          // Get.snackbar(
+                          //   'Error',
+                          //   'Failed to remove parcel: ${e.toString()}',
+                          //   snackPosition: SnackPosition.BOTTOM,
+                          // );
                         }
                       },
                     ),
@@ -867,17 +890,17 @@ class _BookingScreenState extends State<BookingScreen> {
                                 InkWell(
                                   onTap: () {
                                     // Handle actions based on parcel type and status
+                                    // Handle actions based on parcel type and status
                                     if (data[index].typeParcel.toString() ==
                                         "deliveryRequest") {
-                                      // For deliveryRequest type
                                       if (data[index].status == "IN_TRANSIT") {
-                                        // Finish delivery option
-                                        deliveryFinished();
+                                        String parcelId = data[index].id ?? "";
+                                        // Always set status to DELIVERED when finishing
+                                        deliveryFinished(parcelId, "DELIVERED");
                                       } else if (data[index].status ==
                                               "REQUESTED" ||
                                           data[index].status == "PENDING" ||
                                           data[index].status == "WAITING") {
-                                        // Cancel delivery option
                                         String parcelId = data[index].id ?? "";
                                         removeParcelConfirmation(parcelId);
                                       }
@@ -885,9 +908,9 @@ class _BookingScreenState extends State<BookingScreen> {
                                             .typeParcel
                                             .toString() ==
                                         "assignedParcel") {
-                                      // For finished Delivery
                                       if (data[index].status == "IN_TRANSIT") {
-                                        deliveryFinished();
+                                        String parcelId = data[index].id ?? "";
+                                        deliveryFinished(parcelId, "DELIVERED");
                                       }
                                     } else {
                                       // For sendParcel type
@@ -919,7 +942,6 @@ class _BookingScreenState extends State<BookingScreen> {
                                   highlightColor: Colors.transparent,
                                   child: Row(
                                     children: [
-                                      // Show deliveryman icon only for sendParcel in transit
                                       if (data[index].typeParcel.toString() ==
                                               "sendParcel" &&
                                           data[index].status == "IN_TRANSIT")
@@ -929,23 +951,27 @@ class _BookingScreenState extends State<BookingScreen> {
                                           width: 14,
                                           height: 14,
                                         ),
-
                                       if (data[index].typeParcel.toString() ==
                                               "sendParcel" &&
                                           data[index].status == "IN_TRANSIT")
                                         const SpaceWidget(spaceWidth: 8)
                                       else
                                         const SpaceWidget(spaceWidth: 0),
-
                                       SizedBox(
                                         width: ResponsiveUtils.width(120),
                                         child: TextWidget(
                                           text:
-                                              _getActionButtonText(data[index]),
+                                              data[index].status == "DELIVERED"
+                                                  ? "Already Delivered"
+                                                  : _getActionButtonText(
+                                                      data[index]),
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
-                                          fontColor: _getActionButtonColor(
-                                              data[index]),
+                                          fontColor:
+                                              data[index].status == "DELIVERED"
+                                                  ? AppColors.greyDark2
+                                                  : _getActionButtonColor(
+                                                      data[index]),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -1034,7 +1060,10 @@ class _BookingScreenState extends State<BookingScreen> {
         final newBookingsController = Get.find<NewBookingsController>();
         if (newBookingController.currentOrdersModel.value.data == null) {
           newBookingController.getCurrentOrder();
-          return const Center(child: CircularProgressIndicator());
+          return const Padding(
+            padding: EdgeInsets.only(top: 20),
+            child: Center(child: CircularProgressIndicator()),
+          );
         }
 
         final allParcels = newBookingController.currentOrdersModel.value.data;

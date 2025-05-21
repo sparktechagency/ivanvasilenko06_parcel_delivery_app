@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/screens/profile_screen/model/profile_model.dart';
+import 'package:parcel_delivery_app/services/apiServices/api_delete_services.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_get_services.dart';
 import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
 import 'package:path/path.dart' as path;
@@ -209,6 +210,29 @@ class ProfileController extends GetxController {
       log('Exception error: ${e.toString()}');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> deleteProfile(String profileId) async {
+    isLoading(true);
+    try {
+      var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
+      var url = AppApiUrl.deleteProfile;
+      final response =
+          ApiDeleteServices().apiDeleteServices(url: "$url$profileId");
+      if (response != null) {
+        log("Profile deleted successfully");
+        // Optionally, navigate to another screen or show a success message
+        // Get.offAll(() => const BottomNavScreen());
+      } else {
+        errorMessage.value = 'Failed to delete profile';
+        log('Failed to delete profile');
+      }
+    } catch (e) {
+      errorMessage.value = 'An error occurred: ${e.toString()}';
+      log('Exception error: ${e.toString()}');
+    } finally {
+      isLoading(false);
     }
   }
 

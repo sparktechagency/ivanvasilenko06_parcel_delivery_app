@@ -65,12 +65,12 @@ class SignUpScreenController extends GetxController {
             arguments: {"email": emailController.text},
           );
         } else {
-          Get.snackbar("Error", "Failed to sign up. Please try again.");
+          // Get.snackbar("Error", "Failed to sign up. Please try again.");
         }
       }
     } catch (e) {
       log("Error from sign-up click button: $e");
-      Get.snackbar("Error", "An error occurred. Please try again.");
+      // Get.snackbar("Error", "An error occurred. Please try again.");
     } finally {
       isLoading.value = false;
     }
