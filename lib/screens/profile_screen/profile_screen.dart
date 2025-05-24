@@ -260,10 +260,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       buttonRadius: BorderRadius.circular(10),
                       backgroundColor: AppColors.black,
                       textColor: AppColors.white,
-                      onPressed: () {
-                        profileController.deleteProfile(profileId);
-                        SharePrefsHelper.remove(SharedPreferenceValue.token);
-                        Get.toNamed(AppRoutes.splashScreen);
+                      onPressed: () async {
+                        await profileController.deleteProfile();
+                        Navigator.pop(context);
                       },
                     ),
                   ],
@@ -535,7 +534,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 const SpaceWidget(spaceWidth: 6),
                                 TextWidget(
                                   text:
-                                      "${profileController.profileData.value.data?.user?.totalDelivered} "
+                                      "${profileController.profileData.value.data?.user?.totalReceivedParcels} "
                                       "${"orderDelivered".tr}",
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,
@@ -558,7 +557,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 const SpaceWidget(spaceWidth: 6),
                                 TextWidget(
                                   text:
-                                      "${profileController.profileData.value.data?.user?.totalReceivedParcels} "
+                                      "${profileController.profileData.value.data?.user?.totalDelivered}  "
                                       "${"orderReceived".tr}",
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,

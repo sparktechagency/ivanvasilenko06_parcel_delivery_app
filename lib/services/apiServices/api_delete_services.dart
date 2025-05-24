@@ -12,10 +12,10 @@ import 'api.dart';
 class ApiDeleteServices {
   final api = AppApi();
 
-  Future<dynamic> apiDeleteServices({
+   Future<dynamic> apiDeleteServices({
     required String url,
     Map<String, dynamic>? query,
-    String? token, // Optional token parameter
+    String? token,
   }) async {
     try {
       final response = await api.sendRequest.delete(
@@ -27,28 +27,30 @@ class ApiDeleteServices {
       );
 
       if (response.statusCode == 200) {
-        return response.data; // Return response data if status code is 200
+        return response.data;
       } else {
-        return null; // Return null for any other status code
+        return null;
       }
     } on SocketException catch (e) {
       errorLog('api socket exception', e);
-      // AppSnackBar.error("Check Your Internet Connection");
       return null;
     } on TimeoutException catch (e) {
       errorLog('api time out exception', e);
       return null;
     } on DioException catch (e) {
       if (e.response?.statusCode == 400) {
-        // AppSnackBar.error("${e.response?.data["message"]}");
+        // Handle bad request
       } else if (e.response?.statusCode == 401) {
+        // Log the detailed error before redirecting
+        errorLog('401 Unauthorized Error', 'Token: $token, Response: ${e.response?.data}');
         Get.offAllNamed(AppRoutes.loginScreen);
       }
       errorLog('api dio exception', e);
-      return null;
+      // Re-throw the exception to let the caller handle it
+      rethrow;
     } catch (e) {
       errorLog('api exception', e);
-      return null;
+      rethrow;
     }
   }
 }

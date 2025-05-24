@@ -36,6 +36,6 @@ class AppApiUrl {
   static const String givingReview = "$baseUrl//delivery/review";
 
   static const String finishedDelivery = "$baseUrl/delivery/update-status";
-  static const String deleteProfile = "$baseUrl/auth/user/";
+  static const String deleteProfile = "$baseUrl/auth/user";
   static const String token = "";
 }

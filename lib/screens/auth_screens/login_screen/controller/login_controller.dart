@@ -74,7 +74,6 @@ class LoginScreenController extends GetxController {
   Future<void> googleSignIn() async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
     googleSignIn.signOut();
-
     final acc = await googleSignIn.signIn();
     if (acc != null) {
       var email = acc.email;
@@ -85,7 +84,6 @@ class LoginScreenController extends GetxController {
       log("🧿🧿🧿🧿 Name = $displayName");
       log("🧿🧿🧿🧿 Image = $profileImage");
       log("🧿🧿🧿🧿 UUID = $uuid");
-
       try {
         isGoogleLoading(true);
 

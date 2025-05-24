@@ -369,7 +369,7 @@ class _BookingScreenState extends State<BookingScreen> {
                           _currentIndex = 0;
                           currentOrderController.update();
                           _pageController.jumpToPage(0);
-                          Get.back();
+                          Navigator.pop(context);
                         } catch (e) {
                           Get.back();
                           // Get.snackbar(
@@ -785,13 +785,48 @@ class _BookingScreenState extends State<BookingScreen> {
                                     Row(
                                       children: [
                                         InkWell(
-                                          onTap: () => _openWhatsApp(
-                                              data[index]
-                                                      .assignedDelivererId
-                                                      ?.mobileNumber
-                                                      .toString() ??
-                                                  "",
-                                              "Hello, regarding your parcel delivery."),
+                                          onTap: () {
+                                            String phoneNumber = "";
+                                            if (data[index]
+                                                    .typeParcel
+                                                    .toString() ==
+                                                "deliveryRequest") {
+                                              // For deliveryRequest type
+                                              if (data[index].status ==
+                                                  "IN_TRANSIT") {
+                                                phoneNumber = data[index]
+                                                        .senderId
+                                                        ?.mobileNumber
+                                                        .toString() ??
+                                                    "";
+                                              }
+                                            } else if (data[index]
+                                                    .typeParcel
+                                                    .toString() ==
+                                                "assignedParcel") {
+                                              // For finished Delivery
+                                              if (data[index].status ==
+                                                  "IN_TRANSIT") {
+                                                phoneNumber = data[index]
+                                                        .senderId
+                                                        ?.mobileNumber
+                                                        .toString() ??
+                                                    "";
+                                              }
+                                            } else {
+                                              // For sendParcel type
+                                              if (data[index].status ==
+                                                  "IN_TRANSIT") {
+                                                phoneNumber = data[index]
+                                                        .assignedDelivererId
+                                                        ?.mobileNumber
+                                                        .toString() ??
+                                                    "";
+                                              }
+                                            }
+                                            _openWhatsApp(phoneNumber,
+                                                "Hello, regarding your parcel delivery.");
+                                          },
                                           borderRadius:
                                               BorderRadius.circular(100),
                                           child: const CircleAvatar(
@@ -808,12 +843,47 @@ class _BookingScreenState extends State<BookingScreen> {
                                         ),
                                         const SpaceWidget(spaceWidth: 8),
                                         InkWell(
-                                          onTap: () => _makePhoneCall(
-                                              data[index]
-                                                      .assignedDelivererId
-                                                      ?.mobileNumber
-                                                      .toString() ??
-                                                  ""),
+                                          onTap: () {
+                                            String phoneNumber = "";
+                                            if (data[index]
+                                                    .typeParcel
+                                                    .toString() ==
+                                                "deliveryRequest") {
+                                              // For deliveryRequest type
+                                              if (data[index].status ==
+                                                  "IN_TRANSIT") {
+                                                phoneNumber = data[index]
+                                                        .senderId
+                                                        ?.mobileNumber
+                                                        .toString() ??
+                                                    "";
+                                              }
+                                            } else if (data[index]
+                                                    .typeParcel
+                                                    .toString() ==
+                                                "assignedParcel") {
+                                              // For finished Delivery
+                                              if (data[index].status ==
+                                                  "IN_TRANSIT") {
+                                                phoneNumber = data[index]
+                                                        .senderId
+                                                        ?.mobileNumber
+                                                        .toString() ??
+                                                    "";
+                                              }
+                                            } else {
+                                              // For sendParcel type
+                                              if (data[index].status ==
+                                                  "IN_TRANSIT") {
+                                                phoneNumber = data[index]
+                                                        .assignedDelivererId
+                                                        ?.mobileNumber
+                                                        .toString() ??
+                                                    "";
+                                              }
+                                            }
+                                            _makePhoneCall(phoneNumber);
+                                          },
                                           borderRadius:
                                               BorderRadius.circular(100),
                                           child: const CircleAvatar(
@@ -890,7 +960,6 @@ class _BookingScreenState extends State<BookingScreen> {
                                 InkWell(
                                   onTap: () {
                                     // Handle actions based on parcel type and status
-                                    // Handle actions based on parcel type and status
                                     if (data[index].typeParcel.toString() ==
                                         "deliveryRequest") {
                                       if (data[index].status == "IN_TRANSIT") {
@@ -903,6 +972,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                           data[index].status == "WAITING") {
                                         String parcelId = data[index].id ?? "";
                                         removeParcelConfirmation(parcelId);
+                                        // Cancel Delivery 
                                       }
                                     } else if (data[index]
                                             .typeParcel
@@ -994,6 +1064,26 @@ class _BookingScreenState extends State<BookingScreen> {
         ],
       );
     });
+  }
+
+  String _getNumberSender(dynamic parcel) {
+    if (parcel.typeParcel.toString() == "deliveryRequest") {
+      // For deliveryRequest type
+      if (parcel.status == "IN_TRANSIT") {
+        return parcel.senderId?.mobileNumber.toString() ?? "";
+      }
+    } else if (parcel.typeParcel.toString() == "assignedParcel") {
+      // For finished Delivery
+      if (parcel.status == "IN_TRANSIT") {
+        return parcel.senderId?.mobileNumber.toString() ?? "";
+      }
+    } else {
+      // For sendParcel type
+      if (parcel.status == "IN_TRANSIT") {
+        return parcel.assignedDelivererId?.mobileNumber.toString() ?? "";
+      }
+    }
+    return "";
   }
 
   // Helper method to determine the action button text based on parcel type and status

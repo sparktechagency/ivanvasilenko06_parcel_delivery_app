@@ -66,30 +66,33 @@ class Notifications {
   String? description;
   bool? isRead;
   String? createdAt;
+  String? localCreatedAt; // Added missing field
   int? iV;
   Location? pickupLocation;
   Location? deliveryLocation;
 
-  Notifications(
-      {this.sId,
-      this.userId,
-      this.message,
-      this.type,
-      this.title,
-      this.phoneNumber,
-      this.mobileNumber,
-      this.image,
-      this.price,
-      this.avgRating,
-      this.description,
-      this.isRead,
-      this.createdAt,
-      this.deliveryStartTime,
-      this.deliveryEndTime,
-      this.name,
-      this.pickupLocation,
-      this.deliveryLocation,
-      this.iV});
+  Notifications({
+    this.sId,
+    this.userId,
+    this.message,
+    this.type,
+    this.title,
+    this.phoneNumber,
+    this.mobileNumber,
+    this.image,
+    this.price,
+    this.avgRating,
+    this.description,
+    this.isRead,
+    this.createdAt,
+    this.localCreatedAt, // Added to constructor
+    this.deliveryStartTime,
+    this.deliveryEndTime,
+    this.name,
+    this.pickupLocation,
+    this.deliveryLocation,
+    this.iV,
+  });
 
   Notifications.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -102,12 +105,13 @@ class Notifications {
     image = json['image'];
     name = json['name'];
     price = json['price'];
-    avgRating = json['AvgRating'];
+    avgRating = json['AvgRating']; // Keep original casing from API
     description = json['description'];
     deliveryStartTime = json['deliveryStartTime'];
     deliveryEndTime = json['deliveryEndTime'];
     isRead = json['isRead'];
     createdAt = json['createdAt'];
+    localCreatedAt = json['localCreatedAt']; // Added missing field
     iV = json['__v'];
     pickupLocation = json['pickupLocation'] != null
         ? Location.fromJson(json['pickupLocation'])
@@ -129,12 +133,13 @@ class Notifications {
     data['mobileNumber'] = mobileNumber;
     data['image'] = image;
     data['price'] = price;
-    data['AvgRating'] = avgRating;
+    data['AvgRating'] = avgRating; // Keep original casing for API
     data['description'] = description;
     data['deliveryStartTime'] = deliveryStartTime;
     data['deliveryEndTime'] = deliveryEndTime;
     data['isRead'] = isRead;
     data['createdAt'] = createdAt;
+    data['localCreatedAt'] = localCreatedAt; // Added missing field
     data['__v'] = iV;
     if (pickupLocation != null) {
       data['pickupLocation'] = pickupLocation!.toJson();
@@ -154,12 +159,17 @@ class Location {
   Location({this.latitude, this.longitude, this.sId});
 
   Location.fromJson(Map<String, dynamic> json) {
-    latitude = json['latitude'] is int
-        ? (json['latitude'] as int).toDouble()
-        : json['latitude'];
-    longitude = json['longitude'] is int
-        ? (json['longitude'] as int).toDouble()
-        : json['longitude'];
+    // More robust number conversion
+    if (json['latitude'] != null) {
+      latitude = json['latitude'] is int
+          ? (json['latitude'] as int).toDouble()
+          : json['latitude']?.toDouble();
+    }
+    if (json['longitude'] != null) {
+      longitude = json['longitude'] is int
+          ? (json['longitude'] as int).toDouble()
+          : json['longitude']?.toDouble();
+    }
     sId = json['_id'];
   }
 

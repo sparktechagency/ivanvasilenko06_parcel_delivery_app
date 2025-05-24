@@ -476,24 +476,51 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                 ),
               ),
             ),
-            ButtonWidget(
-              onPressed: () async {
-                newBookingsController.cancelDelivery(parcelId, deliveryMan?.id);
-                final controller = Get.find<CurrentOrderController>();
-                await controller.getCurrentOrder();
-                controller.update();
-                Get.back();
-              },
-              label: "cancelDelivery".tr,
-              textColor: AppColors.white,
-              buttonWidth: 200,
-              buttonHeight: 50,
-              icon: Icons.arrow_forward,
-              iconColor: AppColors.white,
-              fontWeight: FontWeight.w500,
-              fontSize: 16,
-              iconSize: 20,
-            ),
+            Obx(() => newBookingsController.isCancellingDelivery.value
+                ? Container(
+                    width: 200,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: AppColors.black,
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    child: const Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(AppColors.white),
+                        ),
+                      ),
+                    ),
+                  )
+                : ButtonWidget(
+                    onPressed: () async {
+                      newBookingsController.isCancellingDelivery.value = true;
+                      try {
+                        await newBookingsController.cancelDelivery(
+                            parcelId, deliveryMan?.id);
+                        final controller = Get.find<CurrentOrderController>();
+                        await controller.getCurrentOrder();
+                        controller.update();
+                        Get.back();
+                      } finally {
+                        newBookingsController.isCancellingDelivery.value =
+                            false;
+                      }
+                    },
+                    label: "cancelDelivery".tr,
+                    textColor: AppColors.white,
+                    buttonWidth: 200,
+                    buttonHeight: 50,
+                    icon: Icons.arrow_forward,
+                    iconColor: AppColors.white,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                    iconSize: 20,
+                  )),
           ],
         ),
       ),

@@ -202,6 +202,7 @@ class _NotificationScreenState extends State<NotificationScreen>
       _showErrorSnackBar('Error opening WhatsApp');
     }
   }
+
   void _showErrorSnackBar(String message) {
     final scaffoldMessenger = ScaffoldMessenger.of(Get.context!);
     scaffoldMessenger.showSnackBar(
@@ -476,14 +477,13 @@ class _NotificationScreenState extends State<NotificationScreen>
     }
 
     if (notification == null) {
-      return const SizedBox(); 
+      return const SizedBox();
       //! Return empty widget if notification not found
     }
 
     String title = notification.title ?? "Parcel";
     String timeAgo = _getTimeAgo(notification.localCreatedAt.toString());
-    try {
-    } catch (e) {
+    try {} catch (e) {
       log("Error in _buildParcelNotificationCard: $e");
       timeAgo = "Unknown time";
     }
@@ -723,7 +723,7 @@ class _NotificationScreenState extends State<NotificationScreen>
     String message = notification.message ?? "No details available";
     String image = notification.image ?? "";
     String avgRating = notification.avgRating?.toString() ?? "N/A";
-    String mobileNumber = notification.mobileNumber ?? "+972 54-123-4567";
+    String mobileNumber = notification.mobileNumber ?? "N/A";
     String type = notification.type ?? "";
     String price = notification.price?.toString() ?? "0";
     String timeAgo = _getTimeAgo(notification.createdAt);
@@ -764,7 +764,6 @@ class _NotificationScreenState extends State<NotificationScreen>
     } catch (e) {
       log("Error parsing dates: $e");
     }
-
 
     bool isRead = notification.isRead ?? false;
 
@@ -869,7 +868,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                         ),
                         const SpaceWidget(spaceWidth: 8),
                         TextWidget(
-                          text: mobileNumber,
+                          text: notification.mobileNumber ?? "N/A",
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                           fontColor: AppColors.greyDark2,

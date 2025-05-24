@@ -3,10 +3,12 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
+import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/profile_screen/model/profile_model.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_delete_services.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_get_services.dart';
@@ -213,24 +215,58 @@ class ProfileController extends GetxController {
     }
   }
 
-  Future<void> deleteProfile(String profileId) async {
+  Future<void> deleteProfile() async {
     isLoading(true);
+    errorMessage.value = '';
+
     try {
       var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
+
+      if (token == null || token.isEmpty) {
+        errorMessage.value = "No valid token found, please login again.";
+        isLoading(false);
+        return;
+      }
+      // Validate token format
+      // if (!token.contains('.') || token.split('.').length != 3) {
+      //   errorMessage.value = "Invalid token format, please login again.";
+      //   SharePrefsHelper.remove(SharedPreferenceValue.token);
+      //   Get.offAllNamed(AppRoutes.loginScreen);
+      //   return;
+      // }
+
       var url = AppApiUrl.deleteProfile;
+      log("Deleting profile at: $url with token: ${token.substring(0, 20)}...");
+
       final response =
-          ApiDeleteServices().apiDeleteServices(url: "$url$profileId");
+          await ApiDeleteServices().apiDeleteServices(url: url, token: token);
+
       if (response != null) {
         log("Profile deleted successfully");
-        // Optionally, navigate to another screen or show a success message
-        // Get.offAll(() => const BottomNavScreen());
+        SharePrefsHelper.remove(SharedPreferenceValue.token);
+
+        // Use a slight delay to ensure all UI operations complete
+        await Future.delayed(Duration(milliseconds: 100));
+
+        Get.offAllNamed(AppRoutes.splashScreen);
       } else {
-        errorMessage.value = 'Failed to delete profile';
-        log('Failed to delete profile');
+        errorMessage.value =
+            'Failed to delete profile - server returned null response';
+        log('Failed to delete profile - null response');
       }
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        errorMessage.value = "Authentication failed. Please login again.";
+        SharePrefsHelper.remove(SharedPreferenceValue.token);
+        //Get.offAllNamed(AppRoutes.loginScreen);
+      } else {
+        errorMessage.value =
+            'Delete failed: ${e.response?.data?['message'] ?? e.message}';
+      }
+      log('DioException in deleteProfile: ${e.toString()}');
     } catch (e) {
       errorMessage.value = 'An error occurred: ${e.toString()}';
-      log('Exception error: ${e.toString()}');
+      log('Exception error in deleteProfile: ${e.toString()}');
     } finally {
       isLoading(false);
     }

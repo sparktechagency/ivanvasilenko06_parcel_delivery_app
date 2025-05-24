@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
-import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/screens/booking_screen/current_order/controller/current_order_controller.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_delete_services.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart';
@@ -13,6 +12,8 @@ class NewBookingsController extends GetxController {
   var requestStates = <String, String>{}.obs;
 
   RxBool isDeleteParcel = false.obs;
+
+  RxBool isCancellingDelivery = false.obs;
 
   Future<void> acceptParcelRequest(String parcelId, String delivererId) async {
     const String url = AppApiUrl.acceptRequest;
@@ -215,7 +216,7 @@ class NewBookingsController extends GetxController {
       var response =
           await ApiPutServices().apiPutServices(url: url, body: body);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         final CurrentOrderController controller =
             Get.find<CurrentOrderController>();
         await controller.getCurrentOrder();
