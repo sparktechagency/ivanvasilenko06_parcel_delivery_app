@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -49,22 +46,30 @@ class DefaultFirebaseOptions {
     }
   }
 
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyAx1xdjTrI0dQNVchHAFCBRBj2NHJxToq4',
+    appId: '1:292426184503:web:a92de35e25b8c16c8fccb2',
+    messagingSenderId: '292426184503',
+    projectId: 'deliverly-4811e',
+    authDomain: 'deliverly-4811e.firebaseapp.com',
+    storageBucket: 'deliverly-4811e.firebasestorage.app',
+    measurementId: 'G-TQEF5BC7W5',
+  );
+
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAbkEqzVhfESOX2zb1ZQpBg0n0QCBaitoA',
-    appId: '1:1006712863575:android:5bda31379b1c0eb1b45c12',
-    messagingSenderId: '1006712863575',
-    projectId: 'parceldeliveryapp-5dc60',
-    databaseURL: 'https://parceldeliveryapp-5dc60-default-rtdb.firebaseio.com',
-    storageBucket: 'parceldeliveryapp-5dc60.firebasestorage.app',
+    apiKey: 'AIzaSyDfvuwVDKQKx-fHJ7Lu4_IyV7bYy2-l2hw',
+    appId: '1:292426184503:android:a02e474918df5fcc8fccb2',
+    messagingSenderId: '292426184503',
+    projectId: 'deliverly-4811e',
+    storageBucket: 'deliverly-4811e.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBEojvTDExO3W2CptSnN2aWSWOhEpFZl5s',
-    appId: '1:1006712863575:ios:ebe79c8a113d2bafb45c12',
-    messagingSenderId: '1006712863575',
-    projectId: 'parceldeliveryapp-5dc60',
-    databaseURL: 'https://parceldeliveryapp-5dc60-default-rtdb.firebaseio.com',
-    storageBucket: 'parceldeliveryapp-5dc60.firebasestorage.app',
+    apiKey: 'AIzaSyCXlhOaPor6qfjs48Yjd9PjlAWsbJQUxJk',
+    appId: '1:292426184503:ios:36e7ba03166722118fccb2',
+    messagingSenderId: '292426184503',
+    projectId: 'deliverly-4811e',
+    storageBucket: 'deliverly-4811e.firebasestorage.app',
     iosBundleId: 'com.ivan.delivery',
   );
 

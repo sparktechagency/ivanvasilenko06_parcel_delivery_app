@@ -9,6 +9,7 @@ import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart'
 import 'package:parcel_delivery_app/services/apiServices/api_put_services.dart';
 
 class NewBookingsController extends GetxController {
+  RxBool isLoading = false.obs;
   var requestStates = <String, String>{}.obs;
 
   RxBool isDeleteParcel = false.obs;

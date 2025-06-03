@@ -190,7 +190,7 @@ class _BookingScreenState extends State<BookingScreen> {
                           Get.find<CurrentOrderController>();
                       currentOrderController.rating.value = selectedRating;
                       await currentOrderController.givingReview();
-                      Get.back();
+                      Navigator.pop(context);
                     },
                     label: "submit".tr,
                     buttonWidth: double.infinity,
@@ -372,11 +372,6 @@ class _BookingScreenState extends State<BookingScreen> {
                           Navigator.pop(context);
                         } catch (e) {
                           Get.back();
-                          // Get.snackbar(
-                          //   'Error',
-                          //   'Failed to finished Delivery Parcel : ${e.toString()}',
-                          //   snackPosition: SnackPosition.BOTTOM,
-                          // );
                         }
                       },
                     ),
@@ -770,7 +765,6 @@ class _BookingScreenState extends State<BookingScreen> {
                                     ),
                                   ],
                                   const SpaceWidget(spaceHeight: 12),
-
                                   // Show contact buttons for both sendParcel and deliveryRequest if in transit
                                   if ((data[index].typeParcel.toString() ==
                                               "sendParcel" &&
@@ -972,7 +966,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                           data[index].status == "WAITING") {
                                         String parcelId = data[index].id ?? "";
                                         removeParcelConfirmation(parcelId);
-                                        // Cancel Delivery 
+                                        // Cancel Delivery
                                       }
                                     } else if (data[index]
                                             .typeParcel
@@ -1199,10 +1193,8 @@ class _BookingScreenState extends State<BookingScreen> {
             ...List.generate(parcelsWithRequests.length, (index) {
               final parcel = parcelsWithRequests[index];
               final parcelId = parcel.id ?? "";
-              // Parse the deliveryRequest as a Map instead of accessing properties directly
               final deliveryRequest =
                   parcel.deliveryRequests!.first as Map<String, dynamic>;
-
               String formattedDate = "N/A";
               try {
                 final startDate =
@@ -1214,10 +1206,8 @@ class _BookingScreenState extends State<BookingScreen> {
               } catch (e) {
                 log("Error parsing dates: $e");
               }
-
               final deliveryLocation = parcel.deliveryLocation?.coordinates;
               final pickupLocation = parcel.pickupLocation?.coordinates;
-
               // Track the request state locally using a unique key for the request
               final String requestKey =
                   '${parcel.id}-${deliveryRequest["_id"] ?? ""}';
@@ -1272,7 +1262,12 @@ class _BookingScreenState extends State<BookingScreen> {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(100),
                               child: AppImage(
-                                url: deliveryRequest["image"],
+                                url: newBookingsController.isLoading.value
+                                    ? AppImagePath.dummyProfileImage
+                                    : (deliveryRequest["image"]?.isNotEmpty ??
+                                            false)
+                                        ? deliveryRequest["image"]
+                                        : AppImagePath.dummyProfileImage,
                                 height: 40,
                                 width: 40,
                               ),

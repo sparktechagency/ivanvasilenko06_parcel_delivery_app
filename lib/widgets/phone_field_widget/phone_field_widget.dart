@@ -3,6 +3,7 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
 
 import '../../constants/app_colors.dart';
+import '../../utils/app_size.dart';
 
 class IntlPhoneFieldWidget extends StatelessWidget {
   final TextEditingController controller;
@@ -24,61 +25,70 @@ class IntlPhoneFieldWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color effectiveBorderColor = borderColor ?? AppColors.grey;
-    Color effectiveFillColor = fillColor ?? AppColors.grey;
-    return IntlPhoneField(
-      controller: controller,
-      flagsButtonPadding: const EdgeInsets.only(left: 10),
-      dropdownTextStyle: const TextStyle(color: AppColors.black),
-      dropdownIconPosition: IconPosition.leading,
-      dropdownIcon: const Icon(
-        Icons.arrow_drop_down,
-        color: AppColors.black,
+    ResponsiveUtils.initialize(context);
+
+    final Color effectiveBorderColor = borderColor ?? AppColors.grey;
+    final Color effectiveFillColor = fillColor ?? AppColors.grey;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: effectiveFillColor,
+        borderRadius: BorderRadius.circular(8),
       ),
-      style: const TextStyle(
-        color: AppColors.black,
-      ),
-      decoration: InputDecoration(
-        filled: true,
-        contentPadding: const EdgeInsets.all(16),
-        fillColor: effectiveFillColor,
-        hintText: hintText,
-        counterStyle: const TextStyle(color: AppColors.black),
-        hintStyle: const TextStyle(
+      child: IntlPhoneField(
+        controller: controller,
+        flagsButtonPadding: EdgeInsets.only(left: ResponsiveUtils.width(10)),
+        dropdownTextStyle: const TextStyle(color: AppColors.black),
+        dropdownIconPosition: IconPosition.leading,
+        dropdownIcon: const Icon(
+          Icons.arrow_drop_down,
+          color: AppColors.greyDark,
+        ),
+        style: const TextStyle(
           color: AppColors.black,
-          fontSize: 14,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(
-            color: effectiveBorderColor,
-            width: 1,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: AppColors.grey,
+          hintText: hintText,
+          hintStyle: TextStyle(
+            color: AppColors.greyDark,
+            fontWeight: FontWeight.w400,
+            fontSize: ResponsiveUtils.width(15),
+          ),
+          contentPadding: EdgeInsets.all(ResponsiveUtils.width(18)),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(
+              color: Colors.transparent,
+              width: ResponsiveUtils.width(0.5),
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(
+              color: effectiveBorderColor,
+              width: ResponsiveUtils.width(0.5),
+            ),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(
+              color: AppColors.red,
+              width: ResponsiveUtils.width(0.5),
+            ),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(
+              color: AppColors.red,
+              width: ResponsiveUtils.width(0.5),
+            ),
           ),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(
-            color: effectiveBorderColor,
-            width: 1,
-          ),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(
-            color: AppColors.red,
-            width: 1,
-          ),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(
-            color: AppColors.red,
-            width: 1,
-          ),
-        ),
+        initialCountryCode: initialCountryCode,
+        onChanged: onChanged,
       ),
-      initialCountryCode: initialCountryCode,
-      onChanged: onChanged,
     );
   }
 }

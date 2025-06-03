@@ -7,12 +7,15 @@ import 'package:parcel_delivery_app/screens/notification_screen/notification_mod
 import 'package:parcel_delivery_app/services/apiServices/api_get_services.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_patch_services.dart';
 
+import '../read_notificaiton/read_notifcation_model.dart';
+
 class NotificationController extends GetxController {
   var notificationModel = Rx<NotificationModel?>(null);
   var isLoading = false.obs;
   var errorMessage = "".obs;
   var isNotificationReceived = false.obs;
   var receivingDeliveries = true.obs;
+  var unreadCount = 0.obs; // Added RxInt for unreadCount
 
   //! Variables for parcel notifications
   var parcelNotifications = <NotifyParcelModel>[].obs;
@@ -34,6 +37,7 @@ class NotificationController extends GetxController {
     super.onInit();
     fetchNotifications();
     fetchParcelNotifications();
+    isReadNotification(); // Call to fetch initial unreadCount
   }
 
   bool isRequestSent(String? parcelId) {
@@ -44,8 +48,7 @@ class NotificationController extends GetxController {
   Future<void> fetchNotifications({int page = 1}) async {
     try {
       if (page == 1) {
-        isLoading(true); 
-        //! Set loading state for first page only
+        isLoading(true);
       }
 
       final response = await ApiGetServices().apiGetServices(
@@ -54,18 +57,15 @@ class NotificationController extends GetxController {
           body: {});
 
       if (response != null) {
-        //! Parse the response into the NotificationModel
         NotificationModel newNotifications =
             NotificationModel.fromJson(response);
 
-        //! Handle pagination
         if (newNotifications.data?.pagination != null) {
           totalPages.value = newNotifications.data!.pagination!.pages ?? 1;
           currentPage.value = page;
           hasMoreNotifications.value = currentPage.value < totalPages.value;
         }
 
-        //! Set the model
         if (page == 1) {
           notificationModel.value = newNotifications;
         } else if (notificationModel.value != null &&
@@ -73,7 +73,6 @@ class NotificationController extends GetxController {
             newNotifications.data != null &&
             newNotifications.data!.notifications != null &&
             notificationModel.value!.data!.notifications != null) {
-          //! Add new notifications to the existing list
           notificationModel.value!.data!.notifications!
               .addAll(newNotifications.data!.notifications!);
           notificationModel.refresh();
@@ -106,7 +105,6 @@ class NotificationController extends GetxController {
       if (response != null) {
         NotifyParcelModel parcelModel = NotifyParcelModel.fromJson(response);
 
-        //! Handle pagination
         if (parcelModel.data?.pagination != null) {
           parcelTotalPages.value = parcelModel.data!.pagination!.pages ?? 1;
           parcelCurrentPage.value = page;
@@ -114,19 +112,15 @@ class NotificationController extends GetxController {
               parcelCurrentPage.value < parcelTotalPages.value;
         }
 
-        //! Add the notifications to the list
         if (parcelModel.data?.notifications != null &&
             parcelModel.data!.notifications!.isNotEmpty) {
           if (page == 1) {
-            parcelNotifications.clear(); 
-            //! Clear the list for the first page
+            parcelNotifications.clear();
           }
-          parcelNotifications.add(parcelModel); 
-          //! Add new data
+          parcelNotifications.add(parcelModel);
           log("✅ Parcel notifications fetched: Page $page");
         } else {
-          if (page == 1) parcelNotifications.clear(); 
-          //! Clear if no data
+          if (page == 1) parcelNotifications.clear();
           log("⚠️ No parcel notifications found");
         }
       } else {
@@ -172,11 +166,51 @@ class NotificationController extends GetxController {
     } catch (ex) {
       log("❎❎❎❎❎❎ Error updating delivery notification status: ${ex.toString()} ❎❎❎❎❎❎");
       errorMessage(ex.toString());
-      return receivingDeliveries
-          .value; 
-          //! Return previous value if request fails
+      return receivingDeliveries.value;
     } finally {
       isLoading(false);
+    }
+  }
+
+  Future<void> isReadNotification() async {
+    try {
+      isLoading(true);
+      final response = await ApiGetServices().apiGetServices(
+        AppApiUrl.readNotificaiton,
+        statusCode: 200,
+      );
+
+      log("API Response: $response");
+
+      if (response["status"] == "success") {
+        final notificationModel = ReadingNotificaitonModel.fromJson(response);
+        log("Unread count from API: ${notificationModel.data?.unreadCount}");
+
+        if (notificationModel.status == "success" &&
+            notificationModel.data != null) {
+          unreadCount.value = (notificationModel.data!.unreadCount!).toInt();
+          log("Final unread count: ${unreadCount.value}");
+        }
+      }
+    } catch (ex) {
+      // ... rest of your code
+    }
+  }
+
+  Future<void> isReadAllNotificaton() async {
+    try {
+      isLoading(true);
+      final response = await ApiPatchServices()
+          .apiPatchServices(url: AppApiUrl.isReadNotification, statusCode: 200);
+      if (response["status"] == "success") {
+        log("✅✅✅ All notifications marked as read successfully ✅✅✅");
+        unreadCount.value = 0; // Reset unread count
+        fetchNotifications(); // Refresh notifications
+      } else {
+        log("❎❎❎❎❎❎ Failed to mark all notifications as read ❎❎❎❎❎❎");
+      }
+    } catch (ex) {
+      log("❎❎❎❎❎❎ Error marking all notifications as read: ${ex.toString()} ❎❎❎❎❎❎");
     }
   }
 }

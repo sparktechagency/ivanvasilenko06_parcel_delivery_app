@@ -13,6 +13,8 @@ class HomeScreenAppBar extends StatelessWidget {
   final String badgeLabel;
   final String profileImagePath;
 
+  final bool isLabelVisible;
+
   const HomeScreenAppBar({
     super.key,
     required this.logoImagePath,
@@ -20,6 +22,7 @@ class HomeScreenAppBar extends StatelessWidget {
     required this.onNotificationPressed,
     required this.badgeLabel,
     required this.profileImagePath,
+    required this.isLabelVisible,
   });
 
   @override
@@ -45,7 +48,7 @@ class HomeScreenAppBar extends StatelessWidget {
                 tooltip: "Notifications",
                 onPressed: onNotificationPressed,
                 icon: Badge(
-                  isLabelVisible: false,
+                  isLabelVisible: isLabelVisible,
                   label: Text(badgeLabel),
                   backgroundColor: AppColors.red,
                   child: IconWidget(

@@ -8,11 +8,11 @@ class SharedPreferenceValue {
   static const String isOnboarding = "isOnboarding";
   static const String fcmToken = "fcmToken";
   static const String language = "language";
-  static const String role="role";
-  static const String teacherType="teacherType";
-  static const String studentId="studentId";
-  static const String loginType="loginType";
-  static const String addedInfo="addedInfo";
+  static const String role = "role";
+  static const String teacherType = "teacherType";
+  static const String studentId = "studentId";
+  static const String loginType = "loginType";
+  static const String addedInfo = "addedInfo";
 }
 
 class SharePrefsHelper {
@@ -30,9 +30,7 @@ class SharePrefsHelper {
     var getListData = preferences.getStringList(key);
 
     return getListData!;
-
   }
-
 
   static Future<bool?> getBool(String key) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();

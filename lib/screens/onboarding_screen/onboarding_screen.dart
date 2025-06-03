@@ -70,7 +70,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
                               textAlignment:
                                   isRTL ? TextAlign.right : TextAlign.left,
                               overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
+                              maxLines: 3,
                             ),
                           ),
                         ],

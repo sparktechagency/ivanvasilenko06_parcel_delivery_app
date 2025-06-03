@@ -16,6 +16,16 @@ class VerifyEmailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final arguments = Get.arguments as Map<String, dynamic>? ?? {};
+    final firebaseID = arguments["firebaseID"];
+    final phoneNumber = arguments["phoneNumber"];
+    final email = arguments["email"];
+    final fullName = arguments["fullName"];
+    final country = arguments["country"];
+    final fcmToken = arguments["fcmToken"];
+    final deviceId = arguments["deviceId"];
+    final deviceType = arguments["deviceType"];
+    final screen = arguments["screen"];
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
@@ -26,7 +36,7 @@ class VerifyEmailScreen extends StatelessWidget {
             children: [
               const SpaceWidget(spaceHeight: 48),
               TextWidget(
-                text: "verifyEmail".tr,
+                text: "verifyPhone".tr,
                 fontSize: 30,
                 fontWeight: FontWeight.w600,
                 fontColor: AppColors.black,
@@ -45,7 +55,7 @@ class VerifyEmailScreen extends StatelessWidget {
               // Display Email Information
               TextWidget(
                 text:
-                    "${"codeHasSendTo".tr} ${controller.email}. ${"usually".tr}",
+                    "${"codeHasSendTo".tr} ${controller.phoneNumber}. ${"usually".tr}",
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 fontColor: AppColors.greyDarkLight,
@@ -77,7 +87,7 @@ class VerifyEmailScreen extends StatelessWidget {
         child: Obx(() => ButtonWidget(
               onPressed: controller.isLoading.value
                   ? null // Disable button while loading
-                  : () => controller.verifyOtp(),
+                  : () => controller.verifyOTP(),
               label: controller.isLoading.value ? "Verifying..." : "verify".tr,
               buttonWidth: double.infinity,
               buttonHeight: 50,

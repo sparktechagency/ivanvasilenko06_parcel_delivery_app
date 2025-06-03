@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
@@ -8,8 +10,8 @@ import 'package:parcel_delivery_app/screens/auth_screens/login_screen/widgets/cu
 import 'package:parcel_delivery_app/screens/auth_screens/login_screen/widgets/or_widget.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_button_widget/text_button_widget.dart';
-import 'package:parcel_delivery_app/widgets/text_field_widget/text_field_widget.dart';
 
+import '../../../widgets/phone_field_widget/phone_field_widget.dart';
 import '../../../widgets/space_widget/space_widget.dart';
 import '../../../widgets/text_widget/text_widgets.dart';
 
@@ -47,11 +49,22 @@ class LoginScreen extends StatelessWidget {
                     textAlignment: TextAlign.left,
                   ),
                   const SpaceWidget(spaceHeight: 24),
-                  TextFieldWidget(
-                    controller: controller.emailController,
-                    hintText: "enterEmail".tr,
-                    maxLines: 1,
+                  IntlPhoneFieldWidget(
+                    hintText: "Enter Your Number".tr,
+                    controller: controller.phoneController,
+                    onChanged: (phone) {
+                      controller.updatePhoneNumber(phone.completeNumber);
+                      log(phone.completeNumber);
+                    },
+                    fillColor: AppColors.white,
+                    borderColor: AppColors.black,
+                    initialCountryCode: "IL",
                   ),
+                  // TextFieldWidget(
+                  //   controller: controller.emailController,
+                  //   hintText: "enterEmail".tr,
+                  //   maxLines: 1,
+                  // ),
                   // IntlPhoneFieldWidget(
                   //   controller: phoneController,
                   //   hintText: "enterYourPhoneNumber".tr,
@@ -61,7 +74,7 @@ class LoginScreen extends StatelessWidget {
                     return controller.isLoading.value
                         ? const Center(child: CircularProgressIndicator())
                         : ButtonWidget(
-                            onPressed: controller.clickLoginButton,
+                            onPressed: controller.sendOTPFirebase,
                             label: "login".tr,
                             buttonHeight: 50,
                             buttonWidth: double.infinity,
@@ -71,17 +84,7 @@ class LoginScreen extends StatelessWidget {
                   const OrWidget(),
                   const SpaceWidget(spaceHeight: 16),
                   CustomInkWellButton(
-                    onTap: () {
-                      // Get.snackbar(
-                      //   "Sign with Email Comming Soon",
-                      //   "This Feature will be implemented Now You can Sing up with your Email",
-                      //   backgroundColor: AppColors.green,
-                      //   colorText: Colors.white,
-                      //   snackPosition: SnackPosition.TOP,
-                      //   duration: const Duration(seconds: 2),
-                      //   margin: const EdgeInsets.all(10),
-                      // );
-                    },
+                    onTap: () {},
                     icon: AppIconsPath.emailIcon,
                     text: "continueWithEmail".tr,
                   ),

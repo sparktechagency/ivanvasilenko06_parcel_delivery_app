@@ -19,3 +19,15 @@ password : IVANIVAN
 
 
 ==================================================
+What is your first and last name?
+  [Unknown]:  ivan
+What is the name of your organizational unit?
+  [Unknown]:  deliverly
+What is the name of your organization?
+  [Unknown]:  deliverly
+What is the name of your City or Locality?
+  [Unknown]:  israel
+What is the name of your State or Province?
+  [Unknown]:  israel
+What is the two-letter country code for this unit?
+  [Unknown]:  il

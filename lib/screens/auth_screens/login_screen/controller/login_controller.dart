@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -16,6 +17,13 @@ class LoginScreenController extends GetxController {
   final DeviceInfo _deviceInfo = DeviceInfo();
   TextEditingController emailController = TextEditingController();
   GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final RxString completePhoneNumber = ''.obs;
+  TextEditingController phoneController = TextEditingController();
+
+  void updatePhoneNumber(String phoneNumber) {
+    completePhoneNumber.value = phoneNumber;
+  }
 
   Future<dynamic> clickLoginButton() async {
     try {
@@ -64,6 +72,59 @@ class LoginScreenController extends GetxController {
     } catch (e) {
       log("Error from login click button: $e");
       // Get.snackbar("Error", "An error occurred. Please try again.");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  var isPhoneLoading = false.obs;
+
+  Future<void> sendOTPFirebase() async {
+    try {
+      if (loginFormKey.currentState!.validate()) {
+        isPhoneLoading.value = true;
+        var fcmToken =
+            await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
+        // Get device info
+        String deviceId = await _deviceInfo.getDeviceId();
+        String deviceType = await _deviceInfo.getDeviceType();
+        if (deviceId == 'unknown' || deviceType == 'unknown') {
+          deviceId = await _deviceInfo.getDeviceId();
+          deviceType = await _deviceInfo.getDeviceType();
+        }
+
+        if (true) {
+          await _auth.verifyPhoneNumber(
+            phoneNumber: completePhoneNumber.value,
+            verificationCompleted: (PhoneAuthCredential credential) async {
+              await _auth.signInWithCredential(credential);
+            },
+            verificationFailed: (FirebaseAuthException e) {
+              log("${e.message}");
+            },
+            codeSent: (String verificationId, int? resendToken) {
+              Get.toNamed(
+                AppRoutes.verifyEmailScreen,
+                arguments: {
+                  "firebaseID": verificationId,
+                  "phoneNumber": completePhoneNumber.value,
+                  "fcmToken": fcmToken.toString(),
+                  "deviceId": deviceId,
+                  "deviceType": deviceType,
+                  "screen": "login",
+                },
+              );
+            },
+            codeAutoRetrievalTimeout: (String verificationId) {},
+          );
+          debugPrint("✳️✳️✳️✳️✳️✳️✳️✳️✳️✳️ $fcmToken");
+          debugPrint("📱📱📱 DeviceId: $deviceId, DeviceType: $deviceType");
+        } else {
+          // Get.snackbar("Error", "Failed to send OTP. Please try again.");
+        }
+      }
+    } catch (e) {
+      log("Error from login click button: $e");
     } finally {
       isLoading.value = false;
     }

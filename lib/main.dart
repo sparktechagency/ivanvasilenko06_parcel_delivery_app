@@ -16,10 +16,12 @@ void main() async {
 // Initialize Firebase for iOS
     await Firebase.initializeApp(
       options: const FirebaseOptions(
-        apiKey: "AIzaSyAwMjGDNC1PezbO-NsSUzEEKCLCvF4PSB8",
-        appId: "1:251712478840:ios:4c8b58009cee0ed26d578d",
-        messagingSenderId: "251712478840",
-        projectId: "push-notification-21d77",
+        apiKey: 'AIzaSyAynUpzfxt4zu2CTffqqzzkjrmiBv_vKCo',
+        appId: '1:1091523135632:ios:87eaf0fa4915a1c223f015',
+        messagingSenderId: '1091523135632',
+        projectId: 'deliverly-app-aadfd',
+        storageBucket: 'deliverly-app-aadfd.firebasestorage.app',
+        iosBundleId: 'com.ivan.delivery',
       ),
     );
   } else {

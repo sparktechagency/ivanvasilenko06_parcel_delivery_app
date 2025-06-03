@@ -43,11 +43,28 @@ android {
 
     dependencies {
         // For AGP 7.4+
-        coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+        coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+        implementation platform('com.google.firebase:firebase-bom:33.14.0')
+        implementation 'com.google.firebase:firebase-analytics'
         // For AGP 7.3
         // coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.3'
         // For AGP 4.0 to 7.2
         // coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.9'
+    }
+
+    signingConfigs {
+        debug {
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+            storeFile file('C:/Users/bdcalling/.android/debug.keystore')
+            storePassword 'android'
+        }
+        release {
+            storeFile file('C://Users//bdcalling//.android//debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
     }
 }
 

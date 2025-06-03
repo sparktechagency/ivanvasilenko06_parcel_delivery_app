@@ -228,10 +228,12 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     profileController.getProfileInfo();
+    notificationController.isReadNotification();
   }
 
   @override
   Widget build(BuildContext context) {
+    log("🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑 Unread Notificaiton : ${notificationController.unreadCount.value.toString()}");
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Obx(() {
@@ -242,18 +244,27 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             HomeScreenAppBar(
+              isLabelVisible:
+                  notificationController.unreadCount.value.toInt() == 0
+                      ? false
+                      : true,
               logoImagePath: AppImagePath.appLogo,
               notificationIconPath: AppIconsPath.notificationIcon,
               onNotificationPressed: () {
                 notificationController.fetchNotifications();
+                notificationController.isReadAllNotificaton();
                 Get.toNamed(AppRoutes.notificationScreen);
               },
-              badgeLabel: "",
-              profileImagePath: profileController
-                          .profileData.value.data?.user?.image?.isNotEmpty ??
-                      false
-                  ? profileController.profileData.value.data!.user!.image!
-                  : AppImagePath.dummyProfileImage,
+              badgeLabel:
+                  notificationController.unreadCount.value.toInt().toString(),
+              profileImagePath: profileController.isLoading.value
+                  ? AppImagePath
+                      .dummyProfileImage // Show dummy image while loading
+                  : (profileController.profileData.value.data?.user?.image
+                              ?.isNotEmpty ??
+                          false)
+                      ? profileController.profileData.value.data!.user!.image!
+                      : AppImagePath.dummyProfileImage,
             ),
             Expanded(
               child: SingleChildScrollView(

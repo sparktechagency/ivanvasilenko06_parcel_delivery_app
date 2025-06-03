@@ -37,5 +37,10 @@ class AppApiUrl {
 
   static const String finishedDelivery = "$baseUrl/delivery/update-status";
   static const String deleteProfile = "$baseUrl/auth/user";
+  static const String registerWithPhone = "$baseUrl/auth/register";
+  static const String loginWithPhone = "$baseUrl/auth/login";
+  static const String readNotificaiton = "$baseUrl/notification/unread";
+  static const String isReadNotification = "$baseUrl/notification/mark-read";
+  
   static const String token = "";
 }
