@@ -392,16 +392,13 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                             ? "Loading delivery address..."
                                             : deliveryAddresses[itemId] ??
                                                 "Address unavailable";
-
                                     // Check if request has been sent (you'll need to implement this logic based on your controller)
                                     final bool hasRequestSent =
                                         deliveryController
                                             .isRequestSent(itemId);
-
                                     // Format dates if available (you may need to add date fields to your model)
                                     String formattedDate = "N/A";
                                     // Add date formatting logic here if your ServiceScreenModel has date fields
-
                                     try {
                                       final startDate = DateTime.parse(item
                                           .data!.first.deliveryStartTime

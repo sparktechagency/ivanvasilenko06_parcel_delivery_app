@@ -107,10 +107,8 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
     setState(() {
       isLoading = true;
     });
-
     await _radiusController.fetchParcelsInRadius();
     _updateCurrentAddress();
-
     setState(() {
       isLoading = false;
     });
@@ -157,13 +155,11 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
               zoomControlsEnabled: false,
             );
           }),
-
           // Loading indicator
           if (isLoading)
             const Center(
               child: CircularProgressIndicator(),
             ),
-
           //Controls at the bottom
           Positioned(
             bottom: 20,
@@ -279,20 +275,18 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
 
   Set<Marker> _createCustomMarkers() {
     Set<Marker> customMarkers = {};
-
     // Convert controller markers to custom markers
     for (Marker marker in _radiusController.markers) {
       customMarkers.add(
         Marker(
           markerId: marker.markerId,
           position: marker.position,
-          infoWindow: marker.infoWindow,
+          // infoWindow: marker.infoWindow,
           icon: customMarkerIcon,
           onTap: marker.onTap,
         ),
       );
     }
-
     return customMarkers;
   }
 }

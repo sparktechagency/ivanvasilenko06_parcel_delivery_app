@@ -908,7 +908,7 @@ class _BookingScreenState extends State<BookingScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
-                              mainAxisSize: MainAxisSize.max,
+                              mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 InkWell(

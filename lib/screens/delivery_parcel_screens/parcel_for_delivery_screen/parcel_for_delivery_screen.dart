@@ -12,7 +12,6 @@ import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/bottom_nav_bar/bottom_nav_bar.dart';
 import 'package:parcel_delivery_app/screens/delivery_parcel_screens/controller/delivery_screens_controller.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
-import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
@@ -318,17 +317,14 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Opacity(
-                                    opacity: (index == 2 ||
-                                            isRequestSent ||
-                                            parcelId == null)
+                                    opacity: (isRequestSent || parcelId == null)
                                         ? 0.5
-                                        : 1.0,
+                                        : 1.0, // Removed index == 2
                                     child: InkWell(
-                                      onTap: (index == 2 ||
-                                              isRequestSent ||
-                                              parcelId == null)
+                                      onTap: (isRequestSent || parcelId == null)
                                           ? null
                                           : () async {
+                                              // Removed index == 2
                                               if (parcelId != null &&
                                                   parcelId.isNotEmpty) {
                                                 //! Use mounted check to update UI after request
@@ -341,8 +337,7 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
                                                   });
                                                 }
                                               } else {
-                                                // AppSnackBar.error(
-                                                //     "Parcel ID is missing");
+                                                // AppSnackBar.error("Parcel ID is missing");
                                               }
                                             },
                                       splashColor: Colors.transparent,
@@ -351,9 +346,10 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
                                         children: [
                                           IconWidget(
                                             icon: AppIconsPath.personAddIcon,
-                                            color: (index == 2 || isRequestSent)
+                                            color: isRequestSent
                                                 ? Colors.grey
                                                 : AppColors.black,
+                                            // Removed index == 2
                                             width: 14,
                                             height: 14,
                                           ),
@@ -378,9 +374,10 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
                                     color: AppColors.blackLighter,
                                   ),
                                   InkWell(
-                                    onTap: index == 2 || parcel.sId == null
+                                    onTap: parcel.sId == null
                                         ? null
                                         : () {
+                                            // Removed index == 2
                                             if (parcel.sId != null) {
                                               Get.toNamed(
                                                 AppRoutes.summaryOfParcelScreen,
@@ -419,7 +416,6 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
                     },
                   ),
                 );
-                ;
               },
             ),
           ),

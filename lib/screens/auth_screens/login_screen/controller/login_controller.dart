@@ -82,27 +82,34 @@ class LoginScreenController extends GetxController {
   Future<void> sendOTPFirebase() async {
     try {
       if (loginFormKey.currentState!.validate()) {
-        isPhoneLoading.value = true;
+        isLoading.value = true; // This sets loading to true
+
         var fcmToken =
             await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
+
         // Get device info
         String deviceId = await _deviceInfo.getDeviceId();
         String deviceType = await _deviceInfo.getDeviceType();
+
         if (deviceId == 'unknown' || deviceType == 'unknown') {
           deviceId = await _deviceInfo.getDeviceId();
           deviceType = await _deviceInfo.getDeviceType();
         }
 
-        if (true) {
-          await _auth.verifyPhoneNumber(
-            phoneNumber: completePhoneNumber.value,
-            verificationCompleted: (PhoneAuthCredential credential) async {
-              await _auth.signInWithCredential(credential);
-            },
-            verificationFailed: (FirebaseAuthException e) {
-              log("${e.message}");
-            },
-            codeSent: (String verificationId, int? resendToken) {
+        await _auth.verifyPhoneNumber(
+          phoneNumber: completePhoneNumber.value,
+          verificationCompleted: (PhoneAuthCredential credential) async {
+            await _auth.signInWithCredential(credential);
+            isLoading.value = false; // Stop loading
+          },
+          verificationFailed: (FirebaseAuthException e) {
+            log("${e.message}");
+            isLoading.value = false; // Stop loading on error
+          },
+          codeSent: (String verificationId, int? resendToken) {
+            // Add a small delay to show the loading indicator
+            Future.delayed(const Duration(milliseconds: 500), () {
+              isLoading.value = false; // Stop loading before navigation
               Get.toNamed(
                 AppRoutes.verifyEmailScreen,
                 arguments: {
@@ -114,20 +121,21 @@ class LoginScreenController extends GetxController {
                   "screen": "login",
                 },
               );
-            },
-            codeAutoRetrievalTimeout: (String verificationId) {},
-          );
-          debugPrint("✳️✳️✳️✳️✳️✳️✳️✳️✳️✳️ $fcmToken");
-          debugPrint("📱📱📱 DeviceId: $deviceId, DeviceType: $deviceType");
-        } else {
-          // Get.snackbar("Error", "Failed to send OTP. Please try again.");
-        }
+            });
+          },
+          codeAutoRetrievalTimeout: (String verificationId) {
+            isLoading.value = false; // Stop loading on timeout
+          },
+        );
+
+        debugPrint("✳️✳️✳️✳️✳️✳️✳️✳️✳️✳️ $fcmToken");
+        debugPrint("📱📱📱 DeviceId: $deviceId, DeviceType: $deviceType");
       }
     } catch (e) {
       log("Error from login click button: $e");
-    } finally {
-      isLoading.value = false;
+      isLoading.value = false; // Stop loading on error
     }
+    // Remove the finally block since we're handling loading state in callbacks
   }
 
   var isGoogleLoading = false.obs;

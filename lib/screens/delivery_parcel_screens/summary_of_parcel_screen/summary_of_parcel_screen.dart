@@ -218,7 +218,7 @@ class _SummaryOfParcelScreenState extends State<SummaryOfParcelScreen> {
                         ),
                         const SpaceWidget(spaceHeight: 16),
                         SummaryInfoRowWidget(
-                          image: AppImagePath.profileImage,
+                          icon: AppIconsPath.profileIcon,
                           label: "sendersName".tr,
                           value: parcel?.senderId?.fullName ??
                               "N/A", // Sender's name
