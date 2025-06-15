@@ -343,12 +343,24 @@ class _ServicesScreenState extends State<ServicesScreen> {
                               ),
                               const SpaceWidget(spaceHeight: 14),
                               if (controller.recentParcelList.isEmpty)
-                                const Center(
-                                  child: TextWidget(
-                                    text: "No recent orders available",
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.greyDark2,
+                                Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const ImageWidget(
+                                        imagePath: AppImagePath.sendParcel,
+                                        width: 50,
+                                        height: 50,
+                                      ),
+                                      const SpaceWidget(spaceHeight: 16),
+                                      TextWidget(
+                                        text: "No Recent Published Parcel Found"
+                                            .tr,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        fontColor: AppColors.greyDark2,
+                                      ),
+                                    ],
                                   ),
                                 )
                               else
@@ -392,13 +404,10 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                             ? "Loading delivery address..."
                                             : deliveryAddresses[itemId] ??
                                                 "Address unavailable";
-                                    // Check if request has been sent (you'll need to implement this logic based on your controller)
                                     final bool hasRequestSent =
                                         deliveryController
                                             .isRequestSent(itemId);
-                                    // Format dates if available (you may need to add date fields to your model)
                                     String formattedDate = "N/A";
-                                    // Add date formatting logic here if your ServiceScreenModel has date fields
                                     try {
                                       final startDate = DateTime.parse(item
                                           .data!.first.deliveryStartTime

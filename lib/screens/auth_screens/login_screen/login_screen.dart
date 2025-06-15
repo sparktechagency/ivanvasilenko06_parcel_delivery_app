@@ -74,7 +74,7 @@ class LoginScreen extends StatelessWidget {
                     return controller.isLoading.value
                         ? const Center(child: CircularProgressIndicator())
                         : ButtonWidget(
-                            onPressed: controller.sendOTPFirebase,
+                            onPressed: controller.phoneOtpLogin,
                             label: "login".tr,
                             buttonHeight: 50,
                             buttonWidth: double.infinity,

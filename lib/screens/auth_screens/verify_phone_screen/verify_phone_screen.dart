@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 
-import '../../../routes/app_routes.dart';
 import '../../../widgets/space_widget/space_widget.dart';
 import '../../../widgets/text_button_widget/text_button_widget.dart';
 import '../../../widgets/text_field_widget/text_field_widget.dart';
@@ -17,7 +16,12 @@ class VerifyPhoneScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String phoneNumber = Get.arguments;
+    // Fix: Get phone number from the arguments map instead of treating arguments as a string
+    final Map<String, dynamic> arguments =
+        Get.arguments as Map<String, dynamic>? ?? {};
+    final String phoneNumber = arguments["phoneNumber"]?.toString() ??
+        arguments["mobileNumber"]?.toString() ??
+        "Unknown Number";
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
@@ -69,9 +73,7 @@ class VerifyPhoneScreen extends StatelessWidget {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: ButtonWidget(
-          onPressed: () {
-            Get.toNamed(AppRoutes.loginScreen);
-          },
+          onPressed: controller.verifyOTP,
           label: "verify".tr,
           buttonWidth: double.infinity,
           buttonHeight: 50,

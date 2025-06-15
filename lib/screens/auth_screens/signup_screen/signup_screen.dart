@@ -95,7 +95,7 @@ class SignupScreen extends StatelessWidget {
               ),
             ),
             ButtonWidget(
-              onPressed: () => controller.sendOTP(),
+              onPressed: () => controller.phoneOtpSignup(),
               label: "next".tr,
               icon: Icons.arrow_forward,
               buttonWidth: 120,

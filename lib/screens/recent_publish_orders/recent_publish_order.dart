@@ -199,7 +199,14 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
                 if (controller.recentParcelList.isEmpty) {
                   return Center(
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        const ImageWidget(
+                          imagePath: AppImagePath.sendParcel,
+                          width: 80,
+                          height: 80,
+                        ),
+                        const SpaceWidget(spaceHeight: 16),
                         const TextWidget(
                           text: "No recent orders available",
                           fontSize: 14,
@@ -210,7 +217,6 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
                         TextButtonWidget(
                           onPressed: () {
                             controller.refreshParcelList();
-                            // Re-initialize addresses after refresh
                             Future.delayed(const Duration(milliseconds: 500),
                                 () {
                               _initializeAddressStates();

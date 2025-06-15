@@ -81,7 +81,6 @@ class VerifyEmailController extends GetxController {
 
     try {
       isLoading.value = true;
-
       // Firebase OTP verification (common for both flows)
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
         verificationId: firebaseID,
@@ -123,10 +122,8 @@ class VerifyEmailController extends GetxController {
       String deviceType = await _deviceInfo.getDeviceType();
 
       Map<String, String> body = {
-        "fullName": fullName,
-        "country": country,
-        "email": email,
         "mobileNumber": phoneNumber,
+        "otpCode": otpController.text,
         "fcmToken": fcmToken,
         "deviceId": deviceId,
         "deviceType": deviceType,
@@ -134,9 +131,9 @@ class VerifyEmailController extends GetxController {
       };
 
       var response = await ApiPostServices().apiPostServices(
-        url: AppApiUrl.registerWithPhone,
+        url: AppApiUrl.phoneOtpVerify,
         body: body,
-        statusCode: 201,
+        statusCode: 200,
       );
 
       if (response["status"] == "success") {
@@ -180,13 +177,14 @@ class VerifyEmailController extends GetxController {
 
       Map<String, String> body = {
         'mobileNumber': phoneNumber,
+        'otpCode': otpController.text.trim(),
         'fcmToken': fcmToken.toString(),
         'deviceId': deviceId,
         'deviceType': deviceType
       };
 
       var response = await ApiPostServices().apiPostServices(
-        url: AppApiUrl.loginWithPhone,
+        url: AppApiUrl.phoneOtpLoginVerify,
         body: body,
         statusCode: 200,
       );

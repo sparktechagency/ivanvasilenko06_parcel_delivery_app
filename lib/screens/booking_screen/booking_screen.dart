@@ -575,7 +575,28 @@ class _BookingScreenState extends State<BookingScreen> {
     return Obx(() {
       final data = currentOrderController.currentOrdersModel.value.data;
       if (data == null || data.isEmpty) {
-        return const Center(child: Text('No current orders available'));
+        return Padding(
+          padding: const EdgeInsets.only(top: 20),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const ImageWidget(
+                  imagePath: AppImagePath.sendParcel,
+                  width: 50,
+                  height: 50,
+                ),
+                const SpaceWidget(spaceHeight: 16),
+                TextWidget(
+                  text: "No current orders available".tr,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  fontColor: AppColors.greyDark2,
+                ),
+              ],
+            ),
+          ),
+        );
       }
       return Column(
         children: [
@@ -1176,7 +1197,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   const SizedBox(height: 16),
                   TextWidget(
                     text: "No New Bookings".tr,
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.w500,
                     fontColor: AppColors.greyDark2,
                     textAlignment: TextAlign.center,
@@ -1451,8 +1472,6 @@ class _BookingScreenState extends State<BookingScreen> {
                         const SpaceWidget(spaceHeight: 8),
                       ],
                     ),
-                    // Right Column with price and publication date
-
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(14),
