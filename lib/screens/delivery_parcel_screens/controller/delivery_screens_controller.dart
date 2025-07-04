@@ -1,22 +1,22 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_get_services.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart';
+import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
 import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 
 import '../models/delivery_screen_models.dart';
 
 class DeliveryScreenController extends GetxController {
-  // For storing delivery type and addresses
+  //! For storing delivery type and addresses
   RxString selectedDeliveryType = ''.obs;
   RxString pickupLocation = ''.obs;
   RxString selectedDeliveryLocation = ''.obs;
 
-  // For storing pickup lat/lng as strings
+  //! For storing pickup lat/lng as strings
   RxString pickupLocationLatitude = ''.obs;
   RxString pickupLocationLongitude = ''.obs;
 
@@ -89,23 +89,30 @@ class DeliveryScreenController extends GetxController {
             '${AppApiUrl.deliverParcel}?deliveryType=${selectedDeliveryType.value}&pickupLocation=${pickupLocation.value}&deliveryLocation=${selectedDeliveryLocation.value}&latitude=${pickupLocationLatitude.value}&longitude=${pickupLocationLongitude.value}}';
 
         final response = await ApiGetServices().apiGetServices(url);
-        print("Body res 👀👀👀👀👀👀👀👀👀👀👀👀👀👀👀");
-        print(response);
+        appLog("Body res 👀👀👀👀👀👀👀👀👀👀👀👀👀👀👀");
+        appLog(response);
 
         if (response != null &&
             response['status'] == 'success' &&
             response['data'] != null) {
-          parcels.value = (response['data'] as List)
-              .map((item) => DeliverParcelList.fromJson(item))
-              .toList();
+          // Fix: Access the 'parcels' array inside the 'data' object
+          final dataObject = response['data'];
+          if (dataObject is Map<String, dynamic> &&
+              dataObject['parcels'] != null) {
+            parcels.value = (dataObject['parcels'] as List)
+                .map((item) => DeliverParcelList.fromJson(item))
+                .toList();
+          } else {
+            parcels.clear();
+          }
 
-          print("Parcel list**********=============================");
-          print(parcels.value.length);
+          appLog("Parcel list**********=============================");
+          appLog(parcels.value.length);
         } else {
           parcels.clear();
         }
       } catch (e) {
-        log("Error fetching parcels: $e");
+        appLog("Error fetching parcels: $e");
         parcels.clear();
       } finally {
         isLoading.value = false;

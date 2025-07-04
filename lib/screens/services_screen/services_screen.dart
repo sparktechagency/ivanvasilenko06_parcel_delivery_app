@@ -43,9 +43,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
   void initState() {
     super.initState();
     profileController.getProfileInfo();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeAddressStates();
-    });
+    // Initialize address states immediately
+    _initializeAddressStates();
   }
 
   //! Cache for addresses to avoid multiple API calls for the same coordinates
@@ -60,6 +59,20 @@ class _ServicesScreenState extends State<ServicesScreen> {
   Map<String, bool> deliveryAddressLoading = {};
 
   void _initializeAddressStates() {
+    // Check if controller has data, if not, listen for changes
+    if (controller.recentParcelList.isEmpty) {
+      // Listen for changes in the controller
+      ever(controller.recentParcelList, (List<ServiceScreenModel> parcels) {
+        if (parcels.isNotEmpty) {
+          _loadAddressesForParcels();
+        }
+      });
+    } else {
+      _loadAddressesForParcels();
+    }
+  }
+
+  void _loadAddressesForParcels() {
     if (controller.recentParcelList.isNotEmpty) {
       for (var serviceModel in controller.recentParcelList) {
         // Access the Datum objects correctly
@@ -219,7 +232,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                               .toInt()
                               .toString()),
                           backgroundColor: AppColors.red,
-                          child: IconWidget(
+                          child: const IconWidget(
                             icon: AppIconsPath.notificationIcon,
                             width: 24,
                             height: 24,
@@ -354,8 +367,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                       ),
                                       const SpaceWidget(spaceHeight: 16),
                                       TextWidget(
-                                        text: "No Recent Published Parcel Found"
-                                            .tr,
+                                        text: "noRecentPublishParcelFound".tr,
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,
                                         fontColor: AppColors.greyDark2,

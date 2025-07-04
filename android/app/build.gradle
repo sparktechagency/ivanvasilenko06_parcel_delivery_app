@@ -27,7 +27,7 @@ android {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.ivan.delivery"
         minSdk = 25//flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         multiDexEnabled true
@@ -55,18 +55,20 @@ android {
     signingConfigs {
         debug {
             keyAlias 'androiddebugkey'
-            keyPassword 'android'
+            keyPassword 'ivanivan'
             storeFile file('C:/Users/bdcalling/.android/debug.keystore')
-            storePassword 'android'
+            storePassword 'ivanivan'
         }
         release {
             storeFile file('C://Users//bdcalling//.android//debug.keystore')
-            storePassword 'android'
+            storePassword 'ivanivan'
             keyAlias 'androiddebugkey'
-            keyPassword 'android'
+            keyPassword 'ivanivan'
         }
     }
 }
+// At the bottom of the file
+apply plugin: 'com.google.gms.google-services'
 
 flutter {
     source = "../.."

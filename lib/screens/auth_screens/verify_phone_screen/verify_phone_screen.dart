@@ -42,6 +42,7 @@ class VerifyPhoneScreen extends StatelessWidget {
                 controller: controller.otpController,
                 hintText: '******',
                 maxLines: 1,
+                keyboardType: TextInputType.number,
               ),
               const SpaceWidget(spaceHeight: 16),
               TextWidget(

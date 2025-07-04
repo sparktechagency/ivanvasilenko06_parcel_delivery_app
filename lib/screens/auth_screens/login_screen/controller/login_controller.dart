@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
@@ -10,6 +10,7 @@ import 'package:parcel_delivery_app/screens/bottom_nav_bar/bottom_nav_bar.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart';
 import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
 import 'package:parcel_delivery_app/services/deviceInfo/device_info.dart';
+import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
 import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 
 class LoginScreenController extends GetxController {
@@ -17,65 +18,12 @@ class LoginScreenController extends GetxController {
   final DeviceInfo _deviceInfo = DeviceInfo();
   TextEditingController emailController = TextEditingController();
   GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final RxString completePhoneNumber = ''.obs;
   TextEditingController phoneController = TextEditingController();
 
   void updatePhoneNumber(String phoneNumber) {
     completePhoneNumber.value = phoneNumber;
   }
-
-  // Future<dynamic> clickLoginButton() async {
-  //   try {
-  //     if (loginFormKey.currentState!.validate()) {
-  //       isLoading.value = true;
-  //
-  //       var fcmToken =
-  //           await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
-  //
-  //       // Get device info
-  //       String deviceId = await _deviceInfo.getDeviceId();
-  //       String deviceType = await _deviceInfo.getDeviceType();
-  //
-  //       // If device info is not initialized yet, get it asynchronously
-  //       if (deviceId == 'unknown' || deviceType == 'unknown') {
-  //         deviceId = await _deviceInfo.getDeviceId();
-  //         deviceType = await _deviceInfo.getDeviceType();
-  //       }
-  //
-  //       Map<String, String> body = {
-  //         "email": emailController.text,
-  //         "fcmToken": fcmToken.toString(),
-  //         "deviceId": deviceId,
-  //         "deviceType": deviceType,
-  //       };
-  //
-  //       var data = await ApiPostServices().apiPostServices(
-  //         url: AppApiUrl.login,
-  //         body: body,
-  //       );
-  //
-  //       if (data != null) {
-  //         Get.toNamed(
-  //           AppRoutes.verifyEmailScreen,
-  //           arguments: {
-  //             "email": emailController.text,
-  //             "isFromLogin": true,
-  //           },
-  //         );
-  //         debugPrint("✳️✳️✳️✳️✳️✳️✳️✳️✳️✳️ $fcmToken");
-  //         debugPrint("📱📱📱 DeviceId: $deviceId, DeviceType: $deviceType");
-  //       } else {
-  //         // Get.snackbar("Error", "Failed to send OTP. Please try again.");
-  //       }
-  //     }
-  //   } catch (e) {
-  //     log("Error from login click button: $e");
-  //     // Get.snackbar("Error", "An error occurred. Please try again.");
-  //   } finally {
-  //     isLoading.value = false;
-  //   }
-  // }
 
   Future<void> phoneOtpLogin() async {
     try {
@@ -165,85 +113,25 @@ class LoginScreenController extends GetxController {
 
   var isPhoneLoading = false.obs;
 
-  // Future<void> sendOTPFirebase() async {
-  //   try {
-  //     if (loginFormKey.currentState!.validate()) {
-  //       isLoading.value = true; // This sets loading to true
-  //
-  //       var fcmToken =
-  //           await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
-  //
-  //       // Get device info
-  //       String deviceId = await _deviceInfo.getDeviceId();
-  //       String deviceType = await _deviceInfo.getDeviceType();
-  //
-  //       if (deviceId == 'unknown' || deviceType == 'unknown') {
-  //         deviceId = await _deviceInfo.getDeviceId();
-  //         deviceType = await _deviceInfo.getDeviceType();
-  //       }
-  //
-  //       await _auth.verifyPhoneNumber(
-  //         phoneNumber: completePhoneNumber.value,
-  //         verificationCompleted: (PhoneAuthCredential credential) async {
-  //           await _auth.signInWithCredential(credential);
-  //           isLoading.value = false; // Stop loading
-  //         },
-  //         verificationFailed: (FirebaseAuthException e) {
-  //           log("${e.message}");
-  //           isLoading.value = false; // Stop loading on error
-  //         },
-  //         codeSent: (String verificationId, int? resendToken) {
-  //           // Add a small delay to show the loading indicator
-  //           Future.delayed(const Duration(milliseconds: 500), () {
-  //             isLoading.value = false; // Stop loading before navigation
-  //             Get.toNamed(
-  //               AppRoutes.verifyEmailScreen,
-  //               arguments: {
-  //                 "firebaseID": verificationId,
-  //                 "phoneNumber": completePhoneNumber.value,
-  //                 "fcmToken": fcmToken.toString(),
-  //                 "deviceId": deviceId,
-  //                 "deviceType": deviceType,
-  //                 "screen": "login",
-  //               },
-  //             );
-  //           });
-  //         },
-  //         codeAutoRetrievalTimeout: (String verificationId) {
-  //           isLoading.value = false; // Stop loading on timeout
-  //         },
-  //       );
-  //
-  //       debugPrint("✳️✳️✳️✳️✳️✳️✳️✳️✳️✳️ $fcmToken");
-  //       debugPrint("📱📱📱 DeviceId: $deviceId, DeviceType: $deviceType");
-  //     }
-  //   } catch (e) {
-  //     log("Error from login click button: $e");
-  //     isLoading.value = false; // Stop loading on error
-  //   }
-  //   // Remove the finally block since we're handling loading state in callbacks
-  // }
-
   var isGoogleLoading = false.obs;
 
   Future<void> googleSignIn() async {
     try {
       isGoogleLoading(true);
-
-      // Configure GoogleSignIn with explicit scopes if needed
       final GoogleSignIn googleSignIn = GoogleSignIn();
 
       // Sign out first to ensure clean state
       await googleSignIn.signOut();
-      // Add a small delay to ensure sign out is complete
       await Future.delayed(const Duration(milliseconds: 500));
-      log("🔄 Starting Google Sign-In process...");
+
+      appLog("🔄 Starting Google Sign-In process...");
+
       // Start sign-in process
       final GoogleSignInAccount? acc = await googleSignIn.signIn();
 
       if (acc == null) {
         // User cancelled the sign-in
-        log("Google Sign-In cancelled by user");
+        appLog("Google Sign-In cancelled by user");
         AppSnackBar.error("Sign-in cancelled");
         return;
       }
@@ -251,7 +139,7 @@ class LoginScreenController extends GetxController {
       // Get FCM token and device info
       var fcmToken =
           await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
-      log("FCM Token: '$fcmToken'");
+      appLog("FCM Token: '$fcmToken'");
 
       String deviceId = await _deviceInfo.getDeviceId();
       String deviceType = await _deviceInfo.getDeviceType();
@@ -261,8 +149,8 @@ class LoginScreenController extends GetxController {
         deviceType = await _deviceInfo.getDeviceType();
       }
 
-      log("Device ID: '$deviceId'");
-      log("Device Type: '$deviceType'");
+      appLog("Device ID: '$deviceId'");
+      appLog("Device Type: '$deviceType'");
 
       // Extract user data
       var email = acc.email;
@@ -270,31 +158,33 @@ class LoginScreenController extends GetxController {
       var displayName = acc.displayName ?? "";
       var profileImage = acc.photoUrl ?? "";
 
-      log("🧿🧿🧿🧿 Email = $email");
-      log("🧿🧿🧿🧿 Name = $displayName");
-      log("🧿🧿🧿🧿 Image = $profileImage");
-      log("🧿🧿🧿🧿 UUID = $uuid");
+      appLog("🧿🧿🧿🧿 Email = $email");
+      appLog("🧿🧿🧿🧿 Name = $displayName");
+      appLog("🧿🧿🧿🧿 Image = $profileImage");
+      appLog("🧿🧿🧿🧿 UUID = $uuid");
 
-      // Prepare request body - Use Map instead of json.encode for consistency
+      // Prepare request body
       Map<String, dynamic> body = {
         "googleId": uuid,
         "fullName": displayName,
-        // "email": email,
-        // "profileImage": profileImage,
         "fcmToken": fcmToken?.toString() ?? "",
         "deviceId": deviceId,
         "deviceType": deviceType,
         "role": "sender",
       };
-      log("Google Auth API Request Body: $body");
-      log("Google Auth API URL: ${AppApiUrl.googleAuth}");
+
+      appLog("Google Auth API Request Body: $body");
+      appLog("Google Auth API URL: ${AppApiUrl.googleAuth}");
+
       // Make API call
       var data = await ApiPostServices().apiPostServices(
         url: AppApiUrl.googleAuth,
         body: body,
         statusCode: 201,
       );
-      log("Google Auth API Response: $data");
+
+      appLog("Google Auth API Response: $data");
+
       if (data != null) {
         if (data["data"] != null && data["data"]["token"] != null) {
           String token = data["data"]["token"].toString();
@@ -306,29 +196,46 @@ class LoginScreenController extends GetxController {
             // Verify token was saved
             String savedToken =
                 await SharePrefsHelper.getString(SharedPreferenceValue.token);
-            log("✅ Token saved successfully: $savedToken");
+            appLog("✅ Token saved successfully: $savedToken");
 
             // Navigate to bottom nav
-            log("🚀 Navigating to BottomNavScreen");
+            appLog("🚀 Navigating to BottomNavScreen");
             Get.offAll(() => const BottomNavScreen());
           } else {
-            log("❌ Empty token received");
+            appLog("❌ Empty token received");
             AppSnackBar.error("Authentication failed: Invalid token");
           }
         } else {
-          log("❌ Invalid response structure: $data");
+          appLog("❌ Invalid response structure: $data");
           AppSnackBar.error("Authentication failed: Invalid response");
         }
       } else {
-        log("❌ API returned null data");
+        appLog("❌ API returned null data");
         AppSnackBar.error("Authentication failed: Server error");
       }
+    } on PlatformException catch (e) {
+      appLog("❌ PlatformException in Google Sign-In: ${e.code} - ${e.message}");
+
+      // Handle specific error codes
+      switch (e.code) {
+        case 'sign_in_failed':
+          AppSnackBar.error(
+              "Sign-in failed. Please check your internet connection and try again.");
+          break;
+        case 'network_error':
+          AppSnackBar.error("Network error. Please check your connection.");
+          break;
+        case 'sign_in_canceled':
+          AppSnackBar.error("Sign-in was cancelled.");
+          break;
+        default:
+          AppSnackBar.error("Sign-in failed: ${e.message ?? 'Unknown error'}");
+      }
     } catch (e) {
-      log("❌ Error in Google Sign-In: $e");
+      appLog("❌ Error in Google Sign-In: $e");
       AppSnackBar.error("Sign-in failed: ${e.toString()}");
     } finally {
       isGoogleLoading(false);
-      log("🔄 Google Sign-In process completed");
     }
   }
 }

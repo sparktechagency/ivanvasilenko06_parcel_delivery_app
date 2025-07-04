@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http; // for API requests
-import 'package:intl/intl.dart';
 import 'package:parcel_delivery_app/constants/api_key.dart'; // for API key
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/screens/delivery_parcel_screens/controller/delivery_screens_controller.dart';
@@ -186,61 +185,6 @@ class _ChooseParcelForDeliveryScreenState
       points.add(LatLng(lat / 1E5, lng / 1E5));
     }
     return points;
-  }
-
-  void _showParcelDetailsBottomSheet(int index) {
-    final parcel = controller.parcels[index];
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(16),
-        ),
-      ),
-      builder: (_) {
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(parcel.title ?? 'Parcel',
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
-                Text("Sender: ${parcel.senderId?.fullName ?? 'N/A'}"),
-                Text("Type: ${parcel.deliveryType ?? ''}"),
-                Text("Phone: ${parcel.phoneNumber ?? ''}"),
-                Text("Price: ৳${parcel.price ?? ''}"),
-                Text(
-                  "From: ${DateFormat.yMd().format(DateTime.parse(parcel.deliveryStartTime!))}",
-                ),
-                Text(
-                  "To: ${DateFormat.yMd().format(DateTime.parse(parcel.deliveryEndTime!))}",
-                ),
-                const SizedBox(height: 12),
-                if (parcel.images != null && parcel.images!.isNotEmpty)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      'https://your.api.base.url${parcel.images!.first}',
-                      height: 180,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) =>
-                          const Icon(Icons.image_not_supported),
-                    ),
-                  )
-                else
-                  const Text("No image available"),
-              ],
-            ),
-          ),
-        );
-      },
-    );
   }
 
   @override

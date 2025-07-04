@@ -212,7 +212,6 @@ class _BookingScreenState extends State<BookingScreen> {
       return;
     }
 
-    //! Clean the phone number
     final String formattedNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
 
     try {
@@ -706,23 +705,31 @@ class _BookingScreenState extends State<BookingScreen> {
                                     ],
                                   ),
                                   const SpaceWidget(spaceHeight: 8),
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.call,
-                                        color: AppColors.black,
-                                        size: 12,
-                                      ),
-                                      const SpaceWidget(spaceWidth: 8),
-                                      TextWidget(
-                                        text: data[index].phoneNumber ?? "",
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        fontColor: AppColors.greyDark2,
-                                      ),
-                                    ],
-                                  ),
-                                  const SpaceWidget(spaceHeight: 8),
+                                  if (data[index].status != "REQUESTED" &&
+                                      data[index].status != "PENDING" &&
+                                      data[index].status != "WAITING")
+                                    Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.call,
+                                              color: AppColors.black,
+                                              size: 12,
+                                            ),
+                                            const SpaceWidget(spaceWidth: 8),
+                                            TextWidget(
+                                              text:
+                                                  data[index].phoneNumber ?? "",
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                              fontColor: AppColors.greyDark2,
+                                            ),
+                                          ],
+                                        ),
+                                        const SpaceWidget(spaceHeight: 8),
+                                      ],
+                                    ),
                                   Row(
                                     children: [
                                       const Icon(
@@ -1081,26 +1088,6 @@ class _BookingScreenState extends State<BookingScreen> {
     });
   }
 
-  String _getNumberSender(dynamic parcel) {
-    if (parcel.typeParcel.toString() == "deliveryRequest") {
-      // For deliveryRequest type
-      if (parcel.status == "IN_TRANSIT") {
-        return parcel.senderId?.mobileNumber.toString() ?? "";
-      }
-    } else if (parcel.typeParcel.toString() == "assignedParcel") {
-      // For finished Delivery
-      if (parcel.status == "IN_TRANSIT") {
-        return parcel.senderId?.mobileNumber.toString() ?? "";
-      }
-    } else {
-      // For sendParcel type
-      if (parcel.status == "IN_TRANSIT") {
-        return parcel.assignedDelivererId?.mobileNumber.toString() ?? "";
-      }
-    }
-    return "";
-  }
-
   // Helper method to determine the action button text based on parcel type and status
   String _getActionButtonText(dynamic parcel) {
     if (parcel.typeParcel.toString() == "deliveryRequest") {
@@ -1110,7 +1097,7 @@ class _BookingScreenState extends State<BookingScreen> {
       } else if (parcel.status == "REQUESTED" ||
           parcel.status == "PENDING" ||
           parcel.status == "WAITING") {
-        return "Cancel Delivery".tr;
+        return "Cancel Request".tr;
       }
     } else if (parcel.typeParcel.toString() == "assignedParcel") {
       // For finished Delivery
@@ -1393,25 +1380,6 @@ class _BookingScreenState extends State<BookingScreen> {
                           ],
                         ),
                         const SpaceWidget(spaceHeight: 8),
-                        // Row(
-                        //   children: [
-                        //     const Icon(
-                        //       Icons.phone,
-                        //       color: AppColors.black,
-                        //       size: 12,
-                        //     ),
-                        //     const SpaceWidget(spaceWidth: 8),
-                        //     TextWidget(
-                        //       text: deliveryRequest["mobileNumber"] ??
-                        //           parcel.phoneNumber ??
-                        //           '',
-                        //       fontSize: 12,
-                        //       fontWeight: FontWeight.w500,
-                        //       fontColor: AppColors.greyDark2,
-                        //     ),
-                        //   ],
-                        // ),
-                        // const SpaceWidget(spaceHeight: 8),
                         Row(
                           children: [
                             const Icon(

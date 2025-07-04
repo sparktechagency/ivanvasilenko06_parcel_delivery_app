@@ -147,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: Slider(
                           label:
-                              '${_radiusController.radius.value.toStringAsFixed(0)} ${"km".tr}',
+                              '${_radiusController.radius.value.toStringAsFixed(0)} ${" km".tr}',
                           value: _radiusController.radius.value,
                           min: 0,
                           max: 50,
@@ -158,6 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             });
                             _radiusController.radius.value = value;
                           },
+                          activeColor: AppColors.black,
                         ),
                       ),
                       Padding(
@@ -165,8 +166,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text("0${"km".tr}"),
-                            Text("50${"km".tr}"),
+                            Text("0${" km".tr}"),
+                            Text("50${" km".tr}"),
                           ],
                         ),
                       ),
@@ -334,7 +335,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ],
                       ),
+
                       const SpaceWidget(spaceHeight: 12),
+
                       TextWidget(
                         text: "earnMoney".tr,
                         fontSize: 14,
@@ -348,91 +351,93 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                       ),
                       const SpaceWidget(spaceHeight: 12),
-                      Container(
-                        height: ResponsiveUtils.height(50),
-                        padding: const EdgeInsets.all(10),
-                        decoration: const BoxDecoration(
-                          color: AppColors.greyLightest,
-                          borderRadius: BorderRadius.all(Radius.circular(50)),
-                        ),
-                        child: Row(
-                          children: [
-                            const TextWidget(
-                              text: "Interested in Receiving Deliveries?",
-                              fontSize: 14,
-                              fontColor: AppColors.black,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            const Spacer(),
-                            Obx(() {
-                              return GestureDetector(
-                                onTap: () {
-                                  bool newStatus = !notificationController
-                                      .receivingDeliveries.value;
-                                  notificationController
-                                      .receivingDeliveryNotification(newStatus);
-                                },
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 300),
-                                  width: 54,
-                                  height: 27,
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 2),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    color: notificationController
-                                            .receivingDeliveries.value
-                                        ? AppColors.green
-                                        : AppColors.red,
-                                  ),
-                                  child: Stack(
-                                    children: [
-                                      Align(
-                                        alignment: notificationController
-                                                .receivingDeliveries.value
-                                            ? Alignment.centerLeft
-                                            : Alignment.centerRight,
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 05),
-                                          child: Text(
-                                            notificationController
-                                                    .receivingDeliveries.value
-                                                ? 'ON'
-                                                : 'OFF',
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      AnimatedAlign(
-                                        duration:
-                                            const Duration(milliseconds: 300),
-                                        curve: Curves.easeInOut,
-                                        alignment: notificationController
-                                                .receivingDeliveries.value
-                                            ? Alignment.centerRight
-                                            : Alignment.centerLeft,
-                                        child: Container(
-                                          width: 18,
-                                          height: 18,
-                                          decoration: const BoxDecoration(
-                                            color: Colors.white,
-                                            shape: BoxShape.circle,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            }),
-                          ],
-                        ),
-                      ),
+
+                      // Container(
+                      //   height: ResponsiveUtils.height(50),
+                      //   padding: const EdgeInsets.all(10),
+                      //   decoration: const BoxDecoration(
+                      //     color: AppColors.greyLightest,
+                      //     borderRadius: BorderRadius.all(Radius.circular(50)),
+                      //   ),
+                      //   child: Row(
+                      //     children: [
+                      //       const TextWidget(
+                      //         text: "interestedInReceivingDeliveries",
+                      //         fontSize: 14,
+                      //         fontColor: AppColors.black,
+                      //         fontWeight: FontWeight.w600,
+                      //       ),
+                      //       const Spacer(),
+                      //       Obx(() {
+                      //         return GestureDetector(
+                      //           onTap: () {
+                      //             bool newStatus = !notificationController
+                      //                 .receivingDeliveries.value;
+                      //             notificationController
+                      //                 .receivingDeliveryNotification(newStatus);
+                      //           },
+                      //           child: AnimatedContainer(
+                      //             duration: const Duration(milliseconds: 300),
+                      //             width: 54,
+                      //             height: 27,
+                      //             padding:
+                      //                 const EdgeInsets.symmetric(horizontal: 2),
+                      //             decoration: BoxDecoration(
+                      //               borderRadius: BorderRadius.circular(20),
+                      //               color: notificationController
+                      //                       .receivingDeliveries.value
+                      //                   ? AppColors.green
+                      //                   : AppColors.red,
+                      //             ),
+                      //             child: Stack(
+                      //               children: [
+                      //                 Align(
+                      //                   alignment: notificationController
+                      //                           .receivingDeliveries.value
+                      //                       ? Alignment.centerLeft
+                      //                       : Alignment.centerRight,
+                      //                   child: Padding(
+                      //                     padding: const EdgeInsets.symmetric(
+                      //                         horizontal: 05),
+                      //                     child: Text(
+                      //                       notificationController
+                      //                               .receivingDeliveries.value
+                      //                           ? 'ON'
+                      //                           : 'OFF',
+                      //                       style: const TextStyle(
+                      //                         fontSize: 12,
+                      //                         fontWeight: FontWeight.bold,
+                      //                         color: Colors.white,
+                      //                       ),
+                      //                     ),
+                      //                   ),
+                      //                 ),
+                      //                 AnimatedAlign(
+                      //                   duration:
+                      //                       const Duration(milliseconds: 300),
+                      //                   curve: Curves.easeInOut,
+                      //                   alignment: notificationController
+                      //                           .receivingDeliveries.value
+                      //                       ? Alignment.centerRight
+                      //                       : Alignment.centerLeft,
+                      //                   child: Container(
+                      //                     width: 18,
+                      //                     height: 18,
+                      //                     decoration: const BoxDecoration(
+                      //                       color: Colors.white,
+                      //                       shape: BoxShape.circle,
+                      //                     ),
+                      //                   ),
+                      //                 ),
+                      //               ],
+                      //             ),
+                      //           ),
+                      //         );
+                      //       }),
+                      //     ],
+                      //   ),
+                      // ),
+
                       const SpaceWidget(spaceHeight: 20),
                     ],
                   ),

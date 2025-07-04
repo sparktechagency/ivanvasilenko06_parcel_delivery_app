@@ -272,17 +272,17 @@ class NotificationService {
         provisional: false,
         criticalAlert: false,
       );
-      print('User granted permission: ${settings.authorizationStatus}');
+      log('User granted permission: ${settings.authorizationStatus}');
       // Get the token for the device
       String? token = await _firebaseMessaging.getToken();
       if (token != null) {
-        print('🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑 Device Token: $token');
+        log('🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑 Device Token: $token');
         await SharePrefsHelper.setString(SharedPreferenceValue.fcmToken, token);
         String savedToken =
             await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
-        print("Saved FCM Token: $savedToken");
+        log("Saved FCM Token: $savedToken");
       } else {
-        print('Failed to retrieve FCM token');
+        log('Failed to retrieve FCM token');
       }
       // Handle foreground messages
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
@@ -302,7 +302,7 @@ class NotificationService {
         _handleNotificationNavigation(message);
       });
     } catch (e) {
-      print("An error occurred during FCM setup: $e");
+      log("An error occurred during FCM setup: $e");
     }
   }
 
@@ -313,7 +313,7 @@ class NotificationService {
         backgroundColor: AppColors.black, colorText: Colors.white, onTap: (x) {
       Get.toNamed(
         AppRoutes.notificationScreen,
-        arguments: {'tabIndex': 1}, // send the desired tab index here
+        arguments: {'tabIndex': 1},
       );
     });
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/profile_screen/controller/profile_controller.dart';
@@ -164,8 +165,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const TextWidget(
-                  text: 'Are you sure you want to log out?',
+                TextWidget(
+                  text: "areYouSureYouWantToLogOut".tr,
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   fontColor: AppColors.black,
@@ -197,8 +198,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       buttonRadius: BorderRadius.circular(10),
                       backgroundColor: AppColors.black,
                       textColor: AppColors.white,
-                      onPressed: () {
-                        SharePrefsHelper.remove(SharedPreferenceValue.token);
+                      onPressed: () async {
+                        await SharePrefsHelper.remove(
+                            SharedPreferenceValue.token);
+                        // Sign out from Google
+                        final GoogleSignIn googleSignIn = GoogleSignIn();
+                        try {
+                          await googleSignIn.signOut();
+                          await googleSignIn.disconnect();
+                        } catch (e) {
+                          // Handle error if needed
+                        }
                         Get.toNamed(AppRoutes.splashScreen);
                       },
                     ),

@@ -12,7 +12,12 @@
           "package_name": "com.ivan.delivery"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "104128260964981933882",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDfvuwVDKQKx-fHJ7Lu4_IyV7bYy2-l2hw"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "104128260964981933882",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

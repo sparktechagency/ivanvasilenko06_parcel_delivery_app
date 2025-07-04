@@ -225,5 +225,3 @@ class PhoneValidation {
     return null; // Valid
   }
 }
-
-// Example of how to use this in a form

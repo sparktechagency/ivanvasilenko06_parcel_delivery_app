@@ -52,7 +52,7 @@ class SignupScreen extends StatelessWidget {
                 const SpaceWidget(spaceHeight: 16),
                 // Phone Field
                 IntlPhoneFieldWidget(
-                  hintText: "Enter Your Number".tr,
+                  hintText: "enterYourPhoneNumber".tr,
                   controller: controller.phoneController,
                   onChanged: (phone) {
                     controller.updatePhoneNumber(phone.completeNumber);

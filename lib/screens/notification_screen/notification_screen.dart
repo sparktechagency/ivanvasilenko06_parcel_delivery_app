@@ -221,7 +221,7 @@ class _NotificationScreenState extends State<NotificationScreen>
       }
 
       //! Define the format of the input time string (e.g., "2025-05-17 03:19 PM")
-      final DateFormat formatter = DateFormat("yyyy-MM-dd hh:mm a");
+      final DateFormat formatter = DateFormat("yyyy-MM-dd HH:mm");
 
       //! Parse the input time as local DateTime
       final DateTime createdDate = formatter.parse(localCreatedAt);

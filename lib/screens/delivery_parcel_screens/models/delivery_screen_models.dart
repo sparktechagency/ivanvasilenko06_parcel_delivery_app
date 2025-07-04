@@ -15,10 +15,10 @@ class DeliverParcelModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    if (this.deliveryParcelList != null) {
-      data['data'] = this.deliveryParcelList!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    if (deliveryParcelList != null) {
+      data['data'] = deliveryParcelList!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -80,28 +80,28 @@ class DeliverParcelList {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['_id'] = this.sId;
-    if (this.senderId != null) {
-      data['senderId'] = this.senderId!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    if (senderId != null) {
+      data['senderId'] = senderId!.toJson();
     }
-    if (this.pickupLocation != null) {
-      data['pickupLocation'] = this.pickupLocation!.toJson();
+    if (pickupLocation != null) {
+      data['pickupLocation'] = pickupLocation!.toJson();
     }
-    if (this.deliveryLocation != null) {
-      data['deliveryLocation'] = this.deliveryLocation!.toJson();
+    if (deliveryLocation != null) {
+      data['deliveryLocation'] = deliveryLocation!.toJson();
     }
-    data['title'] = this.title;
-    data['deliveryStartTime'] = this.deliveryStartTime;
-    data['deliveryEndTime'] = this.deliveryEndTime;
-    data['deliveryType'] = this.deliveryType;
-    data['price'] = this.price;
-    data['name'] = this.name;
-    data['phoneNumber'] = this.phoneNumber;
-    data['images'] = this.images;
-    data['status'] = this.status;
+    data['title'] = title;
+    data['deliveryStartTime'] = deliveryStartTime;
+    data['deliveryEndTime'] = deliveryEndTime;
+    data['deliveryType'] = deliveryType;
+    data['price'] = price;
+    data['name'] = name;
+    data['phoneNumber'] = phoneNumber;
+    data['images'] = images;
+    data['status'] = status;
     data['description'] =
-        this.description; // Added description field to the JSON output
+        description; // Added description field to the JSON output
     return data;
   }
 }
@@ -122,11 +122,11 @@ class SenderId {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['_id'] = this.sId;
-    data['fullName'] = this.fullName;
-    data['email'] = this.email;
-    data['role'] = this.role;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['_id'] = sId;
+    data['fullName'] = fullName;
+    data['email'] = email;
+    data['role'] = role;
     return data;
   }
 }
@@ -143,9 +143,9 @@ class PickupLocation {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['type'] = this.type;
-    data['coordinates'] = this.coordinates;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['type'] = type;
+    data['coordinates'] = coordinates;
     return data;
   }
 }
