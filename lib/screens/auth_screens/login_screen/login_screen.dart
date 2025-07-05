@@ -83,12 +83,12 @@ class LoginScreen extends StatelessWidget {
                   const SpaceWidget(spaceHeight: 16),
                   const OrWidget(),
                   const SpaceWidget(spaceHeight: 16),
-                  CustomInkWellButton(
-                    onTap: () {},
-                    icon: AppIconsPath.emailIcon,
-                    text: "continueWithEmail".tr,
-                  ),
-                  const SpaceWidget(spaceHeight: 16),
+                  // CustomInkWellButton(
+                  //   onTap: () {},
+                  //   icon: AppIconsPath.emailIcon,
+                  //   text: "continueWithEmail".tr,
+                  // ),
+                  // const SpaceWidget(spaceHeight: 16),
                   Obx(() {
                     return controller.isGoogleLoading.value
                         ? const Center(child: CircularProgressIndicator())
@@ -136,7 +136,7 @@ class LoginScreen extends StatelessWidget {
             const SpaceWidget(spaceWidth: 4),
             TextButtonWidget(
               onPressed: () {
-                Get.offAllNamed(AppRoutes.signupScreen);
+                Get.offAllNamed(AppRoutes.countrySelectScreen);
               },
               text: "signUp".tr,
               textColor: AppColors.greyDark,

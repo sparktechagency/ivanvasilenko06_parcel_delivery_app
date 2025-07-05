@@ -15,7 +15,9 @@ class NotificationController extends GetxController {
   var errorMessage = "".obs;
   var isNotificationReceived = false.obs;
   var receivingDeliveries = true.obs;
-  var unreadCount = 0.obs; // Added RxInt for unreadCount
+
+  // Added RxInt for unreadCount
+  var unreadCount = 0.obs;
 
   //! Variables for parcel notifications
   var parcelNotifications = <NotifyParcelModel>[].obs;

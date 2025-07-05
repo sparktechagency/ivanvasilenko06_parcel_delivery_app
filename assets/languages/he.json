@@ -29,6 +29,7 @@
   "loginWithEmail": "התחבר עם אימייל",
   "emailLoginDesc": "הזינו את האימייל שלכם. נשלח לכם קוד אישור שם",
   "verifyEmail": "אמתו את האימייל",
+  "verifying....": "מאמת....",
   "home": "בית",
   "services": "שירותים",
   "bookings": "הזמנות",

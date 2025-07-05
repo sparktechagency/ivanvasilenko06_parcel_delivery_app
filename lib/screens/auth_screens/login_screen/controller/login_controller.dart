@@ -120,6 +120,91 @@ class LoginScreenController extends GetxController {
       isGoogleLoading(true);
       final GoogleSignIn googleSignIn = GoogleSignIn();
 
+      await googleSignIn.signOut();
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      appLog("🔄 Starting Google Sign-In process...");
+
+      final GoogleSignInAccount? acc = await googleSignIn.signIn();
+
+      if (acc == null) {
+        appLog("Google Sign-In cancelled by user");
+        AppSnackBar.error("Sign-in cancelled");
+        return;
+      }
+
+      final GoogleSignInAuthentication auth = await acc.authentication;
+      final String? idToken = auth.idToken;
+
+      if (idToken == null) {
+        appLog("❌ Failed to get ID token");
+        AppSnackBar.error("Failed to get authentication token");
+        return;
+      }
+
+      var fcmToken =
+          await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
+
+      Map<String, dynamic> body = {
+        "idToken": idToken,
+        "fcmToken": fcmToken?.toString() ?? "",
+      };
+
+      appLog("Google Auth API Request Body: $body");
+
+      // TEMPORARY FIX: Try both status codes
+      var data = await ApiPostServices().apiPostServices(
+        url: AppApiUrl.googleAuth,
+        body: body,
+        statusCode: 200, // ← Try 200 first
+      );
+
+
+      appLog("Google Auth API Response: $data");
+
+      if (data != null) {
+        if (data["status"] == "success" && data["data"] != null) {
+          String? token = data["data"]["token"]?.toString();
+          var userData = data["data"]["user"];
+
+          if (token != null && token.isNotEmpty) {
+            await SharePrefsHelper.setString(
+                SharedPreferenceValue.token, token);
+
+            String savedToken =
+                await SharePrefsHelper.getString(SharedPreferenceValue.token);
+            appLog(
+                "✅ Token saved successfully: ${savedToken.substring(0, 50)}...");
+
+            AppSnackBar.success(data["message"] ?? "Login successful");
+            Get.offAll(() => const BottomNavScreen());
+          } else {
+            appLog("❌ Empty or null token received");
+            AppSnackBar.error("Authentication failed: Invalid token");
+          }
+        } else {
+          appLog("❌ Invalid response structure: $data");
+          AppSnackBar.error(data["message"] ?? "Authentication failed");
+        }
+      } else {
+        appLog(
+            "❌ API returned null data - Check your ApiPostServices implementation");
+        AppSnackBar.error("Authentication failed: Server error");
+      }
+    } catch (e) {
+      appLog("❌ Error in Google Sign-In: $e");
+      AppSnackBar.error("Sign-in failed: ${e.toString()}");
+    } finally {
+      isGoogleLoading(false);
+    }
+  }
+
+/*
+  Future<void> googleSignIn() async {
+    try {
+      isGoogleLoading(true);
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+
       // Sign out first to ensure clean state
       await googleSignIn.signOut();
       await Future.delayed(const Duration(milliseconds: 500));
@@ -165,12 +250,12 @@ class LoginScreenController extends GetxController {
 
       // Prepare request body
       Map<String, dynamic> body = {
-        "googleId": uuid,
-        "fullName": displayName,
+        "idToken": uuid,
+        //"fullName": displayName,
         "fcmToken": fcmToken?.toString() ?? "",
-        "deviceId": deviceId,
-        "deviceType": deviceType,
-        "role": "sender",
+        //"deviceId": deviceId,
+        //"deviceType": deviceType,
+        //"role": "sender",
       };
 
       appLog("Google Auth API Request Body: $body");
@@ -186,8 +271,8 @@ class LoginScreenController extends GetxController {
       appLog("Google Auth API Response: $data");
 
       if (data != null) {
-        if (data["data"] != null && data["data"]["token"] != null) {
-          String token = data["data"]["token"].toString();
+        if (data["data"] != null && data["token"] != null) {
+          String token = data["token"].toString();
           if (token.isNotEmpty) {
             // Save token
             await SharePrefsHelper.setString(
@@ -238,4 +323,5 @@ class LoginScreenController extends GetxController {
       isGoogleLoading(false);
     }
   }
+  */
 }

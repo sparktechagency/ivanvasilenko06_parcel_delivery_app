@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -10,6 +11,7 @@ import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/constants/app_strings.dart';
 import 'package:parcel_delivery_app/screens/booking_screen/current_order/controller/current_order_controller.dart';
 import 'package:parcel_delivery_app/screens/booking_screen/new_booking/controller/new_bookings_controller.dart';
+import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/app_images.dart';
@@ -157,7 +159,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         setState(() {
                           selectedRating = rating;
                         });
-                        print('Rating: $rating');
+                        appLog('Rating: $rating');
                       },
                     ),
                   ),
@@ -388,76 +390,79 @@ class _BookingScreenState extends State<BookingScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)), // Flat corners
-          ),
-          backgroundColor: AppColors.grey,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const TextWidget(
-                  text: 'Are you sure you want to remove this parcel?',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  fontColor: AppColors.black,
-                  textAlignment: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ButtonWidget(
-                      buttonWidth: 100,
-                      buttonHeight: 40,
-                      label: 'No',
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 10),
-                      buttonRadius: BorderRadius.circular(10),
-                      backgroundColor: AppColors.white,
-                      textColor: AppColors.black,
-                      onPressed: () {
-                        Navigator.pop(context); // Close the dialog
-                      },
-                    ),
-                    ButtonWidget(
-                      buttonWidth: 100,
-                      buttonHeight: 40,
-                      label: 'Yes',
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 10),
-                      buttonRadius: BorderRadius.circular(10),
-                      backgroundColor: AppColors.green,
-                      textColor: AppColors.white,
-                      onPressed: () async {
-                        Navigator.pop(context);
-                        try {
-                          //! Get the correct controller instance
-                          final controller = Get.find<NewBookingsController>();
-                          await controller.removeParcelFromMap(parcelId);
-                          await currentOrderController.getCurrentOrder();
-                          _currentIndex = 0;
-                          controller.update();
-                          _pageController.jumpToPage(0);
-
-                          Get.back();
-                        } catch (e) {
-                          // Close loading dialog
-                          Get.back();
-                          // Get.snackbar(
-                          //   'Error',
-                          //   'Failed to remove parcel: ${e.toString()}',
-                          //   snackPosition: SnackPosition.BOTTOM,
-                          // );
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ],
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+          child: Dialog(
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)), // Flat corners
+            ),
+            backgroundColor: AppColors.grey,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const TextWidget(
+                    text: 'Are you sure you want to remove this parcel?',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    fontColor: AppColors.black,
+                    textAlignment: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ButtonWidget(
+                        buttonWidth: 100,
+                        buttonHeight: 40,
+                        label: 'No',
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
+                        buttonRadius: BorderRadius.circular(10),
+                        backgroundColor: AppColors.white,
+                        textColor: AppColors.black,
+                        onPressed: () {
+                          Navigator.pop(context); // Close the dialog
+                        },
+                      ),
+                      ButtonWidget(
+                        buttonWidth: 100,
+                        buttonHeight: 40,
+                        label: 'Yes',
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 10),
+                        buttonRadius: BorderRadius.circular(10),
+                        backgroundColor: AppColors.green,
+                        textColor: AppColors.white,
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          try {
+                            //! Get the correct controller instance
+                            final controller = Get.find<NewBookingsController>();
+                            await controller.removeParcelFromMap(parcelId);
+                            await currentOrderController.getCurrentOrder();
+                            _currentIndex = 0;
+                            controller.update();
+                            _pageController.jumpToPage(0);
+          
+                            Get.back();
+                          } catch (e) {
+                            // Close loading dialog
+                            Get.back();
+                            // Get.snackbar(
+                            //   'Error',
+                            //   'Failed to remove parcel: ${e.toString()}',
+                            //   snackPosition: SnackPosition.BOTTOM,
+                            // );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         );

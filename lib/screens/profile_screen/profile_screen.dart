@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -154,67 +156,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)), // Flat corners
-          ),
-          backgroundColor: AppColors.grey,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                TextWidget(
-                  text: "areYouSureYouWantToLogOut".tr,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  fontColor: AppColors.black,
-                  textAlignment: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ButtonWidget(
-                      buttonWidth: 100,
-                      buttonHeight: 40,
-                      label: 'No',
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 10),
-                      buttonRadius: BorderRadius.circular(10),
-                      backgroundColor: AppColors.white,
-                      textColor: AppColors.black,
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    ButtonWidget(
-                      buttonWidth: 100,
-                      buttonHeight: 40,
-                      label: 'Yes',
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 10),
-                      buttonRadius: BorderRadius.circular(10),
-                      backgroundColor: AppColors.black,
-                      textColor: AppColors.white,
-                      onPressed: () async {
-                        await SharePrefsHelper.remove(
-                            SharedPreferenceValue.token);
-                        // Sign out from Google
-                        final GoogleSignIn googleSignIn = GoogleSignIn();
-                        try {
-                          await googleSignIn.signOut();
-                          await googleSignIn.disconnect();
-                        } catch (e) {
-                          // Handle error if needed
-                        }
-                        Get.toNamed(AppRoutes.splashScreen);
-                      },
-                    ),
-                  ],
-                ),
-              ],
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+          child: Dialog(
+            shape: const RoundedRectangleBorder(
+              borderRadius:
+                  BorderRadius.all(Radius.circular(10)), // Flat corners
+            ),
+            backgroundColor: AppColors.grey,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  TextWidget(
+                    text: "areYouSureYouWantToLogOut".tr,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    fontColor: AppColors.black,
+                    textAlignment: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ButtonWidget(
+                        buttonWidth: 100,
+                        buttonHeight: 40,
+                        label: 'No',
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
+                        buttonRadius: BorderRadius.circular(10),
+                        backgroundColor: AppColors.white,
+                        textColor: AppColors.black,
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      ButtonWidget(
+                        buttonWidth: 100,
+                        buttonHeight: 40,
+                        label: 'Yes',
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 10),
+                        buttonRadius: BorderRadius.circular(10),
+                        backgroundColor: AppColors.black,
+                        textColor: AppColors.white,
+                        onPressed: () async {
+                          await SharePrefsHelper.remove(
+                              SharedPreferenceValue.token);
+                          // Sign out from Google
+                          final GoogleSignIn googleSignIn = GoogleSignIn();
+                          try {
+                            await googleSignIn.signOut();
+                            await googleSignIn.disconnect();
+                          } catch (e) {
+                            // Handle error if needed
+                          }
+                          Get.toNamed(AppRoutes.splashScreen);
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -226,58 +232,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)), // Flat corners
-          ),
-          backgroundColor: AppColors.grey,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const TextWidget(
-                  text: 'Are you sure Delete your profile?',
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  fontColor: AppColors.black,
-                  textAlignment: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ButtonWidget(
-                      buttonWidth: 100,
-                      buttonHeight: 40,
-                      label: 'No',
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 10),
-                      buttonRadius: BorderRadius.circular(10),
-                      backgroundColor: AppColors.white,
-                      textColor: AppColors.black,
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    ButtonWidget(
-                      buttonWidth: 100,
-                      buttonHeight: 40,
-                      label: 'Yes',
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 10),
-                      buttonRadius: BorderRadius.circular(10),
-                      backgroundColor: AppColors.black,
-                      textColor: AppColors.white,
-                      onPressed: () async {
-                        await profileController.deleteProfile();
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ],
-                ),
-              ],
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+          child: Dialog(
+            shape: const RoundedRectangleBorder(
+              borderRadius:
+                  BorderRadius.all(Radius.circular(10)), // Flat corners
+            ),
+            backgroundColor: AppColors.grey,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const TextWidget(
+                    text: 'Are you sure Delete your profile?',
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    fontColor: AppColors.black,
+                    textAlignment: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ButtonWidget(
+                        buttonWidth: 100,
+                        buttonHeight: 40,
+                        label: 'No',
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
+                        buttonRadius: BorderRadius.circular(10),
+                        backgroundColor: AppColors.white,
+                        textColor: AppColors.black,
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      ButtonWidget(
+                        buttonWidth: 100,
+                        buttonHeight: 40,
+                        label: 'Yes',
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 10),
+                        buttonRadius: BorderRadius.circular(10),
+                        backgroundColor: AppColors.black,
+                        textColor: AppColors.white,
+                        onPressed: () async {
+                          await profileController.deleteProfile();
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         );

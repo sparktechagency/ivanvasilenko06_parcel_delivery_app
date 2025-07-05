@@ -16,7 +16,7 @@ class VerifyPhoneScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Fix: Get phone number from the arguments map instead of treating arguments as a string
+    //! Fix: Get phone number from the arguments map instead of treating arguments as a string
     final Map<String, dynamic> arguments =
         Get.arguments as Map<String, dynamic>? ?? {};
     final String phoneNumber = arguments["phoneNumber"]?.toString() ??
@@ -73,11 +73,16 @@ class VerifyPhoneScreen extends StatelessWidget {
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: ButtonWidget(
-          onPressed: controller.verifyOTP,
-          label: "verify".tr,
-          buttonWidth: double.infinity,
-          buttonHeight: 50,
+        child: Obx(
+          () => ButtonWidget(
+            onPressed: controller.isLoading.value
+                ? null // Disable button while loading
+                : () => controller.verifyOTP(),
+            label:
+                controller.isLoading.value ? "verifying....".tr : "verify".tr,
+            buttonWidth: double.infinity,
+            buttonHeight: 50,
+          ),
         ),
       ),
     );

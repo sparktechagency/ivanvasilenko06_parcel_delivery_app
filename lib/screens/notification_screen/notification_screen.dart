@@ -720,7 +720,6 @@ class _NotificationScreenState extends State<NotificationScreen>
 
     String title = notification.title ?? "Notification";
     String name = notification.name ?? "Unknown";
-    String message = notification.message ?? "No details available";
     String image = notification.image ?? "";
     String avgRating = notification.avgRating?.toString() ?? "N/A";
     String mobileNumber = notification.mobileNumber ?? "N/A";
@@ -760,12 +759,10 @@ class _NotificationScreenState extends State<NotificationScreen>
           DateTime.parse(notification.deliveryStartTime.toString());
       final endDate = DateTime.parse(notification.deliveryEndTime.toString());
       formattedDate =
-          "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
+          "${DateFormat('dd.MM').format(startDate)} to ${DateFormat('dd.MM').format(endDate)}";
     } catch (e) {
       log("Error parsing dates: $e");
     }
-
-    bool isRead = notification.isRead ?? false;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -970,7 +967,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                         fontColor: AppColors.red,
                       ),
                     )
-                  : const SizedBox()
+                  : const SizedBox(),
         ],
       ),
     );
