@@ -33,7 +33,7 @@ class SplashController extends GetxController {
             await SharePrefsHelper.getString(SharedPreferenceValue.token);
         debugPrint("✅✅✅✅✅ $token ❇️❇️❇️❇️❇️❇️");
 
-        if (token != null && token.isNotEmpty) {
+        if (token.isNotEmpty) {
           Get.offAll(() => const BottomNavScreen());
         } else {
           Get.offAllNamed(AppRoutes.onboardingScreen);

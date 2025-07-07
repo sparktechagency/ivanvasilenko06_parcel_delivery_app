@@ -22,7 +22,7 @@ class SendRequestSuccessfully extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Center(
+          const Center(
             child: ImageWidget(
               height: 80,
               width: 80,

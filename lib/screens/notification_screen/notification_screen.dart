@@ -69,7 +69,7 @@ class _NotificationScreenState extends State<NotificationScreen>
   //! Store address by parcel ID
   void cacheAddressForParcel(String parcelId, String addressType,
       double latitude, double longitude) async {
-    final cacheKey = '${parcelId}_${addressType}';
+    final cacheKey = '${parcelId}_$addressType';
     if (!addressCache.containsKey(cacheKey)) {
       String fetchedAddress =
           await getAddressFromCoordinates(latitude, longitude);
@@ -81,7 +81,7 @@ class _NotificationScreenState extends State<NotificationScreen>
 
   //! Get address for a specific parcel
   String getParcelAddress(String parcelId, String addressType) {
-    final cacheKey = '${parcelId}_${addressType}';
+    final cacheKey = '${parcelId}_$addressType';
     return addressCache[cacheKey] ?? 'Loading...';
   }
 

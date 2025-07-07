@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:parcel_delivery_app/services/apiServices/api.dart';
 import 'package:parcel_delivery_app/utils/appLog/error_app_log.dart';
-import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 
 //
 // class ApiGetServices {

@@ -66,7 +66,7 @@ class LoginScreenController extends GetxController {
       // Ensure no null values are passed
       Map<String, String> body = {
         "mobileNumber": completePhoneNumber.value,
-        "fcmToken": fcmToken?.toString() ?? "",
+        "fcmToken": fcmToken.toString() ?? "",
         "deviceId": deviceId,
         "deviceType": deviceType,
       };
@@ -89,7 +89,7 @@ class LoginScreenController extends GetxController {
           arguments: {
             "phoneNumber": completePhoneNumber.value,
             "mobileNumber": completePhoneNumber.value,
-            "fcmToken": fcmToken?.toString() ?? "",
+            "fcmToken": fcmToken.toString() ?? "",
             "deviceId": deviceId,
             "deviceType": deviceType,
             "screen": "login",
@@ -147,7 +147,7 @@ class LoginScreenController extends GetxController {
 
       Map<String, dynamic> body = {
         "idToken": idToken,
-        "fcmToken": fcmToken?.toString() ?? "",
+        "fcmToken": fcmToken.toString() ?? "",
       };
 
       appLog("Google Auth API Request Body: $body");

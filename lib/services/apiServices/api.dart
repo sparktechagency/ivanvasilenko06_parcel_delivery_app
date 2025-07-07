@@ -5,7 +5,6 @@ import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/services/appStroage/app_auth_storage.dart';
 import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
-import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 

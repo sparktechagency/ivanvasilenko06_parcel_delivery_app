@@ -7,7 +7,6 @@ import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart';
-import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 import 'package:parcel_delivery_app/widgets/compressed/compressed_image.dart';
 
 class ImageMultipartUpload {

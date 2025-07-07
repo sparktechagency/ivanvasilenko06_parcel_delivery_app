@@ -9,7 +9,7 @@ class DeliverParcelModel {
     if (json['data'] != null) {
       deliveryParcelList = <DeliverParcelList>[];
       json['data'].forEach((v) {
-        deliveryParcelList!.add(new DeliverParcelList.fromJson(v));
+        deliveryParcelList!.add(DeliverParcelList.fromJson(v));
       });
     }
   }
@@ -59,13 +59,13 @@ class DeliverParcelList {
   DeliverParcelList.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     senderId = json['senderId'] != null
-        ? new SenderId.fromJson(json['senderId'])
+        ? SenderId.fromJson(json['senderId'])
         : null;
     pickupLocation = json['pickupLocation'] != null
-        ? new PickupLocation.fromJson(json['pickupLocation'])
+        ? PickupLocation.fromJson(json['pickupLocation'])
         : null;
     deliveryLocation = json['deliveryLocation'] != null
-        ? new PickupLocation.fromJson(json['deliveryLocation'])
+        ? PickupLocation.fromJson(json['deliveryLocation'])
         : null;
     title = json['title'];
     deliveryStartTime = json['deliveryStartTime'];

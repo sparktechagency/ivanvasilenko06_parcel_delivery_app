@@ -46,8 +46,8 @@ class _SelectDeliveryLocationScreenState
 
   // Map controller
   GoogleMapController? _mapController;
-  Set<Marker> _markers = {};
-  bool _mapInitialized = false;
+  final Set<Marker> _markers = {};
+  final bool _mapInitialized = false;
 
   @override
   void initState() {

@@ -12,10 +12,13 @@ import '../../../widgets/text_field_widget/text_field_widget.dart';
 import '../../../widgets/text_widget/text_widgets.dart';
 
 class SignupScreen extends StatelessWidget {
-  final SignUpScreenController controller = Get.put(SignUpScreenController());
+  
+
+  const SignupScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final SignUpScreenController controller = Get.put(SignUpScreenController());
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(

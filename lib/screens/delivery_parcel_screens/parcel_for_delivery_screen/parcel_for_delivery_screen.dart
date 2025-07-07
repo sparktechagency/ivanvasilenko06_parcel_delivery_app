@@ -65,7 +65,7 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
   // Store address by parcel ID
   void cacheAddressForParcel(String parcelId, String addressType,
       double latitude, double longitude) async {
-    final cacheKey = '${parcelId}_${addressType}';
+    final cacheKey = '${parcelId}_$addressType';
     if (!addressCache.containsKey(cacheKey)) {
       String fetchedAddress =
           await getAddressFromCoordinates(latitude, longitude);
@@ -77,7 +77,7 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
 
   // Get address for a specific parcel
   String getParcelAddress(String parcelId, String addressType) {
-    final cacheKey = '${parcelId}_${addressType}';
+    final cacheKey = '${parcelId}_$addressType';
     return addressCache[cacheKey] ?? 'Loading...';
   }
 
@@ -203,10 +203,8 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
                       final isRequestSent = controller.isRequestSent(parcelId);
 
                       //! Debug log to verify status
-                      if (parcelId != null) {
-                        log("Parcel ID: $parcelId, Request Sent: $isRequestSent");
-                      }
-                      return Padding(
+                      log("Parcel ID: $parcelId, Request Sent: $isRequestSent");
+                                          return Padding(
                         padding: const EdgeInsets.all(14),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -317,16 +315,15 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Opacity(
-                                    opacity: (isRequestSent || parcelId == null)
+                                    opacity: (isRequestSent)
                                         ? 0.5
                                         : 1.0, // Removed index == 2
                                     child: InkWell(
-                                      onTap: (isRequestSent || parcelId == null)
+                                      onTap: (isRequestSent)
                                           ? null
                                           : () async {
                                               // Removed index == 2
-                                              if (parcelId != null &&
-                                                  parcelId.isNotEmpty) {
+                                              if (parcelId.isNotEmpty) {
                                                 //! Use mounted check to update UI after request
                                                 await controller
                                                     .sendParcelRequest(

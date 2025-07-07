@@ -19,7 +19,7 @@ class PageFour extends StatelessWidget {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImages() async {
-    final List<XFile>? images = await _picker.pickMultiImage();
+    final List<XFile> images = await _picker.pickMultiImage();
     if (images != null) {
       // Update images in the controller
       parcelController.selectedImages

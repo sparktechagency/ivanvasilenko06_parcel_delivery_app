@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/utils/appLog/error_app_log.dart';
-import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 
 import 'api.dart';
 

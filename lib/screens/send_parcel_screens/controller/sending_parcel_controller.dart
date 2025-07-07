@@ -137,7 +137,7 @@ class ParcelController extends GetxController {
 
       case 2:
         //! Step 2: Time Validation
-        if (startDateTime.value == null || endDateTime.value == null) {
+        if (endDateTime.value == null) {
           // AppSnackBar.error("Please select both delivery start and end time.");
           return false;
         }
@@ -182,7 +182,7 @@ class ParcelController extends GetxController {
     }
 
     //! Step 2: Time Validation
-    if (startDateTime.value == null || endDateTime.value == null) {
+    if (endDateTime.value == null) {
       // AppSnackBar.error("Please select both delivery start and end time.");
       return false;
     }

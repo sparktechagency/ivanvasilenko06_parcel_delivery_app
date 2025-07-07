@@ -80,9 +80,7 @@ class DeliveryScreenController extends GetxController {
   RxList<DeliverParcelList> deliveryParcelList = <DeliverParcelList>[].obs;
 
   Future<void> fetchDeliveryParcelsList() async {
-    if (selectedDeliveryType.value != null &&
-        pickupLocation.value != null &&
-        selectedDeliveryLocation.value != null) {
+    if (pickupLocation.value != null) {
       isLoading.value = true;
       try {
         final String url =

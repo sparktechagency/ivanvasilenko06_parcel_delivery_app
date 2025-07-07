@@ -145,7 +145,7 @@ class RouteManager {
       ),
       GetPage(
         name: AppRoutes.notificationScreen,
-        page: () => NotificationScreen(),
+        page: () => const NotificationScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
@@ -157,7 +157,7 @@ class RouteManager {
       ),
       GetPage(
         name: AppRoutes.parcelForDeliveryScreen,
-        page: () => ParcelForDeliveryScreen(),
+        page: () => const ParcelForDeliveryScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),

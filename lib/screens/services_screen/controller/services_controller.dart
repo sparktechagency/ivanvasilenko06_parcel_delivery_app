@@ -23,7 +23,7 @@ class ServiceController extends GetxController {
 
       // Retrieve token
       var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
-      if (token == null || token.isEmpty) {
+      if (token.isEmpty) {
         log("Error: No token found in SharedPreferences");
         // AppSnackBar.error('Authentication token missing. Please log in again.');
         loading.value = false;
@@ -117,7 +117,7 @@ class ServiceController extends GetxController {
 
       // If not found in local storage, make API call
       var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
-      if (token == null || token.isEmpty) {
+      if (token.isEmpty) {
         log("Error: No token found in SharedPreferences");
         // AppSnackBar.error('Authentication token missing. Please log in again.');
         return null;

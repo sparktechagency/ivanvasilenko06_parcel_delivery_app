@@ -52,7 +52,7 @@ class SignUpScreenController extends GetxController {
           "mobileNumber": completePhoneNumber.value.isEmpty
               ? ""
               : completePhoneNumber.value,
-          "fcmToken": fcmToken?.toString() ?? "",
+          "fcmToken": fcmToken.toString() ?? "",
           "deviceId": deviceId,
           "deviceType": deviceType,
           "role": "sender"
@@ -71,7 +71,7 @@ class SignUpScreenController extends GetxController {
             "email": emailController.text.trim(),
             "fullName": fullNameController.text.trim(),
             "country": countryController.text.trim(),
-            "fcmToken": fcmToken?.toString() ?? "",
+            "fcmToken": fcmToken.toString() ?? "",
             "deviceId": deviceId,
             "deviceType": deviceType,
             "screen": "signup",

@@ -26,11 +26,11 @@ class _ChooseParcelForDeliveryScreenState
   final DeliveryScreenController controller =
       Get.find<DeliveryScreenController>();
 
-  BitmapDescriptor _pickupMarker =
+  final BitmapDescriptor _pickupMarker =
       BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
-  BitmapDescriptor _destinationMarker =
+  final BitmapDescriptor _destinationMarker =
       BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
-  Set<Polyline> _polylines = {};
+  final Set<Polyline> _polylines = {};
   List<LatLng> _routePoints = [];
   GoogleMapController? _mapController;
 
@@ -87,8 +87,8 @@ class _ChooseParcelForDeliveryScreenState
     final lngPadding = (maxLng! - minLng!) * 0.15;
 
     return LatLngBounds(
-      southwest: LatLng(minLat! - latPadding, minLng! - lngPadding),
-      northeast: LatLng(maxLat! + latPadding, maxLng! + lngPadding),
+      southwest: LatLng(minLat - latPadding, minLng - lngPadding),
+      northeast: LatLng(maxLat + latPadding, maxLng + lngPadding),
     );
   }
 

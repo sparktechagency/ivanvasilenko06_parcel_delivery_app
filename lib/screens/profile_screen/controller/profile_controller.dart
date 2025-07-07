@@ -149,7 +149,7 @@ class ProfileController extends GetxController {
     errorMessage.value = '';
     try {
       var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
-      if (token == null || token.isEmpty) {
+      if (token.isEmpty) {
         errorMessage.value = 'Authorization token is missing';
         log("Token missing");
         isLoading.value = false;
@@ -222,7 +222,7 @@ class ProfileController extends GetxController {
     try {
       var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
 
-      if (token == null || token.isEmpty) {
+      if (token.isEmpty) {
         errorMessage.value = "No valid token found, please login again.";
         isLoading(false);
         return;
@@ -246,7 +246,7 @@ class ProfileController extends GetxController {
         SharePrefsHelper.remove(SharedPreferenceValue.token);
 
         // Use a slight delay to ensure all UI operations complete
-        await Future.delayed(Duration(milliseconds: 100));
+        await Future.delayed(const Duration(milliseconds: 100));
 
         Get.offAllNamed(AppRoutes.splashScreen);
       } else {
