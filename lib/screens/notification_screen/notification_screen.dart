@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
@@ -15,7 +14,6 @@ import 'package:parcel_delivery_app/widgets/image_widget/app_images.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import '../../constants/app_icons_path.dart';
 import '../../constants/app_image_path.dart';
 import '../../widgets/icon_widget/icon_widget.dart';
@@ -86,12 +84,12 @@ class _NotificationScreenState extends State<NotificationScreen>
   }
 
   //! Method to get the regular address
-  Future<void> _getAddress(double latitude, double longitude) async {
-    String result = await addressService.getAddress(latitude, longitude);
-    setState(() {
-      address = result;
-    });
-  }
+  // Future<void> _getAddress(double latitude, double longitude) async {
+  //   String result = await addressService.getAddress(latitude, longitude);
+  //   setState(() {
+  //     address = result;
+  //   });
+  // }
 
   //! Method to get the new booking address
   Future<void> newAddress(double latitude, double longitude) async {
@@ -725,7 +723,54 @@ class _NotificationScreenState extends State<NotificationScreen>
     String mobileNumber = notification.mobileNumber ?? "N/A";
     String type = notification.type ?? "";
     String price = notification.price?.toString() ?? "0";
-    String timeAgo = _getTimeAgo(notification.createdAt);
+
+    // Fixed time parsing for regular notifications
+    String timeAgo = "Unknown time";
+    try {
+      if (notification.createdAt != null) {
+        DateTime createdDate;
+
+        // Try parsing as ISO format first
+        try {
+          createdDate = DateTime.parse(notification.createdAt.toString());
+        } catch (e) {
+          // If ISO parsing fails, try other common formats
+          try {
+            final DateFormat formatter = DateFormat("yyyy-MM-dd HH:mm:ss");
+            createdDate = formatter.parse(notification.createdAt.toString());
+          } catch (e) {
+            // Try another common format
+            final DateFormat formatter2 = DateFormat("yyyy-MM-dd hh:mm a");
+            createdDate = formatter2.parse(notification.createdAt.toString());
+          }
+        }
+
+        final DateTime now = DateTime.now();
+        final Duration difference = now.difference(createdDate);
+
+        if (difference.inSeconds < 60) {
+          timeAgo = "just now";
+        } else if (difference.inMinutes < 60) {
+          timeAgo =
+              "${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} ago";
+        } else if (difference.inHours < 24) {
+          timeAgo =
+              "${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago";
+        } else if (difference.inDays < 30) {
+          timeAgo =
+              "${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago";
+        } else if (difference.inDays < 365) {
+          final months = (difference.inDays / 30).floor();
+          timeAgo = "$months month${months == 1 ? '' : 's'} ago";
+        } else {
+          final years = (difference.inDays / 365).floor();
+          timeAgo = "$years year${years == 1 ? '' : 's'} ago";
+        }
+      }
+    } catch (e) {
+      log("Error parsing createdAt time: $e, value: ${notification.createdAt}");
+      timeAgo = "Unknown time";
+    }
 
     final String notificationId = notification.sId ?? 'unknown_id';
     //! Safely handle location coordinates
@@ -793,7 +838,8 @@ class _NotificationScreenState extends State<NotificationScreen>
                 fontColor: AppColors.black,
               ),
               const SpaceWidget(spaceWidth: 12),
-              type.toString() == "Requested-Delivery"
+              type.toString() == "Requested-Delivery" &&
+                      notification.avgRating! > 0
                   ? Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 2),

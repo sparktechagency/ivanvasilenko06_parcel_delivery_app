@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
@@ -247,8 +246,7 @@ class _RadiusMapScreenDetailsState extends State<RadiusMapScreenDetails> {
                               icon: AppIconsPath.profileIcon,
                               label: "sendersName".tr,
                               value:
-                                  parcel["senderId"]["fullName"].toString() ??
-                                      "N/A",
+                                  parcel["senderId"]["fullName"].toString(),
                             ),
                             const SpaceWidget(spaceHeight: 8),
                             SummaryInfoRowWidget(

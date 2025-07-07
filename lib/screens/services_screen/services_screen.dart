@@ -388,8 +388,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                     String title = "Title not available";
                                     String itemId = "";
                                     String price = "0";
-                                    String status = "Status not available";
-
                                     if (item.data != null &&
                                         item.data!.isNotEmpty) {
                                       title = item.data!.first.title ??
@@ -398,8 +396,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                       price =
                                           item.data!.first.price?.toString() ??
                                               "0";
-                                      status = item.data!.first.name ??
-                                          "Status not available";
                                     }
 
                                     //! Get address display values

@@ -16,16 +16,6 @@ class VerifyEmailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final arguments = Get.arguments as Map<String, dynamic>? ?? {};
-    final firebaseID = arguments["firebaseID"];
-    final phoneNumber = arguments["phoneNumber"];
-    final email = arguments["email"];
-    final fullName = arguments["fullName"];
-    final country = arguments["country"];
-    final fcmToken = arguments["fcmToken"];
-    final deviceId = arguments["deviceId"];
-    final deviceType = arguments["deviceType"];
-    final screen = arguments["screen"];
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(

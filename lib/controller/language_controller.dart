@@ -32,7 +32,7 @@ class LocalizationController extends GetxController implements GetxService {
         sharedPreferences.getString(AppConstants.COUNTRY_CODE) ??
             AppConstants.languages[0].countryCode);
 
-    for (int index = 0; index < AppConstants.languages.length; index++) {
+    for (int index = 0; index < AppConstants.languages.length;) {
       if (AppConstants.languages[index].languageCode == _locale.languageCode) {
         _selectedIndex = index;
       }

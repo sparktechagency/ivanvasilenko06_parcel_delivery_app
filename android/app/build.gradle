@@ -56,11 +56,11 @@ android {
         debug {
             keyAlias 'androiddebugkey'
             keyPassword 'ivanivan'
-            storeFile file('C:/Users/bdcalling/.android/debug.keystore')
+            storeFile file("C://Users//88017//.android//debug.keystore")
             storePassword 'ivanivan'
         }
         release {
-            storeFile file('C://Users//bdcalling//.android//debug.keystore')
+            storeFile file("C://Users//88017//.android//debug.keystore")
             storePassword 'ivanivan'
             keyAlias 'androiddebugkey'
             keyPassword 'ivanivan'

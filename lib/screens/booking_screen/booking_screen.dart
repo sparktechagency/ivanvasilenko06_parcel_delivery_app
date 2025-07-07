@@ -394,7 +394,8 @@ class _BookingScreenState extends State<BookingScreen> {
           filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
           child: Dialog(
             shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)), // Flat corners
+              borderRadius:
+                  BorderRadius.all(Radius.circular(10)), // Flat corners
             ),
             backgroundColor: AppColors.grey,
             child: Padding(
@@ -440,13 +441,14 @@ class _BookingScreenState extends State<BookingScreen> {
                           Navigator.pop(context);
                           try {
                             //! Get the correct controller instance
-                            final controller = Get.find<NewBookingsController>();
+                            final controller =
+                                Get.find<NewBookingsController>();
                             await controller.removeParcelFromMap(parcelId);
                             await currentOrderController.getCurrentOrder();
                             _currentIndex = 0;
                             controller.update();
                             _pageController.jumpToPage(0);
-          
+
                             Get.back();
                           } catch (e) {
                             // Close loading dialog
@@ -1301,33 +1303,34 @@ class _BookingScreenState extends State<BookingScreen> {
                               ),
                             ),
                             const SpaceWidget(spaceWidth: 5),
-                            Container(
-                              width: ResponsiveUtils.width(45),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: AppColors.yellow,
-                                borderRadius: BorderRadius.circular(100),
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.star_rounded,
-                                    color: AppColors.white,
-                                    size: 12,
-                                  ),
-                                  const SpaceWidget(spaceWidth: 4),
-                                  TextWidget(
-                                    text: deliveryRequest["avgRating"]
-                                            .toString() ??
-                                        '',
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.white,
-                                  ),
-                                ],
-                              ),
-                            ),
+                            deliveryRequest["avgRating"] > 0
+                                ? Container(
+                                    width: ResponsiveUtils.width(45),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.yellow,
+                                      borderRadius: BorderRadius.circular(100),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.star_rounded,
+                                          color: AppColors.white,
+                                          size: 12,
+                                        ),
+                                        const SpaceWidget(spaceWidth: 4),
+                                        TextWidget(
+                                          text: deliveryRequest["avgRating"]
+                                                  .toString() ??
+                                              '',
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          fontColor: AppColors.white,
+                                        ),
+                                      ],
+                                    ))
+                                : const SizedBox.shrink(),
                           ],
                         ),
                         const SpaceWidget(spaceHeight: 16),

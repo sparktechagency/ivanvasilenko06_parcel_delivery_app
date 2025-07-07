@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
@@ -66,7 +65,7 @@ class LoginScreenController extends GetxController {
       // Ensure no null values are passed
       Map<String, String> body = {
         "mobileNumber": completePhoneNumber.value,
-        "fcmToken": fcmToken.toString() ?? "",
+        "fcmToken": fcmToken.toString(),
         "deviceId": deviceId,
         "deviceType": deviceType,
       };
@@ -89,7 +88,7 @@ class LoginScreenController extends GetxController {
           arguments: {
             "phoneNumber": completePhoneNumber.value,
             "mobileNumber": completePhoneNumber.value,
-            "fcmToken": fcmToken.toString() ?? "",
+            "fcmToken": fcmToken.toString(),
             "deviceId": deviceId,
             "deviceType": deviceType,
             "screen": "login",
@@ -147,7 +146,7 @@ class LoginScreenController extends GetxController {
 
       Map<String, dynamic> body = {
         "idToken": idToken,
-        "fcmToken": fcmToken.toString() ?? "",
+        "fcmToken": fcmToken.toString(),
       };
 
       appLog("Google Auth API Request Body: $body");
@@ -165,7 +164,6 @@ class LoginScreenController extends GetxController {
       if (data != null) {
         if (data["status"] == "success" && data["data"] != null) {
           String? token = data["data"]["token"]?.toString();
-          var userData = data["data"]["user"];
 
           if (token != null && token.isNotEmpty) {
             await SharePrefsHelper.setString(
@@ -198,130 +196,4 @@ class LoginScreenController extends GetxController {
       isGoogleLoading(false);
     }
   }
-
-/*
-  Future<void> googleSignIn() async {
-    try {
-      isGoogleLoading(true);
-      final GoogleSignIn googleSignIn = GoogleSignIn();
-
-      // Sign out first to ensure clean state
-      await googleSignIn.signOut();
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      appLog("🔄 Starting Google Sign-In process...");
-
-      // Start sign-in process
-      final GoogleSignInAccount? acc = await googleSignIn.signIn();
-
-      if (acc == null) {
-        // User cancelled the sign-in
-        appLog("Google Sign-In cancelled by user");
-        AppSnackBar.error("Sign-in cancelled");
-        return;
-      }
-
-      // Get FCM token and device info
-      var fcmToken =
-          await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
-      appLog("FCM Token: '$fcmToken'");
-
-      String deviceId = await _deviceInfo.getDeviceId();
-      String deviceType = await _deviceInfo.getDeviceType();
-
-      if (deviceId == 'unknown' || deviceType == 'unknown') {
-        deviceId = await _deviceInfo.getDeviceId();
-        deviceType = await _deviceInfo.getDeviceType();
-      }
-
-      appLog("Device ID: '$deviceId'");
-      appLog("Device Type: '$deviceType'");
-
-      // Extract user data
-      var email = acc.email;
-      var uuid = acc.id;
-      var displayName = acc.displayName ?? "";
-      var profileImage = acc.photoUrl ?? "";
-
-      appLog("🧿🧿🧿🧿 Email = $email");
-      appLog("🧿🧿🧿🧿 Name = $displayName");
-      appLog("🧿🧿🧿🧿 Image = $profileImage");
-      appLog("🧿🧿🧿🧿 UUID = $uuid");
-
-      // Prepare request body
-      Map<String, dynamic> body = {
-        "idToken": uuid,
-        //"fullName": displayName,
-        "fcmToken": fcmToken?.toString() ?? "",
-        //"deviceId": deviceId,
-        //"deviceType": deviceType,
-        //"role": "sender",
-      };
-
-      appLog("Google Auth API Request Body: $body");
-      appLog("Google Auth API URL: ${AppApiUrl.googleAuth}");
-
-      // Make API call
-      var data = await ApiPostServices().apiPostServices(
-        url: AppApiUrl.googleAuth,
-        body: body,
-        statusCode: 201,
-      );
-
-      appLog("Google Auth API Response: $data");
-
-      if (data != null) {
-        if (data["data"] != null && data["token"] != null) {
-          String token = data["token"].toString();
-          if (token.isNotEmpty) {
-            // Save token
-            await SharePrefsHelper.setString(
-                SharedPreferenceValue.token, token);
-
-            // Verify token was saved
-            String savedToken =
-                await SharePrefsHelper.getString(SharedPreferenceValue.token);
-            appLog("✅ Token saved successfully: $savedToken");
-
-            // Navigate to bottom nav
-            appLog("🚀 Navigating to BottomNavScreen");
-            Get.offAll(() => const BottomNavScreen());
-          } else {
-            appLog("❌ Empty token received");
-            AppSnackBar.error("Authentication failed: Invalid token");
-          }
-        } else {
-          appLog("❌ Invalid response structure: $data");
-          AppSnackBar.error("Authentication failed: Invalid response");
-        }
-      } else {
-        appLog("❌ API returned null data");
-        AppSnackBar.error("Authentication failed: Server error");
-      }
-    } on PlatformException catch (e) {
-      appLog("❌ PlatformException in Google Sign-In: ${e.code} - ${e.message}");
-
-      // Handle specific error codes
-      switch (e.code) {
-        case 'sign_in_failed':
-          AppSnackBar.error(
-              "Sign-in failed. Please check your internet connection and try again.");
-          break;
-        case 'network_error':
-          AppSnackBar.error("Network error. Please check your connection.");
-          break;
-        case 'sign_in_canceled':
-          AppSnackBar.error("Sign-in was cancelled.");
-          break;
-        default:
-          AppSnackBar.error("Sign-in failed: ${e.message ?? 'Unknown error'}");
-      }
-    } catch (e) {
-      appLog("❌ Error in Google Sign-In: $e");
-      AppSnackBar.error("Sign-in failed: ${e.toString()}");
-    } finally {
-      isGoogleLoading(false);
-    }
-  }
-  */
 }
