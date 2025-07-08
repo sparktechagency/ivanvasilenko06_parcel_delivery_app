@@ -73,7 +73,7 @@ class RouteManager {
       ),
       GetPage(
         name: AppRoutes.signupScreen,
-        page: () => SignupScreen(),
+        page: () => const SignupScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
@@ -168,7 +168,7 @@ class RouteManager {
       ),
       GetPage(
         name: AppRoutes.contactUsScreen,
-        page: () => const ContactUsScreen(),
+        page: () =>  ContactUsScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),

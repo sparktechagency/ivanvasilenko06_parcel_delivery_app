@@ -80,45 +80,41 @@ class DeliveryScreenController extends GetxController {
   RxList<DeliverParcelList> deliveryParcelList = <DeliverParcelList>[].obs;
 
   Future<void> fetchDeliveryParcelsList() async {
-    if (pickupLocation.value != null) {
-      isLoading.value = true;
-      try {
-        final String url =
-            '${AppApiUrl.deliverParcel}?deliveryType=${selectedDeliveryType.value}&pickupLocation=${pickupLocation.value}&deliveryLocation=${selectedDeliveryLocation.value}&latitude=${pickupLocationLatitude.value}&longitude=${pickupLocationLongitude.value}}';
+    isLoading.value = true;
+    try {
+      final String url =
+          '${AppApiUrl.deliverParcel}?deliveryType=${selectedDeliveryType.value}&pickupLocation=${pickupLocation.value}&deliveryLocation=${selectedDeliveryLocation.value}&latitude=${pickupLocationLatitude.value}&longitude=${pickupLocationLongitude.value}}';
 
-        final response = await ApiGetServices().apiGetServices(url);
-        appLog("Body res 👀👀👀👀👀👀👀👀👀👀👀👀👀👀👀");
-        appLog(response);
+      final response = await ApiGetServices().apiGetServices(url);
+      appLog("Body res 👀👀👀👀👀👀👀👀👀👀👀👀👀👀👀");
+      appLog(response);
 
-        if (response != null &&
-            response['status'] == 'success' &&
-            response['data'] != null) {
-          // Fix: Access the 'parcels' array inside the 'data' object
-          final dataObject = response['data'];
-          if (dataObject is Map<String, dynamic> &&
-              dataObject['parcels'] != null) {
-            parcels.value = (dataObject['parcels'] as List)
-                .map((item) => DeliverParcelList.fromJson(item))
-                .toList();
-          } else {
-            parcels.clear();
-          }
-
-          appLog("Parcel list**********=============================");
-          appLog(parcels.value.length);
+      if (response != null &&
+          response['status'] == 'success' &&
+          response['data'] != null) {
+        // Fix: Access the 'parcels' array inside the 'data' object
+        final dataObject = response['data'];
+        if (dataObject is Map<String, dynamic> &&
+            dataObject['parcels'] != null) {
+          parcels.value = (dataObject['parcels'] as List)
+              .map((item) => DeliverParcelList.fromJson(item))
+              .toList();
         } else {
           parcels.clear();
         }
-      } catch (e) {
-        appLog("Error fetching parcels: $e");
+
+        appLog("Parcel list**********=============================");
+        appLog(parcels.value.length);
+      } else {
         parcels.clear();
-      } finally {
-        isLoading.value = false;
       }
-    } else {
+    } catch (e) {
+      appLog("Error fetching parcels: $e");
       parcels.clear();
+    } finally {
+      isLoading.value = false;
     }
-  }
+    }
 
   Future<void> sendParcelRequest(String parcelId) async {
     if (parcelId.isEmpty) {

@@ -181,12 +181,6 @@ class ParcelController extends GetxController {
       return false;
     }
 
-    //! Step 2: Time Validation
-    if (endDateTime.value == null) {
-      // AppSnackBar.error("Please select both delivery start and end time.");
-      return false;
-    }
-
     //! Step 3: Title Validation (only title is required, description is optional)
     if (titleController.text.trim().isEmpty) {
       // AppSnackBar.error("Please fill the title.");

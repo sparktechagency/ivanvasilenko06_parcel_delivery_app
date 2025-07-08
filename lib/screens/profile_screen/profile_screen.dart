@@ -440,7 +440,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: Align(
                               alignment: Alignment.bottomCenter,
                               child: Container(
-                                width: ResponsiveUtils.width(45),
+                                width: ResponsiveUtils.width(55),
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
@@ -457,8 +457,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     const SpaceWidget(spaceWidth: 4),
                                     TextWidget(
                                       text: profileController.profileData.value
-                                          .data!.user!.avgRating
-                                          .toString(),
+                                          .data!.averageRating.toString(),
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                       fontColor: AppColors.white,

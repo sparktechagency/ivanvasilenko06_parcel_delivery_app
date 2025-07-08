@@ -163,9 +163,25 @@ class VerifyPhoneController extends GetxController {
   }
 
   Future<void> resendCode() async {
-    // Add your resend code logic here
-    log("Resend code logic executed");
-    startTimer();
+    try {
+      Map<String, String> body = {
+        "mobileNumber": phoneNumber,
+      };
+
+      var data = await ApiPostServices().apiPostServices(
+        url: AppApiUrl.phoneOtpResend,
+        body: body,
+        statusCode: 200,
+      );
+
+      if (data != null) {
+        log('Resend Data: $data');
+        startTimer();
+      }
+    } catch (e) {
+      log("Error from resendCode: $e");
+      AppSnackBar.error("Resend code failed: ${e.toString()}");
+    }
   }
 
   void startTimer() {

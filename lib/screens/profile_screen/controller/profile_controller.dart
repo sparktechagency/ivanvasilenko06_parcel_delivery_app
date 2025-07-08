@@ -65,78 +65,6 @@ class ProfileController extends GetxController {
     }
   }
 
-  // Future<void> updateProfile({
-  //   required String fullName,
-  //   required String facebook,
-  //   required String instagram,
-  //   required String whatsapp,
-  //   File? Image,
-  // }) async {
-  //   isLoading.value = true;
-  //   errorMessage.value = '';
-  //
-  //   try {
-  //     var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
-  //     log("🔑 Authorization Token: $token");
-  //
-  //     // Step 1: Create multipart request instance
-  //     var request = http.MultipartRequest(
-  //       'PUT',
-  //       Uri.parse(AppApiUrl.updateProfile),
-  //     );
-  //
-  //     // Step 2: Add text fields to the request
-  //     request.fields['fullName'] = fullName;
-  //     request.fields['facebook'] = facebook;
-  //     request.fields['instagram'] = instagram;
-  //     request.fields['whatsapp'] = whatsapp;
-  //
-  //     // Step 3: Add the profile image if provided
-  //     if (Image != null) {
-  //       // Step 3a: Read the image file
-  //       File imageFile = File(Image.path);
-  //
-  //       // Step 3b: Convert image to bytes
-  //       Uint8List imageData = await imageFile.readAsBytes();
-  //
-  //       // Step 3c: Add the image as a file to the request
-  //       request.files.add(
-  //         http.MultipartFile.fromBytes(
-  //           'Image',
-  //           imageData,
-  //           filename: path.basename(imageFile.path), // Use the file's name
-  //           contentType: MediaType('image', 'jpg'),
-  //         ),
-  //       );
-  //     }
-  //
-  //     // Step 4: Add the token to the headers
-  //     request.headers['Authorization'] = 'Bearer $token';
-  //
-  //     // Step 5: Send the request
-  //     var response = await request.send();
-  //
-  //     // Step 6: Handle the response
-  //     final responseBody = await response.stream.bytesToString();
-  //     log("Raw API Response: $responseBody");
-  //
-  //     if (response.statusCode == 200) {
-  //       log("Profile updated successfully");
-  //       await getProfileInfo(); // Refresh the profile data
-  //     } else {
-  //       errorMessage.value =
-  //           'Error: ${response.statusCode} - ${response.reasonPhrase}';
-  //       log("Error Response: $responseBody");
-  //     }
-  //   } catch (e) {
-  //     // Handle exceptions during the API call or data parsing
-  //     errorMessage.value = 'An error occurred: ${e.toString()}';
-  //     log('Exception error: ${e.toString()}');
-  //   } finally {
-  //     isLoading.value = false;
-  //   }
-  // }
-
   Future<void> updateProfile({
     required String fullName,
     required String facebook,
@@ -227,14 +155,6 @@ class ProfileController extends GetxController {
         isLoading(false);
         return;
       }
-      // Validate token format
-      // if (!token.contains('.') || token.split('.').length != 3) {
-      //   errorMessage.value = "Invalid token format, please login again.";
-      //   SharePrefsHelper.remove(SharedPreferenceValue.token);
-      //   Get.offAllNamed(AppRoutes.loginScreen);
-      //   return;
-      // }
-
       var url = AppApiUrl.deleteProfile;
       log("Deleting profile at: $url with token: ${token.substring(0, 20)}...");
 

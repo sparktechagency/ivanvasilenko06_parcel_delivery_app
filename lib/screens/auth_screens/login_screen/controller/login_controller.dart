@@ -141,8 +141,7 @@ class LoginScreenController extends GetxController {
         return;
       }
 
-      var fcmToken =
-          await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
+      var fcmToken = await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
 
       Map<String, dynamic> body = {
         "idToken": idToken,
@@ -151,13 +150,8 @@ class LoginScreenController extends GetxController {
 
       appLog("Google Auth API Request Body: $body");
 
-      // TEMPORARY FIX: Try both status codes
-      var data = await ApiPostServices().apiPostServices(
-        url: AppApiUrl.googleAuth,
-        body: body,
-        statusCode: 200, // ← Try 200 first
-      );
-
+      // Retry logic
+      var data = await _retryApiCall(body, maxRetries: 3);
 
       appLog("Google Auth API Response: $data");
 
@@ -166,13 +160,10 @@ class LoginScreenController extends GetxController {
           String? token = data["data"]["token"]?.toString();
 
           if (token != null && token.isNotEmpty) {
-            await SharePrefsHelper.setString(
-                SharedPreferenceValue.token, token);
+            await SharePrefsHelper.setString(SharedPreferenceValue.token, token);
 
-            String savedToken =
-                await SharePrefsHelper.getString(SharedPreferenceValue.token);
-            appLog(
-                "✅ Token saved successfully: ${savedToken.substring(0, 50)}...");
+            String savedToken = await SharePrefsHelper.getString(SharedPreferenceValue.token);
+            appLog("✅ Token saved successfully: ${savedToken.substring(0, 50)}...");
 
             AppSnackBar.success(data["message"] ?? "Login successful");
             Get.offAll(() => const BottomNavScreen());
@@ -185,15 +176,47 @@ class LoginScreenController extends GetxController {
           AppSnackBar.error(data["message"] ?? "Authentication failed");
         }
       } else {
-        appLog(
-            "❌ API returned null data - Check your ApiPostServices implementation");
-        AppSnackBar.error("Authentication failed: Server error");
+        appLog("❌ All retry attempts failed");
+        AppSnackBar.error("Server is temporarily unavailable. Please try again later.");
       }
     } catch (e) {
       appLog("❌ Error in Google Sign-In: $e");
-      AppSnackBar.error("Sign-in failed: ${e.toString()}");
+      AppSnackBar.error("Sign-in failed. Please try again.");
     } finally {
       isGoogleLoading(false);
     }
+  }
+
+// Helper method for retry logic
+  Future<dynamic> _retryApiCall(Map<String, dynamic> body, {int maxRetries = 3}) async {
+    for (int attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        appLog("🔄 Attempt $attempt of $maxRetries");
+
+        var data = await ApiPostServices().apiPostServices(
+          url: AppApiUrl.googleAuth,
+          body: body,
+          statusCode: 200,
+        );
+
+        // If we get here, the call was successful
+        return data;
+
+      } catch (e) {
+        appLog("❌ Attempt $attempt failed: $e");
+
+        if (attempt == maxRetries) {
+          // This was the last attempt, don't retry
+          throw e;
+        }
+
+        // Wait before retrying (exponential backoff)
+        int delaySeconds = attempt * 2; // 2, 4, 6 seconds
+        appLog("⏳ Waiting $delaySeconds seconds before retry...");
+        await Future.delayed(Duration(seconds: delaySeconds));
+      }
+    }
+
+    return null;
   }
 }
