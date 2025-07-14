@@ -113,7 +113,7 @@ class LoginScreenController extends GetxController {
   var isPhoneLoading = false.obs;
 
   var isGoogleLoading = false.obs;
-
+//! Login with Google
   Future<void> googleSignIn() async {
     try {
       isGoogleLoading(true);
@@ -134,14 +134,17 @@ class LoginScreenController extends GetxController {
 
       final GoogleSignInAuthentication auth = await acc.authentication;
       final String? idToken = auth.idToken;
+      final String? uniqueId = acc.id;
 
+      appLog(uniqueId);
       if (idToken == null) {
         appLog("❌ Failed to get ID token");
         AppSnackBar.error("Failed to get authentication token");
         return;
       }
 
-      var fcmToken = await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
+      var fcmToken =
+          await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
 
       Map<String, dynamic> body = {
         "idToken": idToken,
@@ -150,7 +153,7 @@ class LoginScreenController extends GetxController {
 
       appLog("Google Auth API Request Body: $body");
 
-      // Retry logic
+      // Retry logic with support for both 200 and 201 status codes
       var data = await _retryApiCall(body, maxRetries: 3);
 
       appLog("Google Auth API Response: $data");
@@ -160,10 +163,13 @@ class LoginScreenController extends GetxController {
           String? token = data["data"]["token"]?.toString();
 
           if (token != null && token.isNotEmpty) {
-            await SharePrefsHelper.setString(SharedPreferenceValue.token, token);
+            await SharePrefsHelper.setString(
+                SharedPreferenceValue.token, token);
 
-            String savedToken = await SharePrefsHelper.getString(SharedPreferenceValue.token);
-            appLog("✅ Token saved successfully: ${savedToken.substring(0, 50)}...");
+            String savedToken =
+                await SharePrefsHelper.getString(SharedPreferenceValue.token);
+            appLog(
+                "✅ Token saved successfully: ${savedToken.substring(0, 50)}...");
 
             AppSnackBar.success(data["message"] ?? "Login successful");
             Get.offAll(() => const BottomNavScreen());
@@ -177,7 +183,8 @@ class LoginScreenController extends GetxController {
         }
       } else {
         appLog("❌ All retry attempts failed");
-        AppSnackBar.error("Server is temporarily unavailable. Please try again later.");
+        AppSnackBar.error(
+            "Server is temporarily unavailable. Please try again later.");
       }
     } catch (e) {
       appLog("❌ Error in Google Sign-In: $e");
@@ -187,27 +194,35 @@ class LoginScreenController extends GetxController {
     }
   }
 
-// Helper method for retry logic
-  Future<dynamic> _retryApiCall(Map<String, dynamic> body, {int maxRetries = 3}) async {
+// Helper method for retry logic with support for both 200 and 201 status codes
+  Future<dynamic> _retryApiCall(Map<String, dynamic> body,
+      {int maxRetries = 3}) async {
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         appLog("🔄 Attempt $attempt of $maxRetries");
 
-        var data = await ApiPostServices().apiPostServices(
-          url: AppApiUrl.googleAuth,
-          body: body,
-          statusCode: 200,
-        );
+        // Try with 200 status code first (existing user)
+        var data = await _tryApiCall(body, 200);
+        if (data != null) {
+          appLog("✅ API call successful with status 200 (existing user)");
+          return data;
+        }
 
-        // If we get here, the call was successful
-        return data;
+        // If 200 fails, try with 201 status code (new user)
+        data = await _tryApiCall(body, 201);
+        if (data != null) {
+          appLog("✅ API call successful with status 201 (new user)");
+          return data;
+        }
 
+        // If both fail, this attempt failed
+        throw Exception("Both 200 and 201 status codes failed");
       } catch (e) {
         appLog("❌ Attempt $attempt failed: $e");
 
         if (attempt == maxRetries) {
           // This was the last attempt, don't retry
-          throw e;
+          rethrow;
         }
 
         // Wait before retrying (exponential backoff)
@@ -218,5 +233,19 @@ class LoginScreenController extends GetxController {
     }
 
     return null;
+  }
+
+  // Helper method to try API call with specific status code
+  Future<dynamic> _tryApiCall(Map<String, dynamic> body, int statusCode) async {
+    try {
+      return await ApiPostServices().apiPostServices(
+        url: AppApiUrl.googleAuth,
+        body: body,
+        statusCode: statusCode,
+      );
+    } catch (e) {
+      // If this specific status code fails, return null
+      return null;
+    }
   }
 }

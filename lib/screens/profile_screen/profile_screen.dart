@@ -415,23 +415,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Stack(
                         alignment: Alignment.bottomLeft,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(4),
-                            child: SizedBox(
-                              width: ResponsiveUtils.width(120),
-                              height: ResponsiveUtils.width(120),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(100),
-                                child: AppImage(
-                                  url: profileController.profileData.value.data
-                                              ?.user?.image?.isNotEmpty ??
-                                          false
-                                      ? profileController
-                                          .profileData.value.data!.user!.image!
-                                      : AppImagePath.profileImage,
-                                  height: 116,
-                                  width: 116,
-                                  fit: BoxFit.cover,
+                          InkWell(
+                            onTap: () => Get.toNamed(AppRoutes.editProfile),
+                            splashColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
+                            child: Padding(
+                              padding: const EdgeInsets.all(4),
+                              child: SizedBox(
+                                width: ResponsiveUtils.width(120),
+                                height: ResponsiveUtils.width(120),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(100),
+                                  child: AppImage(
+                                    url: profileController.profileData.value.data
+                                                ?.user?.image?.isNotEmpty ??
+                                            false
+                                        ? profileController
+                                            .profileData.value.data!.user!.image!
+                                        : AppImagePath.profileImage,
+                                    height: 116,
+                                    width: 116,
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
                             ),

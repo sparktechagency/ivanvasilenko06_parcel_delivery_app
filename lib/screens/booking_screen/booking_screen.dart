@@ -1277,12 +1277,13 @@ class _BookingScreenState extends State<BookingScreen> {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(100),
                               child: AppImage(
-                                url: newBookingsController.isLoading.value
+                                url: (newBookingsController.isLoading.value ||
+                                        deliveryRequest["image"] == null ||
+                                        deliveryRequest["image"]
+                                            .toString()
+                                            .isEmpty)
                                     ? AppImagePath.dummyProfileImage
-                                    : (deliveryRequest["image"]?.isNotEmpty ??
-                                            false)
-                                        ? deliveryRequest["image"]
-                                        : AppImagePath.dummyProfileImage,
+                                    : deliveryRequest["image"],
                                 height: 40,
                                 width: 40,
                               ),
@@ -1303,34 +1304,33 @@ class _BookingScreenState extends State<BookingScreen> {
                               ),
                             ),
                             const SpaceWidget(spaceWidth: 5),
-                            deliveryRequest["avgRating"] > 0
-                                ? Container(
-                                    width: ResponsiveUtils.width(45),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.yellow,
-                                      borderRadius: BorderRadius.circular(100),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.star_rounded,
-                                          color: AppColors.white,
-                                          size: 12,
-                                        ),
-                                        const SpaceWidget(spaceWidth: 4),
-                                        TextWidget(
-                                          text: deliveryRequest["avgRating"]
-                                                  .toString() ??
-                                              '',
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                          fontColor: AppColors.white,
-                                        ),
-                                      ],
-                                    ))
-                                : const SizedBox.shrink(),
+                            Container(
+                              width: ResponsiveUtils.width(55),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.yellow,
+                                borderRadius: BorderRadius.circular(100),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.star_rounded,
+                                    color: AppColors.white,
+                                    size: 12,
+                                  ),
+                                  const SpaceWidget(spaceWidth: 4),
+                                  TextWidget(
+                                    text: deliveryRequest["avgRating"]
+                                            .toString() ??
+                                        '',
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    fontColor: AppColors.white,
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                         const SpaceWidget(spaceHeight: 16),

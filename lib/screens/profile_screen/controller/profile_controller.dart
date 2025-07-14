@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart' show debugPrint;
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -20,49 +21,127 @@ class ProfileController extends GetxController {
   var profileData = ProfileModel().obs;
   var isLoading = true.obs;
   var errorMessage = ''.obs;
-
   @override
   void onInit() {
     super.onInit();
+    log('🎯 ProfileController initialized');
     getProfileInfo();
   }
 
   Future<void> getProfileInfo() async {
-    isLoading.value = true; // Set loading state to true
-    errorMessage.value = ''; // Reset error message
+    log('🚀 Starting getProfileInfo API call');
+
+    isLoading.value = true;
+    errorMessage.value = '';
+
     try {
       var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
-      log("🔑 Authorization Token: $token");
+      log("🔑 Authorization Token: ${token.isNotEmpty ? '${token.substring(0, 20)}...' : 'EMPTY'}");
 
+      if (token.isEmpty) {
+        log('❌ No token found, cannot make API call');
+        errorMessage.value = 'No authentication token found';
+        return;
+      }
+
+      log('🌐 Making API call to: ${AppApiUrl.getProfile}');
       final response = await ApiGetServices()
           .apiGetServices(AppApiUrl.getProfile, token: token);
 
-      log("API URL: ${AppApiUrl.getProfile}");
-      log("Raw API Response: ${response.toString()}");
+      log('📥 Raw API Response Type: ${response.runtimeType}');
+      log('📥 Raw API Response: ${response.toString()}');
 
       if (response is Map<String, dynamic>) {
+        log('✅ Response is valid Map');
+        log('📊 Response keys: ${response.keys.toList()}');
+        log('📊 Response status: ${response['status']}');
+        log('📊 Response message: ${response['message']}');
+
         if (response['status'] == 'success' && response['data'] != null) {
+          log('✅ Response status is success, parsing data...');
+
+          // Parse the profile data
           profileData.value = ProfileModel.fromJson(response);
-          log("Parsed Profile Data: ${profileData.value.toJson().toString()}");
-          log("Profile Data Full Name: ${profileData.value.data?.user?.fullName}");
+
+
+          if (profileData.value.data != null) {
+            log('   - User exists: ${profileData.value.data!.user != null}');
+
+            if (profileData.value.data!.user != null) {
+              final user = profileData.value.data!.user!;
+              log('   - Image (raw): "${user.image}"');
+              log('   - Image type: ${user.image.runtimeType}');
+
+
+              // Test image URL construction
+              if (user.image != null && user.image!.isNotEmpty) {
+                String testUrl;
+                if (user.image!.startsWith('http')) {
+                  testUrl = user.image!;
+                } else {
+                  testUrl = "${AppApiUrl.liveDomain}/${user.image!.replaceAll(RegExp(r'^/+'), '')}";
+                }
+                log('🔗 Constructed image URL: $testUrl');
+
+                // Test the URL accessibility
+                _testImageUrl(testUrl);
+              } else {
+                log('❌ No image URL available');
+              }
+            }
+          }
+
+          log('✅ Profile data successfully parsed and stored');
         } else {
-          errorMessage.value =
-              'Error: ${response['message'] ?? 'Unknown error occurred'}';
-          log("Error in response: ${response['message'] ?? 'No error message'}");
+          errorMessage.value = 'Error: ${response['message'] ?? 'Unknown error occurred'}';
+          log("❌ API returned error: ${response['message'] ?? 'No error message'}");
         }
       } else {
-        // Handle invalid response formats
         errorMessage.value = 'Invalid server response format';
-        log("Invalid response format: $response");
+        log("❌ Invalid response format - not a Map: ${response.runtimeType}");
+      }
+    } catch (e, stackTrace) {
+      errorMessage.value = 'An error occurred: ${e.toString()}';
+      log('❌ Exception in getProfileInfo: ${e.toString()}');
+      log('❌ Stack trace: $stackTrace');
+    } finally {
+      isLoading.value = false;
+      log('🏁 getProfileInfo completed, isLoading set to false');
+    }
+  }
+
+  // Helper method to test image URL accessibility
+  Future<void> _testImageUrl(String url) async {
+    try {
+      log('🔍 Testing image URL: $url');
+
+      final response = await http.head(Uri.parse(url)).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          log('⏰ Image URL test timed out');
+          throw Exception('Timeout');
+        },
+      );
+
+      log('🔍 Image URL test result:');
+      log('   - Status Code: ${response.statusCode}');
+      log('   - Content-Type: ${response.headers['content-type']}');
+      log('   - Content-Length: ${response.headers['content-length']}');
+
+      if (response.statusCode == 200) {
+        log('✅ Image URL is accessible');
+      } else {
+        log('❌ Image URL returned status: ${response.statusCode}');
       }
     } catch (e) {
-      // Handle exceptions during the API call or data parsing
-      errorMessage.value = 'An error occurred: ${e.toString()}';
-      log('Exception error: ${e.toString()}');
-    } finally {
-      // Ensure loading state is set to false after the operation
-      isLoading.value = false;
+      log('❌ Image URL test failed: $e');
     }
+  }
+
+  // Method to manually trigger a profile reload (for debugging)
+  void forceReload() {
+    log('🔄 Force reloading profile data');
+    getProfileInfo();
   }
 
   Future<void> updateProfile({

@@ -55,15 +55,15 @@ android {
     signingConfigs {
         debug {
             keyAlias 'androiddebugkey'
-            keyPassword 'ivanivan'
+            keyPassword 'android'
             storeFile file("C://Users//88017//.android//debug.keystore")
-            storePassword 'ivanivan'
+            storePassword 'android'
         }
         release {
             storeFile file("C://Users//88017//.android//debug.keystore")
-            storePassword 'ivanivan'
+            storePassword 'android'
             keyAlias 'androiddebugkey'
-            keyPassword 'ivanivan'
+            keyPassword 'android'
         }
     }
 }

@@ -336,7 +336,7 @@ class NotificationService {
   void _handleNotificationNavigation(RemoteMessage message) {
     Get.toNamed(
       AppRoutes.notificationScreen,
-      arguments: {'tabIndex': 1},
+      arguments: {'tabIndex': 0},
     );
 
     log('Navigating to notification screen due to message: ${message.notification?.title}');

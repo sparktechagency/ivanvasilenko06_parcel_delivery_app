@@ -1,9 +1,9 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
@@ -15,8 +15,8 @@ import 'package:parcel_delivery_app/screens/home_screen/widgets/reserve_bottom_s
 import 'package:parcel_delivery_app/screens/home_screen/widgets/suggestionCardWidget.dart';
 import 'package:parcel_delivery_app/screens/notification_screen/controller/notification_controller.dart';
 import 'package:parcel_delivery_app/screens/profile_screen/controller/profile_controller.dart';
+import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
-
 import '../../utils/app_size.dart';
 import '../../widgets/button_widget/button_widget.dart';
 import '../../widgets/space_widget/space_widget.dart';
@@ -30,10 +30,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final EarnMoneyRadiusController _radiusController =
-      Get.put(EarnMoneyRadiusController());
-  final NotificationController notificationController =
-      Get.put(NotificationController());
+  final EarnMoneyRadiusController _radiusController = Get.put(EarnMoneyRadiusController());
+  final NotificationController notificationController = Get.put(NotificationController());
   final ProfileController profileController = Get.put(ProfileController());
 
   Future<void> _getCurrentLocation() async {
@@ -54,16 +52,56 @@ class _HomeScreenState extends State<HomeScreen> {
 
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
-      _radiusController
-          .setCurrentLocation(LatLng(position.latitude, position.longitude));
+      _radiusController.setCurrentLocation(LatLng(position.latitude, position.longitude));
       log('Current Location: Latitude: ${position.latitude}');
       log('Current Location: Longitude: ${position.longitude}');
     } catch (e) {
       log('Error getting location: $e');
-      // Show error message to user
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Could not get current location. Please try again.')));
     }
+  }
+
+  String _getProfileImagePath() {
+    if (profileController.isLoading.value) {
+      log('⏳ Profile is still loading, returning default image URL');
+      return 'https://i.ibb.co/z5YHLV9/profile.png';
+    }
+
+    final imageUrl = profileController.profileData.value.data?.user?.image;
+    log('Raw image URL from API: "$imageUrl"');
+    log('Image URL type: ${imageUrl.runtimeType}');
+
+    // Check for null, empty, or invalid URLs
+    if (imageUrl == null ||
+        imageUrl.isEmpty ||
+        imageUrl.trim().isEmpty ||
+        imageUrl.toLowerCase() == 'null' ||
+        imageUrl.toLowerCase() == 'undefined') {
+      log('❌ Image URL is null/empty/invalid, using default image URL');
+      return 'https://i.ibb.co/z5YHLV9/profile.png';
+    }
+
+    String fullImageUrl;
+    // Trim and clean the URL
+    String cleanImageUrl = imageUrl.trim();
+    if (cleanImageUrl.startsWith('https://') || cleanImageUrl.startsWith('http://')) {
+      fullImageUrl = cleanImageUrl;
+    } else {
+      // Remove leading slashes and ensure proper concatenation
+      cleanImageUrl = cleanImageUrl.startsWith('/') ? cleanImageUrl.substring(1) : cleanImageUrl;
+      fullImageUrl = "${AppApiUrl.liveDomain}/$cleanImageUrl";
+    }
+
+    // Validate the constructed URL
+    final uri = Uri.tryParse(fullImageUrl);
+    if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
+      log('❌ Invalid URL format: $fullImageUrl, using default image URL');
+      return 'https://i.ibb.co/z5YHLV9/profile.png';
+    }
+
+    log('✅ Constructed URL: $fullImageUrl');
+    return fullImageUrl;
   }
 
   void _openBottomSheet(BuildContext context) {
@@ -117,8 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       SpaceWidget(spaceWidth: 12),
                       Flexible(
                         child: TextWidget(
-                          text:
-                              "Pick the distance you want to work within. We'll only show you jobs nearby!",
+                          text: "Pick the distance you want to work within. We'll only show you jobs nearby!",
                           fontSize: 14,
                           fontFamily: "AeonikTRIAL",
                           fontWeight: FontWeight.w600,
@@ -131,7 +168,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   const SpaceWidget(spaceHeight: 32),
-                  // Slider for radius selection
                   Column(
                     children: [
                       const SpaceWidget(spaceWidth: 0),
@@ -140,14 +176,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           activeTrackColor: Colors.black,
                           inactiveTrackColor: Colors.grey.shade200,
                           thumbColor: Colors.black,
-                          thumbShape: const RoundSliderThumbShape(
-                              enabledThumbRadius: 12),
+                          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
                           overlayColor: Colors.black.withAlpha(51),
                           trackHeight: 6.0,
                         ),
                         child: Slider(
-                          label:
-                              '${_radiusController.radius.value.toStringAsFixed(0)} ${" km".tr}',
+                          label: '${_radiusController.radius.value.toStringAsFixed(0)} ${" km".tr}',
                           value: _radiusController.radius.value,
                           min: 0,
                           max: 50,
@@ -228,46 +262,60 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    profileController.getProfileInfo();
-    notificationController.isReadNotification();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      // Load profile data first
+      await profileController.getProfileInfo();
+      notificationController.isReadNotification();
+
+      // Log profile data after it's loaded
+      appLog('🔍 Profile loaded in initState');
+      appLog('Profile Status: ${profileController.profileData.value.status}');
+      appLog('Profile Image: ${profileController.profileData.value.data?.user?.image ?? "No image"}');
+      appLog('Full Name: ${profileController.profileData.value.data?.user?.fullName ?? "No name"}');
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    log("🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑 Unread Notificaiton : ${notificationController.unreadCount.value.toString()}");
+    log("🛑 Unread Notification: ${notificationController.unreadCount.value.toString()}");
+
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: Obx(() {
-        if (profileController.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            HomeScreenAppBar(
-              isLabelVisible:
-                  notificationController.unreadCount.value.toInt() == 0
-                      ? false
-                      : true,
-              logoImagePath: AppImagePath.appLogo,
-              notificationIconPath: AppIconsPath.notificationIcon,
-              onNotificationPressed: () {
-                notificationController.fetchNotifications();
-                notificationController.isReadAllNotificaton();
-                Get.toNamed(AppRoutes.notificationScreen);
-              },
-              badgeLabel:
-                  notificationController.unreadCount.value.toInt().toString(),
-              profileImagePath: profileController.isLoading.value
-                  ? AppImagePath
-                      .dummyProfileImage // Show dummy image while loading
-                  : (profileController.profileData.value.data?.user?.image
-                              ?.isNotEmpty ??
-                          false)
-                      ? profileController.profileData.value.data!.user!.image!
-                      : AppImagePath.dummyProfileImage,
-            ),
-            Expanded(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Wrap AppBar with Obx to make it reactive
+          Obx(() => HomeScreenAppBar(
+            isLabelVisible: notificationController.unreadCount.value.toInt() == 0 ? false : true,
+            logoImagePath: AppImagePath.appLogo,
+            notificationIconPath: AppIconsPath.notificationIcon,
+            onNotificationPressed: () {
+              notificationController.fetchNotifications();
+              notificationController.isReadAllNotificaton();
+              Get.toNamed(AppRoutes.notificationScreen);
+            },
+            badgeLabel: notificationController.unreadCount.value.toInt().toString(),
+            profileImagePath: _getProfileImagePath(),
+          )),
+          // Main content area
+          Obx(() {
+            // Show loading only if profile is still loading
+            if (profileController.isLoading.value) {
+              return const Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text('Loading Info...'),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            return Expanded(
               child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -315,6 +363,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   builder: (BuildContext context) {
                                     return Container(
                                       decoration: const BoxDecoration(
+
                                         color: AppColors.white,
                                         borderRadius: BorderRadius.only(
                                           topLeft: Radius.circular(24),
@@ -322,8 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                       width: double.infinity,
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 15, horizontal: 26),
+                                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 26),
                                       child: const ReserveBottomSheetWidget(),
                                     );
                                   },
@@ -335,9 +383,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ],
                       ),
-
                       const SpaceWidget(spaceHeight: 12),
-
                       TextWidget(
                         text: "earnMoney".tr,
                         fontSize: 14,
@@ -350,103 +396,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           _openBottomSheet(context);
                         },
                       ),
-                      const SpaceWidget(spaceHeight: 12),
-
-                      // Container(
-                      //   height: ResponsiveUtils.height(50),
-                      //   padding: const EdgeInsets.all(10),
-                      //   decoration: const BoxDecoration(
-                      //     color: AppColors.greyLightest,
-                      //     borderRadius: BorderRadius.all(Radius.circular(50)),
-                      //   ),
-                      //   child: Row(
-                      //     children: [
-                      //       const TextWidget(
-                      //         text: "interestedInReceivingDeliveries",
-                      //         fontSize: 14,
-                      //         fontColor: AppColors.black,
-                      //         fontWeight: FontWeight.w600,
-                      //       ),
-                      //       const Spacer(),
-                      //       Obx(() {
-                      //         return GestureDetector(
-                      //           onTap: () {
-                      //             bool newStatus = !notificationController
-                      //                 .receivingDeliveries.value;
-                      //             notificationController
-                      //                 .receivingDeliveryNotification(newStatus);
-                      //           },
-                      //           child: AnimatedContainer(
-                      //             duration: const Duration(milliseconds: 300),
-                      //             width: 54,
-                      //             height: 27,
-                      //             padding:
-                      //                 const EdgeInsets.symmetric(horizontal: 2),
-                      //             decoration: BoxDecoration(
-                      //               borderRadius: BorderRadius.circular(20),
-                      //               color: notificationController
-                      //                       .receivingDeliveries.value
-                      //                   ? AppColors.green
-                      //                   : AppColors.red,
-                      //             ),
-                      //             child: Stack(
-                      //               children: [
-                      //                 Align(
-                      //                   alignment: notificationController
-                      //                           .receivingDeliveries.value
-                      //                       ? Alignment.centerLeft
-                      //                       : Alignment.centerRight,
-                      //                   child: Padding(
-                      //                     padding: const EdgeInsets.symmetric(
-                      //                         horizontal: 05),
-                      //                     child: Text(
-                      //                       notificationController
-                      //                               .receivingDeliveries.value
-                      //                           ? 'ON'
-                      //                           : 'OFF',
-                      //                       style: const TextStyle(
-                      //                         fontSize: 12,
-                      //                         fontWeight: FontWeight.bold,
-                      //                         color: Colors.white,
-                      //                       ),
-                      //                     ),
-                      //                   ),
-                      //                 ),
-                      //                 AnimatedAlign(
-                      //                   duration:
-                      //                       const Duration(milliseconds: 300),
-                      //                   curve: Curves.easeInOut,
-                      //                   alignment: notificationController
-                      //                           .receivingDeliveries.value
-                      //                       ? Alignment.centerRight
-                      //                       : Alignment.centerLeft,
-                      //                   child: Container(
-                      //                     width: 18,
-                      //                     height: 18,
-                      //                     decoration: const BoxDecoration(
-                      //                       color: Colors.white,
-                      //                       shape: BoxShape.circle,
-                      //                     ),
-                      //                   ),
-                      //                 ),
-                      //               ],
-                      //             ),
-                      //           ),
-                      //         );
-                      //       }),
-                      //     ],
-                      //   ),
-                      // ),
-
                       const SpaceWidget(spaceHeight: 20),
                     ],
                   ),
                 ),
               ),
-            ),
-          ],
-        );
-      }),
+            );
+          }),
+        ],
+      ),
     );
   }
 }

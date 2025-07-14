@@ -168,5 +168,7 @@
   "verifyNumber": "אמת מספר",
   "countryDesciption": "כאן קבל את המדינה שלך",
   "selectLanguage": "בחר את השפה שלך",
-  "enterYourPreferredLanguage": "הזן את השפה המועדפת עליך"
+  "enterYourPreferredLanguage": "הזן את השפה המועדפת עליך",
+  "rejected" : "נדחה",
+  "accepted" : "נקבע"
 }

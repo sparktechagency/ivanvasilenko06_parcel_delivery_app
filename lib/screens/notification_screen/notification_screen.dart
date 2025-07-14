@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -724,22 +725,22 @@ class _NotificationScreenState extends State<NotificationScreen>
     String type = notification.type ?? "";
     String price = notification.price?.toString() ?? "0";
 
-    // Fixed time parsing for regular notifications
+    //! Fixed time parsing for regular notifications
     String timeAgo = "Unknown time";
     try {
       if (notification.createdAt != null) {
         DateTime createdDate;
 
-        // Try parsing as ISO format first
+        //! Try parsing as ISO format first
         try {
           createdDate = DateTime.parse(notification.createdAt.toString());
         } catch (e) {
-          // If ISO parsing fails, try other common formats
+          //! If ISO parsing fails, try other common formats
           try {
             final DateFormat formatter = DateFormat("yyyy-MM-dd HH:mm:ss");
             createdDate = formatter.parse(notification.createdAt.toString());
           } catch (e) {
-            // Try another common format
+            //! Try another common format
             final DateFormat formatter2 = DateFormat("yyyy-MM-dd hh:mm a");
             createdDate = formatter2.parse(notification.createdAt.toString());
           }
@@ -874,6 +875,24 @@ class _NotificationScreenState extends State<NotificationScreen>
             ],
           ),
           const SpaceWidget(spaceHeight: 8),
+          type == "Requested-Delivery"
+              ? Row(
+            children: [
+              Image.asset(
+                AppImagePath.sendParcel,
+                width: 16,
+                height: 16,
+              ),
+              const SpaceWidget(spaceWidth: 8),
+              TextWidget(
+                text: notification.title ?? "N/A",
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                fontColor: AppColors.greyDark2,
+              ),
+            ],
+          ) :const SizedBox() ,
+          const SpaceWidget(spaceHeight: 8),
           Row(
             children: [
               const Icon(
@@ -881,6 +900,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                 color: AppColors.black,
                 size: 12,
               ),
+
               const SpaceWidget(spaceWidth: 8),
               SizedBox(
                 width: ResponsiveUtils.width(180),
@@ -896,6 +916,7 @@ class _NotificationScreenState extends State<NotificationScreen>
               ),
             ],
           ),
+
           const SizedBox(height: 8),
           type.toString() == "Requested-Delivery"
               ? const SizedBox()
@@ -955,7 +976,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                           ),
                   ],
                 ),
-          const SpaceWidget(spaceHeight: 8),
+
           Row(
             children: [
               const Icon(
@@ -1013,7 +1034,25 @@ class _NotificationScreenState extends State<NotificationScreen>
                         fontColor: AppColors.red,
                       ),
                     )
-                  : const SizedBox(),
+                  : type.toString() == "Requested-Delivery"
+                      ? Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: AppColors.whiteLight,
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: TextWidget(
+                            text:
+                                "${notification.name} Sent Request for Delivery",
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            fontColor: AppColors.greyDark2,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        )
+                      : const SizedBox(),
         ],
       ),
     );

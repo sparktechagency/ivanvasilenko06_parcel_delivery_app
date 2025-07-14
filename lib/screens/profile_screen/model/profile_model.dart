@@ -11,22 +11,21 @@ class ProfileModel {
     this.data,
   });
 
-  factory ProfileModel.fromRawJson(String str) =>
-      ProfileModel.fromJson(json.decode(str));
+  factory ProfileModel.fromRawJson(String str) => ProfileModel.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) => ProfileModel(
-        status: json["status"],
-        message: json["message"],
-        data: json["data"] == null ? null : Data.fromJson(json["data"]),
-      );
+    status: json["status"],
+    message: json["message"],
+    data: json["data"] == null ? null : Data.fromJson(json["data"]),
+  );
 
   Map<String, dynamic> toJson() => {
-        "status": status,
-        "message": message,
-        "data": data?.toJson(),
-      };
+    "status": status,
+    "message": message,
+    "data": data?.toJson(),
+  };
 }
 
 class Data {
@@ -47,20 +46,18 @@ class Data {
   String toRawJson() => json.encode(toJson());
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-        user: json["user"] == null ? null : User.fromJson(json["user"]),
-        earnings: json["earnings"] == null
-            ? null
-            : Earnings.fromJson(json["earnings"]),
-        averageRating: json["averageRating"],
-        totalReviews: json["totalReviews"],
-      );
+    user: json["user"] == null ? null : User.fromJson(json["user"]),
+    earnings: json["earnings"] == null ? null : Earnings.fromJson(json["earnings"]),
+    averageRating: json["averageRating"],
+    totalReviews: json["totalReviews"],
+  );
 
   Map<String, dynamic> toJson() => {
-        "user": user?.toJson(),
-        "earnings": earnings?.toJson(),
-        "averageRating": averageRating,
-        "totalReviews": totalReviews,
-      };
+    "user": user?.toJson(),
+    "earnings": earnings?.toJson(),
+    "averageRating": averageRating,
+    "totalReviews": totalReviews,
+  };
 }
 
 class Earnings {
@@ -80,34 +77,34 @@ class Earnings {
     this.tripsCompleted,
   });
 
-  factory Earnings.fromRawJson(String str) =>
-      Earnings.fromJson(json.decode(str));
+  factory Earnings.fromRawJson(String str) => Earnings.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
   factory Earnings.fromJson(Map<String, dynamic> json) => Earnings(
-        totalEarnings: json["totalEarnings"],
-        monthlyEarnings: json["monthlyEarnings"],
-        totalAmountSpent: json["totalAmountSpent"],
-        totalSentParcels: json["totalSentParcels"],
-        totalReceivedParcels: json["totalReceivedParcels"],
-        tripsCompleted: json["tripsCompleted"],
-      );
+    totalEarnings: json["totalEarnings"],
+    monthlyEarnings: json["monthlyEarnings"],
+    totalAmountSpent: json["totalAmountSpent"],
+    totalSentParcels: json["totalSentParcels"],
+    totalReceivedParcels: json["totalReceivedParcels"],
+    tripsCompleted: json["tripsCompleted"],
+  );
 
   Map<String, dynamic> toJson() => {
-        "totalEarnings": totalEarnings,
-        "monthlyEarnings": monthlyEarnings,
-        "totalAmountSpent": totalAmountSpent,
-        "totalSentParcels": totalSentParcels,
-        "totalReceivedParcels": totalReceivedParcels,
-        "tripsCompleted": tripsCompleted,
-      };
+    "totalEarnings": totalEarnings,
+    "monthlyEarnings": monthlyEarnings,
+    "totalAmountSpent": totalAmountSpent,
+    "totalSentParcels": totalSentParcels,
+    "totalReceivedParcels": totalReceivedParcels,
+    "tripsCompleted": tripsCompleted,
+  };
 }
 
 class User {
   String? id;
   String? fullName;
   String? country;
+  String? email;
   String? mobileNumber;
   String? image;
   String? role;
@@ -117,37 +114,36 @@ class User {
   int? totaltripsCompleted;
   int? totalOrders;
   int? totalDelivered;
+  int? totalEarning;
+  int? monthlyEarnings;
+  int? totalAmountSpent;
+  int? totalSentParcels;
+  int? totalReceivedParcels;
+  bool? notificationStatus;
   bool? isSubscribed;
   bool? isRestricted;
   String? subscriptionType;
   int? subscriptionPrice;
   int? subscriptionCount;
-  List<Order>? sendOrders;
-  List<Order>? recciveOrders;
+  int? avgRating;
   DateTime? subscriptionStartDate;
   DateTime? subscriptionExpiryDate;
-  List<dynamic>? reviews;
+  List<Review>? reviews;
   DateTime? startDate;
   DateTime? expiryDate;
   DateTime? createdAt;
   DateTime? updatedAt;
   int? v;
-  int? totalReceivedParcels;
-  int? monthlyEarnings;
-  int? totalAmountSpent;
-  int? totalEarning;
-  int? totalSentParcels;
-  String? email;
   String? facebook;
   String? instagram;
   String? whatsapp;
-
-  int? avgRating;
+  String? fcmToken;
 
   User({
     this.id,
     this.fullName,
     this.country,
+    this.email,
     this.mobileNumber,
     this.image,
     this.role,
@@ -157,13 +153,18 @@ class User {
     this.totaltripsCompleted,
     this.totalOrders,
     this.totalDelivered,
+    this.totalEarning,
+    this.monthlyEarnings,
+    this.totalAmountSpent,
+    this.totalSentParcels,
+    this.totalReceivedParcels,
+    this.notificationStatus,
     this.isSubscribed,
     this.isRestricted,
     this.subscriptionType,
     this.subscriptionPrice,
     this.subscriptionCount,
-    this.sendOrders,
-    this.recciveOrders,
+    this.avgRating,
     this.subscriptionStartDate,
     this.subscriptionExpiryDate,
     this.reviews,
@@ -172,16 +173,10 @@ class User {
     this.createdAt,
     this.updatedAt,
     this.v,
-    this.totalReceivedParcels,
-    this.monthlyEarnings,
-    this.totalAmountSpent,
-    this.totalEarning,
-    this.totalSentParcels,
-    this.email,
     this.facebook,
     this.instagram,
     this.whatsapp,
-    this.avgRating,
+    this.fcmToken,
   });
 
   factory User.fromRawJson(String str) => User.fromJson(json.decode(str));
@@ -189,266 +184,110 @@ class User {
   String toRawJson() => json.encode(toJson());
 
   factory User.fromJson(Map<String, dynamic> json) => User(
-        id: json["_id"],
-        fullName: json["fullName"],
-        country: json["country"],
-        mobileNumber: json["mobileNumber"],
-        image: json["image"],
-        role: json["role"],
-        isTrial: json["isTrial"],
-        isVerified: json["isVerified"],
-        freeDeliveries: json["freeDeliveries"],
-        totaltripsCompleted: json["TotaltripsCompleted"],
-        totalOrders: json["totalOrders"],
-        totalDelivered: json["totalDelivered"],
-        isSubscribed: json["isSubscribed"],
-        isRestricted: json["isRestricted"],
-        subscriptionType: json["subscriptionType"],
-        subscriptionPrice: json["subscriptionPrice"],
-        subscriptionCount: json["subscriptionCount"],
-        sendOrders: json["SendOrders"] == null
-            ? []
-            : List<Order>.from(
-                json["SendOrders"]!.map((x) => Order.fromJson(x))),
-        recciveOrders: json["RecciveOrders"] == null
-            ? []
-            : List<Order>.from(
-                json["RecciveOrders"]!.map((x) => Order.fromJson(x))),
-        subscriptionStartDate: json["subscriptionStartDate"] == null
-            ? null
-            : DateTime.parse(json["subscriptionStartDate"]),
-        subscriptionExpiryDate: json["subscriptionExpiryDate"] == null
-            ? null
-            : DateTime.parse(json["subscriptionExpiryDate"]),
-        reviews: json["reviews"] == null
-            ? []
-            : List<dynamic>.from(json["reviews"]!.map((x) => x)),
-        startDate: json["startDate"] == null
-            ? null
-            : DateTime.parse(json["startDate"]),
-        expiryDate: json["expiryDate"] == null
-            ? null
-            : DateTime.parse(json["expiryDate"]),
-        createdAt: json["createdAt"] == null
-            ? null
-            : DateTime.parse(json["createdAt"]),
-        updatedAt: json["updatedAt"] == null
-            ? null
-            : DateTime.parse(json["updatedAt"]),
-        v: json["__v"],
-        totalReceivedParcels: json["totalReceivedParcels"],
-        monthlyEarnings: json["monthlyEarnings"],
-        totalAmountSpent: json["totalAmountSpent"],
-        totalEarning: json["totalEarning"],
-        totalSentParcels: json["totalSentParcels"],
-        email: json["email"],
-        facebook: json["facebook"],
-        instagram: json["instagram"],
-        whatsapp: json["whatsapp"],
-        avgRating: json["avgRating"],
-      );
+    id: json["_id"],
+    fullName: json["fullName"],
+    country: json["country"],
+    email: json["email"],
+    mobileNumber: json["mobileNumber"],
+    image: json["image"],
+    role: json["role"],
+    isTrial: json["isTrial"],
+    isVerified: json["isVerified"],
+    freeDeliveries: json["freeDeliveries"],
+    totaltripsCompleted: json["TotaltripsCompleted"],
+    totalOrders: json["totalOrders"],
+    totalDelivered: json["totalDelivered"],
+    totalEarning: json["totalEarning"],
+    monthlyEarnings: json["monthlyEarnings"],
+    totalAmountSpent: json["totalAmountSpent"],
+    totalSentParcels: json["totalSentParcels"],
+    totalReceivedParcels: json["totalReceivedParcels"],
+    notificationStatus: json["notificationStatus"],
+    isSubscribed: json["isSubscribed"],
+    isRestricted: json["isRestricted"],
+    subscriptionType: json["subscriptionType"],
+    subscriptionPrice: json["subscriptionPrice"],
+    subscriptionCount: json["subscriptionCount"],
+    avgRating: json["avgRating"],
+    subscriptionStartDate: json["subscriptionStartDate"] == null ? null : DateTime.parse(json["subscriptionStartDate"]),
+    subscriptionExpiryDate: json["subscriptionExpiryDate"] == null ? null : DateTime.parse(json["subscriptionExpiryDate"]),
+    reviews: json["reviews"] == null ? [] : List<Review>.from(json["reviews"]!.map((x) => Review.fromJson(x))),
+    startDate: json["startDate"] == null ? null : DateTime.parse(json["startDate"]),
+    expiryDate: json["expiryDate"] == null ? null : DateTime.parse(json["expiryDate"]),
+    createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
+    updatedAt: json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
+    v: json["__v"],
+    facebook: json["facebook"],
+    instagram: json["instagram"],
+    whatsapp: json["whatsapp"],
+    fcmToken: json["fcmToken"],
+  );
 
   Map<String, dynamic> toJson() => {
-        "_id": id,
-        "fullName": fullName,
-        "country": country,
-        "mobileNumber": mobileNumber,
-        "image": image,
-        "role": role,
-        "isTrial": isTrial,
-        "isVerified": isVerified,
-        "freeDeliveries": freeDeliveries,
-        "TotaltripsCompleted": totaltripsCompleted,
-        "totalOrders": totalOrders,
-        "totalDelivered": totalDelivered,
-        "isSubscribed": isSubscribed,
-        "isRestricted": isRestricted,
-        "subscriptionType": subscriptionType,
-        "subscriptionPrice": subscriptionPrice,
-        "subscriptionCount": subscriptionCount,
-        "SendOrders": sendOrders == null
-            ? []
-            : List<dynamic>.from(sendOrders!.map((x) => x.toJson())),
-        "RecciveOrders": recciveOrders == null
-            ? []
-            : List<dynamic>.from(recciveOrders!.map((x) => x.toJson())),
-        "subscriptionStartDate": subscriptionStartDate?.toIso8601String(),
-        "subscriptionExpiryDate": subscriptionExpiryDate?.toIso8601String(),
-        "reviews":
-            reviews == null ? [] : List<dynamic>.from(reviews!.map((x) => x)),
-        "startDate": startDate?.toIso8601String(),
-        "expiryDate": expiryDate?.toIso8601String(),
-        "createdAt": createdAt?.toIso8601String(),
-        "updatedAt": updatedAt?.toIso8601String(),
-        "__v": v,
-        "totalReceivedParcels": totalReceivedParcels,
-        "monthlyEarnings": monthlyEarnings,
-        "totalAmountSpent": totalAmountSpent,
-        "totalEarning": totalEarning,
-        "totalSentParcels": totalSentParcels,
-        "email": email,
-        "facebook": facebook,
-        "instagram": instagram,
-        "whatsapp": whatsapp,
-      };
+    "_id": id,
+    "fullName": fullName,
+    "country": country,
+    "email": email,
+    "mobileNumber": mobileNumber,
+    "image": image,
+    "role": role,
+    "isTrial": isTrial,
+    "isVerified": isVerified,
+    "freeDeliveries": freeDeliveries,
+    "TotaltripsCompleted": totaltripsCompleted,
+    "totalOrders": totalOrders,
+    "totalDelivered": totalDelivered,
+    "totalEarning": totalEarning,
+    "monthlyEarnings": monthlyEarnings,
+    "totalAmountSpent": totalAmountSpent,
+    "totalSentParcels": totalSentParcels,
+    "totalReceivedParcels": totalReceivedParcels,
+    "notificationStatus": notificationStatus,
+    "isSubscribed": isSubscribed,
+    "isRestricted": isRestricted,
+    "subscriptionType": subscriptionType,
+    "subscriptionPrice": subscriptionPrice,
+    "subscriptionCount": subscriptionCount,
+    "avgRating": avgRating,
+    "subscriptionStartDate": subscriptionStartDate?.toIso8601String(),
+    "subscriptionExpiryDate": subscriptionExpiryDate?.toIso8601String(),
+    "reviews": reviews == null ? [] : List<dynamic>.from(reviews!.map((x) => x.toJson())),
+    "startDate": startDate?.toIso8601String(),
+    "expiryDate": expiryDate?.toIso8601String(),
+    "createdAt": createdAt?.toIso8601String(),
+    "updatedAt": updatedAt?.toIso8601String(),
+    "__v": v,
+    "facebook": facebook,
+    "instagram": instagram,
+    "whatsapp": whatsapp,
+    "fcmToken": fcmToken,
+  };
 }
 
-class Order {
-  ParcelId? parcelId;
-  String? pickupLocation;
-  String? deliveryLocation;
-  int? price;
-  String? title;
-  String? description;
-  String? senderType;
-  String? deliveryType;
-  DateTime? deliveryStartTime;
-  DateTime? deliveryEndTime;
+class Review {
+  String? parcelId;
+  int? rating;
   String? id;
 
-  Order({
+  Review({
     this.parcelId,
-    this.pickupLocation,
-    this.deliveryLocation,
-    this.price,
-    this.title,
-    this.description,
-    this.senderType,
-    this.deliveryType,
-    this.deliveryStartTime,
-    this.deliveryEndTime,
+    this.rating,
     this.id,
   });
 
-  factory Order.fromRawJson(String str) => Order.fromJson(json.decode(str));
+  factory Review.fromRawJson(String str) => Review.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory Order.fromJson(Map<String, dynamic> json) => Order(
-        parcelId: json["parcelId"] == null
-            ? null
-            : ParcelId.fromJson(json["parcelId"]),
-        pickupLocation: json["pickupLocation"],
-        deliveryLocation: json["deliveryLocation"],
-        price: json["price"],
-        title: json["title"],
-        description: json["description"],
-        senderType: json["senderType"],
-        deliveryType: json["deliveryType"],
-        deliveryStartTime: json["deliveryStartTime"] == null
-            ? null
-            : DateTime.parse(json["deliveryStartTime"]),
-        deliveryEndTime: json["deliveryEndTime"] == null
-            ? null
-            : DateTime.parse(json["deliveryEndTime"]),
-        id: json["_id"],
-      );
+  factory Review.fromJson(Map<String, dynamic> json) => Review(
+    parcelId: json["parcelId"],
+    rating: json["rating"],
+    id: json["_id"],
+  );
 
   Map<String, dynamic> toJson() => {
-        "parcelId": parcelId?.toJson(),
-        "pickupLocation": pickupLocation,
-        "deliveryLocation": deliveryLocation,
-        "price": price,
-        "title": title,
-        "description": description,
-        "senderType": senderType,
-        "deliveryType": deliveryType,
-        "deliveryStartTime": deliveryStartTime?.toIso8601String(),
-        "deliveryEndTime": deliveryEndTime?.toIso8601String(),
-        "_id": id,
-      };
-}
-
-class ParcelId {
-  Location? pickupLocation;
-  Location? deliveryLocation;
-  String? id;
-  String? description;
-  String? title;
-  DateTime? deliveryStartTime;
-  DateTime? deliveryEndTime;
-  String? deliveryType;
-  String? senderType;
-  int? price;
-
-  ParcelId({
-    this.pickupLocation,
-    this.deliveryLocation,
-    this.id,
-    this.description,
-    this.title,
-    this.deliveryStartTime,
-    this.deliveryEndTime,
-    this.deliveryType,
-    this.senderType,
-    this.price,
-  });
-
-  factory ParcelId.fromRawJson(String str) =>
-      ParcelId.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
-  factory ParcelId.fromJson(Map<String, dynamic> json) => ParcelId(
-        pickupLocation: json["pickupLocation"] == null
-            ? null
-            : Location.fromJson(json["pickupLocation"]),
-        deliveryLocation: json["deliveryLocation"] == null
-            ? null
-            : Location.fromJson(json["deliveryLocation"]),
-        id: json["_id"],
-        description: json["description"],
-        title: json["title"],
-        deliveryStartTime: json["deliveryStartTime"] == null
-            ? null
-            : DateTime.parse(json["deliveryStartTime"]),
-        deliveryEndTime: json["deliveryEndTime"] == null
-            ? null
-            : DateTime.parse(json["deliveryEndTime"]),
-        deliveryType: json["deliveryType"],
-        senderType: json["senderType"],
-        price: json["price"],
-      );
-
-  Map<String, dynamic> toJson() => {
-        "pickupLocation": pickupLocation?.toJson(),
-        "deliveryLocation": deliveryLocation?.toJson(),
-        "_id": id,
-        "description": description,
-        "title": title,
-        "deliveryStartTime": deliveryStartTime?.toIso8601String(),
-        "deliveryEndTime": deliveryEndTime?.toIso8601String(),
-        "deliveryType": deliveryType,
-        "senderType": senderType,
-        "price": price,
-      };
-}
-
-class Location {
-  String? type;
-  List<double>? coordinates;
-
-  Location({
-    this.type,
-    this.coordinates,
-  });
-
-  factory Location.fromRawJson(String str) =>
-      Location.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
-  factory Location.fromJson(Map<String, dynamic> json) => Location(
-        type: json["type"],
-        coordinates: json["coordinates"] == null
-            ? []
-            : List<double>.from(json["coordinates"]!.map((x) => x?.toDouble())),
-      );
-
-  Map<String, dynamic> toJson() => {
-        "type": type,
-        "coordinates": coordinates == null
-            ? []
-            : List<dynamic>.from(coordinates!.map((x) => x)),
-      };
+    "parcelId": parcelId,
+    "rating": rating,
+    "_id": id,
+  };
 }

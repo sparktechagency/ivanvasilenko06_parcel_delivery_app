@@ -44,32 +44,38 @@ class AppImage extends StatelessWidget {
   }
 
   Widget _buildImage() {
-    if (filePath != null) {
+    // Handle file-based images
+    if (filePath != null && filePath!.isNotEmpty) {
       return Image.file(
         File(filePath!),
         width: width,
         height: height,
         fit: fit,
         errorBuilder: (context, error, stackTrace) {
-          errorLog("Error loading file image:", error);
+          errorLog("Error loading file image: $filePath", error);
           return _buildPlaceholder();
         },
       );
     }
 
-    if (url != null) {
-      if (url!.toLowerCase().contains("null")) {
+    // Handle network images
+    if (url != null && url!.trim().isNotEmpty) {
+      final uri = Uri.tryParse(url!.trim());
+      if (uri != null && (uri.isScheme('http') || uri.isScheme('https'))) {
+        return NetworkImageWithRetry(
+          imageUrl: url!.trim(),
+          width: width,
+          height: height,
+          fit: fit,
+        );
+      } else {
+        errorLog("Invalid URL format: $url", null);
         return _buildPlaceholder();
       }
-      return NetworkImageWithRetry(
-        imageUrl: url!,
-        width: width,
-        height: height,
-        fit: fit,
-      );
     }
 
-    if (path != null) {
+    // Handle asset images
+    if (path != null && path!.isNotEmpty) {
       return Image.asset(
         path!,
         width: width,
@@ -77,12 +83,13 @@ class AppImage extends StatelessWidget {
         fit: fit,
         color: iconColor,
         errorBuilder: (context, error, stackTrace) {
-          errorLog("Error loading asset image:", error);
+          errorLog("Error loading asset image: $path", error);
           return _buildPlaceholder();
         },
       );
     }
 
+    errorLog("No valid image source provided", null);
     return _buildPlaceholder();
   }
 

@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:parcel_delivery_app/screens/bottom_nav_bar/widgets/bottom_nav_bar_item_widget.dart';
 import 'package:parcel_delivery_app/screens/services_screen/services_screen.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
-
 import '../../constants/app_colors.dart';
 import '../../constants/app_icons_path.dart';
 import '../booking_screen/booking_screen.dart';
@@ -11,7 +10,9 @@ import '../home_screen/home_screen.dart';
 import '../profile_screen/profile_screen.dart';
 
 class BottomNavScreen extends StatefulWidget {
-  const BottomNavScreen({super.key});
+  final int initialIndex;
+
+  const BottomNavScreen({super.key, this.initialIndex = 0});
 
   @override
   State<BottomNavScreen> createState() => _BottomNavScreenState();
@@ -19,10 +20,11 @@ class BottomNavScreen extends StatefulWidget {
 
 class _BottomNavScreenState extends State<BottomNavScreen> {
   late List<Widget> tabs;
-  int _currentIndex = 0;
+  late int _currentIndex;
 
   @override
   void initState() {
+    _currentIndex = widget.initialIndex; // Set initial index
     tabs = [
       const HomeScreen(),
       const ServicesScreen(),

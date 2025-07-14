@@ -168,5 +168,7 @@
   "verifyNumber": "Verify Number",
   "countryDesciption": "Here get your country",
   "selectLanguage": "Select Your Language",
-  "enterYourPreferredLanguage": "Enter your preferred language"
+  "enterYourPreferredLanguage": "Enter your preferred language",
+  "rejected" : "Rejected",
+  "accepted" : "Accepted"
 }

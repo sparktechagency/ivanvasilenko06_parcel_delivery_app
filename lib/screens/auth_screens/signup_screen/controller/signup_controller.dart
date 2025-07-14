@@ -7,6 +7,7 @@ import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart';
 import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
 import 'package:parcel_delivery_app/services/deviceInfo/device_info.dart';
+import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
 
 class SignUpScreenController extends GetxController {
   RxBool isLoading = false.obs;
@@ -30,6 +31,7 @@ class SignUpScreenController extends GetxController {
 
         var fcmToken =
             await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
+        appLog(fcmToken);
         // Get device info
         String deviceId = await _deviceInfo.getDeviceId();
         String deviceType = await _deviceInfo.getDeviceType();
