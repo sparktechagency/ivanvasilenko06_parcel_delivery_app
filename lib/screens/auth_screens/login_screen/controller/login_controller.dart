@@ -19,6 +19,7 @@ class LoginScreenController extends GetxController {
   GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
   final RxString completePhoneNumber = ''.obs;
   TextEditingController phoneController = TextEditingController();
+  TextEditingController googleSignInPhoneController = TextEditingController();
 
   void updatePhoneNumber(String phoneNumber) {
     completePhoneNumber.value = phoneNumber;
@@ -134,7 +135,7 @@ class LoginScreenController extends GetxController {
 
       final GoogleSignInAuthentication auth = await acc.authentication;
       final String? idToken = auth.idToken;
-      final String? uniqueId = acc.id;
+      final String uniqueId = acc.id;
 
       appLog(uniqueId);
       if (idToken == null) {
@@ -149,6 +150,7 @@ class LoginScreenController extends GetxController {
       Map<String, dynamic> body = {
         "idToken": idToken,
         "fcmToken": fcmToken.toString(),
+        "mobileNumber" : completePhoneNumber.value,
       };
 
       appLog("Google Auth API Request Body: $body");

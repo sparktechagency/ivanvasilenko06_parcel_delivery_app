@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/app_images.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../constants/api_url.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_constant.dart';
 import '../../constants/app_image_path.dart';
@@ -294,6 +296,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
     );
   }
+  String _getProfileImagePath() {
+    if (profileController.isLoading.value) {
+      log('⏳ Profile is still loading, returning default image URL');
+      return 'https://i.ibb.co/z5YHLV9/profile.png';
+    }
+
+    final imageUrl = profileController.profileData.value.data?.user?.image;
+    log('Raw image URL from API: "$imageUrl"');
+    log('Image URL type: ${imageUrl.runtimeType}');
+
+    // Check for null, empty, or invalid URLs
+    if (imageUrl == null ||
+        imageUrl.isEmpty ||
+        imageUrl.trim().isEmpty ||
+        imageUrl.toLowerCase() == 'null' ||
+        imageUrl.toLowerCase() == 'undefined') {
+      log('❌ Image URL is null/empty/invalid, using default image URL');
+      return 'https://i.ibb.co/z5YHLV9/profile.png';
+    }
+
+    String fullImageUrl;
+    // Trim and clean the URL
+    String cleanImageUrl = imageUrl.trim();
+    if (cleanImageUrl.startsWith('https://') || cleanImageUrl.startsWith('http://')) {
+      fullImageUrl = cleanImageUrl;
+    } else {
+      // Remove leading slashes and ensure proper concatenation
+      cleanImageUrl = cleanImageUrl.startsWith('/') ? cleanImageUrl.substring(1) : cleanImageUrl;
+      fullImageUrl = "${AppApiUrl.liveDomain}/$cleanImageUrl";
+    }
+
+    // Validate the constructed URL
+    final uri = Uri.tryParse(fullImageUrl);
+    if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
+      log('❌ Invalid URL format: $fullImageUrl, using default image URL');
+      return 'https://i.ibb.co/z5YHLV9/profile.png';
+    }
+
+    log('✅ Constructed URL: $fullImageUrl');
+    return fullImageUrl;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -415,6 +458,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Stack(
                         alignment: Alignment.bottomLeft,
                         children: [
+                          // Replace this part in your build method:
+
                           InkWell(
                             onTap: () => Get.toNamed(AppRoutes.editProfile),
                             splashColor: Colors.transparent,
@@ -426,21 +471,84 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 height: ResponsiveUtils.width(120),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(100),
-                                  child: AppImage(
-                                    url: profileController.profileData.value.data
-                                                ?.user?.image?.isNotEmpty ??
-                                            false
-                                        ? profileController
-                                            .profileData.value.data!.user!.image!
-                                        : AppImagePath.profileImage,
+                                  child: Image.network(
+                                    _getProfileImagePath(),
                                     height: 116,
                                     width: 116,
                                     fit: BoxFit.cover,
+                                    loadingBuilder: (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Container(
+                                        height: 116,
+                                        width: 116,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.grey.withOpacity(0.3),
+                                          borderRadius: BorderRadius.circular(100),
+                                        ),
+                                        child: Center(
+                                          child: CircularProgressIndicator(
+                                            value: loadingProgress.expectedTotalBytes != null
+                                                ? loadingProgress.cumulativeBytesLoaded /
+                                                loadingProgress.expectedTotalBytes!
+                                                : null,
+                                            strokeWidth: 2,
+                                            color: AppColors.black,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      log('❌ Error loading image: $error');
+                                      return Container(
+                                        height: 116,
+                                        width: 116,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.grey.withAlpha(78),
+                                          borderRadius: BorderRadius.circular(100),
+                                        ),
+                                        child: const Icon(
+                                          Icons.person,
+                                          size: 50,
+                                          color: AppColors.greyDark2,
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
                               ),
                             ),
                           ),
+                          // InkWell(
+                          //   onTap: () => Get.toNamed(AppRoutes.editProfile),
+                          //   splashColor: Colors.transparent,
+                          //   highlightColor: Colors.transparent,
+                          //   child: Padding(
+                          //     padding: const EdgeInsets.all(4),
+                          //     child: SizedBox(
+                          //       width: ResponsiveUtils.width(120),
+                          //       height: ResponsiveUtils.width(120),
+                          //       child: ClipRRect(
+                          //         borderRadius: BorderRadius.circular(100),
+                          //         child: AppImage(
+                          //           url: profileController
+                          //                       .profileData
+                          //                       .value
+                          //                       .data
+                          //                       ?.user
+                          //                       ?.image
+                          //                       ?.isNotEmpty ??
+                          //                   false
+                          //               ? profileController.profileData.value
+                          //                   .data!.user!.image!
+                          //               : AppImagePath.profileImage,
+                          //           height: 116,
+                          //           width: 116,
+                          //           fit: BoxFit.cover,
+                          //         ),
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
                           Positioned(
                             child: Align(
                               alignment: Alignment.bottomCenter,
@@ -461,8 +569,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                     const SpaceWidget(spaceWidth: 4),
                                     TextWidget(
-                                      text: profileController.profileData.value
-                                          .data!.averageRating.toString(),
+                                      text: profileController
+                                          .profileData.value.data!.averageRating
+                                          .toString(),
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                       fontColor: AppColors.white,
@@ -476,33 +585,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     const SpaceWidget(spaceHeight: 16),
-                    Row(
-                      children: [
-                        TextWidget(
-                          text: profileController
-                                  .profileData.value.data?.user?.fullName ??
-                              'N/A',
-                          fontSize: 21,
-                          fontWeight: FontWeight.w600,
-                          fontColor: AppColors.black,
-                        ),
-                        const Spacer(),
-                        TextWidget(
-                          text: profileController
-                                  .profileData.value.data?.user?.country ??
-                              'N/A',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          fontColor: AppColors.black,
-                        ),
-                        const SizedBox(width: 5),
-                        const Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          color: AppColors.greyDark2,
-                          size: 16,
-                        ),
-                      ],
-                    ),
+                      Row(
+                        children: [
+                          TextWidget(
+                            text: profileController
+                                    .profileData.value.data?.user?.fullName ??
+                                'N/A',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            fontColor: AppColors.black,
+                          ),
+                          const Spacer(),
+                          TextWidget(
+                            text: profileController
+                                    .profileData.value.data?.user?.country ??
+                                'N/A',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            fontColor: AppColors.black,
+                          ),
+                          const SizedBox(width: 5),
+                          const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: AppColors.greyDark2,
+                            size: 16,
+                          ),
+                        ],
+                      ),
+
                     const SpaceWidget(spaceHeight: 12),
                     InkWell(
                       splashColor: Colors.transparent,

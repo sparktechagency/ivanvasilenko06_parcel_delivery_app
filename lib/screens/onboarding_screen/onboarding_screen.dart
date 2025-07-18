@@ -20,6 +20,8 @@ class OnboardingScreen extends GetView<OnboardingController> {
   @override
   Widget build(BuildContext context) {
     final isRTL = Get.locale?.languageCode == 'he';
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return AnnotatedRegion(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(
@@ -38,51 +40,57 @@ class OnboardingScreen extends GetView<OnboardingController> {
                   onPageChanged: controller.updateIndex,
                   itemCount: contents.length,
                   itemBuilder: (_, i) {
-                    return SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ImageWidget(
-                            imagePath: contents[i].image,
-                            height: ResponsiveUtils.height(500),
-                            width: double.infinity,
-                          ),
-                          const SpaceWidget(spaceHeight: 38),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: TextWidget(
-                              text: contents[i].title,
-                              fontSize: 27,
-                              fontWeight: FontWeight.w600,
-                              fontColor: AppColors.black,
+                    return SingleChildScrollView(
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ImageWidget(
+                              imagePath: contents[i].image,
+                              height: screenHeight > 700
+                                  ? ResponsiveUtils.height(480)
+                                  : ResponsiveUtils.height(380), // Reduce image height for small screens
+                              width: double.infinity,
                             ),
-                          ),
-                          const SpaceWidget(spaceHeight: 14),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: TextWidget(
-                              text: contents[i].description,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              fontColor: AppColors.black,
-                              textAlignment:
-                                  isRTL ? TextAlign.right : TextAlign.left,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 3,
+                            const SpaceWidget(spaceHeight: 38),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: TextWidget(
+                                text: contents[i].title,
+                                fontSize: 27,
+                                fontWeight: FontWeight.w600,
+                                fontColor: AppColors.black,
+                              ),
                             ),
-                          ),
-                        ],
+                            const SpaceWidget(spaceHeight: 10),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: TextWidget(
+                                text: contents[i].description,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                                fontColor: AppColors.black,
+                                textAlignment:
+                                isRTL ? TextAlign.right : TextAlign.left,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 3,
+                              ),
+                            ),
+                            // Add bottom padding to prevent content from going behind bottom nav
+                            SizedBox(height: 120),
+                          ],
+                        ),
                       ),
                     );
                   },
                 ),
               ),
               Positioned(
-                top: isRTL
-                    ? ResponsiveUtils.height(520)
-                    : ResponsiveUtils.height(520),
+                top: screenHeight > 700
+                    ? ResponsiveUtils.height(500)
+                    : ResponsiveUtils.height(400), // Adjust position for smaller screens
                 left: isRTL ? null : ResponsiveUtils.width(24),
                 right: isRTL ? ResponsiveUtils.width(24) : null,
                 child: GetX<OnboardingController>(
@@ -90,7 +98,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
                       contents.length,
-                      (index) => _buildDot(index, controller),
+                          (index) => _buildDot(index, controller),
                     ),
                   ),
                 ),
@@ -98,41 +106,48 @@ class OnboardingScreen extends GetView<OnboardingController> {
             ],
           ),
         ),
-        bottomNavigationBar: Padding(
+        bottomNavigationBar: Container(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ButtonWidget(
-                onPressed: () {
-                  Get.toNamed(AppRoutes.loginScreen);
-                  // Get.offAll(() => const BottomNavScreen());
-                },
-                label: "login".tr,
-                textColor: AppColors.black,
-                fontSize: 16,
-                buttonRadius: BorderRadius.circular(100),
-                buttonWidth: 155,
-                buttonHeight: 50,
-                backgroundColor: AppColors.white,
-                borderColor: AppColors.black,
-                fontWeight: FontWeight.w500,
-              ),
-              ButtonWidget(
-                onPressed: () {
-                  Get.toNamed(AppRoutes.countrySelectScreen);
-                },
-                label: "signUp".tr,
-                textColor: AppColors.white,
-                fontSize: 16,
-                buttonWidth: 155,
-                buttonHeight: 50,
-                buttonRadius: BorderRadius.circular(100),
-                backgroundColor: AppColors.black,
-                borderColor: AppColors.black,
-                fontWeight: FontWeight.w600,
-              ),
-            ],
+          child: SafeArea(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: ButtonWidget(
+                    onPressed: () {
+                      Get.toNamed(AppRoutes.loginScreen);
+                      // Get.offAll(() => const BottomNavScreen());
+                    },
+                    label: "login".tr,
+                    textColor: AppColors.black,
+                    fontSize: 16,
+                    buttonRadius: BorderRadius.circular(100),
+                    buttonWidth: 155,
+                    buttonHeight: 50,
+                    backgroundColor: AppColors.white,
+                    borderColor: AppColors.black,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(width: 10),
+                Flexible(
+                  child: ButtonWidget(
+                    onPressed: () {
+                      Get.toNamed(AppRoutes.countrySelectScreen);
+                    },
+                    label: "signUp".tr,
+                    textColor: AppColors.white,
+                    fontSize: 16,
+                    buttonWidth: 155,
+                    buttonHeight: 50,
+                    buttonRadius: BorderRadius.circular(100),
+                    backgroundColor: AppColors.black,
+                    borderColor: AppColors.black,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -69,7 +69,7 @@ class SignupScreen extends StatelessWidget {
                 // Email Field
                 TextFieldWidget(
                   controller: controller.emailController,
-                  hintText: "enterEmail".tr,
+                  hintText: "Enter Your Email (Optional)".tr,
                   maxLines: 1,
                 ),
                 const SpaceWidget(spaceHeight: 16),

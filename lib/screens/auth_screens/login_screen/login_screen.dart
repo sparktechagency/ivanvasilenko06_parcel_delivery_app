@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -22,6 +23,53 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void showDialogBoxPhone(){
+      Get.dialog(
+        BackdropFilter(filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+        child: Dialog(
+          backgroundColor: AppColors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(15),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextWidget(
+                  text: "beforeGoogleSignInEnterYourNumber".tr,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  fontColor: AppColors.black,
+                  textAlignment: TextAlign.center,
+                ),
+                const SpaceWidget(spaceHeight: 20,),
+                IntlPhoneFieldWidget(
+                  hintText: "Enter Your Number".tr,
+                  controller: controller.googleSignInPhoneController,
+                  onChanged: (phone) {
+                    controller.updatePhoneNumber(phone.completeNumber);
+                    log(phone.completeNumber);
+                  },
+                  fillColor: AppColors.white,
+                  borderColor: AppColors.black,
+                  initialCountryCode: "IL",
+                ),
+                const SpaceWidget(spaceHeight: 20,),
+                Obx(() => controller.isLoading.value ? const Center(child: CircularProgressIndicator()) :
+                   ButtonWidget(
+                    label: "continueWithGoogle".tr,
+                    buttonHeight: 50,
+                    buttonWidth: double.infinity,
+                    onPressed: (){
+                      controller.googleSignIn();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+        ),)
+      );
+    }
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SingleChildScrollView(
@@ -60,15 +108,7 @@ class LoginScreen extends StatelessWidget {
                     borderColor: AppColors.black,
                     initialCountryCode: "IL",
                   ),
-                  // TextFieldWidget(
-                  //   controller: controller.emailController,
-                  //   hintText: "enterEmail".tr,
-                  //   maxLines: 1,
-                  // ),
-                  // IntlPhoneFieldWidget(
-                  //   controller: phoneController,
-                  //   hintText: "enterYourPhoneNumber".tr,
-                  // ),
+
                   const SpaceWidget(spaceHeight: 24),
                   Obx(() {
                     return controller.isLoading.value
@@ -83,23 +123,14 @@ class LoginScreen extends StatelessWidget {
                   const SpaceWidget(spaceHeight: 16),
                   const OrWidget(),
                   const SpaceWidget(spaceHeight: 16),
-                  // CustomInkWellButton(
-                  //   onTap: () {},
-                  //   icon: AppIconsPath.emailIcon,
-                  //   text: "continueWithEmail".tr,
-                  // ),
-                  // const SpaceWidget(spaceHeight: 16),
-                  Obx(() {
-                    return controller.isGoogleLoading.value
-                        ? const Center(child: CircularProgressIndicator())
-                        : CustomInkWellButton(
+                  CustomInkWellButton(
                             onTap: () {
-                              controller.googleSignIn();
+                              //controller.googleSignIn();
+                              showDialogBoxPhone();
                             },
                             icon: AppIconsPath.googleIcon,
                             text: "continueWithGoogle".tr,
-                          );
-                  }),
+                          ),
                   const SpaceWidget(spaceHeight: 16),
                   CustomInkWellButton(
                     onTap: () {

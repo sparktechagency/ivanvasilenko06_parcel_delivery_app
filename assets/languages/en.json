@@ -23,7 +23,6 @@
   "enterYourPhoneNumber": "Enter your phone number",
   "or": "Or",
   "continueWithEmail": "Continue with Email",
-  "continueWithGoogle": "Continue with Google",
   "continueWithApple": "Continue with Apple",
   "dontHaveAccount": "Don't have an account?",
   "loginWithEmail": "Login with Email",
@@ -138,7 +137,7 @@
   "resendCode": "Resend Code",
   "sendRepeatSMS": "Send SMS Again",
   "sec": "Second",
-  "enterEmail": "Enter Phone Number",
+  "enterEmail": "Enter Your Email (Optional)",
   "verifying....": "Verifying....",
   "enterPassword": "Enter Password",
   "km": "KM",
@@ -170,5 +169,8 @@
   "selectLanguage": "Select Your Language",
   "enterYourPreferredLanguage": "Enter your preferred language",
   "rejected" : "Rejected",
-  "accepted" : "Accepted"
+  "accepted" : "Accepted",
+  "beforeGoogleSignInEnterYourNumber" : "Before Google Sign In Enter Your Number",
+  "continueWithGoogle" : "Continue with Google",
+  "optional" : "Enter Your Email (Optional)"
 }

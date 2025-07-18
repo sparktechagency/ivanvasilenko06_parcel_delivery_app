@@ -548,7 +548,7 @@ class _PageTwoState extends State<PageTwo> {
       backgroundColor: AppColors.white,
       body: GestureDetector(
         onTap: () {
-          // Close keyboard when tapping outside of text fields
+          //! Close keyboard when tapping outside of text fields
           FocusScope.of(context).unfocus();
           setState(() {
             _placePredictions = [];

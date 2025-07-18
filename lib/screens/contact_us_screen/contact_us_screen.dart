@@ -13,7 +13,6 @@ import '../../utils/app_size.dart';
 import '../../widgets/button_widget/button_widget.dart';
 import '../../widgets/space_widget/space_widget.dart';
 import '../../widgets/text_widget/text_widgets.dart';
-import '../bottom_nav_bar/bottom_nav_bar.dart';
 
 class ContactUsScreen extends StatelessWidget {
   final ProfileController controller  = Get.put(ProfileController());

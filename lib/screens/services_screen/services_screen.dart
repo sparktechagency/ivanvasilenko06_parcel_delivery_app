@@ -20,6 +20,7 @@ import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_button_widget/text_button_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
 
+import '../../constants/api_url.dart';
 import '../delivery_parcel_screens/controller/delivery_screens_controller.dart';
 import '../notification_screen/controller/notification_controller.dart';
 import '../profile_screen/controller/profile_controller.dart';
@@ -188,6 +189,47 @@ class _ServicesScreenState extends State<ServicesScreen> {
       });
     }
   }
+  String _getProfileImagePath() {
+    if (profileController.isLoading.value) {
+      log('⏳ Profile is still loading, returning default image URL');
+      return 'https://i.ibb.co/z5YHLV9/profile.png';
+    }
+
+    final imageUrl = profileController.profileData.value.data?.user?.image;
+    log('Raw image URL from API: "$imageUrl"');
+    log('Image URL type: ${imageUrl.runtimeType}');
+
+    // Check for null, empty, or invalid URLs
+    if (imageUrl == null ||
+        imageUrl.isEmpty ||
+        imageUrl.trim().isEmpty ||
+        imageUrl.toLowerCase() == 'null' ||
+        imageUrl.toLowerCase() == 'undefined') {
+      log('❌ Image URL is null/empty/invalid, using default image URL');
+      return 'https://i.ibb.co/z5YHLV9/profile.png';
+    }
+
+    String fullImageUrl;
+    // Trim and clean the URL
+    String cleanImageUrl = imageUrl.trim();
+    if (cleanImageUrl.startsWith('https://') || cleanImageUrl.startsWith('http://')) {
+      fullImageUrl = cleanImageUrl;
+    } else {
+      // Remove leading slashes and ensure proper concatenation
+      cleanImageUrl = cleanImageUrl.startsWith('/') ? cleanImageUrl.substring(1) : cleanImageUrl;
+      fullImageUrl = "${AppApiUrl.liveDomain}/$cleanImageUrl";
+    }
+
+    // Validate the constructed URL
+    final uri = Uri.tryParse(fullImageUrl);
+    if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
+      log('❌ Invalid URL format: $fullImageUrl, using default image URL');
+      return 'https://i.ibb.co/z5YHLV9/profile.png';
+    }
+
+    log('✅ Constructed URL: $fullImageUrl');
+    return fullImageUrl;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -242,18 +284,48 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       const SpaceWidget(spaceWidth: 12),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(100),
-                        child: AppImage(
-                          url: profileController.isLoading.value
-                              ? AppImagePath.dummyProfileImage
-                              : (profileController.profileData.value.data?.user
-                                          ?.image?.isNotEmpty ??
-                                      false)
-                                  ? profileController
-                                      .profileData.value.data!.user!.image!
-                                  : AppImagePath.dummyProfileImage,
+                        child:
+                        Image.network(
+                          _getProfileImagePath(),
                           height: 40,
                           width: 40,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Image.asset(
+                              'https://i.ibb.co/z5YHLV9/profile.png',
+                              height: 40,
+                              width: 40,
+                              fit: BoxFit.cover,
+                            );
+                          },
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              height: 40,
+                              width: 40,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes != null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                      : null,
+                                ),
+                              ),
+                            );
+                          },
                         ),
+                        // AppImage(
+                        //   url: profileController.isLoading.value
+                        //       ? AppImagePath.dummyProfileImage
+                        //       : (profileController.profileData.value.data?.user
+                        //       ?.image?.isNotEmpty ??
+                        //       false)
+                        //       ? profileController
+                        //       .profileData.value.data!.user!.image!
+                        //       : AppImagePath.dummyProfileImage,
+                        //   height: 40,
+                        //   width: 40,
+                        // ),
                       )
                     ],
                   )

@@ -11,7 +11,6 @@ import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
 import 'package:parcel_delivery_app/services/reporsitory/image_repository/image_repository.dart';
-import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 
 class ParcelController extends GetxController {
   // Observable data
