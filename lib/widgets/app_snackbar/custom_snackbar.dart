@@ -4,7 +4,6 @@ import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
 
-
 class AppSnackBar {
   // >>>>>>>>>>>>>>>>>>>>>> when show message bottom  <<<<<<<<<<<<<<<<<<<<<<
 
@@ -42,7 +41,7 @@ class AppSnackBar {
     Get.showSnackbar(
       GetSnackBar(
         backgroundColor: AppColors.green,
-        animationDuration: const Duration(seconds: 2),
+        animationDuration: const Duration(seconds: 3),
         duration: const Duration(seconds: 3),
         messageText: Column(
           mainAxisSize: MainAxisSize.min,
@@ -83,7 +82,9 @@ class AppSnackBar {
         ),
         borderRadius: AppSize.width(value: 20.0),
         padding: EdgeInsets.all(AppSize.width(value: 10.0)),
-        margin: EdgeInsets.symmetric(horizontal: AppSize.width(value: 40.0), vertical: AppSize.width(value: 30)),
+        margin: EdgeInsets.symmetric(
+            horizontal: AppSize.width(value: 40.0),
+            vertical: AppSize.width(value: 30)),
       ),
     );
   }

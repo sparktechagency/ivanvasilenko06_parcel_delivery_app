@@ -32,7 +32,7 @@ class CurrentOrderModel {
 
 class Datum {
   String? id;
-  ErId? senderId;
+  SenderId? senderId;
   String? description;
   Location? pickupLocation;
   Location? deliveryLocation;
@@ -44,15 +44,15 @@ class Datum {
   int? price;
   String? name;
   String? phoneNumber;
-  List<String>? images;
+  List<dynamic>? images;
   String? status;
-  List<dynamic>? deliveryRequests;
+  List<SenderId>? deliveryRequests;
   DateTime? createdAt;
   DateTime? updatedAt;
   int? v;
-  ErId? assignedDelivererId;
-
+  dynamic assignedDelivererId;
   String? typeParcel;
+  List<SenderId>? deliveryRequestsWithRating;
 
   Datum({
     this.id,
@@ -76,6 +76,7 @@ class Datum {
     this.v,
     this.assignedDelivererId,
     this.typeParcel,
+    this.deliveryRequestsWithRating,
   });
 
   factory Datum.fromRawJson(String str) => Datum.fromJson(json.decode(str));
@@ -84,8 +85,9 @@ class Datum {
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
         id: json["_id"],
-        senderId:
-            json["senderId"] == null ? null : ErId.fromJson(json["senderId"]),
+        senderId: json["senderId"] == null
+            ? null
+            : SenderId.fromJson(json["senderId"]),
         description: json["description"],
         pickupLocation: json["pickupLocation"] == null
             ? null
@@ -107,11 +109,12 @@ class Datum {
         phoneNumber: json["phoneNumber"],
         images: json["images"] == null
             ? []
-            : List<String>.from(json["images"]!.map((x) => x)),
+            : List<dynamic>.from(json["images"]!.map((x) => x)),
         status: json["status"],
         deliveryRequests: json["deliveryRequests"] == null
             ? []
-            : List<dynamic>.from(json["deliveryRequests"]!.map((x) => x)),
+            : List<SenderId>.from(
+                json["deliveryRequests"]!.map((x) => SenderId.fromJson(x))),
         createdAt: json["createdAt"] == null
             ? null
             : DateTime.parse(json["createdAt"]),
@@ -119,10 +122,12 @@ class Datum {
             ? null
             : DateTime.parse(json["updatedAt"]),
         v: json["__v"],
-        assignedDelivererId: json["assignedDelivererId"] == null
-            ? null
-            : ErId.fromJson(json["assignedDelivererId"]),
+        assignedDelivererId: json["assignedDelivererId"],
         typeParcel: json["typeParcel"],
+        deliveryRequestsWithRating: json["deliveryRequestsWithRating"] == null
+            ? []
+            : List<SenderId>.from(json["deliveryRequestsWithRating"]!
+                .map((x) => SenderId.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
@@ -144,61 +149,21 @@ class Datum {
         "status": status,
         "deliveryRequests": deliveryRequests == null
             ? []
-            : List<dynamic>.from(deliveryRequests!.map((x) => x)),
+            : List<dynamic>.from(deliveryRequests!.map((x) => x.toJson())),
         "createdAt": createdAt?.toIso8601String(),
         "updatedAt": updatedAt?.toIso8601String(),
         "__v": v,
-        "assignedDelivererId": assignedDelivererId?.toJson(),
+        "assignedDelivererId": assignedDelivererId,
         "typeParcel": typeParcel,
-      };
-}
-
-class ErId {
-  String? id;
-  String? fullName;
-  String? mobileNumber;
-  String? role;
-  String? email;
-  String? image;
-
-  int? avgRating;
-
-  ErId({
-    this.id,
-    this.fullName,
-    this.mobileNumber,
-    this.role,
-    this.email,
-    this.image,
-    this.avgRating,
-  });
-
-  factory ErId.fromRawJson(String str) => ErId.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
-  factory ErId.fromJson(Map<String, dynamic> json) => ErId(
-        id: json["_id"],
-        fullName: json["fullName"],
-        mobileNumber: json["mobileNumber"],
-        role: json["role"],
-        email: json["email"],
-        image: json["image"],
-        avgRating: json["avgRating"],
-      );
-
-  Map<String, dynamic> toJson() => {
-        "_id": id,
-        "fullName": fullName,
-        "mobileNumber": mobileNumber,
-        "role": role,
-        "email": email,
-        "image": image,
+        "deliveryRequestsWithRating": deliveryRequestsWithRating == null
+            ? []
+            : List<dynamic>.from(
+                deliveryRequestsWithRating!.map((x) => x.toJson())),
       };
 }
 
 class Location {
-  Type? type;
+  String? type;
   List<double>? coordinates;
 
   Location({
@@ -212,32 +177,94 @@ class Location {
   String toRawJson() => json.encode(toJson());
 
   factory Location.fromJson(Map<String, dynamic> json) => Location(
-        type: typeValues.map[json["type"]]!,
+        type: json["type"],
         coordinates: json["coordinates"] == null
             ? []
             : List<double>.from(json["coordinates"]!.map((x) => x?.toDouble())),
       );
 
   Map<String, dynamic> toJson() => {
-        "type": typeValues.reverse[type],
+        "type": type,
         "coordinates": coordinates == null
             ? []
             : List<dynamic>.from(coordinates!.map((x) => x)),
       };
 }
 
-enum Type { POINT }
+class SenderId {
+  String? id;
+  String? fullName;
+  String? email;
+  String? image;
+  String? role;
+  List<Review>? reviews;
+  String? mobileNumber;
 
-final typeValues = EnumValues({"Point": Type.POINT});
+  SenderId({
+    this.id,
+    this.fullName,
+    this.email,
+    this.image,
+    this.role,
+    this.reviews,
+    this.mobileNumber,
+  });
 
-class EnumValues<T> {
-  Map<String, T> map;
-  late Map<T, String> reverseMap;
+  factory SenderId.fromRawJson(String str) =>
+      SenderId.fromJson(json.decode(str));
 
-  EnumValues(this.map);
+  String toRawJson() => json.encode(toJson());
 
-  Map<T, String> get reverse {
-    reverseMap = map.map((k, v) => MapEntry(v, k));
-    return reverseMap;
-  }
+  factory SenderId.fromJson(Map<String, dynamic> json) => SenderId(
+        id: json["_id"],
+        fullName: json["fullName"],
+        email: json["email"],
+        image: json["image"],
+        role: json["role"],
+        reviews: json["reviews"] == null
+            ? []
+            : List<Review>.from(
+                json["reviews"]!.map((x) => Review.fromJson(x))),
+        mobileNumber: json["mobileNumber"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "_id": id,
+        "fullName": fullName,
+        "email": email,
+        "image": image,
+        "role": role,
+        "reviews": reviews == null
+            ? []
+            : List<dynamic>.from(reviews!.map((x) => x.toJson())),
+        "mobileNumber": mobileNumber,
+      };
+}
+
+class Review {
+  String? parcelId;
+  int? rating;
+  String? id;
+
+  Review({
+    this.parcelId,
+    this.rating,
+    this.id,
+  });
+
+  factory Review.fromRawJson(String str) => Review.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory Review.fromJson(Map<String, dynamic> json) => Review(
+        parcelId: json["parcelId"],
+        rating: json["rating"],
+        id: json["_id"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "parcelId": parcelId,
+        "rating": rating,
+        "_id": id,
+      };
 }

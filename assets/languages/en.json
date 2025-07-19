@@ -170,7 +170,7 @@
   "enterYourPreferredLanguage": "Enter your preferred language",
   "rejected" : "Rejected",
   "accepted" : "Accepted",
-  "beforeGoogleSignInEnterYourNumber" : "Before Google Sign In Enter Your Number",
+  "beforeGoogleSignInEnterYourNumber" : "Please Provide Your Number to Continue with Google",
   "continueWithGoogle" : "Continue with Google",
   "optional" : "Enter Your Email (Optional)"
 }

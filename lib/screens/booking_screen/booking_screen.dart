@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:geocoding/geocoding.dart';
@@ -17,7 +16,7 @@ import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/app_images.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import '../../constants/api_url.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_icons_path.dart';
 import '../../routes/app_routes.dart';
@@ -53,11 +52,6 @@ class _BookingScreenState extends State<BookingScreen> {
     super.initState();
   }
 
-  //! Function to make a phone call
-
-  //! Replace with actual phone number
-
-  //! Function to fetch and return address from coordinates
   Future<String> getAddressFromCoordinates(
       double latitude, double longitude) async {
     final String key = '$latitude,$longitude';
@@ -1201,15 +1195,13 @@ class _BookingScreenState extends State<BookingScreen> {
             ),
           );
         }
-
         return Column(
           children: [
             const SpaceWidget(spaceHeight: 15),
             ...List.generate(parcelsWithRequests.length, (index) {
               final parcel = parcelsWithRequests[index];
               final parcelId = parcel.id ?? "";
-              final deliveryRequest =
-                  parcel.deliveryRequests!.first as Map<String, dynamic>;
+              final deliveryRequest = parcel.deliveryRequests!.first;
               String formattedDate = "N/A";
               try {
                 final startDate =
@@ -1225,7 +1217,7 @@ class _BookingScreenState extends State<BookingScreen> {
               final pickupLocation = parcel.pickupLocation?.coordinates;
               // Track the request state locally using a unique key for the request
               final String requestKey =
-                  '${parcel.id}-${deliveryRequest["_id"] ?? ""}';
+                  '${parcel.id}-${deliveryRequest.id ?? ""}';
               final requestState =
                   newBookingsController.requestStates[requestKey] ?? 'pending';
 
@@ -1252,6 +1244,47 @@ class _BookingScreenState extends State<BookingScreen> {
               final deliveryAddress = getParcelAddress(parcelId, 'delivery');
               final pickupAddress = getParcelAddress(parcelId, 'pickup');
 
+              String _getProfileImagePath() {
+                if (newBookingController.isLoading.value) {
+                  log('⏳ Profile is still loading, returning default image URL');
+                  return 'https://i.ibb.co/z5YHLV9/profile.png';
+                }
+
+                final imageUrl = deliveryRequest.image!;
+                log('Raw image URL from API: "$imageUrl"');
+                log('Image URL type: ${imageUrl.runtimeType}');
+
+                // Check for null, empty, or invalid URLs
+                if (imageUrl == null ||
+                    imageUrl.isEmpty ||
+                    imageUrl.trim().isEmpty ||
+                    imageUrl.toLowerCase() == 'null' ||
+                    imageUrl.toLowerCase() == 'undefined') {
+                  log('❌ Image URL is null/empty/invalid, using default image URL');
+                  return 'https://i.ibb.co/z5YHLV9/profile.png';
+                }
+                String fullImageUrl;
+                // Trim and clean the URL
+                String cleanImageUrl = imageUrl.trim();
+                if (cleanImageUrl.startsWith('https://') || cleanImageUrl.startsWith('http://')) {
+                  fullImageUrl = cleanImageUrl;
+                } else {
+                  // Remove leading slashes and ensure proper concatenation
+                  cleanImageUrl = cleanImageUrl.startsWith('/') ? cleanImageUrl.substring(1) : cleanImageUrl;
+                  fullImageUrl = "${AppApiUrl.liveDomain}/$cleanImageUrl";
+                }
+
+                // Validate the constructed URL
+                final uri = Uri.tryParse(fullImageUrl);
+                if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
+                  log('❌ Invalid URL format: $fullImageUrl, using default image URL');
+                  return 'https://i.ibb.co/z5YHLV9/profile.png';
+                }
+
+                log('✅ Constructed URL: $fullImageUrl');
+                return fullImageUrl;
+              }
+
               return Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
@@ -1276,25 +1309,56 @@ class _BookingScreenState extends State<BookingScreen> {
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(100),
-                              child: AppImage(
-                                url: (newBookingsController.isLoading.value ||
-                                        deliveryRequest["image"] == null ||
-                                        deliveryRequest["image"]
-                                            .toString()
-                                            .isEmpty)
-                                    ? AppImagePath.dummyProfileImage
-                                    : deliveryRequest["image"],
+                              child:
+                              Image.network(
+                                _getProfileImagePath(),
                                 height: 40,
                                 width: 40,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Image.asset(
+                                    'https://i.ibb.co/z5YHLV9/profile.png',
+                                    height: 40,
+                                    width: 40,
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return SizedBox(
+                                    height: 40,
+                                    width: 40,
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress.expectedTotalBytes != null
+                                            ? loadingProgress.cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
+                              // AppImage(
+                              //   url: (newBookingsController.isLoading.value ||
+                              //           deliveryRequest.image == null ||
+                              //           deliveryRequest.image
+                              //               .toString()
+                              //               .isEmpty)
+                              //       ? AppImagePath.dummyProfileImage
+                              //       : deliveryRequest.image!,
+                              //   height: 40,
+                              //   width: 40,
+                              // ),
                             ),
                             const SpaceWidget(spaceWidth: 8),
                             SizedBox(
-                              width: deliveryRequest["fullName"].length <= 8
-                                  ? ResponsiveUtils.width(60)
-                                  : ResponsiveUtils.width(180),
+                              width:
+                                  (deliveryRequest.fullName?.length ?? 0) <= 8
+                                      ? ResponsiveUtils.width(60)
+                                      : ResponsiveUtils.width(180),
                               child: TextWidget(
-                                text: deliveryRequest["fullName"] ?? '',
+                                text: deliveryRequest.fullName ?? '',
                                 fontSize: 15.5,
                                 fontWeight: FontWeight.w500,
                                 fontColor: AppColors.black,
@@ -1321,9 +1385,14 @@ class _BookingScreenState extends State<BookingScreen> {
                                   ),
                                   const SpaceWidget(spaceWidth: 4),
                                   TextWidget(
-                                    text: deliveryRequest["avgRating"]
-                                            .toString() ??
-                                        '',
+                                    text: deliveryRequest.reviews?.isNotEmpty ==
+                                            true
+                                        ? (deliveryRequest.reviews!
+                                                    .map((r) => r.rating ?? 0)
+                                                    .reduce((a, b) => a + b) /
+                                                deliveryRequest.reviews!.length)
+                                            .toStringAsFixed(1)
+                                        : "0.0",
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                     fontColor: AppColors.white,
@@ -1468,7 +1537,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                     await newBookingsController
                                         .rejectParcelRequest(
                                       parcel.id ?? '',
-                                      deliveryRequest["_id"] ?? '',
+                                      deliveryRequest.id ?? '',
                                     );
                                     await currentOrderController
                                         .getCurrentOrder();
@@ -1523,7 +1592,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                     await newBookingsController
                                         .acceptParcelRequest(
                                       parcel.id ?? '',
-                                      deliveryRequest["_id"] ?? '',
+                                      deliveryRequest.id ?? '',
                                     );
                                     final controller =
                                         Get.find<NewBookingsController>();

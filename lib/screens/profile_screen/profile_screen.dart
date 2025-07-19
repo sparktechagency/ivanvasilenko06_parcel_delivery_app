@@ -10,7 +10,6 @@ import 'package:parcel_delivery_app/screens/profile_screen/controller/profile_co
 import 'package:parcel_delivery_app/screens/profile_screen/widgets/profile_card_widget.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
-import 'package:parcel_delivery_app/widgets/image_widget/app_images.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constants/api_url.dart';

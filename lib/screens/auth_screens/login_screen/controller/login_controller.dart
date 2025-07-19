@@ -31,13 +31,13 @@ class LoginScreenController extends GetxController {
       log("Complete Phone Number: '${completePhoneNumber.value}'");
       log("Phone Controller Text: '${phoneController.text}'");
 
-      // Check if phone number is empty
+      //! Check if phone number is empty
       if (completePhoneNumber.value.isEmpty) {
         AppSnackBar.error("Please enter a valid phone number");
         return;
       }
 
-      // Validate form if it exists
+      //! Validate form if it exists
       if (loginFormKey.currentState != null &&
           !loginFormKey.currentState!.validate()) {
         log("Form validation failed");
@@ -97,14 +97,15 @@ class LoginScreenController extends GetxController {
         );
       } else {
         log("API returned null data");
-        AppSnackBar.error("Failed to send OTP. Please try again.");
       }
 
       debugPrint("✳️✳️✳️✳️✳️✳️✳️✳️✳️✳️ $fcmToken");
       debugPrint("📱📱📱 DeviceId: $deviceId, DeviceType: $deviceType");
     } catch (e) {
       log("Error from phone OTP login: $e");
-      AppSnackBar.error("An error occurred: ${e.toString()}");
+      //AppSnackBar.error("An error occurred: ${e.toString()}");
+      AppSnackBar.success(
+          "Please, Complete the sign-up process before Logging in.");
     } finally {
       isLoading.value = false;
       isPhoneLoading.value = false;
@@ -150,7 +151,7 @@ class LoginScreenController extends GetxController {
       Map<String, dynamic> body = {
         "idToken": idToken,
         "fcmToken": fcmToken.toString(),
-        "mobileNumber" : completePhoneNumber.value,
+        "mobileNumber": completePhoneNumber.value,
       };
 
       appLog("Google Auth API Request Body: $body");

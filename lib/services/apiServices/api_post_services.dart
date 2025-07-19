@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -38,14 +39,15 @@ class ApiPostServices {
       AppSnackBar.error("Check Your Internet Connection");
       return null;
     } on TimeoutException catch (e) {
-      // AppSnackBar.error("Something Went Wrong");
+      AppSnackBar.error("Something Went Wrong");
       errorLog('api time out exception', e);
       return null;
     } on DioException catch (e) {
       if (e.response.runtimeType != Null) {
         if (e.response?.statusCode == 400) {
           if (e.response?.data["message"].runtimeType != Null) {
-            AppSnackBar.error("${e.response?.data["message"]}");
+            log("${e.response?.data["message"]}");
+            //AppSnackBar.error("${e.response?.data["message"]}");
           }
           return null;
         } else if (e.response?.statusCode == 401) {

@@ -162,10 +162,8 @@ class _NotificationScreenState extends State<NotificationScreen>
       _showErrorSnackBar('No phone number available');
       return;
     }
-
     //! Format the phone number (remove any non-digit characters)
     String formattedNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
-
     try {
       //! Direct WhatsApp intent
       if (Platform.isAndroid) {
@@ -543,14 +541,14 @@ class _NotificationScreenState extends State<NotificationScreen>
     }
 
     //! Parcel ID
-    String parcelId = notification.parcelId.toString();
-    final bool hasSentRequest = controller.isRequestSent(parcelId);
+    //String parcelId = notification.parcelId.toString();
+    //final bool hasSentRequest = controller.isRequestSent(parcelId);
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
+      margin: const EdgeInsets.only(bottom: 12),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -601,7 +599,6 @@ class _NotificationScreenState extends State<NotificationScreen>
                     ),
                   ],
                 ),
-
                 const SpaceWidget(spaceHeight: 8),
                 Row(
                   children: [
@@ -623,24 +620,25 @@ class _NotificationScreenState extends State<NotificationScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    hasSentRequest == false
-                        ? const SizedBox()
-                        : const Row(
-                            children: [
-                              Icon(
-                                Icons.check_circle,
-                                color: Colors.green,
-                                size: 12,
-                              ),
-                              SpaceWidget(spaceWidth: 8),
-                              TextWidget(
-                                text: "Request Sent",
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                fontColor: Colors.green,
-                              ),
-                            ],
-                          ),
+                    const SizedBox(),
+                    // hasSentRequest == false
+                    //     ? const SizedBox()
+                    //     : const Row(
+                    //         children: [
+                    //           Icon(
+                    //             Icons.check_circle,
+                    //             color: Colors.green,
+                    //             size: 12,
+                    //           ),
+                    //           SpaceWidget(spaceWidth: 8),
+                    //           TextWidget(
+                    //             text: "Request Sent",
+                    //             fontSize: 12,
+                    //             fontWeight: FontWeight.w500,
+                    //             fontColor: Colors.green,
+                    //           ),
+                    //         ],
+                    //       ),
                     TextWidget(
                       text: timeAgo,
                       fontWeight: FontWeight.w500,
@@ -650,59 +648,73 @@ class _NotificationScreenState extends State<NotificationScreen>
                   ],
                 ),
                 const SpaceWidget(spaceHeight: 8),
-
                 //! Buttons
                 Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: AppColors.whiteLight,
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: InkWell(
-                    onTap: hasSentRequest
-                        ? null
-                        : () async {
-                            try {
-                              await _deliveryController
-                                  .sendParcelRequest(parcelId);
-                              controller.sentParcelIds.add(parcelId);
-                              AppSnackBar.success("Request sent successfully");
-                              setState(() {});
-                            } catch (e) {
-                              // AppSnackBar.error("Error: ${e.toString()}");
-                              log("Error sending parcel request: $e");
-                            } finally {
-                              if (Get.isDialogOpen == true) {
-                                Get.back();
-                              }
-                            }
-                          },
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconWidget(
-                          icon: AppIconsPath.personAddIcon,
-                          color: hasSentRequest ? Colors.grey : AppColors.black,
-                          width: 14,
-                          height: 14,
-                        ),
-                        const SpaceWidget(spaceWidth: 8),
-                        TextWidget(
-                          text: hasSentRequest
-                              ? "requestSent".tr
-                              : "sendRequest".tr,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          fontColor:
-                              hasSentRequest ? Colors.grey : AppColors.black,
-                        ),
-                      ],
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.whiteLight,
+                      borderRadius: BorderRadius.circular(100),
                     ),
-                  ),
-                )
+                    child: const Center(
+                      child: TextWidget(
+                        text: "👉 Check Service Section to Send Request 👈",
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        fontColor: AppColors.green,
+                      ),
+                    )),
+                // Container(
+                //   width: double.infinity,
+                //   padding: const EdgeInsets.all(14),
+                //   decoration: BoxDecoration(
+                //     color: AppColors.whiteLight,
+                //     borderRadius: BorderRadius.circular(100),
+                //   ),
+                //   child: InkWell(
+                //     onTap: hasSentRequest
+                //         ? null
+                //         : () async {
+                //             try {
+                //               await _deliveryController
+                //                   .sendParcelRequest(parcelId);
+                //               controller.sentParcelIds.add(parcelId);
+                //               AppSnackBar.success("Request sent successfully");
+                //               setState(() {});
+                //             } catch (e) {
+                //               // AppSnackBar.error("Error: ${e.toString()}");
+                //               log("Error sending parcel request: $e");
+                //             } finally {
+                //               if (Get.isDialogOpen == true) {
+                //                 Get.back();
+                //               }
+                //             }
+                //           },
+                //     splashColor: Colors.transparent,
+                //     highlightColor: Colors.transparent,
+                //     child: Row(
+                //       mainAxisAlignment: MainAxisAlignment.center,
+                //       children: [
+                //         IconWidget(
+                //           icon: AppIconsPath.personAddIcon,
+                //           color: hasSentRequest ? Colors.grey : AppColors.black,
+                //           width: 14,
+                //           height: 14,
+                //         ),
+                //         const SpaceWidget(spaceWidth: 8),
+                //         TextWidget(
+                //           text: hasSentRequest
+                //               ? "requestSent".tr
+                //               : "sendRequest".tr,
+                //           fontSize: 14,
+                //           fontWeight: FontWeight.w500,
+                //           fontColor:
+                //               hasSentRequest ? Colors.grey : AppColors.black,
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // )
               ],
             ),
           ),
@@ -876,21 +888,22 @@ class _NotificationScreenState extends State<NotificationScreen>
           const SpaceWidget(spaceHeight: 8),
           type == "Requested-Delivery"
               ? Row(
-            children: [
-              Image.asset(
-                AppImagePath.sendParcel,
-                width: 16,
-                height: 16,
-              ),
-              const SpaceWidget(spaceWidth: 8),
-              TextWidget(
-                text: notification.title ?? "N/A",
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                fontColor: AppColors.greyDark2,
-              ),
-            ],
-          ) :const SizedBox() ,
+                  children: [
+                    Image.asset(
+                      AppImagePath.sendParcel,
+                      width: 16,
+                      height: 16,
+                    ),
+                    const SpaceWidget(spaceWidth: 8),
+                    TextWidget(
+                      text: notification.title ?? "N/A",
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      fontColor: AppColors.greyDark2,
+                    ),
+                  ],
+                )
+              : const SizedBox(),
           const SpaceWidget(spaceHeight: 8),
           Row(
             children: [
@@ -899,7 +912,6 @@ class _NotificationScreenState extends State<NotificationScreen>
                 color: AppColors.black,
                 size: 12,
               ),
-
               const SpaceWidget(spaceWidth: 8),
               SizedBox(
                 width: ResponsiveUtils.width(180),
@@ -915,67 +927,73 @@ class _NotificationScreenState extends State<NotificationScreen>
               ),
             ],
           ),
-
           const SizedBox(height: 8),
           type.toString() == "Requested-Delivery"
               ? const SizedBox()
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              : Column(
                   children: [
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Icon(
-                          Icons.call,
-                          color: AppColors.black,
-                          size: 12,
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.call,
+                              color: AppColors.black,
+                              size: 12,
+                            ),
+                            const SpaceWidget(spaceWidth: 8),
+                            TextWidget(
+                              text: notification.mobileNumber ?? "N/A",
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              fontColor: AppColors.greyDark2,
+                            ),
+                          ],
                         ),
-                        const SpaceWidget(spaceWidth: 8),
-                        TextWidget(
-                          text: notification.mobileNumber ?? "N/A",
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          fontColor: AppColors.greyDark2,
-                        ),
+                        type == "Cancelled"
+                            ? const SizedBox()
+                            : Row(
+                                children: [
+                                  InkWell(
+                                    onTap: () => _openWhatsApp(mobileNumber,
+                                        "Hello, regarding your parcel delivery."),
+                                    borderRadius: BorderRadius.circular(100),
+                                    child: const CircleAvatar(
+                                      backgroundColor: AppColors.whiteDark,
+                                      radius: 18,
+                                      child: IconWidget(
+                                        icon: AppIconsPath.whatsAppIcon,
+                                        color: AppColors.black,
+                                        width: 18,
+                                        height: 18,
+                                      ),
+                                    ),
+                                  ),
+                                  const SpaceWidget(spaceWidth: 8),
+                                  InkWell(
+                                    onTap: () => _makePhoneCall(mobileNumber),
+                                    borderRadius: BorderRadius.circular(100),
+                                    child: const CircleAvatar(
+                                      backgroundColor: AppColors.whiteDark,
+                                      radius: 18,
+                                      child: Icon(
+                                        Icons.call,
+                                        color: AppColors.black,
+                                        size: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                       ],
                     ),
-                    type == "Cancelled"
-                        ? const SizedBox()
-                        : Row(
-                            children: [
-                              InkWell(
-                                onTap: () => _openWhatsApp(mobileNumber,
-                                    "Hello, regarding your parcel delivery."),
-                                borderRadius: BorderRadius.circular(100),
-                                child: const CircleAvatar(
-                                  backgroundColor: AppColors.whiteDark,
-                                  radius: 18,
-                                  child: IconWidget(
-                                    icon: AppIconsPath.whatsAppIcon,
-                                    color: AppColors.black,
-                                    width: 18,
-                                    height: 18,
-                                  ),
-                                ),
-                              ),
-                              const SpaceWidget(spaceWidth: 8),
-                              InkWell(
-                                onTap: () => _makePhoneCall(mobileNumber),
-                                borderRadius: BorderRadius.circular(100),
-                                child: const CircleAvatar(
-                                  backgroundColor: AppColors.whiteDark,
-                                  radius: 18,
-                                  child: Icon(
-                                    Icons.call,
-                                    color: AppColors.black,
-                                    size: 18,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                    const SpaceWidget(spaceHeight: 8)
                   ],
                 ),
-
+          // type == "Requested-Delivery"
+          //     ? const SpaceWidget(spaceHeight: 8)
+          //     : const SizedBox(),
           Row(
             children: [
               const Icon(
@@ -992,7 +1010,22 @@ class _NotificationScreenState extends State<NotificationScreen>
               ),
             ],
           ),
-          const SpaceWidget(spaceHeight: 12),
+          type == "Requested-Delivery"
+              ? const Column(
+                  children: [
+                    SpaceWidget(spaceHeight: 8),
+                    Center(
+                      child: TextWidget(
+                        text: "👉 Check New Bookings to Accept 👈",
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        fontColor: AppColors.green,
+                      ),
+                    ),
+                  ],
+                )
+              : const SizedBox(),
+          const SpaceWidget(spaceHeight: 10),
           Align(
             alignment: Alignment.centerRight,
             child: TextWidget(

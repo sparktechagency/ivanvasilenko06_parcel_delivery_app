@@ -79,7 +79,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
                               ),
                             ),
                             // Add bottom padding to prevent content from going behind bottom nav
-                            SizedBox(height: 120),
+                            const SizedBox(height: 120),
                           ],
                         ),
                       ),
@@ -129,7 +129,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Flexible(
                   child: ButtonWidget(
                     onPressed: () {

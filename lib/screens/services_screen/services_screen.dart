@@ -14,7 +14,6 @@ import 'package:parcel_delivery_app/screens/home_screen/widgets/suggestionCardWi
 import 'package:parcel_delivery_app/screens/services_screen/controller/services_controller.dart';
 import 'package:parcel_delivery_app/screens/services_screen/model/service_screen_model.dart';
 import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
-import 'package:parcel_delivery_app/widgets/image_widget/app_images.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_button_widget/text_button_widget.dart';
@@ -300,7 +299,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                           },
                           loadingBuilder: (context, child, loadingProgress) {
                             if (loadingProgress == null) return child;
-                            return Container(
+                            return SizedBox(
                               height: 40,
                               width: 40,
                               child: Center(

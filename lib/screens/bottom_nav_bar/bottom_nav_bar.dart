@@ -24,7 +24,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
 
   @override
   void initState() {
-    _currentIndex = widget.initialIndex; // Set initial index
+    _currentIndex = widget.initialIndex;
     tabs = [
       const HomeScreen(),
       const ServicesScreen(),
