@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_strings.dart';
 import 'package:parcel_delivery_app/screens/notification_screen/controller/notification_controller.dart';
 import 'package:parcel_delivery_app/services/reuseable/lat_long_to_address.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
-import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/app_images.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
@@ -820,6 +820,50 @@ class _NotificationScreenState extends State<NotificationScreen>
     } catch (e) {
       log("Error parsing dates: $e");
     }
+    String getProfileImagePath() {
+      if (controller.isLoading.value) {
+        log('⏳ Profile is still loading, returning default image URL');
+        return 'https://i.ibb.co/z5YHLV9/profile.png';
+      }
+
+      final imageUrl = image;
+      log('Raw image URL from API: "$imageUrl"');
+      log('Image URL type: ${imageUrl.runtimeType}');
+
+      // Check for null, empty, or invalid URLs
+      if (imageUrl == null ||
+          imageUrl.isEmpty ||
+          imageUrl.trim().isEmpty ||
+          imageUrl.toLowerCase() == 'null' ||
+          imageUrl.toLowerCase() == 'undefined') {
+        log('❌ Image URL is null/empty/invalid, using default image URL');
+        return 'https://i.ibb.co/z5YHLV9/profile.png';
+      }
+
+      String fullImageUrl;
+      // Trim and clean the URL
+      String cleanImageUrl = imageUrl.trim();
+      if (cleanImageUrl.startsWith('https://') ||
+          cleanImageUrl.startsWith('http://')) {
+        fullImageUrl = cleanImageUrl;
+      } else {
+        // Remove leading slashes and ensure proper concatenation
+        cleanImageUrl = cleanImageUrl.startsWith('/')
+            ? cleanImageUrl.substring(1)
+            : cleanImageUrl;
+        fullImageUrl = "${AppApiUrl.liveDomain}/$cleanImageUrl";
+      }
+
+      // Validate the constructed URL
+      final uri = Uri.tryParse(fullImageUrl);
+      if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
+        log('❌ Invalid URL format: $fullImageUrl, using default image URL');
+        return 'https://i.ibb.co/z5YHLV9/profile.png';
+      }
+
+      log('✅ Constructed URL: $fullImageUrl');
+      return fullImageUrl;
+    }
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -831,10 +875,49 @@ class _NotificationScreenState extends State<NotificationScreen>
               type.toString() == "Requested-Delivery"
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(100),
-                      child: AppImage(
-                        url: image,
-                        width: 40,
+                      child: Image.network(
+                        getProfileImagePath(),
                         height: 40,
+                        width: 40,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            height: 40,
+                            width: 40,
+                            decoration: BoxDecoration(
+                              color: AppColors.grey.withAlpha(78),
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                    : null,
+                                strokeWidth: 2,
+                                color: AppColors.black,
+                              ),
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          log('❌ Error loading image: $error');
+                          return Container(
+                            height: 40,
+                            width: 40,
+                            decoration: BoxDecoration(
+                              color: AppColors.grey.withAlpha(78),
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            child: const Icon(
+                              Icons.person,
+                              size: 40,
+                              color: AppColors.greyDark2,
+                            ),
+                          );
+                        },
                       ),
                     )
                   : const ImageWidget(

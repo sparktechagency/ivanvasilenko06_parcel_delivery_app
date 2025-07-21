@@ -172,5 +172,6 @@
   "accepted" : "Accepted",
   "beforeGoogleSignInEnterYourNumber" : "Please Provide Your Number to Continue with Google",
   "continueWithGoogle" : "Continue with Google",
-  "optional" : "Enter Your Email (Optional)"
+  "optional" : "Enter Your Email (Optional)",
+  "Review Given" : "Review Given"
 }

@@ -16,12 +16,14 @@ class PageThree extends StatefulWidget {
 }
 
 class _PageThreeState extends State<PageThree> {
-  final ParcelController parcelController = Get.put(ParcelController()); // Initialize the controller
+  final ParcelController parcelController =
+      Get.put(ParcelController()); // Initialize the controller
 
   DateTime? _fromDateTime;
   DateTime? _toDateTime;
 
-  Future<TimeOfDay?> _selectTime(BuildContext context, String title, TimeOfDay initialTime) async {
+  Future<TimeOfDay?> _selectTime(
+      BuildContext context, String title, TimeOfDay initialTime) async {
     return await showDialog<TimeOfDay>(
       context: context,
       builder: (BuildContext context) {
@@ -34,39 +36,75 @@ class _PageThreeState extends State<PageThree> {
   }
 
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) async {
+    if (!mounted) return; // Early return if widget is not mounted
+
     if (args.value is PickerDateRange) {
       DateTime? startDate = args.value.startDate;
       DateTime? endDate = args.value.endDate;
 
       if (startDate != null && _fromDateTime == null) {
-        TimeOfDay? startTime = await _selectTime(context, "Select Start Time", const TimeOfDay(hour: 9, minute: 0));
-        if (startTime != null) {
-          setState(() {
-            _fromDateTime = DateTime(
+        if (!mounted) return; // Check if widget is still mounted
+
+        try {
+          TimeOfDay? startTime = await _selectTime(context, "Select Start Time",
+              const TimeOfDay(hour: 9, minute: 0));
+
+          if (startTime != null && mounted) {
+            // Check mounted again after async operation
+            final newDateTime = DateTime(
               startDate.year,
               startDate.month,
               startDate.day,
               startTime.hour,
               startTime.minute,
             );
-            parcelController.setStartDateTime(_fromDateTime!); // Update the start date-time in the controller
-          });
+
+            setState(() {
+              _fromDateTime = newDateTime;
+            });
+
+            // Update controller outside setState to avoid potential issues
+            parcelController.setStartDateTime(newDateTime);
+          }
+        } catch (e) {
+          // Handle any errors that might occur during time selection
+          if (mounted) {
+            // Log error or show user feedback if needed
+            debugPrint('Error selecting start time: $e');
+          }
         }
       }
 
       if (endDate != null && _toDateTime == null) {
-        TimeOfDay? endTime = await _selectTime(context, "Select End Time", const TimeOfDay(hour: 9, minute: 0));
-        if (endTime != null) {
-          setState(() {
-            _toDateTime = DateTime(
+        if (!mounted) return; // Check if widget is still mounted
+
+        try {
+          TimeOfDay? endTime = await _selectTime(
+              context, "Select End Time", const TimeOfDay(hour: 9, minute: 0));
+
+          if (endTime != null && mounted) {
+            // Check mounted again after async operation
+            final newDateTime = DateTime(
               endDate.year,
               endDate.month,
               endDate.day,
               endTime.hour,
               endTime.minute,
             );
-            parcelController.setEndDateTime(_toDateTime!); // Update the end date-time in the controller
-          });
+
+            setState(() {
+              _toDateTime = newDateTime;
+            });
+
+            // Update controller outside setState to avoid potential issues
+            parcelController.setEndDateTime(newDateTime);
+          }
+        } catch (e) {
+          // Handle any errors that might occur during time selection
+          if (mounted) {
+            // Log error or show user feedback if needed
+            debugPrint('Error selecting end time: $e');
+          }
         }
       }
     }
@@ -165,13 +203,14 @@ class CustomTimePickerDialog extends StatefulWidget {
   final String title;
   final TimeOfDay initialTime;
 
-  const CustomTimePickerDialog({super.key, required this.title, required this.initialTime});
+  const CustomTimePickerDialog(
+      {super.key, required this.title, required this.initialTime});
 
   @override
-  _CustomTimePickerDialogState createState() => _CustomTimePickerDialogState();
+  CustomTimePickerDialogState createState() => CustomTimePickerDialogState();
 }
 
-class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
+class CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
   late int _hour;
   late int _minute;
   final _hourController = TextEditingController();
@@ -185,6 +224,13 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
 
     _hourController.text = _hour.toString().padLeft(2, '0');
     _minuteController.text = _minute.toString().padLeft(2, '0');
+  }
+
+  @override
+  void dispose() {
+    _hourController.dispose();
+    _minuteController.dispose();
+    super.dispose();
   }
 
   void _validateHour(String value) {
@@ -230,7 +276,10 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                 SizedBox(
                   width: 80,
                   child: TextField(
-                    style: const TextStyle(fontSize: 20,fontWeight: FontWeight.bold,fontFamily: "AeonikTRIAL"),
+                    style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "AeonikTRIAL"),
                     controller: _hourController,
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
@@ -239,17 +288,27 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                const Text(":", style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold)),
+                const Text(":",
+                    style:
+                        TextStyle(fontSize: 48, fontWeight: FontWeight.bold)),
                 const SizedBox(width: 10),
                 // Minute Input
                 SizedBox(
                   width: 80,
                   child: TextField(
-                    style: const TextStyle(fontSize: 20,fontWeight: FontWeight.bold,fontFamily: "AeonikTRIAL") ,
+                    style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "AeonikTRIAL"),
                     controller: _minuteController,
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
-                    decoration: const InputDecoration(hintText: 'MM',hintStyle: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,fontFamily: "AeonikTRIAL")),
+                    decoration: const InputDecoration(
+                        hintText: 'MM',
+                        hintStyle: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "AeonikTRIAL")),
                     onChanged: _validateMinute,
                   ),
                 ),
@@ -264,7 +323,8 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                   buttonWidth: 100,
                   buttonHeight: 40,
                   label: 'Cancel',
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   buttonRadius: BorderRadius.circular(10),
                   backgroundColor: AppColors.white,
                   textColor: AppColors.black,
@@ -277,14 +337,16 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                   buttonWidth: 100,
                   buttonHeight: 40,
                   label: 'OK',
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   buttonRadius: BorderRadius.circular(10),
                   backgroundColor: AppColors.black,
                   textColor: AppColors.white,
                   onPressed: () {
                     final selectedTime = TimeOfDay(
                       hour: _hour, // Directly using the hour from the input
-                      minute: _minute, // Directly using the minute from the input
+                      minute:
+                          _minute, // Directly using the minute from the input
                     );
                     Navigator.pop(context, selectedTime);
                   },
@@ -297,4 +359,3 @@ class _CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
     );
   }
 }
-

@@ -268,6 +268,11 @@ class _SelectDeliveryLocationScreenState
               controller.currentLocationLatitude.value;
           controller.pickupLocationLongitude.value =
               controller.currentLocationLongitude.value;
+
+          // Also update the starting coordinates
+          final lat = double.parse(controller.currentLocationLatitude.value);
+          final lng = double.parse(controller.currentLocationLongitude.value);
+          controller.startingCoordinates.value = LatLng(lat, lng);
         }
       } else {
         _pickupLocationController.text = description;
@@ -326,6 +331,12 @@ class _SelectDeliveryLocationScreenState
             LatLng(location['lat'], location['lng']),
           );
 
+          // Set delivery location coordinates
+          controller.deliveryLocationLatitude.value =
+              location['lat'].toString();
+          controller.deliveryLocationLongitude.value =
+              location['lng'].toString();
+
           // Update map if needed
           if (_mapController != null) {
             _mapController?.animateCamera(
@@ -366,8 +377,12 @@ class _SelectDeliveryLocationScreenState
       "deliveryType": controller.selectedDeliveryType.value,
       "pickupLocation": controller.pickupLocation.value,
       "pickupLatLng": controller.startingCoordinates.value,
+      "pickupLat": controller.pickupLocationLatitude.value,
+      "pickupLng": controller.pickupLocationLongitude.value,
       "deliveryLocation": controller.selectedDeliveryLocation.value,
       "deliveryLatLng": controller.endingCoordinates.value,
+      "deliveryLat": controller.deliveryLocationLatitude.value,
+      "deliveryLng": controller.deliveryLocationLongitude.value,
 
       /// For getting current location
       "currentLocationLatitude": controller.currentLocationLatitude.value,
@@ -377,8 +392,12 @@ class _SelectDeliveryLocationScreenState
     log('🆒 DeliveryType: ${controller.selectedDeliveryType.value}');
     log('✳️ PickupLocation: ${controller.pickupLocation.value}');
     log('☑️ PickupLatLng: ${controller.startingCoordinates.value}');
+    log('📍 PickupLat: ${controller.pickupLocationLatitude.value}');
+    log('📍 PickupLng: ${controller.pickupLocationLongitude.value}');
     log('🛑 DeliveryLocation: ${controller.selectedDeliveryLocation.value}');
     log('🚩 DeliveryLatLng: ${controller.endingCoordinates.value}');
+    log('🎯 DeliveryLat: ${controller.deliveryLocationLatitude.value}');
+    log('🎯 DeliveryLng: ${controller.deliveryLocationLongitude.value}');
   }
 
   // Build predictions list with icons - BIGGER SIZE VERSION

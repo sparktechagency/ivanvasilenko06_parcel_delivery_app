@@ -50,7 +50,7 @@ class Datum {
   DateTime? createdAt;
   DateTime? updatedAt;
   int? v;
-  dynamic assignedDelivererId;
+  SenderId? assignedDelivererId;
   String? typeParcel;
   List<SenderId>? deliveryRequestsWithRating;
 
@@ -122,7 +122,9 @@ class Datum {
             ? null
             : DateTime.parse(json["updatedAt"]),
         v: json["__v"],
-        assignedDelivererId: json["assignedDelivererId"],
+        assignedDelivererId: json["assignedDelivererId"] == null
+            ? null
+            : SenderId.fromJson(json["assignedDelivererId"]),
         typeParcel: json["typeParcel"],
         deliveryRequestsWithRating: json["deliveryRequestsWithRating"] == null
             ? []
@@ -153,7 +155,7 @@ class Datum {
         "createdAt": createdAt?.toIso8601String(),
         "updatedAt": updatedAt?.toIso8601String(),
         "__v": v,
-        "assignedDelivererId": assignedDelivererId,
+        "assignedDelivererId": assignedDelivererId?.toJson(),
         "typeParcel": typeParcel,
         "deliveryRequestsWithRating": deliveryRequestsWithRating == null
             ? []

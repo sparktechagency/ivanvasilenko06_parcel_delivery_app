@@ -45,3 +45,5 @@ app.*.map.json
 # API key related files
 /lib/constants/api_keys.dart
 
+# FVM Version Cache
+.fvm/

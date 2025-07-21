@@ -19,6 +19,8 @@ class DeliveryScreenController extends GetxController {
   //! For storing pickup lat/lng as strings
   RxString pickupLocationLatitude = ''.obs;
   RxString pickupLocationLongitude = ''.obs;
+  RxString deliveryLocationLatitude = ''.obs;
+  RxString deliveryLocationLongitude = ''.obs;
 
   // For storing current location lat/lng as strings
   RxString currentLocationLatitude = ''.obs;
@@ -81,9 +83,21 @@ class DeliveryScreenController extends GetxController {
 
   Future<void> fetchDeliveryParcelsList() async {
     isLoading.value = true;
+
+    // Validate coordinates before making API call
+    appLog("🔍 Validating coordinates before API call:");
+    appLog("📍 Pickup Location: ${pickupLocation.value}");
+    appLog("📍 Pickup Lat: ${pickupLocationLatitude.value}");
+    appLog("📍 Pickup Lng: ${pickupLocationLongitude.value}");
+    appLog("🎯 Delivery Location: ${selectedDeliveryLocation.value}");
+    appLog("🎯 Delivery Lat: ${deliveryLocationLatitude.value}");
+    appLog("🎯 Delivery Lng: ${deliveryLocationLongitude.value}");
+
     try {
       final String url =
-          '${AppApiUrl.deliverParcel}?deliveryType=${selectedDeliveryType.value}&pickupLocation=${pickupLocation.value}&deliveryLocation=${selectedDeliveryLocation.value}&latitude=${pickupLocationLatitude.value}&longitude=${pickupLocationLongitude.value}}';
+          '${AppApiUrl.deliverParcel}?deliveryType=${selectedDeliveryType.value}&pickupLocation=${pickupLocation.value}&deliveryLocation=${selectedDeliveryLocation.value}&pickupLat=${pickupLocationLatitude.value}&pickupLng=${pickupLocationLongitude.value}&deliveryLat=${deliveryLocationLatitude.value}&deliveryLng=${deliveryLocationLongitude.value}';
+
+      appLog("🚀 Final API URL: $url");
 
       final response = await ApiGetServices().apiGetServices(url);
       appLog("Body res 👀👀👀👀👀👀👀👀👀👀👀👀👀👀👀");
@@ -114,7 +128,7 @@ class DeliveryScreenController extends GetxController {
     } finally {
       isLoading.value = false;
     }
-    }
+  }
 
   Future<void> sendParcelRequest(String parcelId) async {
     if (parcelId.isEmpty) {

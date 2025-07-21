@@ -13,7 +13,6 @@ import 'package:parcel_delivery_app/screens/booking_screen/new_booking/controlle
 import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
-import 'package:parcel_delivery_app/widgets/image_widget/app_images.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../constants/api_url.dart';
@@ -300,6 +299,14 @@ class _BookingScreenState extends State<BookingScreen> {
         duration: const Duration(seconds: 3),
       ),
     );
+  }
+
+  // Helper method to check if review already exists for a parcel
+  bool hasAlreadyReviewed(String parcelId, dynamic parcel) {
+    if (parcel.assignedDelivererId?.reviews == null) return false;
+
+    return parcel.assignedDelivererId!.reviews!
+        .any((review) => review.parcelId == parcelId);
   }
 
   void deliveryFinished(String parcelId, String status) {
@@ -1013,17 +1020,25 @@ class _BookingScreenState extends State<BookingScreen> {
                                             arguments: data[index].id);
                                       } else if (data[index].status ==
                                           "DELIVERED") {
-                                        final currentOrderController =
-                                            Get.find<CurrentOrderController>();
-                                        // Set parcel ID and user ID for review
-                                        currentOrderController.parcelID.value =
-                                            data[index].id ?? "";
-                                        currentOrderController.userID.value =
-                                            data[index]
-                                                    .assignedDelivererId
-                                                    ?.id ??
-                                                "";
-                                        _openBottomSheet();
+                                        // Check if review already exists
+                                        if (hasAlreadyReviewed(
+                                            data[index].id ?? "",
+                                            data[index])) {
+                                          _showErrorSnackBar(
+                                              "You have already reviewed this delivery");
+                                        } else {
+                                          final currentOrderController = Get
+                                              .find<CurrentOrderController>();
+                                          // Set parcel ID and user ID for review
+                                          currentOrderController.parcelID
+                                              .value = data[index].id ?? "";
+                                          currentOrderController.userID.value =
+                                              data[index]
+                                                      .assignedDelivererId
+                                                      ?.id ??
+                                                  "";
+                                          _openBottomSheet();
+                                        }
                                       } else {
                                         // Remove from map option
                                         String parcelId = data[index].id ?? "";
@@ -1110,7 +1125,12 @@ class _BookingScreenState extends State<BookingScreen> {
       if (parcel.status == "IN_TRANSIT") {
         return "deliveryManDetails".tr;
       } else if (parcel.status == "DELIVERED") {
-        return "Giving Review".tr;
+        // Check if review already exists
+        if (hasAlreadyReviewed(parcel.id ?? "", parcel)) {
+          return "Review Given".tr;
+        } else {
+          return "Giving Review".tr;
+        }
       } else {
         return "removeFromMap".tr;
       }
@@ -1139,7 +1159,12 @@ class _BookingScreenState extends State<BookingScreen> {
       if (parcel.status == "IN_TRANSIT") {
         return AppColors.greyDark2;
       } else if (parcel.status == "DELIVERED") {
-        return AppColors.green; // Green for giving review
+        // Check if review already exists
+        if (hasAlreadyReviewed(parcel.id ?? "", parcel)) {
+          return AppColors.greyDark2; // Grey for already reviewed
+        } else {
+          return AppColors.green; // Green for giving review
+        }
       } else {
         return AppColors.red;
       }
@@ -1244,7 +1269,7 @@ class _BookingScreenState extends State<BookingScreen> {
               final deliveryAddress = getParcelAddress(parcelId, 'delivery');
               final pickupAddress = getParcelAddress(parcelId, 'pickup');
 
-              String _getProfileImagePath() {
+              String getProfileImagePath() {
                 if (newBookingController.isLoading.value) {
                   log('⏳ Profile is still loading, returning default image URL');
                   return 'https://i.ibb.co/z5YHLV9/profile.png';
@@ -1255,8 +1280,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 log('Image URL type: ${imageUrl.runtimeType}');
 
                 // Check for null, empty, or invalid URLs
-                if (imageUrl == null ||
-                    imageUrl.isEmpty ||
+                if (imageUrl.isEmpty ||
                     imageUrl.trim().isEmpty ||
                     imageUrl.toLowerCase() == 'null' ||
                     imageUrl.toLowerCase() == 'undefined') {
@@ -1266,11 +1290,14 @@ class _BookingScreenState extends State<BookingScreen> {
                 String fullImageUrl;
                 // Trim and clean the URL
                 String cleanImageUrl = imageUrl.trim();
-                if (cleanImageUrl.startsWith('https://') || cleanImageUrl.startsWith('http://')) {
+                if (cleanImageUrl.startsWith('https://') ||
+                    cleanImageUrl.startsWith('http://')) {
                   fullImageUrl = cleanImageUrl;
                 } else {
                   // Remove leading slashes and ensure proper concatenation
-                  cleanImageUrl = cleanImageUrl.startsWith('/') ? cleanImageUrl.substring(1) : cleanImageUrl;
+                  cleanImageUrl = cleanImageUrl.startsWith('/')
+                      ? cleanImageUrl.substring(1)
+                      : cleanImageUrl;
                   fullImageUrl = "${AppApiUrl.liveDomain}/$cleanImageUrl";
                 }
 
@@ -1309,9 +1336,8 @@ class _BookingScreenState extends State<BookingScreen> {
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(100),
-                              child:
-                              Image.network(
-                                _getProfileImagePath(),
+                              child: Image.network(
+                                getProfileImagePath(),
                                 height: 40,
                                 width: 40,
                                 fit: BoxFit.cover,
@@ -1323,16 +1349,21 @@ class _BookingScreenState extends State<BookingScreen> {
                                     fit: BoxFit.cover,
                                   );
                                 },
-                                loadingBuilder: (context, child, loadingProgress) {
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
                                   if (loadingProgress == null) return child;
                                   return SizedBox(
                                     height: 40,
                                     width: 40,
                                     child: Center(
                                       child: CircularProgressIndicator(
-                                        value: loadingProgress.expectedTotalBytes != null
-                                            ? loadingProgress.cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
                                             : null,
                                       ),
                                     ),

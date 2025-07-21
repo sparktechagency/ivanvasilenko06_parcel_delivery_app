@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
@@ -254,6 +255,79 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
     }
   }
 
+  //! Helper method to calculate average rating from reviews
+  String _calculateAverageRating(dynamic deliveryMan) {
+    if (deliveryMan?.reviews == null || deliveryMan.reviews.isEmpty) {
+      return "0.0";
+    }
+
+    try {
+      double totalRating = 0;
+      int count = 0;
+
+      for (var review in deliveryMan.reviews) {
+        if (review.rating != null) {
+          totalRating += review.rating;
+          count++;
+        }
+      }
+
+      if (count == 0) return "0.0";
+
+      double avgRating = totalRating / count;
+      return avgRating.toStringAsFixed(1); // Format to one decimal place
+    } catch (e) {
+      log("Error calculating average rating: $e");
+      return "0.0";
+    }
+  }
+
+//! Showing Image in App
+  String _getProfileImagePath() {
+    if (controller.isLoading.value) {
+      log('⏳ Profile is still loading, returning default image URL');
+      return 'https://i.ibb.co/z5YHLV9/profile.png';
+    }
+
+    final imageUrl = deliveryMan.image;
+    log('Raw image URL from API: "$imageUrl"');
+    log('Image URL type: ${imageUrl.runtimeType}');
+
+    // Check for null, empty, or invalid URLs
+    if (imageUrl == null ||
+        imageUrl.isEmpty ||
+        imageUrl.trim().isEmpty ||
+        imageUrl.toLowerCase() == 'null' ||
+        imageUrl.toLowerCase() == 'undefined') {
+      log('❌ Image URL is null/empty/invalid, using default image URL');
+      return 'https://i.ibb.co/z5YHLV9/profile.png';
+    }
+
+    String fullImageUrl;
+    // Trim and clean the URL
+    String cleanImageUrl = imageUrl.trim();
+    if (cleanImageUrl.startsWith('https://') ||
+        cleanImageUrl.startsWith('http://')) {
+      fullImageUrl = cleanImageUrl;
+    } else {
+      // Remove leading slashes and ensure proper concatenation
+      cleanImageUrl = cleanImageUrl.startsWith('/')
+          ? cleanImageUrl.substring(1)
+          : cleanImageUrl;
+      fullImageUrl = "${AppApiUrl.liveDomain}/$cleanImageUrl";
+    }
+
+    // Validate the constructed URL
+    final uri = Uri.tryParse(fullImageUrl);
+    if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
+      log('❌ Invalid URL format: $fullImageUrl, using default image URL');
+      return 'https://i.ibb.co/z5YHLV9/profile.png';
+    }
+
+    log('✅ Constructed URL: $fullImageUrl');
+    return fullImageUrl;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -281,28 +355,57 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                       children: [
                         Row(
                           children: [
-                            // Profile Image with null check
+                            //! Profile Image with null check
                             ClipRRect(
                               borderRadius: BorderRadius.circular(100),
-                              child: deliveryMan?.image != null
-                                  ? AppImage(
-                                      url: deliveryMan.image,
-                                      height: 40,
-                                      width: 40,
-                                    )
-                                  : Container(
-                                      height: 40,
-                                      width: 40,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.grey.withOpacity(0.3),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.person,
-                                        color: AppColors.grey,
-                                        size: 24,
+                              child: Image.network(
+                                _getProfileImagePath(),
+                                height: 40,
+                                width: 40,
+                                fit: BoxFit.cover,
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Container(
+                                    height: 40,
+                                    width: 40,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.grey.withAlpha(78),
+                                      borderRadius: BorderRadius.circular(100),
+                                    ),
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
+                                            : null,
+                                        strokeWidth: 2,
+                                        color: AppColors.black,
                                       ),
                                     ),
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  log('❌ Error loading image: $error');
+                                  return Container(
+                                    height: 40,
+                                    width: 40,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.grey.withAlpha(78),
+                                      borderRadius: BorderRadius.circular(100),
+                                    ),
+                                    child: const Icon(
+                                      Icons.person,
+                                      size: 40,
+                                      color: AppColors.greyDark2,
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
                             const SpaceWidget(spaceWidth: 8),
 
@@ -317,9 +420,9 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                               ),
                             ),
                             const SpaceWidget(spaceWidth: 8),
-
-                            // Rating with null check - Fixed the rating text issue
-                            if (deliveryMan?.avgRating != null)
+                            // Rating calculated from reviews array
+                            if (deliveryMan?.reviews != null &&
+                                deliveryMan!.reviews!.isNotEmpty)
                               Container(
                                 width: ResponsiveUtils.width(45),
                                 padding: const EdgeInsets.symmetric(
@@ -336,8 +439,8 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                                       size: 12,
                                     ),
                                     TextWidget(
-                                      text: " ${deliveryMan?.avgRating}",
-                                      // Fixed: removed the ?? "N/A"
+                                      text:
+                                          " ${_calculateAverageRating(deliveryMan)}",
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                       fontColor: AppColors.white,
@@ -399,7 +502,10 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                         SummaryInfoRowWidget(
                           icon: AppIconsPath.ratingIcon,
                           label: "Ratings".tr,
-                          value: "${deliveryMan?.avgRating}" ?? "N/A",
+                          value: deliveryMan?.reviews != null &&
+                                  deliveryMan!.reviews!.isNotEmpty
+                              ? _calculateAverageRating(deliveryMan)
+                              : "N/A",
                         ),
                         const SpaceWidget(spaceHeight: 8),
                         SummaryInfoRowWidget(
