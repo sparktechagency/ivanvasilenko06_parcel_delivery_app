@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/api_key.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
@@ -622,7 +623,10 @@ class _SelectDeliveryLocationScreenState
                     ],
                   ),
                   if (_isLoading)
-                    const Center(child: CircularProgressIndicator())
+                     Center(child: LoadingAnimationWidget.hexagonDots(
+                color: AppColors.black,
+                size: 40,
+              ),)
                   else
                     const SizedBox.shrink(),
                   Expanded(child: Container()),

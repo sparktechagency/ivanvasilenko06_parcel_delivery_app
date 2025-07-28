@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/controller/sending_parcel_controller.dart';
@@ -594,8 +595,11 @@ class _PageTwoState extends State<PageTwo> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Center(
-                      child: CircularProgressIndicator(),
+                    child: Center(
+                      child: LoadingAnimationWidget.hexagonDots(
+                        color: AppColors.black,
+                        size: 40,
+                      ),
                     ),
                   ),
                 ),

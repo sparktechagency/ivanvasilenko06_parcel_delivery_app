@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_strings.dart';
@@ -71,9 +72,12 @@ class _NotificationScreenState extends State<NotificationScreen>
     if (!addressCache.containsKey(cacheKey)) {
       String fetchedAddress =
           await getAddressFromCoordinates(latitude, longitude);
-      setState(() {
-        addressCache[cacheKey] = fetchedAddress;
-      });
+      // Check if widget is still mounted before calling setState
+      if (mounted) {
+        setState(() {
+          addressCache[cacheKey] = fetchedAddress;
+        });
+      }
     }
   }
 
@@ -95,9 +99,12 @@ class _NotificationScreenState extends State<NotificationScreen>
   Future<void> newAddress(double latitude, double longitude) async {
     String result =
         await addressService.getNewBookingAddress(latitude, longitude);
-    setState(() {
-      newBookingAddress = result;
-    });
+    // Check if widget is still mounted before calling setState
+    if (mounted) {
+      setState(() {
+        newBookingAddress = result;
+      });
+    }
   }
 
   final DeliveryScreenController _deliveryController =
@@ -142,6 +149,9 @@ class _NotificationScreenState extends State<NotificationScreen>
     _tabController.dispose();
     _scrollController.dispose();
     _scrollController2.dispose();
+    // Clear caches to prevent memory leaks
+    addressCache.clear();
+    locationToAddressCache.clear();
     super.dispose();
   }
 
@@ -297,9 +307,9 @@ class _NotificationScreenState extends State<NotificationScreen>
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
-                  tabs: const [
-                    Tab(text: "Parcel/Delivery Updates"),
-                    Tab(text: "Available Deliveries"),
+                  tabs: [
+                    Tab(text: "parcel/deliveryUpdates".tr),
+                    Tab(text: "avaiableDeliveries".tr),
                   ],
                 ),
               ),
@@ -321,8 +331,11 @@ class _NotificationScreenState extends State<NotificationScreen>
                               controller.notificationModel.value!.data!
                                   .notifications!.isEmpty;
                       if (isLoading && isEmpty) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
+                        return Center(
+                          child: LoadingAnimationWidget.hexagonDots(
+                            color: AppColors.black,
+                            size: 40,
+                          ),
                         );
                       }
                       if (hasError && isEmpty) {
@@ -356,11 +369,11 @@ class _NotificationScreenState extends State<NotificationScreen>
                                     null &&
                                 controller.notificationModel.value!.data!
                                     .notifications!.isNotEmpty) ...[
-                              const Padding(
-                                padding: EdgeInsets.symmetric(
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
                                     horizontal: 16, vertical: 8),
                                 child: TextWidget(
-                                  text: "Delivery Updates",
+                                  text: "deliveryUpdates".tr,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
                                   fontColor: AppColors.black,
@@ -374,11 +387,13 @@ class _NotificationScreenState extends State<NotificationScreen>
                               ),
                               if (controller.isLoading.value &&
                                   controller.currentPage.value > 1)
-                                const Center(
+                                Center(
                                   child: Padding(
-                                    padding: EdgeInsets.all(8.0),
-                                    child: CircularProgressIndicator(
-                                        strokeWidth: 2),
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: LoadingAnimationWidget.hexagonDots(
+                                      color: AppColors.black,
+                                      size: 40,
+                                    ),
                                   ),
                                 ),
                             ],
@@ -393,7 +408,12 @@ class _NotificationScreenState extends State<NotificationScreen>
                     Obx(() {
                       if (controller.isParcelLoading.value &&
                           controller.parcelNotifications.isEmpty) {
-                        return const Center(child: CircularProgressIndicator());
+                        return Center(
+                          child: LoadingAnimationWidget.hexagonDots(
+                            color: AppColors.black,
+                            size: 40,
+                          ),
+                        );
                       }
                       if (controller.parcelError.isNotEmpty &&
                           controller.parcelNotifications.isEmpty) {
@@ -496,14 +516,18 @@ class _NotificationScreenState extends State<NotificationScreen>
     //! Trigger address loading if coordinates are available
     if (pickupLocationLat != null && pickupLocationLong != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        cacheAddressForParcel(
-            notificationId, 'pickup', pickupLocationLat, pickupLocationLong);
+        if (mounted) {
+          cacheAddressForParcel(
+              notificationId, 'pickup', pickupLocationLat, pickupLocationLong);
+        }
       });
     }
     if (deliveryLocationLat != null && deliveryLocationLong != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        cacheAddressForParcel(notificationId, 'delivery', deliveryLocationLat,
-            deliveryLocationLong);
+        if (mounted) {
+          cacheAddressForParcel(notificationId, 'delivery', deliveryLocationLat,
+              deliveryLocationLong);
+        }
       });
     }
     //! Get the specific pickup and delivery addresses for this notification
@@ -621,24 +645,6 @@ class _NotificationScreenState extends State<NotificationScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const SizedBox(),
-                    // hasSentRequest == false
-                    //     ? const SizedBox()
-                    //     : const Row(
-                    //         children: [
-                    //           Icon(
-                    //             Icons.check_circle,
-                    //             color: Colors.green,
-                    //             size: 12,
-                    //           ),
-                    //           SpaceWidget(spaceWidth: 8),
-                    //           TextWidget(
-                    //             text: "Request Sent",
-                    //             fontSize: 12,
-                    //             fontWeight: FontWeight.w500,
-                    //             fontColor: Colors.green,
-                    //           ),
-                    //         ],
-                    //       ),
                     TextWidget(
                       text: timeAgo,
                       fontWeight: FontWeight.w500,
@@ -664,57 +670,6 @@ class _NotificationScreenState extends State<NotificationScreen>
                         fontColor: AppColors.green,
                       ),
                     )),
-                // Container(
-                //   width: double.infinity,
-                //   padding: const EdgeInsets.all(14),
-                //   decoration: BoxDecoration(
-                //     color: AppColors.whiteLight,
-                //     borderRadius: BorderRadius.circular(100),
-                //   ),
-                //   child: InkWell(
-                //     onTap: hasSentRequest
-                //         ? null
-                //         : () async {
-                //             try {
-                //               await _deliveryController
-                //                   .sendParcelRequest(parcelId);
-                //               controller.sentParcelIds.add(parcelId);
-                //               AppSnackBar.success("Request sent successfully");
-                //               setState(() {});
-                //             } catch (e) {
-                //               // AppSnackBar.error("Error: ${e.toString()}");
-                //               log("Error sending parcel request: $e");
-                //             } finally {
-                //               if (Get.isDialogOpen == true) {
-                //                 Get.back();
-                //               }
-                //             }
-                //           },
-                //     splashColor: Colors.transparent,
-                //     highlightColor: Colors.transparent,
-                //     child: Row(
-                //       mainAxisAlignment: MainAxisAlignment.center,
-                //       children: [
-                //         IconWidget(
-                //           icon: AppIconsPath.personAddIcon,
-                //           color: hasSentRequest ? Colors.grey : AppColors.black,
-                //           width: 14,
-                //           height: 14,
-                //         ),
-                //         const SpaceWidget(spaceWidth: 8),
-                //         TextWidget(
-                //           text: hasSentRequest
-                //               ? "requestSent".tr
-                //               : "sendRequest".tr,
-                //           fontSize: 14,
-                //           fontWeight: FontWeight.w500,
-                //           fontColor:
-                //               hasSentRequest ? Colors.grey : AppColors.black,
-                //         ),
-                //       ],
-                //     ),
-                //   ),
-                // )
               ],
             ),
           ),
@@ -794,14 +749,18 @@ class _NotificationScreenState extends State<NotificationScreen>
     //! Trigger address loading if coordinates are available
     if (pickupLocationLat != null && pickupLocationLong != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        cacheAddressForParcel(
-            notificationId, 'pickup', pickupLocationLat, pickupLocationLong);
+        if (mounted) {
+          cacheAddressForParcel(
+              notificationId, 'pickup', pickupLocationLat, pickupLocationLong);
+        }
       });
     }
     if (deliveryLocationLat != null && deliveryLocationLong != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        cacheAddressForParcel(notificationId, 'delivery', deliveryLocationLat,
-            deliveryLocationLong);
+        if (mounted) {
+          cacheAddressForParcel(notificationId, 'delivery', deliveryLocationLat,
+              deliveryLocationLong);
+        }
       });
     }
 
@@ -831,8 +790,7 @@ class _NotificationScreenState extends State<NotificationScreen>
       log('Image URL type: ${imageUrl.runtimeType}');
 
       // Check for null, empty, or invalid URLs
-      if (imageUrl == null ||
-          imageUrl.isEmpty ||
+      if (imageUrl.isEmpty ||
           imageUrl.trim().isEmpty ||
           imageUrl.toLowerCase() == 'null' ||
           imageUrl.toLowerCase() == 'undefined') {
@@ -890,14 +848,9 @@ class _NotificationScreenState extends State<NotificationScreen>
                               borderRadius: BorderRadius.circular(100),
                             ),
                             child: Center(
-                              child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes !=
-                                        null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
-                                    : null,
-                                strokeWidth: 2,
+                              child: LoadingAnimationWidget.hexagonDots(
                                 color: AppColors.black,
+                                size: 40,
                               ),
                             ),
                           );

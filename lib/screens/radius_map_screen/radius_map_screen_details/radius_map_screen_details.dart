@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
@@ -191,7 +192,10 @@ class _RadiusMapScreenDetailsState extends State<RadiusMapScreenDetails> {
     return Scaffold(
       backgroundColor: AppColors.white,
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ?  Center(child: LoadingAnimationWidget.hexagonDots(
+                color: AppColors.black,
+                size: 40,
+              ),)
           : hasError
               ? _buildErrorView()
               : Column(

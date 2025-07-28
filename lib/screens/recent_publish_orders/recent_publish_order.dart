@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/constants/app_strings.dart';
@@ -191,8 +192,11 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
               const SpaceWidget(spaceHeight: 24),
               Obx(() {
                 if (controller.loading.value) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Colors.black),
+                  return  Center(
+                    child:LoadingAnimationWidget.hexagonDots(
+                color: AppColors.black,
+                size: 40,
+              ),
                   );
                 }
 

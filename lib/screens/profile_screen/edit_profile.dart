@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/screens/profile_screen/controller/profile_controller.dart';
@@ -167,9 +168,18 @@ class _EditProfileState extends State<EditProfile> {
             ),
             const SpaceWidget(spaceHeight: 20),
             Obx(() => _profileController.isLoading.value
-                ? const Center(
-                    child: CircularProgressIndicator(
+                ? Container(
+                    height: 50,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
                       color: AppColors.black,
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    child: Center(
+                      child: LoadingAnimationWidget.progressiveDots(
+                        color: Colors.white,
+                        size: 40,
+                      ),
                     ),
                   )
                 : ButtonWidget(

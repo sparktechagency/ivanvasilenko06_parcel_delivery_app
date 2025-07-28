@@ -59,7 +59,6 @@ class NewBookingsController extends GetxController {
     }
   }
 
-
   Future<void> rejectParcelRequest(String parcelId, String delivererId) async {
     const String url = AppApiUrl.cancelDeliveryRequest;
     final String requestKey = '$parcelId-$delivererId';
@@ -118,8 +117,6 @@ class NewBookingsController extends GetxController {
             Get.find<CurrentOrderController>();
         await controller.getCurrentOrder();
         update(); // Use update() instead of refresh() if using GetX
-
-
       }
       // Check if response is a Response object (the expected type)
       else if (response is Response) {
@@ -129,16 +126,12 @@ class NewBookingsController extends GetxController {
               Get.find<CurrentOrderController>();
           await controller.getCurrentOrder();
           update(); // Use update() instead of refresh() if using GetX
-
-
         } else {
           log('Failed to remove parcel: ${response.statusCode}');
-
         }
       } else {
         // Fallback for unexpected response type
         log('Unexpected response type: ${response.runtimeType}');
-
       }
     } catch (error) {
       log('Error: $error');
@@ -157,16 +150,26 @@ class NewBookingsController extends GetxController {
       var response =
           await ApiPutServices().apiPutServices(url: url, body: body);
 
-      if (response.statusCode == 201) {
+      // Handle the response based on the response type
+      if (response is Map<String, dynamic>) {
+        // Handle success case based on your API response structure
+        if (response['status'] == 'success') {
+          log('Delivery cancelled successfully');
+          final CurrentOrderController controller =
+              Get.find<CurrentOrderController>();
+          await controller.getCurrentOrder();
+          update();
+        } else {
+          log('Failed to cancel delivery: ${response['message']}');
+        }
+      } else if (response != null && response.statusCode == 201) {
+        // Handle Response object case
         final CurrentOrderController controller =
             Get.find<CurrentOrderController>();
         await controller.getCurrentOrder();
         update();
-
-
       } else {
-        log('Failed to cancel delivery: ${response.statusCode}');
-
+        log('Failed to cancel delivery: ${response?.statusCode ?? 'Unknown error'}');
       }
     } catch (error) {
       log('Error: $error');

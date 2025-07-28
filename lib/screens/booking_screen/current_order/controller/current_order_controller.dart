@@ -3,7 +3,9 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
+import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/screens/booking_screen/current_order/model/current_order_model.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_get_services.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart';
@@ -80,12 +82,14 @@ class CurrentOrderController extends GetxController {
         return;
       }
 
-      // Show loading indicator
+      //! Show loading indicator
       Get.dialog(
-        const Center(
-          child: CircularProgressIndicator(),
+        Center(
+          child: LoadingAnimationWidget.hexagonDots(
+            color: AppColors.black,
+            size: 40,
+          ),
         ),
-        barrierDismissible: false,
       );
 
       final Map<String, dynamic> body = {

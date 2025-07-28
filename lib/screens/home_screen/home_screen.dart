@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
@@ -301,14 +302,17 @@ class _HomeScreenState extends State<HomeScreen> {
           Obx(() {
             // Show loading only if profile is still loading
             if (profileController.isLoading.value) {
-              return const Expanded(
+              return  Expanded(
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 16),
-                      Text('Loading Info...'),
+                      LoadingAnimationWidget.hexagonDots(
+                color: AppColors.black,
+                size: 40,
+              ),
+                      const SizedBox(height: 16),
+                      const Text('Loading Info...'),
                     ],
                   ),
                 ),

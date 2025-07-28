@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/screens/delivery_parcel_screens/summary_of_parcel_screen/widgets/summary_info_row_widget.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/controller/sending_parcel_controller.dart';
@@ -151,8 +152,11 @@ class SenderSummaryOfParcelScreen extends StatelessWidget {
               ),
               // CircularProgressIndicator in the center of the screen
               if (controller.isLoading.value)
-                const Center(
-                  child: CircularProgressIndicator(),
+                 Center(
+                  child: LoadingAnimationWidget.hexagonDots(
+                color: AppColors.black,
+                size: 40,
+              ),
                 ),
             ],
           ),

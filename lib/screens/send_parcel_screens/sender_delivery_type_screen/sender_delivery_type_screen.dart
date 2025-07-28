@@ -56,6 +56,12 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
     _getCurrentLocation();
   }
 
+  @override
+  void dispose() {
+    _mapController?.dispose();
+    super.dispose();
+  }
+
   final List<String> nonProfessionalImages = [
     AppImagePath.bikeImage,
     AppImagePath.carImage,
@@ -89,80 +95,97 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: PageView(
-              physics: const NeverScrollableScrollPhysics(),
-              controller: parcelController.pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  parcelController.currentStep.value = index;
-                });
-              },
-              children: [
-                _buildPage1(),
-                const PageTwo(),
-                const PageThree(),
-                PageFour(),
-                PageFive(),
-                PageSix(),
-              ],
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (!didPop) {
+          _handleBackNavigation();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: PageView(
+                physics: const NeverScrollableScrollPhysics(),
+                controller: parcelController.pageController,
+                onPageChanged: (index) {
+                  setState(() {
+                    parcelController.currentStep.value = index;
+                  });
+                },
+                children: [
+                  _buildPage1(),
+                  const PageTwo(),
+                  const PageThree(),
+                  PageFour(),
+                  PageFive(),
+                  PageSix(),
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: List.generate(6, (index) {
-                return _buildStep(index);
-              }),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: List.generate(6, (index) {
+                  return _buildStep(index);
+                }),
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                InkWell(
-                  onTap: parcelController.goToPreviousStep,
-                  borderRadius: BorderRadius.circular(100),
-                  child: const CircleAvatar(
-                    backgroundColor: Colors.white,
-                    radius: 25,
-                    child: Icon(
-                      Icons.arrow_back,
-                      color: Colors.black,
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  InkWell(
+                    onTap: _handleBackNavigation,
+                    borderRadius: BorderRadius.circular(100),
+                    child: const CircleAvatar(
+                      backgroundColor: Colors.white,
+                      radius: 25,
+                      child: Icon(
+                        Icons.arrow_back,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
-                ),
-                ButtonWidget(
-                  onPressed: () async {
-                    // No need to fetch location again since we already have it
-                    // Just move to next step
-                    parcelController.goToNextStep();
-                  },
-                  label: parcelController.currentStep.value == 5
-                      ? "next".tr
-                      : "next".tr,
-                  textColor: Colors.white,
-                  buttonWidth: 105,
-                  buttonHeight: 50,
-                  icon: Icons.arrow_forward,
-                  iconColor: Colors.white,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 16,
-                  iconSize: 20,
-                ),
-              ],
+                  ButtonWidget(
+                    onPressed: () async {
+                      // No need to fetch location again since we already have it
+                      // Just move to next step
+                      parcelController.goToNextStep();
+                    },
+                    label: parcelController.currentStep.value == 5
+                        ? "next".tr
+                        : "next".tr,
+                    textColor: Colors.white,
+                    buttonWidth: 105,
+                    buttonHeight: 50,
+                    icon: Icons.arrow_forward,
+                    iconColor: Colors.white,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                    iconSize: 20,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  void _handleBackNavigation() {
+    if (parcelController.currentStep.value > 0) {
+      parcelController.goToPreviousStep();
+    } else {
+      // Use the safe navigation method
+      parcelController.navigateBack();
+    }
   }
 
   Widget _buildStep(int index) {

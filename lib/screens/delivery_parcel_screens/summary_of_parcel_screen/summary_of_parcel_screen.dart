@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart'; // Import geocoding package
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/screens/delivery_parcel_screens/controller/delivery_screens_controller.dart';
@@ -168,8 +169,11 @@ class _SummaryOfParcelScreenState extends State<SummaryOfParcelScreen> {
     return Scaffold(
       backgroundColor: AppColors.white,
       body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
+          ?  Center(
+              child: LoadingAnimationWidget.hexagonDots(
+                color: AppColors.black,
+                size: 40,
+              ),
             )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,

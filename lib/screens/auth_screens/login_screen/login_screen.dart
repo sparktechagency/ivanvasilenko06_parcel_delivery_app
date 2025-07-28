@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
@@ -61,7 +62,12 @@ class LoginScreen extends StatelessWidget {
                     ),
                     Obx(
                       () => controller.isLoading.value
-                          ? const Center(child: CircularProgressIndicator())
+                          ? Center(
+                              child: LoadingAnimationWidget.progressiveDots(
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                            )
                           : ButtonWidget(
                               label: "continueWithGoogle".tr,
                               buttonHeight: 50,
@@ -101,7 +107,7 @@ class LoginScreen extends StatelessWidget {
                   ),
                   const SpaceWidget(spaceHeight: 10),
                   TextWidget(
-                    text: "enterEmail".tr,
+                    text: "enterNumber0".tr,
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
                     fontColor: AppColors.black,
@@ -109,7 +115,7 @@ class LoginScreen extends StatelessWidget {
                   ),
                   const SpaceWidget(spaceHeight: 24),
                   IntlPhoneFieldWidget(
-                    hintText: "Enter Your Number".tr,
+                    hintText: "enterNumber0".tr,
                     controller: controller.phoneController,
                     onChanged: (phone) {
                       controller.updatePhoneNumber(phone.completeNumber);
@@ -122,7 +128,20 @@ class LoginScreen extends StatelessWidget {
                   const SpaceWidget(spaceHeight: 24),
                   Obx(() {
                     return controller.isLoading.value
-                        ? const Center(child: CircularProgressIndicator())
+                        ? Container(
+                            height: 50,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: AppColors.black,
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                            child: Center(
+                              child: LoadingAnimationWidget.progressiveDots(
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                            ),
+                          )
                         : ButtonWidget(
                             onPressed: controller.phoneOtpLogin,
                             label: "login".tr,

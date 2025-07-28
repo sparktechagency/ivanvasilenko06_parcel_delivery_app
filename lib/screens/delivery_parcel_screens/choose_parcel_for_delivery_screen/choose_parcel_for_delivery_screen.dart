@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http; // for API requests
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/api_key.dart'; // for API key
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/screens/delivery_parcel_screens/controller/delivery_screens_controller.dart';
@@ -206,7 +207,10 @@ class _ChooseParcelForDeliveryScreenState
       backgroundColor: AppColors.white,
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return  Center(child: LoadingAnimationWidget.hexagonDots(
+                color: AppColors.black,
+                size: 40,
+              ),);
         }
 
         final parcels = controller.parcels;

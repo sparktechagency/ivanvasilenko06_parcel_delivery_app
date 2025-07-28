@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 
@@ -74,15 +75,29 @@ class VerifyPhoneScreen extends StatelessWidget {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Obx(
-          () => ButtonWidget(
-            onPressed: controller.isLoading.value
-                ? null // Disable button while loading
-                : () => controller.verifyOTP(),
-            label:
-                controller.isLoading.value ? "verifying....".tr : "verify".tr,
-            buttonWidth: double.infinity,
-            buttonHeight: 50,
-          ),
+          () => controller.isLoading.value
+              ? Container(
+                  height: 50,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: AppColors.black,
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: Center(
+                    child: LoadingAnimationWidget.progressiveDots(
+                      color: Colors.white,
+                      size: 40,
+                    ),
+                  ),
+                )
+              : ButtonWidget(
+                  onPressed: controller.isLoading.value
+                      ? null // Disable button while loading
+                      : () => controller.verifyOTP(),
+                  label: "verify".tr,
+                  buttonWidth: double.infinity,
+                  buttonHeight: 50,
+                ),
         ),
       ),
     );

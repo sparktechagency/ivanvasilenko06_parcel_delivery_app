@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
@@ -236,7 +237,10 @@ class _ServicesScreenState extends State<ServicesScreen> {
       backgroundColor: AppColors.white,
       body: Obx(() {
         if (profileController.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return  Center(child: LoadingAnimationWidget.hexagonDots(
+                color: AppColors.black,
+                size: 40,
+              ),);
         }
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -303,12 +307,10 @@ class _ServicesScreenState extends State<ServicesScreen> {
                               height: 40,
                               width: 40,
                               child: Center(
-                                child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes != null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                      : null,
-                                ),
+                                child: LoadingAnimationWidget.hexagonDots(
+                color: AppColors.black,
+                size: 40,
+              ),
                               ),
                             );
                           },
@@ -334,10 +336,11 @@ class _ServicesScreenState extends State<ServicesScreen> {
                 child: SingleChildScrollView(
                   child: Obx(
                     () => controller.loading.value
-                        ? const Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.black,
-                            ),
+                        ? Center(
+                            child: LoadingAnimationWidget.hexagonDots(
+                color: AppColors.black,
+                size: 40,
+              ),
                           )
                         : Column(
                             children: [

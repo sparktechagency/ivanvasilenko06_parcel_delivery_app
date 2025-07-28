@@ -170,5 +170,12 @@
   "selectLanguage": "בחר את השפה שלך",
   "enterYourPreferredLanguage": "הזן את השפה המועדפת עליך",
   "rejected" : "נדחה",
-  "accepted" : "נקבע"
+  "accepted" : "נקבע",
+  "editProfile" : "ערוך פרופיל",
+  "logout" : "התנתקות",
+  "deleteAccount" : "מחק חשבון",
+  "viewParcel" :"צפה בחבילה",
+  "deliveryUpdates" : "עדכוני משלוח",
+  "parcel/deliveryUpdates": "עדכוני חבילות/משלוחים",
+  "availableDeliveries" : "משלוחים זמינים"
 }

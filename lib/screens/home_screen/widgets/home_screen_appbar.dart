@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../../constants/app_colors.dart';
 import '../../../widgets/icon_widget/icon_widget.dart';
 import '../../../widgets/image_widget/image_widget.dart';
@@ -81,54 +82,52 @@ class HomeScreenAppBar extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(100),
       child: CachedNetworkImage(
-          imageUrl: profileImagePath,
-          height: 40,
-          width: 40,
-          fit: BoxFit.cover,
-          httpHeaders: const {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          },
-          placeholder: (context, url) {
-            log('⏳ Loading image: $url');
-            return Container(
-              height: 40,
-              width: 40,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                shape: BoxShape.circle,
-              ),
-              child: const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.black),
-                ),
-              ),
-            );
-          },
-          errorWidget: (context, url, error) {
-            log('🚨 CachedNetworkImage Error for URL: $url');
-            log('🚨 Error details: $error');
-            log('🚨 Error type: ${error.runtimeType}');
+        imageUrl: profileImagePath,
+        height: 40,
+        width: 40,
+        fit: BoxFit.cover,
+        httpHeaders: const {
+          'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        },
+        placeholder: (context, url) {
+          log('⏳ Loading image: $url');
+          return Container(
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              shape: BoxShape.circle,
+            ),
+            child: LoadingAnimationWidget.hexagonDots(
+              color: AppColors.black,
+              size: 40,
+            ),
+          );
+        },
+        errorWidget: (context, url, error) {
+          log('🚨 CachedNetworkImage Error for URL: $url');
+          log('🚨 Error details: $error');
+          log('🚨 Error type: ${error.runtimeType}');
 
-            // Try to determine the type of error
-            String errorMessage = 'Network error';
-            if (error.toString().contains('404')) {
-              errorMessage = 'Image not found (404)';
-            } else if (error.toString().contains('timeout')) {
-              errorMessage = 'Request timeout';
-            } else if (error.toString().contains('ssl') || error.toString().contains('certificate')) {
-              errorMessage = 'SSL/Certificate error';
-            }
+          // Try to determine the type of error
+          String errorMessage = 'Network error';
+          if (error.toString().contains('404')) {
+            errorMessage = 'Image not found (404)';
+          } else if (error.toString().contains('timeout')) {
+            errorMessage = 'Request timeout';
+          } else if (error.toString().contains('ssl') ||
+              error.toString().contains('certificate')) {
+            errorMessage = 'SSL/Certificate error';
+          }
 
-            log('🚨 Error category: $errorMessage');
-            return _buildFallbackImage();
-          },
-          fadeInDuration: const Duration(milliseconds: 300),
-          fadeOutCurve: Curves.easeInOut,
-          fadeOutDuration: const Duration(milliseconds: 150),
-    ),
+          log('🚨 Error category: $errorMessage');
+          return _buildFallbackImage();
+        },
+        fadeInDuration: const Duration(milliseconds: 300),
+        fadeOutCurve: Curves.easeInOut,
+        fadeOutDuration: const Duration(milliseconds: 150),
+      ),
     );
   }
 
@@ -147,4 +146,5 @@ class HomeScreenAppBar extends StatelessWidget {
         color: Colors.grey,
       ),
     );
-  }}
+  }
+}

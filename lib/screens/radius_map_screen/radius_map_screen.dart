@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/home_screen/controller/earn_money_radius_controller.dart';
@@ -157,8 +158,11 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
           }),
           // Loading indicator
           if (isLoading)
-            const Center(
-              child: CircularProgressIndicator(),
+            Center(
+              child: LoadingAnimationWidget.hexagonDots(
+                color: AppColors.black,
+                size: 40,
+              ),
             ),
           //Controls at the bottom
           Positioned(
@@ -193,7 +197,7 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
                   onPressed: () {
                     Get.toNamed(AppRoutes.radiusAvailableParcel);
                   },
-                  label: "View Parcels".tr,
+                  label: "viewParcel".tr,
                   textColor: AppColors.white,
                   buttonWidth: 150,
                   buttonHeight: 50,

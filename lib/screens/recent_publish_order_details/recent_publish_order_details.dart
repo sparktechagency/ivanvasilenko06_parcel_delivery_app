@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
@@ -204,7 +205,10 @@ class _DeliveryDetailsScreenState extends State<DeliveryDetailsScreen> {
       backgroundColor: AppColors.white,
       body: Obx(() {
         if (isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return  Center(child: LoadingAnimationWidget.hexagonDots(
+                color: AppColors.black,
+                size: 40,
+              ),);
         }
 
         if (parcelDetails.value == null) {

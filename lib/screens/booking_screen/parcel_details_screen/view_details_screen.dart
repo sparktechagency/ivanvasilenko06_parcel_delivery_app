@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
@@ -173,7 +174,10 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
     return Scaffold(
       backgroundColor: AppColors.white,
       body: currentParcel == null
-          ? const Center(child: CircularProgressIndicator())
+          ?  Center(child: LoadingAnimationWidget.hexagonDots(
+                color: AppColors.black,
+                size: 40,
+              ),)
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

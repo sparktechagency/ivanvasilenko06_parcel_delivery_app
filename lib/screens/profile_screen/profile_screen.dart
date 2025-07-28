@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/profile_screen/controller/profile_controller.dart';
@@ -295,6 +296,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
     );
   }
+
   String _getProfileImagePath() {
     if (profileController.isLoading.value) {
       log('⏳ Profile is still loading, returning default image URL');
@@ -318,11 +320,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String fullImageUrl;
     // Trim and clean the URL
     String cleanImageUrl = imageUrl.trim();
-    if (cleanImageUrl.startsWith('https://') || cleanImageUrl.startsWith('http://')) {
+    if (cleanImageUrl.startsWith('https://') ||
+        cleanImageUrl.startsWith('http://')) {
       fullImageUrl = cleanImageUrl;
     } else {
       // Remove leading slashes and ensure proper concatenation
-      cleanImageUrl = cleanImageUrl.startsWith('/') ? cleanImageUrl.substring(1) : cleanImageUrl;
+      cleanImageUrl = cleanImageUrl.startsWith('/')
+          ? cleanImageUrl.substring(1)
+          : cleanImageUrl;
       fullImageUrl = "${AppApiUrl.liveDomain}/$cleanImageUrl";
     }
 
@@ -343,7 +348,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: AppColors.white,
       body: Obx(() {
         if (profileController.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(
+            child: LoadingAnimationWidget.hexagonDots(
+              color: AppColors.black,
+              size: 40,
+            ),
+          );
         }
         if (profileController.errorMessage.value.isNotEmpty) {
           return Center(
@@ -428,15 +438,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         PopupMenuItem(
                           value: 3,
-                          child: Text("Edit Profile".tr),
+                          child: Text("editProfile".tr),
                         ),
                         PopupMenuItem(
                           value: 4,
-                          child: Text("Logout".tr),
+                          child: Text("logout".tr),
                         ),
                         PopupMenuItem(
                           value: 5,
-                          child: Text("Delete Account".tr),
+                          child: Text("deleteAccount".tr),
                         ),
                       ],
                     ),
@@ -475,23 +485,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     height: 116,
                                     width: 116,
                                     fit: BoxFit.cover,
-                                    loadingBuilder: (context, child, loadingProgress) {
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
                                       if (loadingProgress == null) return child;
                                       return Container(
                                         height: 116,
                                         width: 116,
                                         decoration: BoxDecoration(
                                           color: AppColors.grey.withAlpha(78),
-                                          borderRadius: BorderRadius.circular(100),
+                                          borderRadius:
+                                              BorderRadius.circular(100),
                                         ),
                                         child: Center(
-                                          child: CircularProgressIndicator(
-                                            value: loadingProgress.expectedTotalBytes != null
-                                                ? loadingProgress.cumulativeBytesLoaded /
-                                                loadingProgress.expectedTotalBytes!
-                                                : null,
-                                            strokeWidth: 2,
+                                          child: LoadingAnimationWidget
+                                              .hexagonDots(
                                             color: AppColors.black,
+                                            size: 40,
                                           ),
                                         ),
                                       );
@@ -503,7 +512,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         width: 116,
                                         decoration: BoxDecoration(
                                           color: AppColors.grey.withAlpha(78),
-                                          borderRadius: BorderRadius.circular(100),
+                                          borderRadius:
+                                              BorderRadius.circular(100),
                                         ),
                                         child: const Icon(
                                           Icons.person,
@@ -584,34 +594,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     const SpaceWidget(spaceHeight: 16),
-                      Row(
-                        children: [
-                          TextWidget(
-                            text: profileController
-                                    .profileData.value.data?.user?.fullName ??
-                                'N/A',
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            fontColor: AppColors.black,
-                          ),
-                          const Spacer(),
-                          TextWidget(
-                            text: profileController
-                                    .profileData.value.data?.user?.country ??
-                                'N/A',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            fontColor: AppColors.black,
-                          ),
-                          const SizedBox(width: 5),
-                          const Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            color: AppColors.greyDark2,
-                            size: 16,
-                          ),
-                        ],
-                      ),
-
+                    Row(
+                      children: [
+                        TextWidget(
+                          text: profileController
+                                  .profileData.value.data?.user?.fullName ??
+                              'N/A',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          fontColor: AppColors.black,
+                        ),
+                        const Spacer(),
+                        TextWidget(
+                          text: profileController
+                                  .profileData.value.data?.user?.country ??
+                              'N/A',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          fontColor: AppColors.black,
+                        ),
+                        const SizedBox(width: 5),
+                        const Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          color: AppColors.greyDark2,
+                          size: 16,
+                        ),
+                      ],
+                    ),
                     const SpaceWidget(spaceHeight: 12),
                     InkWell(
                       splashColor: Colors.transparent,

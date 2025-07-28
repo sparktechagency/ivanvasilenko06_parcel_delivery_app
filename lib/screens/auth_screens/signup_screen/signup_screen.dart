@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/screens/auth_screens/signup_screen/controller/signup_controller.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
@@ -76,7 +77,10 @@ class SignupScreen extends StatelessWidget {
 
                 // Loading Indicator
                 Obx(() => controller.isLoading.value
-                    ? const Center(child: CircularProgressIndicator())
+                    ?  Center(child:  LoadingAnimationWidget.hexagonDots(
+        color: AppColors.black,
+        size: 40,
+      ),)
                     : const SizedBox.shrink()),
               ],
             ),

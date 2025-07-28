@@ -138,6 +138,7 @@
   "sendRepeatSMS": "Send SMS Again",
   "sec": "Second",
   "enterEmail": "Enter Your Email (Optional)",
+  "enterNumber0" : "Enter Your Number",
   "verifying....": "Verifying....",
   "enterPassword": "Enter Password",
   "km": "KM",
@@ -173,5 +174,12 @@
   "beforeGoogleSignInEnterYourNumber" : "Please Provide Your Number to Continue with Google",
   "continueWithGoogle" : "Continue with Google",
   "optional" : "Enter Your Email (Optional)",
-  "Review Given" : "Review Given"
+  "Review Given" : "Review Given",
+  "editProfile" : "Edit Profile",
+  "logout" : "Logout",
+  "deleteAccount" : "Delete Account",
+  "viewParcel" : "View Parcel",
+  "deliveryUpdates" : "Delivery Updates",
+  "parcel/deliveryUpdates" : "Parcel/Delivery Updates",
+  "avaiableDeliveries" : "Available Deliveries"
 }

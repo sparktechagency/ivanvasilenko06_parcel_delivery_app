@@ -113,12 +113,16 @@ class ParcelController extends GetxController {
         curve: Curves.easeInOut,
       );
     } else {
-      currentLocationController.dispose();
-      destinationController.dispose();
+      // Reset fields without disposing controllers here
+      // Controllers will be disposed in onClose()
       startingLocation.value = '';
       endingLocation.value = '';
       startingLocationId.value = '';
       endingLocationId.value = '';
+      currentLocationController.clear();
+      destinationController.clear();
+
+      // Navigate back after clearing fields
       Get.back();
     }
   }
@@ -280,6 +284,7 @@ class ParcelController extends GetxController {
       isLoading.value = false;
     }
   }
+
   void resetAllFields() {
     selectedDeliveryType.value = 'non-professional';
     selectedVehicleType.value = '';
@@ -300,15 +305,40 @@ class ParcelController extends GetxController {
     phoneController.clear();
   }
 
+  // Safe navigation method that can be called from UI
+  void navigateBack() {
+    try {
+      // Reset current step to 0
+      currentStep.value = 0;
+
+      // Clear all fields
+      resetAllFields();
+
+      // Navigate back
+      Get.back();
+    } catch (e) {
+      log("Error during navigation back: $e");
+      // Force navigation if there's an error
+      Get.back();
+    }
+  }
+
   @override
   void onClose() {
-    currentLocationController.dispose();
-    destinationController.dispose();
-    titleController.dispose();
-    descriptionController.dispose();
-    priceController.dispose();
-    nameController.dispose();
-    phoneController.dispose();
+    // Dispose all controllers safely
+    try {
+      currentLocationController.dispose();
+      destinationController.dispose();
+      titleController.dispose();
+      descriptionController.dispose();
+      priceController.dispose();
+      nameController.dispose();
+      phoneController.dispose();
+      pageController.dispose();
+      tabController.dispose();
+    } catch (e) {
+      log("Error disposing controllers: $e");
+    }
     super.onClose();
   }
 }

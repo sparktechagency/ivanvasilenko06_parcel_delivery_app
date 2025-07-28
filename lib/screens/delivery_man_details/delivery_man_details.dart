@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
@@ -13,7 +14,6 @@ import 'package:parcel_delivery_app/screens/booking_screen/current_order/control
 import 'package:parcel_delivery_app/screens/booking_screen/new_booking/controller/new_bookings_controller.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
-import 'package:parcel_delivery_app/widgets/image_widget/app_images.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -333,7 +333,12 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
     return Scaffold(
       backgroundColor: AppColors.white,
       body: currentParcel == null
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: LoadingAnimationWidget.hexagonDots(
+                color: AppColors.black,
+                size: 40,
+              ),
+            )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -374,17 +379,9 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                                       borderRadius: BorderRadius.circular(100),
                                     ),
                                     child: Center(
-                                      child: CircularProgressIndicator(
-                                        value: loadingProgress
-                                                    .expectedTotalBytes !=
-                                                null
-                                            ? loadingProgress
-                                                    .cumulativeBytesLoaded /
-                                                loadingProgress
-                                                    .expectedTotalBytes!
-                                            : null,
-                                        strokeWidth: 2,
+                                      child: LoadingAnimationWidget.hexagonDots(
                                         color: AppColors.black,
+                                        size: 40,
                                       ),
                                     ),
                                   );
@@ -590,15 +587,10 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                       color: AppColors.black,
                       borderRadius: BorderRadius.circular(50),
                     ),
-                    child: const Center(
-                      child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(AppColors.white),
-                        ),
+                    child: Center(
+                      child: LoadingAnimationWidget.progressiveDots(
+                        color: AppColors.white,
+                        size: 40,
                       ),
                     ),
                   )
@@ -612,6 +604,24 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                         await controller.getCurrentOrder();
                         controller.update();
                         Get.back();
+
+                        // Show success message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Delivery cancelled successfully'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      } catch (error) {
+                        log('Error cancelling delivery: $error');
+
+                        // Show error message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Failed to cancel delivery: $error'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
                       } finally {
                         newBookingsController.isCancellingDelivery.value =
                             false;

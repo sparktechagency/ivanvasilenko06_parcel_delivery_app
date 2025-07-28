@@ -6,6 +6,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/constants/app_strings.dart';
 import 'package:parcel_delivery_app/screens/booking_screen/current_order/controller/current_order_controller.dart';
@@ -1178,9 +1179,14 @@ class _BookingScreenState extends State<BookingScreen> {
         final newBookingsController = Get.find<NewBookingsController>();
         if (newBookingController.currentOrdersModel.value.data == null) {
           newBookingController.getCurrentOrder();
-          return const Padding(
-            padding: EdgeInsets.only(top: 20),
-            child: Center(child: CircularProgressIndicator()),
+          return Padding(
+            padding: const EdgeInsets.only(top: 20),
+            child: Center(
+              child: LoadingAnimationWidget.hexagonDots(
+                color: AppColors.black,
+                size: 40,
+              ),
+            ),
           );
         }
 
@@ -1356,15 +1362,9 @@ class _BookingScreenState extends State<BookingScreen> {
                                     height: 40,
                                     width: 40,
                                     child: Center(
-                                      child: CircularProgressIndicator(
-                                        value: loadingProgress
-                                                    .expectedTotalBytes !=
-                                                null
-                                            ? loadingProgress
-                                                    .cumulativeBytesLoaded /
-                                                loadingProgress
-                                                    .expectedTotalBytes!
-                                            : null,
+                                      child: LoadingAnimationWidget.hexagonDots(
+                                        color: AppColors.black,
+                                        size: 20,
                                       ),
                                     ),
                                   );
