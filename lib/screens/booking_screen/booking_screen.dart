@@ -247,27 +247,22 @@ class _BookingScreenState extends State<BookingScreen> {
       _showErrorSnackBar('No phone number available');
       return;
     }
-
     //! Format the phone number (remove any non-digit characters)
     String formattedNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
-
     try {
       //! Direct WhatsApp intent
       if (Platform.isAndroid) {
         //! Try Android-specific direct intent first (most reliable)
         final Uri androidUri = Uri.parse(
             "intent://send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}#Intent;scheme=whatsapp;package=com.whatsapp;end");
-
         if (await canLaunchUrl(androidUri)) {
           await launchUrl(androidUri);
           return;
         }
       }
-
       //! Try the standard WhatsApp URL scheme
       final Uri whatsappUri = Uri.parse(
           "whatsapp://send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}");
-
       if (await canLaunchUrl(whatsappUri)) {
         await launchUrl(whatsappUri,
             mode: LaunchMode.externalNonBrowserApplication);
@@ -276,12 +271,10 @@ class _BookingScreenState extends State<BookingScreen> {
       //! Fallback to website (this should work on most devices)
       final Uri webUri = Uri.parse(
           "https://api.whatsapp.com/send?phone=$formattedNumber&text");
-
       if (await canLaunchUrl(webUri)) {
         await launchUrl(webUri, mode: LaunchMode.externalApplication);
         return;
       }
-
       log('Could not find any WhatsApp method that works');
       _showErrorSnackBar('WhatsApp not installed or accessible');
     } catch (e) {
@@ -290,7 +283,8 @@ class _BookingScreenState extends State<BookingScreen> {
     }
   }
 
-  // Helper method to show error messages
+
+  //! Helper method to show error messages
   void _showErrorSnackBar(String message) {
     final scaffoldMessenger = ScaffoldMessenger.of(Get.context!);
     scaffoldMessenger.showSnackBar(
@@ -305,11 +299,9 @@ class _BookingScreenState extends State<BookingScreen> {
   // Helper method to check if review already exists for a parcel
   bool hasAlreadyReviewed(String parcelId, dynamic parcel) {
     if (parcel.assignedDelivererId?.reviews == null) return false;
-
     return parcel.assignedDelivererId!.reviews!
         .any((review) => review.parcelId == parcelId);
   }
-
   void deliveryFinished(String parcelId, String status) {
     showDialog(
       context: context,
@@ -495,7 +487,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
           //! <This one is tab bar  ===================>
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -522,7 +514,44 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
                 Column(
                   children: [
-                    _buildTabItem("newBookings".tr, 1),
+                    Stack(
+                      children: [
+                        _buildTabItem("newBookings".tr, 1),
+
+                        // Badge for new bookings
+                        Obx(() {
+                          final newBookingsController =
+                              Get.find<NewBookingsController>();
+                          final allParcels = newBookingController
+                              .currentOrdersModel.value.data;
+                          final parcelsWithRequests = allParcels
+                                  ?.where((parcel) =>
+                                      parcel.typeParcel == "sendParcel" &&
+                                      parcel.deliveryRequests != null &&
+                                      parcel.deliveryRequests!.isNotEmpty)
+                                  .toList() ??
+                              [];
+                          // Show badge if there are new bookings and user hasn't visited the tab
+                          if (parcelsWithRequests.isNotEmpty &&
+                              !newBookingsController
+                                  .hasVisitedNewBookings.value) {
+                            return Positioned(
+                              right: -0.01,
+                              top: -0.01,
+                              child: Container(
+                                width: 08,
+                                height: 08,
+                                decoration: const BoxDecoration(
+                                  color: AppColors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        }),
+                      ],
+                    ),
                     const SpaceWidget(spaceHeight: 4),
                     Container(
                       height: ResponsiveUtils.height(3),
@@ -547,6 +576,10 @@ class _BookingScreenState extends State<BookingScreen> {
                 setState(() {
                   _currentIndex = index;
                 });
+                // Mark new bookings as visited when user swipes to tab 1
+                if (index == 1) {
+                  newBookingsController.markNewBookingsAsVisited();
+                }
               },
               children: [
                 SingleChildScrollView(child: _currentOrderWidget()),
@@ -565,16 +598,26 @@ class _BookingScreenState extends State<BookingScreen> {
         setState(() {
           _currentIndex = index;
         });
-        _pageController.jumpToPage(index); // Change PageView page
+        _pageController.jumpToPage(index);
+
+        // Mark new bookings as visited when user switches to tab 1
+        if (index == 1) {
+          newBookingsController.markNewBookingsAsVisited();
+        }
       },
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
-      child: TextWidget(
-        text: label,
-        fontColor:
-            _currentIndex == index ? AppColors.black : AppColors.greyDarkLight,
-        fontSize: 14,
-        fontWeight: _currentIndex == index ? FontWeight.w600 : FontWeight.w400,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 5),
+        child: TextWidget(
+          text: label,
+          fontColor: _currentIndex == index
+              ? AppColors.black
+              : AppColors.greyDarkLight,
+          fontSize: 14,
+          fontWeight:
+              _currentIndex == index ? FontWeight.w600 : FontWeight.w400,
+        ),
       ),
     );
   }
@@ -1071,7 +1114,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                         child: TextWidget(
                                           text:
                                               data[index].status == "DELIVERED"
-                                                  ? "Already Delivered"
+                                                  ? "Rate Driver"
                                                   : _getActionButtonText(
                                                       data[index]),
                                           fontSize: 14,
@@ -1189,7 +1232,6 @@ class _BookingScreenState extends State<BookingScreen> {
             ),
           );
         }
-
         final allParcels = newBookingController.currentOrdersModel.value.data;
         // Filter only parcels that have deliveryRequests
         final parcelsWithRequests = allParcels

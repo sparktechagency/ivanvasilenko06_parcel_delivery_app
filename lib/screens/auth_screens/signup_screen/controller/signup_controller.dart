@@ -23,12 +23,10 @@ class SignUpScreenController extends GetxController {
   void updatePhoneNumber(String phoneNumber) {
     completePhoneNumber.value = phoneNumber;
   }
-
   Future<void> phoneOtpSignup() async {
     try {
       if (signUpFormKey.currentState!.validate()) {
         isLoading.value = true;
-
         var fcmToken =
             await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
         appLog(fcmToken);
@@ -59,13 +57,11 @@ class SignUpScreenController extends GetxController {
           "deviceType": deviceType,
           "role": "sender"
         };
-
         var data = await ApiPostServices().apiPostServices(
           url: AppApiUrl.phoneOtpSignup,
           body: body,
           statusCode: 201,
         );
-
         if (data != null) {
           log('Data: $data');
           Get.toNamed(AppRoutes.verifyPhoneScreen, arguments: {

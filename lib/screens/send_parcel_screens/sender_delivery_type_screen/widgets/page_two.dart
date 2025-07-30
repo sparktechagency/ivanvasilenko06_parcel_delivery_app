@@ -33,6 +33,7 @@ class _PageTwoState extends State<PageTwo> {
   Marker? _currentLocationMarker;
   String? _currentLocationAddress;
   bool _showCurrentLocationMarker = false;
+  bool _locationLoaded = false;
 
   @override
   void initState() {
@@ -85,43 +86,60 @@ class _PageTwoState extends State<PageTwo> {
   }
 
   Future<void> _getCurrentLocation() async {
-    final location = await _locationRepository.getCurrentLocation();
-    if (location != null && mounted) {
-      // Create marker for current location
-      _currentLocationMarker = Marker(
-        markerId: const MarkerId('current_location'),
-        position: location,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-        infoWindow: const InfoWindow(title: 'Current Location'),
-      );
+    try {
+      final location = await _locationRepository.getCurrentLocation();
+      if (location != null && mounted) {
+        // Create marker for current location
+        _currentLocationMarker = Marker(
+          markerId: const MarkerId('current_location'),
+          position: location,
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+          infoWindow: const InfoWindow(title: 'Current Location'),
+        );
 
-      setState(() {
-        _markers = {..._locationRepository.markers};
-      });
+        setState(() {
+          _markers = {..._locationRepository.markers};
+          _locationLoaded = true; // Mark location as loaded
+        });
 
-      // Get address for current location
-      try {
-        final address = await _locationRepository.getAddressFromLatLng(
-            location.latitude, location.longitude);
-        if (mounted) {
-          setState(() {
-            _currentLocationAddress = address;
-          });
+        // Get address for current location
+        try {
+          final address = await _locationRepository.getAddressFromLatLng(
+              location.latitude, location.longitude);
+          if (mounted) {
+            setState(() {
+              _currentLocationAddress = address;
+            });
+          }
+        } catch (e) {
+          debugPrint('Error getting address: $e');
+          if (mounted) {
+            setState(() {
+              _currentLocationAddress = "Your Current Location";
+            });
+          }
         }
-      } catch (e) {
-        debugPrint('Error getting address: $e');
+
+        // Move camera to current location
+        if (_mapController != null) {
+          _mapController?.animateCamera(
+            CameraUpdate.newLatLng(location),
+          );
+        }
+      } else {
+        // Handle case where location is null (permission denied, etc.)
         if (mounted) {
           setState(() {
-            _currentLocationAddress = "Your Current Location";
+            _locationLoaded = true; // Still mark as loaded to show error state
           });
         }
       }
-
-      // Move camera to current location
-      if (_mapController != null) {
-        _mapController?.animateCamera(
-          CameraUpdate.newLatLng(location),
-        );
+    } catch (e) {
+      debugPrint('Error getting current location: $e');
+      if (mounted) {
+        setState(() {
+          _locationLoaded = true; // Mark as loaded to show error state
+        });
       }
     }
   }
@@ -484,32 +502,100 @@ class _PageTwoState extends State<PageTwo> {
 
   // Build the map section
   Widget _buildMap() {
+    // Show loading indicator until location is loaded
+    if (!_locationLoaded) {
+      return SizedBox(
+        height: MediaQuery.of(context).size.height * 0.65,
+        width: double.infinity,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              LoadingAnimationWidget.hexagonDots(
+                color: AppColors.black,
+                size: 40,
+              ),
+              const SizedBox(height: 16),
+              const TextWidget(
+                text: "Getting your location...",
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                fontColor: AppColors.greyDark2,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Show error state if location is not available
+    if (_locationRepository.currentLocationCoordinates == null) {
+      return SizedBox(
+        height: MediaQuery.of(context).size.height * 0.65,
+        width: double.infinity,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.location_off,
+                size: 60,
+                color: AppColors.greyDark2,
+              ),
+              const SizedBox(height: 16),
+              const TextWidget(
+                text: "Location not available",
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                fontColor: AppColors.black,
+              ),
+              const SizedBox(height: 8),
+              const TextWidget(
+                text: "Please enable location services and try again",
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                fontColor: AppColors.greyDark2,
+                textAlignment: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _locationLoaded = false;
+                  });
+                  _getCurrentLocation();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.black,
+                  foregroundColor: AppColors.white,
+                ),
+                child: const Text("Retry"),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.65,
       width: double.infinity,
       child: GoogleMap(
-        initialCameraPosition:
-            _locationRepository.currentLocationCoordinates != null
-                ? CameraPosition(
-                    target: _locationRepository.currentLocationCoordinates!,
-                    zoom: 12.0,
-                  )
-                : const CameraPosition(
-                    target: LatLng(23.76171, 90.43128), // Default position
-                    zoom: 12.0,
-                  ),
+        initialCameraPosition: CameraPosition(
+          target: _locationRepository.currentLocationCoordinates!,
+          zoom: 15.0, // Increased zoom for better view
+        ),
         onMapCreated: (GoogleMapController controller) {
           setState(() {
             _mapController = controller;
             _mapInitialized = true;
           });
 
-          if (_locationRepository.currentLocationCoordinates != null) {
-            _mapController?.animateCamera(
-              CameraUpdate.newLatLng(
-                  _locationRepository.currentLocationCoordinates!),
-            );
-          }
+          // Animate to current location immediately after map creation
+          _mapController?.animateCamera(
+            CameraUpdate.newLatLng(
+                _locationRepository.currentLocationCoordinates!),
+          );
         },
         mapType: MapType.terrain,
         markers: _markers,
@@ -564,15 +650,12 @@ class _PageTwoState extends State<PageTwo> {
                 children: [
                   // Location input fields
                   _buildLocationInputs(),
-
                   // Spacer
                   const SpaceWidget(spaceHeight: 16),
-
                   // Map section
                   Expanded(child: _buildMap()),
                 ],
               ),
-
               // Position predictions list properly
               if (_activeLocationType.isNotEmpty &&
                   _placePredictions.isNotEmpty)
@@ -582,7 +665,6 @@ class _PageTwoState extends State<PageTwo> {
                   right: 16,
                   child: _buildPredictionsList(),
                 ),
-
               // Loading indicator
               if (_isLoading)
                 Positioned(

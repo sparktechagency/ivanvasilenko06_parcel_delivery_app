@@ -11,7 +11,6 @@ import 'package:parcel_delivery_app/constants/app_strings.dart';
 import 'package:parcel_delivery_app/screens/notification_screen/controller/notification_controller.dart';
 import 'package:parcel_delivery_app/services/reuseable/lat_long_to_address.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
-import 'package:parcel_delivery_app/widgets/image_widget/app_images.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';

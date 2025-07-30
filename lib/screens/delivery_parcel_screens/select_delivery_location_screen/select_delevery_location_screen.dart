@@ -632,7 +632,6 @@ class _SelectDeliveryLocationScreenState
                   Expanded(child: Container()),
                 ],
               ),
-
               // Position predictions list properly
               if (_placePredictions.isNotEmpty)
                 Positioned(

@@ -46,7 +46,6 @@ class SignupScreen extends StatelessWidget {
                   textAlignment: TextAlign.left,
                 ),
                 const SpaceWidget(spaceHeight: 24),
-
                 // Name Field
                 TextFieldWidget(
                   controller: controller.fullNameController,
@@ -74,7 +73,6 @@ class SignupScreen extends StatelessWidget {
                   maxLines: 1,
                 ),
                 const SpaceWidget(spaceHeight: 16),
-
                 // Loading Indicator
                 Obx(() => controller.isLoading.value
                     ?  Center(child:  LoadingAnimationWidget.hexagonDots(

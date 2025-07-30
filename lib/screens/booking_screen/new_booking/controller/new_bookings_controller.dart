@@ -16,6 +16,19 @@ class NewBookingsController extends GetxController {
 
   RxBool isCancellingDelivery = false.obs;
 
+  // Track if user has visited the new bookings tab
+  RxBool hasVisitedNewBookings = false.obs;
+
+  // Method to mark new bookings tab as visited
+  void markNewBookingsAsVisited() {
+    hasVisitedNewBookings.value = true;
+  }
+
+  // Method to reset the badge (useful when new bookings arrive)
+  void resetNewBookingsBadge() {
+    hasVisitedNewBookings.value = false;
+  }
+
   Future<void> acceptParcelRequest(String parcelId, String delivererId) async {
     const String url = AppApiUrl.acceptRequest;
     final String requestKey = '$parcelId-$delivererId';
@@ -40,6 +53,8 @@ class NewBookingsController extends GetxController {
         final CurrentOrderController controller =
             Get.find<CurrentOrderController>();
         await controller.refreshCurrentOrder();
+        // Reset badge since the booking list has changed
+        resetNewBookingsBadge();
         // Get.snackbar('Success', 'Delivery request accepted successfully');
       } else {
         log('Failed to update parcel: ${response['message']}');
@@ -83,6 +98,8 @@ class NewBookingsController extends GetxController {
         final CurrentOrderController controller =
             Get.find<CurrentOrderController>();
         await controller.refreshCurrentOrder();
+        // Reset badge since the booking list has changed
+        resetNewBookingsBadge();
         // Get.snackbar('Success', 'Delivery request rejected successfully');
       } else {
         log('Failed to reject parcel: ${response['message']}');

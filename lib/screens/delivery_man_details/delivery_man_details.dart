@@ -39,7 +39,9 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
 
   Map<String, String> pickUpAddressCache = {};
   Map<String, String> addressCache = {};
+  // ignore: prefer_typing_uninitialized_variables
   var currentParcel;
+  // ignore: prefer_typing_uninitialized_variables
   var deliveryMan;
 
   @override

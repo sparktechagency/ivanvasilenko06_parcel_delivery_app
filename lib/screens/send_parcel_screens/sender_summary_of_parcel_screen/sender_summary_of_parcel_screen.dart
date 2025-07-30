@@ -152,11 +152,11 @@ class SenderSummaryOfParcelScreen extends StatelessWidget {
               ),
               // CircularProgressIndicator in the center of the screen
               if (controller.isLoading.value)
-                 Center(
+                Center(
                   child: LoadingAnimationWidget.hexagonDots(
-                color: AppColors.black,
-                size: 40,
-              ),
+                    color: AppColors.black,
+                    size: 40,
+                  ),
                 ),
             ],
           ),
@@ -191,10 +191,8 @@ class SenderSummaryOfParcelScreen extends StatelessWidget {
                     // Set loading state to true
                     controller.isLoading.value = true;
                     controller.update();
-
                     // Call the submitParcelData function
                     await controller.submitParcelData();
-
                     // Set loading state to false after completion
                     controller.isLoading.value = false;
                     controller.update();
