@@ -39,5 +39,6 @@ class AppApiUrl {
   static const String phoneOtpVerify = "$baseUrl/auth/verify-otp";
   static const String phoneOtpLoginVerify = "$baseUrl/auth/login-otp";
   static const String phoneOtpResend = "$baseUrl/auth/resend-otp";
+  static const String appReveiw = "$baseUrl/review";
   static const String token = "";
 }

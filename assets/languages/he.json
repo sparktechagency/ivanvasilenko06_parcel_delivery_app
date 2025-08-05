@@ -31,8 +31,8 @@
   "verifyEmail": "אמתו את האימייל",
   "verifying....": "מאמת....",
   "home": "בית",
-  "services": "שירותים",
-  "bookings": "הזמנות",
+  "services": "משלוח",  
+  "bookings": "ההזמנות שלי",
   "profile": "פרופיל",
   "suggestions": "הצעות",
   "deliverParcel": "בצע שליחות",
@@ -177,5 +177,6 @@
   "viewParcel" :"צפה בחבילה",
   "deliveryUpdates" : "עדכוני משלוח",
   "parcel/deliveryUpdates": "עדכוני חבילות/משלוחים",
-  "availableDeliveries" : "משלוחים זמינים"
+  "availableDeliveries" : "משלוחים זמינים",
+  "feedback" : "משוב"
 }

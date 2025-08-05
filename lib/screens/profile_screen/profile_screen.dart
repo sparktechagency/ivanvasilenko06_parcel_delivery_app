@@ -430,7 +430,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       itemBuilder: (context) => [
                         PopupMenuItem(
                           value: 1,
-                          child: Text("contactUs".tr),
+                          child: Text("feedback".tr),
                         ),
                         PopupMenuItem(
                           value: 2,
