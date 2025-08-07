@@ -178,5 +178,6 @@
   "deliveryUpdates" : "עדכוני משלוח",
   "parcel/deliveryUpdates": "עדכוני חבילות/משלוחים",
   "availableDeliveries" : "משלוחים זמינים",
-  "feedback" : "משוב"
+  "feedback" : "משוב",
+  "acceptTerms" : "אני מסכים עם תנאי השימוש"
 }

@@ -283,7 +283,6 @@ class _BookingScreenState extends State<BookingScreen> {
     }
   }
 
-
   //! Helper method to show error messages
   void _showErrorSnackBar(String message) {
     final scaffoldMessenger = ScaffoldMessenger.of(Get.context!);
@@ -302,6 +301,7 @@ class _BookingScreenState extends State<BookingScreen> {
     return parcel.assignedDelivererId!.reviews!
         .any((review) => review.parcelId == parcelId);
   }
+
   void deliveryFinished(String parcelId, String status) {
     showDialog(
       context: context,
@@ -1427,7 +1427,7 @@ class _BookingScreenState extends State<BookingScreen> {
                             const SpaceWidget(spaceWidth: 8),
                             SizedBox(
                               width:
-                                  (deliveryRequest.fullName?.length ?? 0) <= 8
+                                  (deliveryRequest.fullName?.length ?? 0) <= 12
                                       ? ResponsiveUtils.width(60)
                                       : ResponsiveUtils.width(180),
                               child: TextWidget(
@@ -1465,7 +1465,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                                     .reduce((a, b) => a + b) /
                                                 deliveryRequest.reviews!.length)
                                             .toStringAsFixed(1)
-                                        : "0.0",
+                                        : " ",
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                     fontColor: AppColors.white,

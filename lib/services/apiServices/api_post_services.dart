@@ -43,11 +43,11 @@ class ApiPostServices {
       errorLog('api time out exception', e);
       return null;
     } on DioException catch (e) {
-      if (e.response.runtimeType != Null) {
+      if (e.response != null) {
         if (e.response?.statusCode == 400) {
-          if (e.response?.data["message"].runtimeType != Null) {
-            log("${e.response?.data["message"]}");
-            //AppSnackBar.error("${e.response?.data["message"]}");
+          if (e.response?.data != null && e.response?.data["message"] != null) {
+            log("400 Error: ${e.response?.data["message"]}");
+            AppSnackBar.success("${e.response?.data["message"]}");
           }
           return null;
         } else if (e.response?.statusCode == 401) {
@@ -55,9 +55,14 @@ class ApiPostServices {
           await AppAuthStorage().storageClear();
           Get.offAllNamed(AppRoutes.loginScreen);
           // AppSnackBar.message("Sign-in again with your credential");
+          return null;
+        } else if (e.response?.statusCode == 404) {
+          if (e.response?.data != null && e.response?.data["message"] != null) {
+            log("404 Error: ${e.response?.data["message"]}");
+            AppSnackBar.success("${e.response?.data["message"]}");
+          }
+          return null;
         }
-      } else {
-        // AppSnackBar.error("Something Went Wrong");
       }
       errorLog('api dio exception', e);
       return null;

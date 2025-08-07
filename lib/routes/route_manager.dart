@@ -168,7 +168,7 @@ class RouteManager {
       ),
       GetPage(
         name: AppRoutes.contactUsScreen,
-        page: () =>  ContactUsScreen(),
+        page: () =>  const ContactUsScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),

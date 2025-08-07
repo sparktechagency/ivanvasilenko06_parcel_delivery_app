@@ -13,8 +13,6 @@ import '../../../widgets/text_field_widget/text_field_widget.dart';
 import '../../../widgets/text_widget/text_widgets.dart';
 
 class SignupScreen extends StatelessWidget {
-  
-
   const SignupScreen({super.key});
 
   @override
@@ -73,12 +71,39 @@ class SignupScreen extends StatelessWidget {
                   maxLines: 1,
                 ),
                 const SpaceWidget(spaceHeight: 16),
+                Row(
+                  children: [
+                    //! Checkbox
+                    Obx(
+                      () => Checkbox(
+                        value: controller.isTermsAccepted.value,
+                        onChanged: (value) {
+                          controller.isTermsAccepted.value = value!;
+                        },
+                        activeColor: AppColors.black,
+                        checkColor: AppColors.white,
+                        side: const BorderSide(color: AppColors.black),
+                      ),
+                    ),
+                    TextWidget(
+                      text: "acceptTerms".tr,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      fontColor: AppColors.black,
+                      textAlignment: TextAlign.left,
+                    ),
+                  ],
+                ),
+                const SpaceWidget(spaceHeight: 16),
+
                 // Loading Indicator
                 Obx(() => controller.isLoading.value
-                    ?  Center(child:  LoadingAnimationWidget.hexagonDots(
-        color: AppColors.black,
-        size: 40,
-      ),)
+                    ? Center(
+                        child: LoadingAnimationWidget.hexagonDots(
+                          color: AppColors.black,
+                          size: 40,
+                        ),
+                      )
                     : const SizedBox.shrink()),
               ],
             ),

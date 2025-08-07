@@ -104,8 +104,8 @@ class LoginScreenController extends GetxController {
     } catch (e) {
       log("Error from phone OTP login: $e");
       //AppSnackBar.error("An error occurred: ${e.toString()}");
-      AppSnackBar.success(
-          "Please, Complete the sign-up process before Logging in.");
+      // AppSnackBar.success(
+      //     "Please, Complete the sign-up process before Logging in.");
     } finally {
       isLoading.value = false;
       isPhoneLoading.value = false;

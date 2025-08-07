@@ -182,5 +182,6 @@
   "deliveryUpdates" : "Delivery Updates",
   "parcel/deliveryUpdates" : "Parcel/Delivery Updates",
   "avaiableDeliveries" : "Available Deliveries",
-  "feedback" : "Feedback"
+  "feedback" : "Feedback",
+  "acceptTerms" : "I agree with the Terms & Condition"
 }

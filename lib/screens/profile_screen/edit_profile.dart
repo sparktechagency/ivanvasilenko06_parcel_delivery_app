@@ -7,7 +7,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
-import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/screens/profile_screen/controller/profile_controller.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';

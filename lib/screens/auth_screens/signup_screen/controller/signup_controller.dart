@@ -1,5 +1,5 @@
 import 'dart:developer';
-
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
@@ -8,9 +8,11 @@ import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart'
 import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
 import 'package:parcel_delivery_app/services/deviceInfo/device_info.dart';
 import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
+import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 
 class SignUpScreenController extends GetxController {
   RxBool isLoading = false.obs;
+  RxBool isTermsAccepted = false.obs;
   TextEditingController fullNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController countryController = TextEditingController();
@@ -23,9 +25,16 @@ class SignUpScreenController extends GetxController {
   void updatePhoneNumber(String phoneNumber) {
     completePhoneNumber.value = phoneNumber;
   }
+
   Future<void> phoneOtpSignup() async {
     try {
       if (signUpFormKey.currentState!.validate()) {
+        if (!isTermsAccepted.value) {
+          AppSnackBar.error(
+              "Please accept the terms and conditions to continue");
+          return;
+        }
+
         isLoading.value = true;
         var fcmToken =
             await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
