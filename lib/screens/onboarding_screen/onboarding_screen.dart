@@ -40,49 +40,49 @@ class OnboardingScreen extends GetView<OnboardingController> {
                   onPageChanged: controller.updateIndex,
                   itemCount: contents.length,
                   itemBuilder: (_, i) {
-                    return SingleChildScrollView(
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ImageWidget(
-                              imagePath: contents[i].image,
-                              height: screenHeight > 700
-                                  ? ResponsiveUtils.height(480)
-                                  : ResponsiveUtils.height(380), // Reduce image height for small screens
-                              width: double.infinity,
-                            ),
-                            const SpaceWidget(spaceHeight: 38),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child: TextWidget(
-                                text: contents[i].title,
-                                fontSize: 27,
-                                fontWeight: FontWeight.w600,
-                                fontColor: AppColors.black,
-                              ),
-                            ),
-                            const SpaceWidget(spaceHeight: 10),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              child: TextWidget(
-                                text: contents[i].description,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                fontColor: AppColors.black,
-                                textAlignment:
-                                isRTL ? TextAlign.right : TextAlign.left,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 3,
-                              ),
-                            ),
-                            // Add bottom padding to prevent content from going behind bottom nav
-                            const SizedBox(height: 120),
-                          ],
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 6,
+                          child: ImageWidget(
+                            imagePath: contents[i].image,
+                            height: double.infinity,
+                            width: double.infinity,
+                          ),
                         ),
-                      ),
+                        Expanded(
+                          flex: 3,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SpaceWidget(spaceHeight: 38),
+                                TextWidget(
+                                  text: contents[i].title,
+                                  fontSize: 27,
+                                  fontWeight: FontWeight.w600,
+                                  fontColor: AppColors.black,
+                                ),
+                                const SpaceWidget(spaceHeight: 10),
+                                Expanded(
+                                  child: TextWidget(
+                                    text: contents[i].description,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400,
+                                    fontColor: AppColors.black,
+                                    textAlignment: isRTL
+                                        ? TextAlign.right
+                                        : TextAlign.left,
+                                    maxLines: 4,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     );
                   },
                 ),
@@ -90,7 +90,8 @@ class OnboardingScreen extends GetView<OnboardingController> {
               Positioned(
                 top: screenHeight > 700
                     ? ResponsiveUtils.height(500)
-                    : ResponsiveUtils.height(400), // Adjust position for smaller screens
+                    : ResponsiveUtils.height(
+                        400), // Adjust position for smaller screens
                 left: isRTL ? null : ResponsiveUtils.width(24),
                 right: isRTL ? ResponsiveUtils.width(24) : null,
                 child: GetX<OnboardingController>(
@@ -98,7 +99,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
                       contents.length,
-                          (index) => _buildDot(index, controller),
+                      (index) => _buildDot(index, controller),
                     ),
                   ),
                 ),
