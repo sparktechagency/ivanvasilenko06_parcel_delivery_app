@@ -746,18 +746,18 @@ class _NotificationScreenState extends State<NotificationScreen>
     double? deliveryLocationLong = notification.deliveryLocation?.longitude;
 
     //! Trigger address loading if coordinates are available
-    if (pickupLocationLat != null && pickupLocationLong != null) {
+    if (pickupLocationLong != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           cacheAddressForParcel(
-              notificationId, 'pickup', pickupLocationLat, pickupLocationLong);
+              notificationId, 'pickup', pickupLocationLat!, pickupLocationLong);
         }
       });
     }
-    if (deliveryLocationLat != null && deliveryLocationLong != null) {
+    if (deliveryLocationLong != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          cacheAddressForParcel(notificationId, 'delivery', deliveryLocationLat,
+          cacheAddressForParcel(notificationId, 'delivery', deliveryLocationLat!,
               deliveryLocationLong);
         }
       });

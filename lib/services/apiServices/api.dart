@@ -72,19 +72,17 @@ class AppApi {
     try {
 
       String? refreshToken = AppAuthStorage().getRefreshToken();
-      if (refreshToken != null) {
-        final response = await _dio
-            .post(AppApiUrl.token, data: {"refreshToken": refreshToken});
-        String? newAccessToken = response.data["data"]["accessToken"];
+      final response = await _dio
+          .post(AppApiUrl.token, data: {"refreshToken": refreshToken});
+      String? newAccessToken = response.data["data"]["accessToken"];
 
-        if (newAccessToken != null) {
-          // Store new token
-          await AppAuthStorage().setToken(newAccessToken);
+      if (newAccessToken != null) {
+        // Store new token
+        await AppAuthStorage().setToken(newAccessToken);
 
-          return newAccessToken;
-        }
+        return newAccessToken;
       }
-    } catch (e) {
+        } catch (e) {
       log("Token refresh failed: $e");
       AppAuthStorage().storageClear();
       Get.offAllNamed(AppRoutes.loginScreen);

@@ -277,16 +277,12 @@ class NotificationService {
       log('User granted permission: ${settings.authorizationStatus}');
       // Get the token for the device
       String? token = await _firebaseMessaging.getToken();
-      if (token != null) {
-        log('🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑 Device Token: $token');
-        await SharePrefsHelper.setString(SharedPreferenceValue.fcmToken, token);
-        String savedToken =
-            await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
-        log("Saved FCM Token: $savedToken");
-      } else {
-        log('Failed to retrieve FCM token');
-      }
-      // Handle foreground messages
+      log('🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑 Device Token: $token');
+      await SharePrefsHelper.setString(SharedPreferenceValue.fcmToken, token);
+      String savedToken =
+          await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
+      log("Saved FCM Token: $savedToken");
+          // Handle foreground messages
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         _handleForegroundMessage(message);
       });

@@ -42,7 +42,7 @@ class _PageThreeState extends State<PageThree> {
       DateTime? startDate = args.value.startDate;
       DateTime? endDate = args.value.endDate;
 
-      if (startDate != null && _fromDateTime == null) {
+      if (_fromDateTime == null) {
         if (!mounted) return; // Check if widget is still mounted
 
         try {
@@ -52,7 +52,7 @@ class _PageThreeState extends State<PageThree> {
           if (startTime != null && mounted) {
             // Check mounted again after async operation
             final newDateTime = DateTime(
-              startDate.year,
+              startDate!.year,
               startDate.month,
               startDate.day,
               startTime.hour,
@@ -75,7 +75,7 @@ class _PageThreeState extends State<PageThree> {
         }
       }
 
-      if (endDate != null && _toDateTime == null) {
+      if (_toDateTime == null) {
         if (!mounted) return; // Check if widget is still mounted
 
         try {
@@ -85,7 +85,7 @@ class _PageThreeState extends State<PageThree> {
           if (endTime != null && mounted) {
             // Check mounted again after async operation
             final newDateTime = DateTime(
-              endDate.year,
+              endDate!.year,
               endDate.month,
               endDate.day,
               endTime.hour,
