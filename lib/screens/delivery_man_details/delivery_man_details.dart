@@ -72,16 +72,53 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
     }
   }
 
-  // Function to send a message
+  // Function to send a WhatsApp message
   Future<void> _sendMessage() async {
-    final Uri launchUri = Uri(
-      scheme: 'sms',
-      path: deliveryMan.mobileNumber,
-    );
+    if (deliveryMan?.mobileNumber == null || deliveryMan.mobileNumber.isEmpty) {
+      _showErrorSnackBar('No phone number available');
+      return;
+    }
+
+    // Format the phone number (remove any non-digit characters)
+    String formattedNumber =
+        deliveryMan.mobileNumber.replaceAll(RegExp(r'\D'), '');
+
+    // Ensure the number has country code (add + if not present)
+    if (!formattedNumber.startsWith('+')) {
+      formattedNumber = '+$formattedNumber';
+    }
+
+    String message = "Hello, regarding your parcel delivery.";
 
     try {
-      if (await canLaunchUrl(launchUri)) {
-        await launchUrl(launchUri);
+      // Try different WhatsApp URL schemes in order of reliability
+      List<String> whatsappUrls = [
+        "whatsapp://send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}",
+        "https://wa.me/$formattedNumber?text=${Uri.encodeComponent(message)}",
+        "https://api.whatsapp.com/send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}"
+      ];
+
+      for (String urlString in whatsappUrls) {
+        try {
+          final Uri uri = Uri.parse(urlString);
+          if (await canLaunchUrl(uri)) {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+            return;
+          }
+        } catch (e) {
+          log('Failed to launch $urlString: $e');
+          continue;
+        }
+      }
+
+      // If WhatsApp fails, fallback to SMS
+      final Uri smsUri = Uri(
+          scheme: 'sms',
+          path: deliveryMan.mobileNumber,
+          queryParameters: {'body': message});
+
+      if (await canLaunchUrl(smsUri)) {
+        await launchUrl(smsUri);
       } else {
         _showErrorSnackBar('Could not launch messaging app');
       }

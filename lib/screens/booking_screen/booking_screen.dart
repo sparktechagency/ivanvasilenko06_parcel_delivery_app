@@ -247,39 +247,42 @@ class _BookingScreenState extends State<BookingScreen> {
       _showErrorSnackBar('No phone number available');
       return;
     }
-    //! Format the phone number (remove any non-digit characters)
+
+    // Format the phone number (remove any non-digit characters)
     String formattedNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
+
+    // Ensure the number has country code (add + if not present)
+    if (!formattedNumber.startsWith('+')) {
+      formattedNumber = '+$formattedNumber';
+    }
+
     try {
-      //! Direct WhatsApp intent
-      if (Platform.isAndroid) {
-        //! Try Android-specific direct intent first (most reliable)
-        final Uri androidUri = Uri.parse(
-            "intent://send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}#Intent;scheme=whatsapp;package=com.whatsapp;end");
-        if (await canLaunchUrl(androidUri)) {
-          await launchUrl(androidUri);
-          return;
+      // Try different WhatsApp URL schemes in order of reliability
+      List<String> whatsappUrls = [
+        "whatsapp://send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}",
+        "https://wa.me/$formattedNumber?text=${Uri.encodeComponent(message)}",
+        "https://api.whatsapp.com/send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}"
+      ];
+      
+      for (String urlString in whatsappUrls) {
+        try {
+          final Uri uri = Uri.parse(urlString);
+          if (await canLaunchUrl(uri)) {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+            return;
+          }
+        } catch (e) {
+          log('Failed to launch $urlString: $e');
+          continue;
         }
       }
-      //! Try the standard WhatsApp URL scheme
-      final Uri whatsappUri = Uri.parse(
-          "whatsapp://send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}");
-      if (await canLaunchUrl(whatsappUri)) {
-        await launchUrl(whatsappUri,
-            mode: LaunchMode.externalNonBrowserApplication);
-        return;
-      }
-      //! Fallback to website (this should work on most devices)
-      final Uri webUri = Uri.parse(
-          "https://api.whatsapp.com/send?phone=$formattedNumber&text");
-      if (await canLaunchUrl(webUri)) {
-        await launchUrl(webUri, mode: LaunchMode.externalApplication);
-        return;
-      }
-      log('Could not find any WhatsApp method that works');
-      _showErrorSnackBar('WhatsApp not installed or accessible');
+
+      // If all methods fail, show error
+      log('Could not find any working WhatsApp method');
+      _showErrorSnackBar('WhatsApp not installed or unable to open');
     } catch (e) {
       log('Error opening WhatsApp: $e');
-      _showErrorSnackBar('Error opening WhatsApp');
+      _showErrorSnackBar('Error opening WhatsApp: ${e.toString()}');
     }
   }
 
