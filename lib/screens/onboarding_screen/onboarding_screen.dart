@@ -27,80 +27,160 @@ class OnboardingScreen extends GetView<OnboardingController> {
       child: Scaffold(
         backgroundColor: AppColors.white,
         body: SafeArea(
-          child: Stack(
-            alignment: Alignment.bottomCenter,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              NotificationListener<OverscrollIndicatorNotification>(
-                onNotification: (overScroll) {
-                  overScroll.disallowIndicator();
-                  return true;
-                },
-                child: PageView.builder(
-                  controller: controller.pageController,
-                  onPageChanged: controller.updateIndex,
-                  itemCount: contents.length,
-                  itemBuilder: (_, i) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 6,
-                          child: ImageWidget(
-                            imagePath: contents[i].image,
-                            height: double.infinity,
-                            width: double.infinity,
-                          ),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SpaceWidget(spaceHeight: 38),
-                                TextWidget(
-                                  text: contents[i].title,
-                                  fontSize: 27,
-                                  fontWeight: FontWeight.w600,
-                                  fontColor: AppColors.black,
+              // Fixed content area that changes based on current page
+              Expanded(
+                child: GestureDetector(
+                  onPanUpdate: (details) {
+                    // Handle horizontal swipe gestures
+                    if (details.delta.dx > 10) {
+                      // Swipe right - go to previous page
+                      if (controller.currentIndex.value > 0) {
+                        controller.pageController.previousPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+                      }
+                    } else if (details.delta.dx < -10) {
+                      // Swipe left - go to next page
+                      if (controller.currentIndex.value < contents.length - 1) {
+                        controller.pageController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+                      }
+                    }
+                  },
+                  child: GetX<OnboardingController>(
+                    builder: (controller) {
+                      final currentContent = contents[controller.currentIndex.value];
+                      return SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Animated image transition
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            transitionBuilder: (Widget child, Animation<double> animation) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: SlideTransition(
+                                  position: Tween<Offset>(
+                                    begin: const Offset(0.3, 0),
+                                    end: Offset.zero,
+                                  ).animate(animation),
+                                  child: child,
                                 ),
-                                const SpaceWidget(spaceHeight: 10),
-                                Expanded(
-                                  child: TextWidget(
-                                    text: contents[i].description,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w400,
-                                    fontColor: AppColors.black,
-                                    textAlignment: isRTL
-                                        ? TextAlign.right
-                                        : TextAlign.left,
-                                    maxLines: 4,
-                                  ),
-                                ),
-                              ],
+                              );
+                            },
+                            child: ImageWidget(
+                              key: ValueKey(currentContent.image),
+                              imagePath: currentContent.image,
+                              height: screenHeight > 700
+                                  ? ResponsiveUtils.height(480)
+                                  : ResponsiveUtils.height(380),
+                              width: double.infinity,
                             ),
                           ),
-                        ),
-                      ],
-                    );
-                  },
+                          const SpaceWidget(spaceHeight: 10),
+
+                          // Fixed dots indicator
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 20),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: List.generate(
+                                  contents.length,
+                                  (index) => _buildDot(index, controller),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SpaceWidget(spaceHeight: 10),
+
+                          // Animated title transition
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            transitionBuilder: (Widget child, Animation<double> animation) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: SlideTransition(
+                                  position: Tween<Offset>(
+                                    begin: const Offset(0, 0.3),
+                                    end: Offset.zero,
+                                  ).animate(animation),
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              key: ValueKey(currentContent.title),
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: TextWidget(
+                                text: currentContent.title,
+                                fontSize: 27,
+                                fontWeight: FontWeight.w600,
+                                fontColor: AppColors.black,
+                              ),
+                            ),
+                          ),
+                          const SpaceWidget(spaceHeight: 10),
+
+                          // Animated description transition
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            transitionBuilder: (Widget child, Animation<double> animation) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: SlideTransition(
+                                  position: Tween<Offset>(
+                                    begin: const Offset(0, 0.3),
+                                    end: Offset.zero,
+                                  ).animate(animation),
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              key: ValueKey(currentContent.description),
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: TextWidget(
+                                text: currentContent.description,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                                fontColor: AppColors.black,
+                                textAlignment: isRTL ? TextAlign.right : TextAlign.left,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 3,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 120),
+                        ],
+                      )
+                      );
+                    },
+                  ),
                 ),
               ),
-              Positioned(
-                top: screenHeight > 700
-                    ? ResponsiveUtils.height(500)
-                    : ResponsiveUtils.height(
-                        400), // Adjust position for smaller screens
-                left: isRTL ? null : ResponsiveUtils.width(24),
-                right: isRTL ? ResponsiveUtils.width(24) : null,
-                child: GetX<OnboardingController>(
-                  builder: (controller) => Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      contents.length,
-                      (index) => _buildDot(index, controller),
-                    ),
+
+              // Invisible PageView for swipe detection
+              SizedBox(
+                height: 0,
+                child: NotificationListener<OverscrollIndicatorNotification>(
+                  onNotification: (overScroll) {
+                    overScroll.disallowIndicator();
+                    return true;
+                  },
+                  child: PageView.builder(
+                    controller: controller.pageController,
+                    onPageChanged: controller.updateIndex,
+                    itemCount: contents.length,
+                    itemBuilder: (_, i) => const SizedBox.shrink(),
                   ),
                 ),
               ),

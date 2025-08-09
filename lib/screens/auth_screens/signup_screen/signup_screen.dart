@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/app_colors.dart';
+import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/auth_screens/signup_screen/controller/signup_controller.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/phone_field_widget/phone_field_widget.dart';
@@ -91,6 +92,23 @@ class SignupScreen extends StatelessWidget {
                       fontWeight: FontWeight.w400,
                       fontColor: AppColors.black,
                       textAlignment: TextAlign.left,
+                    ),
+                    const SpaceWidget(spaceWidth: 02,),
+                    InkWell(
+                      splashColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      onTap: () {
+                        Get.toNamed(AppRoutes.termsNConditions);
+                      },
+                      child: TextWidget(
+                        text: "termsNconditions".tr,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontColor: AppColors.black,
+                        textAlignment: TextAlign.left,
+                        underline: true,
+                      
+                      ),
                     ),
                   ],
                 ),

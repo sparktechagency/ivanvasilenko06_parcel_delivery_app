@@ -40,4 +40,5 @@ class AppRoutes {
   static const radiusMapScreenDetails = '/radiusMapScreenDetails';
   static const parcelDetailsScreen = '/parcelDetailsScreen';
   static const serviceScreenDeliveryDetails = '/serviceScreenDeliveryDetails';
+  static const termsNConditions = "/termNConditions";
 }

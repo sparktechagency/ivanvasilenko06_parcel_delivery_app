@@ -676,7 +676,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 const SpaceWidget(spaceWidth: 6),
                                 TextWidget(
                                   text:
-                                      "${profileController.profileData.value.data?.user?.totalReceivedParcels} "
+                                      "${profileController.profileData.value.data?.user?.totalDelivered} "
                                       "${"orderDelivered".tr}",
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,
@@ -699,7 +699,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 const SpaceWidget(spaceWidth: 6),
                                 TextWidget(
                                   text:
-                                      "${profileController.profileData.value.data?.user?.totalDelivered}  "
+                                      "${profileController.profileData.value.data?.user?.totalReceivedParcels}  "
                                       "${"orderReceived".tr}",
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,

@@ -62,7 +62,7 @@
   "view": "View",
   "accept": "Accept",
   "basicInfo": "Basic Information",
-  "orderCompleted": "Orders",
+  "orderCompleted": "Complete",
   "orderDelivered": "Delivered",
   "orderReceived": "Received",
   "name": "Name",
@@ -183,5 +183,8 @@
   "parcel/deliveryUpdates" : "Parcel/Delivery Updates",
   "avaiableDeliveries" : "Available Deliveries",
   "feedback" : "Feedback",
-  "acceptTerms" : "I agree with the Terms & Condition"
+  "acceptTerms" : "I agree with the ",
+  "termsNconditions": "Terms & Conditions",
+  "iagree" : "I agree",
+  "refresh": "Refresh"
 }

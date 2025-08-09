@@ -61,9 +61,9 @@
   "view": "הצג",
   "accept": "אשר",
   "basicInfo": "מידע בסיסי",
-  "orderCompleted": "הזמנות שהושלמו",
-  "orderDelivered": "הזמנות שנמסרו",
-  "orderReceived": "הזמנות שהתקבלו",
+  "orderCompleted": " שהושלמו",
+  "orderDelivered": " שנמסרו",
+  "orderReceived": " שהתקבלו",
   "name": "שם",
   "interestedInReceivingDeliveries": "מעוניין לקבל משלוחים?",
   "ivan": "איוון סומרהולדר",
@@ -179,5 +179,8 @@
   "parcel/deliveryUpdates": "עדכוני חבילות/משלוחים",
   "availableDeliveries" : "משלוחים זמינים",
   "feedback" : "משוב",
-  "acceptTerms" : "אני מסכים עם תנאי השימוש"
+  "acceptTerms" : "אני מסכים עם ",
+  "termsNconditions": " תנאים והגבלות",
+  "iagree" : "אני מסכים",
+  "refresh": "רענן"
 }
