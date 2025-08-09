@@ -7,7 +7,6 @@ import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart'
 import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
 import 'package:parcel_delivery_app/services/deviceInfo/device_info.dart';
 import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
-import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 
 class SignUpScreenController extends GetxController {
   RxBool isLoading = false.obs;
@@ -28,12 +27,6 @@ class SignUpScreenController extends GetxController {
   Future<void> phoneOtpSignup() async {
     try {
       if (signUpFormKey.currentState!.validate()) {
-        if (!isTermsAccepted.value) {
-          AppSnackBar.error(
-              "Please accept the terms and conditions to continue");
-          return;
-        }
-
         isLoading.value = true;
         var fcmToken =
             await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);

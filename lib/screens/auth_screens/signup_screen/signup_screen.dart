@@ -142,13 +142,21 @@ class SignupScreen extends StatelessWidget {
                 child: Icon(Icons.arrow_back, color: AppColors.black),
               ),
             ),
-            ButtonWidget(
-              onPressed: () => controller.phoneOtpSignup(),
+            Obx(() => ButtonWidget(
+              onPressed: controller.isTermsAccepted.value 
+                  ? () => controller.phoneOtpSignup()
+                  : null,
               label: "next".tr,
               icon: Icons.arrow_forward,
               buttonWidth: 120,
               buttonHeight: 50,
-            ),
+              backgroundColor: controller.isTermsAccepted.value 
+                  ? AppColors.black 
+                  : AppColors.greyLight,
+              textColor: controller.isTermsAccepted.value 
+                  ? AppColors.white 
+                  : AppColors.grey,
+            )),
           ],
         ),
       ),
