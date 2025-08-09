@@ -41,4 +41,5 @@ class AppApiUrl {
   static const String phoneOtpResend = "$baseUrl/auth/resend-otp";
   static const String appReveiw = "$baseUrl/review";
   static const String token = "";
+  static const String termAndCondtion = "$baseUrl/rule/terms-and-conditions";
 }

@@ -29,6 +29,7 @@ class _PageTwoState extends State<PageTwo> {
   final FocusNode _startingFocusNode = FocusNode();
   final FocusNode _endingFocusNode = FocusNode();
   Set<Marker> _markers = {};
+  // ignore: unused_field
   bool _mapInitialized = false;
   Marker? _currentLocationMarker;
   String? _currentLocationAddress;
