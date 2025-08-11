@@ -55,15 +55,17 @@ class OnboardingScreen extends GetView<OnboardingController> {
                   },
                   child: GetX<OnboardingController>(
                     builder: (controller) {
-                      final currentContent = contents[controller.currentIndex.value];
+                      final currentContent =
+                          contents[controller.currentIndex.value];
                       return SingleChildScrollView(
-                      child: Column(
+                          child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Animated image transition
                           AnimatedSwitcher(
                             duration: const Duration(milliseconds: 300),
-                            transitionBuilder: (Widget child, Animation<double> animation) {
+                            transitionBuilder:
+                                (Widget child, Animation<double> animation) {
                               return FadeTransition(
                                 opacity: animation,
                                 child: SlideTransition(
@@ -105,7 +107,8 @@ class OnboardingScreen extends GetView<OnboardingController> {
                           // Animated title transition
                           AnimatedSwitcher(
                             duration: const Duration(milliseconds: 300),
-                            transitionBuilder: (Widget child, Animation<double> animation) {
+                            transitionBuilder:
+                                (Widget child, Animation<double> animation) {
                               return FadeTransition(
                                 opacity: animation,
                                 child: SlideTransition(
@@ -119,7 +122,8 @@ class OnboardingScreen extends GetView<OnboardingController> {
                             },
                             child: Padding(
                               key: ValueKey(currentContent.title),
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
                               child: TextWidget(
                                 text: currentContent.title,
                                 fontSize: 27,
@@ -133,7 +137,8 @@ class OnboardingScreen extends GetView<OnboardingController> {
                           // Animated description transition
                           AnimatedSwitcher(
                             duration: const Duration(milliseconds: 300),
-                            transitionBuilder: (Widget child, Animation<double> animation) {
+                            transitionBuilder:
+                                (Widget child, Animation<double> animation) {
                               return FadeTransition(
                                 opacity: animation,
                                 child: SlideTransition(
@@ -147,13 +152,15 @@ class OnboardingScreen extends GetView<OnboardingController> {
                             },
                             child: Padding(
                               key: ValueKey(currentContent.description),
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
                               child: TextWidget(
                                 text: currentContent.description,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w400,
                                 fontColor: AppColors.black,
-                                textAlignment: isRTL ? TextAlign.right : TextAlign.left,
+                                textAlignment:
+                                    isRTL ? TextAlign.right : TextAlign.left,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 3,
                               ),
@@ -161,8 +168,7 @@ class OnboardingScreen extends GetView<OnboardingController> {
                           ),
                           const SizedBox(height: 120),
                         ],
-                      )
-                      );
+                      ));
                     },
                   ),
                 ),

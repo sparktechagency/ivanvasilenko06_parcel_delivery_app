@@ -16,8 +16,7 @@ class PageThree extends StatefulWidget {
 }
 
 class _PageThreeState extends State<PageThree> {
-  final ParcelController parcelController =
-      Get.put(ParcelController()); // Initialize the controller
+  ParcelController? _parcelController;
 
   DateTime? _fromDateTime;
   DateTime? _toDateTime;
@@ -35,6 +34,17 @@ class _PageThreeState extends State<PageThree> {
     );
   }
 
+  @override
+  void initState() {
+    super.initState();
+    // Initialize controller safely
+    try {
+      _parcelController = Get.find<ParcelController>();
+    } catch (e) {
+      _parcelController = Get.put(ParcelController());
+    }
+  }
+
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) async {
     if (!mounted) return; // Early return if widget is not mounted
 
@@ -46,6 +56,7 @@ class _PageThreeState extends State<PageThree> {
         if (!mounted) return; // Check if widget is still mounted
 
         try {
+          if (!mounted) return;
           TimeOfDay? startTime = await _selectTime(context, "Select Start Time",
               const TimeOfDay(hour: 9, minute: 0));
 
@@ -64,7 +75,7 @@ class _PageThreeState extends State<PageThree> {
             });
 
             // Update controller outside setState to avoid potential issues
-            parcelController.setStartDateTime(newDateTime);
+            _parcelController?.setStartDateTime(newDateTime);
           }
         } catch (e) {
           // Handle any errors that might occur during time selection
@@ -79,6 +90,7 @@ class _PageThreeState extends State<PageThree> {
         if (!mounted) return; // Check if widget is still mounted
 
         try {
+          if (!mounted) return;
           TimeOfDay? endTime = await _selectTime(
               context, "Select End Time", const TimeOfDay(hour: 9, minute: 0));
 
@@ -97,7 +109,7 @@ class _PageThreeState extends State<PageThree> {
             });
 
             // Update controller outside setState to avoid potential issues
-            parcelController.setEndDateTime(newDateTime);
+            _parcelController?.setEndDateTime(newDateTime);
           }
         } catch (e) {
           // Handle any errors that might occur during time selection

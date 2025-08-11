@@ -36,14 +36,24 @@ class _PageTwoState extends State<PageTwo> {
   bool _showCurrentLocationMarker = false;
   bool _locationLoaded = false;
 
+  // Add controller reference
+  ParcelController? _parcelController;
+
   @override
   void initState() {
     super.initState();
+    // Initialize controller safely
+    try {
+      _parcelController = Get.find<ParcelController>();
+    } catch (e) {
+      _parcelController = Get.put(ParcelController());
+    }
+
     // Clear existing polylines and markers when initializing
     _clearPreviousRouteData();
     _getCurrentLocation();
     _startingFocusNode.addListener(() {
-      if (_startingFocusNode.hasFocus) {
+      if (_startingFocusNode.hasFocus && mounted) {
         setState(() {
           _activeLocationType = 'starting';
         });
@@ -51,7 +61,7 @@ class _PageTwoState extends State<PageTwo> {
     });
 
     _endingFocusNode.addListener(() {
-      if (_endingFocusNode.hasFocus) {
+      if (_endingFocusNode.hasFocus && mounted) {
         setState(() {
           _activeLocationType = 'ending';
         });
@@ -80,10 +90,15 @@ class _PageTwoState extends State<PageTwo> {
     // Clear stored coordinates
     _locationRepository.clearLocationCoordinates();
 
-    // Clear markers
-    setState(() {
+    // Clear markers only if widget is still mounted
+    if (mounted) {
+      setState(() {
+        _markers = {};
+      });
+    } else {
+      // If not mounted, just clear the markers without setState
       _markers = {};
-    });
+    }
   }
 
   Future<void> _getCurrentLocation() async {
@@ -147,16 +162,22 @@ class _PageTwoState extends State<PageTwo> {
 
   // Handle place autocomplete
   Future<void> _placeAutoComplete(String query) async {
+    if (!mounted) return;
+
     if (query.isEmpty) {
-      setState(() {
-        _placePredictions = [];
-      });
+      if (mounted) {
+        setState(() {
+          _placePredictions = [];
+        });
+      }
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
 
     try {
       final predictions = await _locationRepository.placeAutoComplete(query);
@@ -206,6 +227,8 @@ class _PageTwoState extends State<PageTwo> {
 
   void _onStartingLocationSelected(String placeId, String description,
       {bool isCurrentLocation = false}) async {
+    if (!mounted) return;
+
     // Update UI immediately
     setState(() {
       _placePredictions = [];
@@ -214,8 +237,8 @@ class _PageTwoState extends State<PageTwo> {
       _showCurrentLocationMarker = isCurrentLocation;
     });
 
-    // Update controller
-    Get.find<ParcelController>().setStartingLocation(description);
+    // Update controller safely
+    _parcelController?.setStartingLocation(description);
 
     if (isCurrentLocation) {
       // Use current location
@@ -230,30 +253,34 @@ class _PageTwoState extends State<PageTwo> {
         );
 
         // Update markers
-        setState(() {
-          _markers = {};
+        if (mounted) {
+          setState(() {
+            _markers = {};
 
-          // Add current location marker when using current location as pickup
-          if (_currentLocationMarker != null && _showCurrentLocationMarker) {
-            _markers.add(_currentLocationMarker!);
-          }
+            // Add current location marker when using current location as pickup
+            if (_currentLocationMarker != null && _showCurrentLocationMarker) {
+              _markers.add(_currentLocationMarker!);
+            }
 
-          // Add pickup marker at same location
-          final pickupMarker = Marker(
-            markerId: const MarkerId('starting_location'),
-            position: _locationRepository.currentLocationCoordinates!,
-            icon:
-                BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-            infoWindow: const InfoWindow(title: 'Pickup Location'),
-          );
+            // Add pickup marker at same location
+            final pickupMarker = Marker(
+              markerId: const MarkerId('starting_location'),
+              position: _locationRepository.currentLocationCoordinates!,
+              icon: BitmapDescriptor.defaultMarkerWithHue(
+                  BitmapDescriptor.hueRed),
+              infoWindow: const InfoWindow(title: 'Pickup Location'),
+            );
 
-          _markers.add(pickupMarker);
-        });
+            _markers.add(pickupMarker);
+          });
+        }
 
         // If we already have an ending location, fetch directions
         if (_locationRepository.endingLocationCoordinates != null) {
           await _locationRepository.fetchDirections();
-          setState(() {}); // Trigger rebuild to show polyline
+          if (mounted) {
+            setState(() {}); // Trigger rebuild to show polyline
+          }
         }
       }
     } else {
@@ -270,18 +297,22 @@ class _PageTwoState extends State<PageTwo> {
           );
 
           // Update markers - hide current location marker
-          setState(() {
-            // Start with empty set
-            _markers = {};
+          if (mounted) {
+            setState(() {
+              // Start with empty set
+              _markers = {};
 
-            // Add repository markers (but not current location marker unless explicitly shown)
-            _markers.addAll(_locationRepository.markers);
-          });
+              // Add repository markers (but not current location marker unless explicitly shown)
+              _markers.addAll(_locationRepository.markers);
+            });
+          }
 
           // If we already have an ending location, fetch directions
           if (_locationRepository.endingLocationCoordinates != null) {
             await _locationRepository.fetchDirections();
-            setState(() {}); // Ensure UI updates to show polyline
+            if (mounted) {
+              setState(() {}); // Ensure UI updates to show polyline
+            }
           }
         }
       } catch (e) {
@@ -290,11 +321,15 @@ class _PageTwoState extends State<PageTwo> {
     }
 
     // Unfocus keyboard
-    FocusScope.of(context).unfocus();
+    if (mounted) {
+      FocusScope.of(context).unfocus();
+    }
   }
 
   // Handle ending location selection
   void _onEndingLocationSelected(String placeId, String description) async {
+    if (!mounted) return;
+
     // Update UI immediately
     setState(() {
       _placePredictions = [];
@@ -302,8 +337,8 @@ class _PageTwoState extends State<PageTwo> {
       _activeLocationType = '';
     });
 
-    // Update controller
-    Get.find<ParcelController>().setEndingLocation(description);
+    // Update controller safely
+    _parcelController?.setEndingLocation(description);
 
     try {
       final location =
@@ -316,25 +351,31 @@ class _PageTwoState extends State<PageTwo> {
         );
 
         // Update markers
-        setState(() {
-          // Start with empty set
-          _markers = {};
-          if (_showCurrentLocationMarker && _currentLocationMarker != null) {
-            _markers.add(_currentLocationMarker!);
-          }
-          _markers.addAll(_locationRepository.markers);
-        });
+        if (mounted) {
+          setState(() {
+            // Start with empty set
+            _markers = {};
+            if (_showCurrentLocationMarker && _currentLocationMarker != null) {
+              _markers.add(_currentLocationMarker!);
+            }
+            _markers.addAll(_locationRepository.markers);
+          });
+        }
 
         if (_locationRepository.startingLocationCoordinates != null) {
           await _locationRepository.fetchDirections();
-          setState(() {});
+          if (mounted) {
+            setState(() {});
+          }
         }
       }
     } catch (e) {
       debugPrint('Error fetching ending location details: $e');
     }
 
-    FocusScope.of(context).unfocus();
+    if (mounted) {
+      FocusScope.of(context).unfocus();
+    }
   }
 
   Widget _buildPredictionsList() {
@@ -439,13 +480,16 @@ class _PageTwoState extends State<PageTwo> {
                 controller: startingController,
                 focusNode: _startingFocusNode,
                 onChanged: (query) {
-                  setState(() {
-                    _activeLocationType = 'starting';
-                  });
-                  _placeAutoComplete(query);
+                  if (mounted) {
+                    setState(() {
+                      _activeLocationType = 'starting';
+                    });
+                    _placeAutoComplete(query);
+                  }
                 },
                 onTap: () {
-                  if (_startingFocusNode.hasFocus &&
+                  if (mounted &&
+                      _startingFocusNode.hasFocus &&
                       _activeLocationType == 'starting') {
                     // Show current location option immediately when tapping on starting field
                     if (_currentLocationAddress != null) {
@@ -477,10 +521,12 @@ class _PageTwoState extends State<PageTwo> {
                 controller: endingController,
                 focusNode: _endingFocusNode,
                 onChanged: (query) {
-                  setState(() {
-                    _activeLocationType = 'ending';
-                  });
-                  _placeAutoComplete(query);
+                  if (mounted) {
+                    setState(() {
+                      _activeLocationType = 'ending';
+                    });
+                    _placeAutoComplete(query);
+                  }
                 },
                 style: const TextStyle(
                   color: AppColors.black,
@@ -561,10 +607,12 @@ class _PageTwoState extends State<PageTwo> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
-                  setState(() {
-                    _locationLoaded = false;
-                  });
-                  _getCurrentLocation();
+                  if (mounted) {
+                    setState(() {
+                      _locationLoaded = false;
+                    });
+                    _getCurrentLocation();
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.black,
@@ -587,16 +635,18 @@ class _PageTwoState extends State<PageTwo> {
           zoom: 15.0, // Increased zoom for better view
         ),
         onMapCreated: (GoogleMapController controller) {
-          setState(() {
-            _mapController = controller;
-            _mapInitialized = true;
-          });
+          if (mounted) {
+            setState(() {
+              _mapController = controller;
+              _mapInitialized = true;
+            });
 
-          // Animate to current location immediately after map creation
-          _mapController?.animateCamera(
-            CameraUpdate.newLatLng(
-                _locationRepository.currentLocationCoordinates!),
-          );
+            // Animate to current location immediately after map creation
+            _mapController?.animateCamera(
+              CameraUpdate.newLatLng(
+                  _locationRepository.currentLocationCoordinates!),
+            );
+          }
         },
         mapType: MapType.terrain,
         markers: _markers,
@@ -637,11 +687,13 @@ class _PageTwoState extends State<PageTwo> {
       body: GestureDetector(
         onTap: () {
           //! Close keyboard when tapping outside of text fields
-          FocusScope.of(context).unfocus();
-          setState(() {
-            _placePredictions = [];
-            _activeLocationType = '';
-          });
+          if (mounted) {
+            FocusScope.of(context).unfocus();
+            setState(() {
+              _placePredictions = [];
+              _activeLocationType = '';
+            });
+          }
         },
         child: SafeArea(
           child: Stack(
