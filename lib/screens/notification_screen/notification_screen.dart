@@ -171,41 +171,124 @@ class _NotificationScreenState extends State<NotificationScreen>
       _showErrorSnackBar('No phone number available');
       return;
     }
-    //! Format the phone number (remove any non-digit characters)
-    String formattedNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
-    try {
-      //! Direct WhatsApp intent
-      if (Platform.isAndroid) {
-        //! Try Android-specific direct intent first (most reliable)
-        final Uri androidUri = Uri.parse(
-            "intent://send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}#Intent;scheme=whatsapp;package=com.whatsapp;end");
 
-        if (await canLaunchUrl(androidUri)) {
-          await launchUrl(androidUri);
-          return;
+    // Format the phone number (remove any non-digit characters)
+    String formattedNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
+
+    // Ensure the number has country code format
+    if (!formattedNumber.startsWith('+')) {
+      formattedNumber = '+$formattedNumber';
+    }
+
+    // Remove + for certain URL schemes that don't need it
+    String numberWithoutPlus = formattedNumber.startsWith('+')
+        ? formattedNumber.substring(1)
+        : formattedNumber;
+
+    try {
+      // Simplified approach - try the most reliable methods first
+      List<Map<String, String>> whatsappMethods = [
+        // Universal web link (works for all WhatsApp variants)
+        {
+          'url':
+              "https://wa.me/$numberWithoutPlus?text=${Uri.encodeComponent(message)}",
+          'description': 'WhatsApp universal web link'
+        },
+
+        // Native WhatsApp schemes
+        {
+          'url':
+              "whatsapp://send?phone=$numberWithoutPlus&text=${Uri.encodeComponent(message)}",
+          'description': 'WhatsApp native scheme'
+        },
+
+        // Alternative API link
+        {
+          'url':
+              "https://api.whatsapp.com/send?phone=$numberWithoutPlus&text=${Uri.encodeComponent(message)}",
+          'description': 'WhatsApp API link'
+        },
+      ];
+
+      bool success = false;
+
+      for (var method in whatsappMethods) {
+        try {
+          final Uri uri = Uri.parse(method['url']!);
+          log('Trying ${method['description']}: ${method['url']}');
+
+          // Try to launch the URL
+          try {
+            await launchUrl(
+              uri,
+              mode: LaunchMode.externalApplication,
+            );
+            log('✅ Successfully launched via ${method['description']}');
+            success = true;
+            break;
+          } catch (e) {
+            log('❌ Failed to launch ${method['description']}: $e');
+            continue;
+          }
+        } catch (e) {
+          log('❌ Error parsing URL for ${method['description']}: $e');
+          continue;
         }
       }
-      final Uri whatsappUri = Uri.parse(
-          "whatsapp://send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}");
 
-      if (await canLaunchUrl(whatsappUri)) {
-        await launchUrl(whatsappUri,
-            mode: LaunchMode.externalNonBrowserApplication);
-        return;
-      }
-      final Uri webUri = Uri.parse(
-          "https://api.whatsapp.com/send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}");
+      if (!success) {
+        // Final fallback: try to open any WhatsApp app without message
+        try {
+          final List<String> fallbackSchemes = [
+            'whatsapp://',
+            'https://wa.me/',
+          ];
 
-      if (await canLaunchUrl(webUri)) {
-        await launchUrl(webUri, mode: LaunchMode.externalApplication);
-        return;
+          for (String scheme in fallbackSchemes) {
+            try {
+              final Uri fallbackUri = Uri.parse(scheme);
+              await launchUrl(fallbackUri,
+                  mode: LaunchMode.externalApplication);
+              _showErrorSnackBar(
+                  'WhatsApp opened. Please manually navigate to contact: $phoneNumber');
+              success = true;
+              break;
+            } catch (e) {
+              log('Fallback scheme $scheme failed: $e');
+              continue;
+            }
+          }
+        } catch (e) {
+          log('All fallback methods failed: $e');
+        }
+
+        if (!success) {
+          // If everything fails, provide helpful error message
+          log('❌ All WhatsApp methods failed');
+          _showErrorSnackBar(
+              'Unable to open WhatsApp. Please ensure WhatsApp is installed and try again.');
+        }
       }
-      log('Could not find any WhatsApp method that works');
-      _showErrorSnackBar('WhatsApp not installed or accessible');
     } catch (e) {
-      log('Error opening WhatsApp: $e');
-      _showErrorSnackBar('Error opening WhatsApp');
+      log('❌ Critical error in _openWhatsApp: $e');
+      _showErrorSnackBar('Error opening WhatsApp: ${e.toString()}');
     }
+  }
+
+  //! Enhanced WhatsApp opening with availability check
+  Future<void> _openWhatsAppWithCheck(
+      String phoneNumber, String message) async {
+    if (phoneNumber.isEmpty) {
+      _showErrorSnackBar('No phone number available');
+      return;
+    }
+
+    // Skip availability check and directly try to open WhatsApp
+    // This is more reliable as the availability check can be unreliable
+    log('Attempting to open WhatsApp for number: $phoneNumber');
+
+    // Proceed with opening WhatsApp - let the _openWhatsApp method handle all fallbacks
+    await _openWhatsApp(phoneNumber, message);
   }
 
   void _showErrorSnackBar(String message) {
@@ -663,7 +746,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                     ),
                     child: const Center(
                       child: TextWidget(
-                        text: "👉 Check Service Section to Send Request 👈",
+                        text: "👉 Check Deliveries Section to Send Request 👈",
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
                         fontColor: AppColors.green,
@@ -757,8 +840,8 @@ class _NotificationScreenState extends State<NotificationScreen>
     if (deliveryLocationLong != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          cacheAddressForParcel(notificationId, 'delivery', deliveryLocationLat!,
-              deliveryLocationLong);
+          cacheAddressForParcel(notificationId, 'delivery',
+              deliveryLocationLat!, deliveryLocationLong);
         }
       });
     }
@@ -991,7 +1074,8 @@ class _NotificationScreenState extends State<NotificationScreen>
                             : Row(
                                 children: [
                                   InkWell(
-                                    onTap: () => _openWhatsApp(mobileNumber,
+                                    onTap: () => _openWhatsAppWithCheck(
+                                        mobileNumber,
                                         "Hello, regarding your parcel delivery."),
                                     borderRadius: BorderRadius.circular(100),
                                     child: const CircleAvatar(

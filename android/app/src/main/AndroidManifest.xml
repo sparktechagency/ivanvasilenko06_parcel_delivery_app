@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name="${applicationName}"
@@ -52,9 +54,27 @@
         </intent>
     </queries>
     <queries>
+        <!-- WhatsApp packages -->
         <package android:name="com.whatsapp" />
+        <package android:name="com.whatsapp.w4b" />
+        
+        <!-- WhatsApp intents -->
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="text/plain" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="whatsapp" />
+        </intent>
+        
+        <!-- Phone call intents -->
         <intent>
             <action android:name="android.intent.action.DIAL" />
+            <data android:scheme="tel" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.CALL" />
             <data android:scheme="tel" />
         </intent>
     </queries>

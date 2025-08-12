@@ -241,7 +241,6 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   //! Function to send a message
-
   Future<void> _openWhatsApp(String phoneNumber, String message) async {
     if (phoneNumber.isEmpty) {
       _showErrorSnackBar('No phone number available');
@@ -251,39 +250,162 @@ class _BookingScreenState extends State<BookingScreen> {
     // Format the phone number (remove any non-digit characters)
     String formattedNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
 
-    // Ensure the number has country code (add + if not present)
+    // Ensure the number has country code format
     if (!formattedNumber.startsWith('+')) {
       formattedNumber = '+$formattedNumber';
     }
 
+    // Remove + for certain URL schemes that don't need it
+    String numberWithoutPlus = formattedNumber.startsWith('+')
+        ? formattedNumber.substring(1)
+        : formattedNumber;
+
     try {
-      // Try different WhatsApp URL schemes in order of reliability
-      List<String> whatsappUrls = [
-        "whatsapp://send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}",
-        "https://wa.me/$formattedNumber?text=${Uri.encodeComponent(message)}",
-        "https://api.whatsapp.com/send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}"
+      // Simplified approach - try the most reliable methods first
+      List<Map<String, String>> whatsappMethods = [
+        // Universal web link (works for all WhatsApp variants)
+        {
+          'url':
+              "https://wa.me/$numberWithoutPlus?text=${Uri.encodeComponent(message)}",
+          'description': 'WhatsApp universal web link'
+        },
+
+        // Native WhatsApp schemes
+        {
+          'url':
+              "whatsapp://send?phone=$numberWithoutPlus&text=${Uri.encodeComponent(message)}",
+          'description': 'WhatsApp native scheme'
+        },
+
+        // Alternative API link
+        {
+          'url':
+              "https://api.whatsapp.com/send?phone=$numberWithoutPlus&text=${Uri.encodeComponent(message)}",
+          'description': 'WhatsApp API link'
+        },
       ];
-      
-      for (String urlString in whatsappUrls) {
+
+      bool success = false;
+
+      for (var method in whatsappMethods) {
         try {
-          final Uri uri = Uri.parse(urlString);
-          if (await canLaunchUrl(uri)) {
-            await launchUrl(uri, mode: LaunchMode.externalApplication);
-            return;
+          final Uri uri = Uri.parse(method['url']!);
+          log('Trying ${method['description']}: ${method['url']}');
+
+          // Try to launch the URL
+          try {
+            await launchUrl(
+              uri,
+              mode: LaunchMode.externalApplication,
+            );
+            log('✅ Successfully launched via ${method['description']}');
+            success = true;
+            break;
+          } catch (e) {
+            log('❌ Failed to launch ${method['description']}: $e');
+            continue;
           }
         } catch (e) {
-          log('Failed to launch $urlString: $e');
+          log('❌ Error parsing URL for ${method['description']}: $e');
           continue;
         }
       }
 
-      // If all methods fail, show error
-      log('Could not find any working WhatsApp method');
-      _showErrorSnackBar('WhatsApp not installed or unable to open');
+      if (!success) {
+        // Final fallback: try to open any WhatsApp app without message
+        try {
+          final List<String> fallbackSchemes = [
+            'whatsapp://',
+            'https://wa.me/',
+          ];
+
+          for (String scheme in fallbackSchemes) {
+            try {
+              final Uri fallbackUri = Uri.parse(scheme);
+              await launchUrl(fallbackUri,
+                  mode: LaunchMode.externalApplication);
+              _showErrorSnackBar(
+                  'WhatsApp opened. Please manually navigate to contact: $phoneNumber');
+              success = true;
+              break;
+            } catch (e) {
+              log('Fallback scheme $scheme failed: $e');
+              continue;
+            }
+          }
+        } catch (e) {
+          log('All fallback methods failed: $e');
+        }
+
+        if (!success) {
+          // If everything fails, provide helpful error message
+          log('❌ All WhatsApp methods failed');
+          _showErrorSnackBar(
+              'Unable to open WhatsApp. Please ensure WhatsApp is installed and try again.');
+        }
+      }
     } catch (e) {
-      log('Error opening WhatsApp: $e');
+      log('❌ Critical error in _openWhatsApp: $e');
       _showErrorSnackBar('Error opening WhatsApp: ${e.toString()}');
     }
+  }
+
+  //! Helper method to check WhatsApp availability
+  // ignore: unused_element
+  Future<Map<String, bool>> _checkWhatsAppAvailability() async {
+    Map<String, bool> availability = {
+      'whatsapp': false,
+      'whatsapp_business': false,
+    };
+
+    try {
+      // Check regular WhatsApp
+      final whatsappUri = Uri.parse('whatsapp://');
+      availability['whatsapp'] = await canLaunchUrl(whatsappUri);
+
+      // For WhatsApp Business, try multiple detection methods
+      if (Platform.isAndroid) {
+        // Method 1: Try WhatsApp Business specific scheme
+        try {
+          final businessUri = Uri.parse('whatsapp://send?phone=1234567890');
+          availability['whatsapp_business'] = await canLaunchUrl(businessUri);
+        } catch (e) {
+          log('WhatsApp Business scheme check failed: $e');
+        }
+
+        // Method 2: If regular WhatsApp check failed, assume any WhatsApp variant might be available
+        if (!availability['whatsapp']!) {
+          try {
+            final webWhatsappUri = Uri.parse('https://wa.me/1234567890');
+            availability['whatsapp'] = await canLaunchUrl(webWhatsappUri);
+          } catch (e) {
+            log('Web WhatsApp check failed: $e');
+          }
+        }
+      }
+
+      log('WhatsApp availability: $availability');
+    } catch (e) {
+      log('Error checking WhatsApp availability: $e');
+    }
+
+    return availability;
+  }
+
+  //! Enhanced WhatsApp opening with availability check
+  Future<void> _openWhatsAppWithCheck(
+      String phoneNumber, String message) async {
+    if (phoneNumber.isEmpty) {
+      _showErrorSnackBar('No phone number available');
+      return;
+    }
+
+    // Skip availability check and directly try to open WhatsApp
+    // This is more reliable as the availability check can be unreliable
+    log('Attempting to open WhatsApp for number: $phoneNumber');
+
+    // Proceed with opening WhatsApp - let the _openWhatsApp method handle all fallbacks
+    await _openWhatsApp(phoneNumber, message);
   }
 
   //! Helper method to show error messages
@@ -294,6 +416,19 @@ class _BookingScreenState extends State<BookingScreen> {
         content: Text(message),
         backgroundColor: Colors.red,
         duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  //! Helper method to show success messages
+  // ignore: unused_element
+  void _showSuccessSnackBar(String message) {
+    final scaffoldMessenger = ScaffoldMessenger.of(Get.context!);
+    scaffoldMessenger.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -901,7 +1036,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                                     "";
                                               }
                                             }
-                                            _openWhatsApp(phoneNumber,
+                                            _openWhatsAppWithCheck(phoneNumber,
                                                 "Hello, regarding your parcel delivery.");
                                           },
                                           borderRadius:

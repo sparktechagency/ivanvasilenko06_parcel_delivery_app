@@ -83,44 +83,113 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
     String formattedNumber =
         deliveryMan.mobileNumber.replaceAll(RegExp(r'\D'), '');
 
-    // Ensure the number has country code (add + if not present)
+    // Ensure the number has country code format
     if (!formattedNumber.startsWith('+')) {
       formattedNumber = '+$formattedNumber';
     }
 
+    // Remove + for certain URL schemes that don't need it
+    String numberWithoutPlus = formattedNumber.startsWith('+')
+        ? formattedNumber.substring(1)
+        : formattedNumber;
+
     String message = "Hello, regarding your parcel delivery.";
 
     try {
-      // Try different WhatsApp URL schemes in order of reliability
-      List<String> whatsappUrls = [
-        "whatsapp://send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}",
-        "https://wa.me/$formattedNumber?text=${Uri.encodeComponent(message)}",
-        "https://api.whatsapp.com/send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}"
+      // Simplified approach - try the most reliable methods first
+      List<Map<String, String>> whatsappMethods = [
+        // Universal web link (works for all WhatsApp variants)
+        {
+          'url':
+              "https://wa.me/$numberWithoutPlus?text=${Uri.encodeComponent(message)}",
+          'description': 'WhatsApp universal web link'
+        },
+
+        // Native WhatsApp schemes
+        {
+          'url':
+              "whatsapp://send?phone=$numberWithoutPlus&text=${Uri.encodeComponent(message)}",
+          'description': 'WhatsApp native scheme'
+        },
+
+        // Alternative API link
+        {
+          'url':
+              "https://api.whatsapp.com/send?phone=$numberWithoutPlus&text=${Uri.encodeComponent(message)}",
+          'description': 'WhatsApp API link'
+        },
       ];
 
-      for (String urlString in whatsappUrls) {
+      bool success = false;
+
+      for (var method in whatsappMethods) {
         try {
-          final Uri uri = Uri.parse(urlString);
-          if (await canLaunchUrl(uri)) {
-            await launchUrl(uri, mode: LaunchMode.externalApplication);
-            return;
+          final Uri uri = Uri.parse(method['url']!);
+          log('Trying ${method['description']}: ${method['url']}');
+
+          // Try to launch the URL
+          try {
+            await launchUrl(
+              uri,
+              mode: LaunchMode.externalApplication,
+            );
+            log('✅ Successfully launched via ${method['description']}');
+            success = true;
+            break;
+          } catch (e) {
+            log('❌ Failed to launch ${method['description']}: $e');
+            continue;
           }
         } catch (e) {
-          log('Failed to launch $urlString: $e');
+          log('❌ Error parsing URL for ${method['description']}: $e');
           continue;
         }
       }
 
-      // If WhatsApp fails, fallback to SMS
-      final Uri smsUri = Uri(
-          scheme: 'sms',
-          path: deliveryMan.mobileNumber,
-          queryParameters: {'body': message});
+      if (!success) {
+        // Final fallback: try to open any WhatsApp app without message
+        try {
+          final List<String> fallbackSchemes = [
+            'whatsapp://',
+            'https://wa.me/',
+          ];
 
-      if (await canLaunchUrl(smsUri)) {
-        await launchUrl(smsUri);
-      } else {
-        _showErrorSnackBar('Could not launch messaging app');
+          for (String scheme in fallbackSchemes) {
+            try {
+              final Uri fallbackUri = Uri.parse(scheme);
+              await launchUrl(fallbackUri,
+                  mode: LaunchMode.externalApplication);
+              _showErrorSnackBar(
+                  'WhatsApp opened. Please manually navigate to contact: ${deliveryMan.mobileNumber}');
+              success = true;
+              break;
+            } catch (e) {
+              log('Fallback scheme $scheme failed: $e');
+              continue;
+            }
+          }
+        } catch (e) {
+          log('All fallback methods failed: $e');
+        }
+
+        if (!success) {
+          // If WhatsApp still fails, fallback to SMS
+          try {
+            final Uri smsUri = Uri(
+                scheme: 'sms',
+                path: deliveryMan.mobileNumber,
+                queryParameters: {'body': message});
+
+            if (await canLaunchUrl(smsUri)) {
+              await launchUrl(smsUri);
+            } else {
+              _showErrorSnackBar('Could not launch messaging app');
+            }
+          } catch (e) {
+            _showErrorSnackBar(
+                'Unable to open WhatsApp or SMS. Please ensure WhatsApp is installed and try again.');
+          }
+        }
       }
     } catch (e) {
       _showErrorSnackBar('An error occurred: $e');
