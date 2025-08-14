@@ -20,9 +20,12 @@ class _PageThreeState extends State<PageThree> {
 
   DateTime? _fromDateTime;
   DateTime? _toDateTime;
+  bool _isProcessingSelection = false;
 
   Future<TimeOfDay?> _selectTime(
       BuildContext context, String title, TimeOfDay initialTime) async {
+    if (!mounted) return null;
+
     return await showDialog<TimeOfDay>(
       context: context,
       builder: (BuildContext context) {
@@ -46,76 +49,90 @@ class _PageThreeState extends State<PageThree> {
   }
 
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) async {
-    if (!mounted) return; // Early return if widget is not mounted
+    if (!mounted || _isProcessingSelection) return;
 
     if (args.value is PickerDateRange) {
       DateTime? startDate = args.value.startDate;
       DateTime? endDate = args.value.endDate;
 
-      if (_fromDateTime == null) {
-        if (!mounted) return; // Check if widget is still mounted
+      // Handle start date selection
+      if (startDate != null && _fromDateTime == null) {
+        _isProcessingSelection = true;
 
         try {
           if (!mounted) return;
-          TimeOfDay? startTime = await _selectTime(context, "Select Start Time",
+
+          final startTime = await _selectTime(context, "Select Start Time",
               const TimeOfDay(hour: 9, minute: 0));
 
-          if (startTime != null && mounted) {
-            // Check mounted again after async operation
+          if (!mounted) return;
+
+          if (startTime != null) {
             final newDateTime = DateTime(
-              startDate!.year,
+              startDate.year,
               startDate.month,
               startDate.day,
               startTime.hour,
               startTime.minute,
             );
 
-            setState(() {
-              _fromDateTime = newDateTime;
-            });
-
-            // Update controller outside setState to avoid potential issues
-            _parcelController?.setStartDateTime(newDateTime);
+            if (mounted) {
+              setState(() {
+                _fromDateTime = newDateTime;
+              });
+              _parcelController?.setStartDateTime(newDateTime);
+            }
           }
         } catch (e) {
-          // Handle any errors that might occur during time selection
           if (mounted) {
-            // Log error or show user feedback if needed
             debugPrint('Error selecting start time: $e');
+          }
+        } finally {
+          if (mounted) {
+            _isProcessingSelection = false;
           }
         }
       }
 
-      if (_toDateTime == null) {
-        if (!mounted) return; // Check if widget is still mounted
+      // Handle end date selection - only if we have both start date set AND end date is different from start date
+      else if (endDate != null &&
+          _fromDateTime != null &&
+          _toDateTime == null &&
+          endDate != startDate &&
+          !_isProcessingSelection) {
+        _isProcessingSelection = true;
 
         try {
           if (!mounted) return;
-          TimeOfDay? endTime = await _selectTime(
-              context, "Select End Time", const TimeOfDay(hour: 9, minute: 0));
 
-          if (endTime != null && mounted) {
-            // Check mounted again after async operation
+          final endTime = await _selectTime(
+              context, "Select End Time", const TimeOfDay(hour: 17, minute: 0));
+
+          if (!mounted) return;
+
+          if (endTime != null) {
             final newDateTime = DateTime(
-              endDate!.year,
+              endDate.year,
               endDate.month,
               endDate.day,
               endTime.hour,
               endTime.minute,
             );
 
-            setState(() {
-              _toDateTime = newDateTime;
-            });
-
-            // Update controller outside setState to avoid potential issues
-            _parcelController?.setEndDateTime(newDateTime);
+            if (mounted) {
+              setState(() {
+                _toDateTime = newDateTime;
+              });
+              _parcelController?.setEndDateTime(newDateTime);
+            }
           }
         } catch (e) {
-          // Handle any errors that might occur during time selection
           if (mounted) {
-            // Log error or show user feedback if needed
             debugPrint('Error selecting end time: $e');
+          }
+        } finally {
+          if (mounted) {
+            _isProcessingSelection = false;
           }
         }
       }
@@ -201,6 +218,22 @@ class _PageThreeState extends State<PageThree> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _isProcessingSelection = false;
+    super.dispose();
+  }
+
+  void _resetSelection() {
+    if (mounted) {
+      setState(() {
+        _fromDateTime = null;
+        _toDateTime = null;
+        _isProcessingSelection = false;
+      });
+    }
   }
 
   String _formatDateTime(DateTime dateTime) {

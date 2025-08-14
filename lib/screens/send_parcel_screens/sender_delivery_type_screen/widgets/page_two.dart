@@ -35,6 +35,7 @@ class _PageTwoState extends State<PageTwo> {
   String? _currentLocationAddress;
   bool _showCurrentLocationMarker = false;
   bool _locationLoaded = false;
+  bool _isDisposed = false;
 
   // Add controller reference
   ParcelController? _parcelController;
@@ -53,7 +54,7 @@ class _PageTwoState extends State<PageTwo> {
     _clearPreviousRouteData();
     _getCurrentLocation();
     _startingFocusNode.addListener(() {
-      if (_startingFocusNode.hasFocus && mounted) {
+      if (_startingFocusNode.hasFocus && mounted && !_isDisposed) {
         setState(() {
           _activeLocationType = 'starting';
         });
@@ -61,7 +62,7 @@ class _PageTwoState extends State<PageTwo> {
     });
 
     _endingFocusNode.addListener(() {
-      if (_endingFocusNode.hasFocus && mounted) {
+      if (_endingFocusNode.hasFocus && mounted && !_isDisposed) {
         setState(() {
           _activeLocationType = 'ending';
         });
@@ -71,6 +72,8 @@ class _PageTwoState extends State<PageTwo> {
 
   @override
   void dispose() {
+    _isDisposed = true;
+
     // Clear the polyline and location data when leaving the screen
     _clearPreviousRouteData();
 
@@ -102,9 +105,13 @@ class _PageTwoState extends State<PageTwo> {
   }
 
   Future<void> _getCurrentLocation() async {
+    if (_isDisposed) return;
+
     try {
       final location = await _locationRepository.getCurrentLocation();
-      if (location != null && mounted) {
+      if (_isDisposed) return;
+
+      if (location != null && mounted && !_isDisposed) {
         // Create marker for current location
         _currentLocationMarker = Marker(
           markerId: const MarkerId('current_location'),
@@ -113,23 +120,25 @@ class _PageTwoState extends State<PageTwo> {
           infoWindow: const InfoWindow(title: 'Current Location'),
         );
 
-        setState(() {
-          _markers = {..._locationRepository.markers};
-          _locationLoaded = true; // Mark location as loaded
-        });
+        if (mounted && !_isDisposed) {
+          setState(() {
+            _markers = {..._locationRepository.markers};
+            _locationLoaded = true; // Mark location as loaded
+          });
+        }
 
         // Get address for current location
         try {
           final address = await _locationRepository.getAddressFromLatLng(
               location.latitude, location.longitude);
-          if (mounted) {
+          if (mounted && !_isDisposed) {
             setState(() {
               _currentLocationAddress = address;
             });
           }
         } catch (e) {
           debugPrint('Error getting address: $e');
-          if (mounted) {
+          if (mounted && !_isDisposed) {
             setState(() {
               _currentLocationAddress = "Your Current Location";
             });
@@ -137,14 +146,14 @@ class _PageTwoState extends State<PageTwo> {
         }
 
         // Move camera to current location
-        if (_mapController != null) {
+        if (_mapController != null && !_isDisposed) {
           _mapController?.animateCamera(
             CameraUpdate.newLatLng(location),
           );
         }
       } else {
         // Handle case where location is null (permission denied, etc.)
-        if (mounted) {
+        if (mounted && !_isDisposed) {
           setState(() {
             _locationLoaded = true; // Still mark as loaded to show error state
           });
@@ -152,7 +161,7 @@ class _PageTwoState extends State<PageTwo> {
       }
     } catch (e) {
       debugPrint('Error getting current location: $e');
-      if (mounted) {
+      if (mounted && !_isDisposed) {
         setState(() {
           _locationLoaded = true; // Mark as loaded to show error state
         });
@@ -162,10 +171,10 @@ class _PageTwoState extends State<PageTwo> {
 
   // Handle place autocomplete
   Future<void> _placeAutoComplete(String query) async {
-    if (!mounted) return;
+    if (!mounted || _isDisposed) return;
 
     if (query.isEmpty) {
-      if (mounted) {
+      if (mounted && !_isDisposed) {
         setState(() {
           _placePredictions = [];
         });
@@ -173,7 +182,7 @@ class _PageTwoState extends State<PageTwo> {
       return;
     }
 
-    if (mounted) {
+    if (mounted && !_isDisposed) {
       setState(() {
         _isLoading = true;
       });
@@ -181,7 +190,9 @@ class _PageTwoState extends State<PageTwo> {
 
     try {
       final predictions = await _locationRepository.placeAutoComplete(query);
-      if (mounted) {
+      if (_isDisposed) return;
+
+      if (mounted && !_isDisposed) {
         setState(() {
           // Add current location as first suggestion if searching for starting location
           if (_activeLocationType == 'starting' &&
@@ -202,7 +213,7 @@ class _PageTwoState extends State<PageTwo> {
         });
       }
     } catch (e) {
-      if (mounted) {
+      if (mounted && !_isDisposed) {
         setState(() {
           // Even on error, add current location option for starting location
           if (_activeLocationType == 'starting' &&
@@ -227,33 +238,38 @@ class _PageTwoState extends State<PageTwo> {
 
   void _onStartingLocationSelected(String placeId, String description,
       {bool isCurrentLocation = false}) async {
-    if (!mounted) return;
+    if (!mounted || _isDisposed) return;
 
     // Update UI immediately
-    setState(() {
-      _placePredictions = [];
-      startingController.text = description;
-      _activeLocationType = '';
-      _showCurrentLocationMarker = isCurrentLocation;
-    });
+    if (mounted && !_isDisposed) {
+      setState(() {
+        _placePredictions = [];
+        startingController.text = description;
+        _activeLocationType = '';
+        _showCurrentLocationMarker = isCurrentLocation;
+      });
+    }
 
     // Update controller safely
     _parcelController?.setStartingLocation(description);
 
     if (isCurrentLocation) {
       // Use current location
-      if (_locationRepository.currentLocationCoordinates != null) {
+      if (_locationRepository.currentLocationCoordinates != null &&
+          !_isDisposed) {
         // Set starting location in repository - important for directions
         _locationRepository.startingLocationCoordinates =
             _locationRepository.currentLocationCoordinates;
 
-        _mapController?.animateCamera(
-          CameraUpdate.newLatLng(
-              _locationRepository.currentLocationCoordinates!),
-        );
+        if (!_isDisposed) {
+          _mapController?.animateCamera(
+            CameraUpdate.newLatLng(
+                _locationRepository.currentLocationCoordinates!),
+          );
+        }
 
         // Update markers
-        if (mounted) {
+        if (mounted && !_isDisposed) {
           setState(() {
             _markers = {};
 
@@ -276,9 +292,10 @@ class _PageTwoState extends State<PageTwo> {
         }
 
         // If we already have an ending location, fetch directions
-        if (_locationRepository.endingLocationCoordinates != null) {
+        if (_locationRepository.endingLocationCoordinates != null &&
+            !_isDisposed) {
           await _locationRepository.fetchDirections();
-          if (mounted) {
+          if (mounted && !_isDisposed) {
             setState(() {}); // Trigger rebuild to show polyline
           }
         }
@@ -289,15 +306,19 @@ class _PageTwoState extends State<PageTwo> {
         final location =
             await _locationRepository.fetchPlaceDetails(placeId, 'starting');
 
+        if (_isDisposed) return;
+
         // Check if widget is still mounted before updating UI
-        if (location != null && mounted) {
+        if (location != null && mounted && !_isDisposed) {
           // Move camera to the location
-          _mapController?.animateCamera(
-            CameraUpdate.newLatLng(location),
-          );
+          if (!_isDisposed) {
+            _mapController?.animateCamera(
+              CameraUpdate.newLatLng(location),
+            );
+          }
 
           // Update markers - hide current location marker
-          if (mounted) {
+          if (mounted && !_isDisposed) {
             setState(() {
               // Start with empty set
               _markers = {};
@@ -308,9 +329,10 @@ class _PageTwoState extends State<PageTwo> {
           }
 
           // If we already have an ending location, fetch directions
-          if (_locationRepository.endingLocationCoordinates != null) {
+          if (_locationRepository.endingLocationCoordinates != null &&
+              !_isDisposed) {
             await _locationRepository.fetchDirections();
-            if (mounted) {
+            if (mounted && !_isDisposed) {
               setState(() {}); // Ensure UI updates to show polyline
             }
           }
@@ -321,21 +343,23 @@ class _PageTwoState extends State<PageTwo> {
     }
 
     // Unfocus keyboard
-    if (mounted) {
+    if (mounted && !_isDisposed) {
       FocusScope.of(context).unfocus();
     }
   }
 
   // Handle ending location selection
   void _onEndingLocationSelected(String placeId, String description) async {
-    if (!mounted) return;
+    if (!mounted || _isDisposed) return;
 
     // Update UI immediately
-    setState(() {
-      _placePredictions = [];
-      endingController.text = description;
-      _activeLocationType = '';
-    });
+    if (mounted && !_isDisposed) {
+      setState(() {
+        _placePredictions = [];
+        endingController.text = description;
+        _activeLocationType = '';
+      });
+    }
 
     // Update controller safely
     _parcelController?.setEndingLocation(description);
@@ -344,14 +368,18 @@ class _PageTwoState extends State<PageTwo> {
       final location =
           await _locationRepository.fetchPlaceDetails(placeId, 'ending');
 
-      if (location != null && mounted) {
+      if (_isDisposed) return;
+
+      if (location != null && mounted && !_isDisposed) {
         // Move camera to the location
-        _mapController?.animateCamera(
-          CameraUpdate.newLatLng(location),
-        );
+        if (!_isDisposed) {
+          _mapController?.animateCamera(
+            CameraUpdate.newLatLng(location),
+          );
+        }
 
         // Update markers
-        if (mounted) {
+        if (mounted && !_isDisposed) {
           setState(() {
             // Start with empty set
             _markers = {};
@@ -362,9 +390,10 @@ class _PageTwoState extends State<PageTwo> {
           });
         }
 
-        if (_locationRepository.startingLocationCoordinates != null) {
+        if (_locationRepository.startingLocationCoordinates != null &&
+            !_isDisposed) {
           await _locationRepository.fetchDirections();
-          if (mounted) {
+          if (mounted && !_isDisposed) {
             setState(() {});
           }
         }
@@ -373,7 +402,7 @@ class _PageTwoState extends State<PageTwo> {
       debugPrint('Error fetching ending location details: $e');
     }
 
-    if (mounted) {
+    if (mounted && !_isDisposed) {
       FocusScope.of(context).unfocus();
     }
   }
@@ -480,7 +509,7 @@ class _PageTwoState extends State<PageTwo> {
                 controller: startingController,
                 focusNode: _startingFocusNode,
                 onChanged: (query) {
-                  if (mounted) {
+                  if (mounted && !_isDisposed) {
                     setState(() {
                       _activeLocationType = 'starting';
                     });
@@ -489,6 +518,7 @@ class _PageTwoState extends State<PageTwo> {
                 },
                 onTap: () {
                   if (mounted &&
+                      !_isDisposed &&
                       _startingFocusNode.hasFocus &&
                       _activeLocationType == 'starting') {
                     // Show current location option immediately when tapping on starting field
@@ -521,7 +551,7 @@ class _PageTwoState extends State<PageTwo> {
                 controller: endingController,
                 focusNode: _endingFocusNode,
                 onChanged: (query) {
-                  if (mounted) {
+                  if (mounted && !_isDisposed) {
                     setState(() {
                       _activeLocationType = 'ending';
                     });
@@ -607,7 +637,7 @@ class _PageTwoState extends State<PageTwo> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
-                  if (mounted) {
+                  if (mounted && !_isDisposed) {
                     setState(() {
                       _locationLoaded = false;
                     });
@@ -635,17 +665,19 @@ class _PageTwoState extends State<PageTwo> {
           zoom: 15.0, // Increased zoom for better view
         ),
         onMapCreated: (GoogleMapController controller) {
-          if (mounted) {
+          if (mounted && !_isDisposed) {
             setState(() {
               _mapController = controller;
               _mapInitialized = true;
             });
 
             // Animate to current location immediately after map creation
-            _mapController?.animateCamera(
-              CameraUpdate.newLatLng(
-                  _locationRepository.currentLocationCoordinates!),
-            );
+            if (!_isDisposed) {
+              _mapController?.animateCamera(
+                CameraUpdate.newLatLng(
+                    _locationRepository.currentLocationCoordinates!),
+              );
+            }
           }
         },
         mapType: MapType.terrain,
@@ -687,7 +719,7 @@ class _PageTwoState extends State<PageTwo> {
       body: GestureDetector(
         onTap: () {
           //! Close keyboard when tapping outside of text fields
-          if (mounted) {
+          if (mounted && !_isDisposed) {
             FocusScope.of(context).unfocus();
             setState(() {
               _placePredictions = [];
