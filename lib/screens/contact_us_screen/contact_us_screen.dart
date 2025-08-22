@@ -10,7 +10,6 @@ import 'package:parcel_delivery_app/widgets/text_button_widget/text_button_widge
 import 'package:parcel_delivery_app/widgets/text_field_widget/text_field_widget.dart';
 
 import '../../constants/app_colors.dart';
-import '../../constants/app_strings.dart';
 import '../../widgets/button_widget/button_widget.dart';
 import '../../widgets/space_widget/space_widget.dart';
 import '../../widgets/text_widget/text_widgets.dart';
@@ -35,26 +34,24 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SpaceWidget(spaceHeight: 48),
-            const TextWidget(
-              text: "Feedback", //AppStrings.contactUs
+            TextWidget(
+              text: "feedback".tr, //AppStrings.contactUs
               fontSize: 24,
               fontWeight: FontWeight.w600,
               fontColor: AppColors.black,
             ),
             const SpaceWidget(spaceHeight: 24),
-
             // const SpaceWidget(spaceHeight: 2),
-
             //const SpaceWidget(spaceHeight: 20),
-            const TextWidget(
-              text: "Enjoying the app? Rate us!",
+            TextWidget(
+              text: "enjoyingTheAppRateApp".tr,
               fontWeight: FontWeight.w600,
               fontSize: 14,
               fontColor: AppColors.black,
             ),
             const SpaceWidget(spaceHeight: 2),
-            const TextWidget(
-              text: "Rate This Applicationa and Share yours thoughts",
+            TextWidget(
+              text: "rathisAppandShareYourThoughts".tr,
               fontSize: 14,
               fontWeight: FontWeight.w500,
               fontColor: AppColors.greyDarkLight,
@@ -72,8 +69,8 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const TextWidget(
-                      text: "Give Your Ratings",
+                    TextWidget(
+                      text: "giveYourRatings".tr,
                       fontWeight: FontWeight.w600,
                       fontSize: 24,
                       fontColor: AppColors.black,
@@ -100,7 +97,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
             const SpaceWidget(spaceHeight: 10),
             TextFieldWidget(
               controller: controller.reviewtext.value,
-              hintText: "share your thoughts",
+              hintText: "shareYourthoughts".tr,
               maxLines: 3,
             ),
             // const SpaceWidget(spaceHeight: 100),
@@ -123,7 +120,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                     )
                   : ButtonWidget(
                       onPressed: controller.appPostReview,
-                      label: "Submit Review".tr,
+                      label: "submitReview".tr,
                       buttonHeight: 50,
                       buttonWidth: double.infinity,
                     );
@@ -134,8 +131,8 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
             Center(
               child: Column(
                 children: [
-                  const TextWidget(
-                    text: AppStrings.forAnySupport,
+                  TextWidget(
+                    text: "forAnysupportPleaseDropamail".tr,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     fontColor: AppColors.greyDarkLight,
@@ -197,9 +194,9 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
             ),
             ButtonWidget(
               onPressed: controller.sendEmail,
-              label: AppStrings.mailUs,
+              label: "mailUs".tr,
               textColor: AppColors.white,
-              buttonWidth: 125,
+              buttonWidth: 150,
               buttonHeight: 50,
               icon: Icons.email, // Changed icon to email for better UX
               iconColor: AppColors.white,

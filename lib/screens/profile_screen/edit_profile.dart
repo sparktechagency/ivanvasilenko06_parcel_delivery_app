@@ -120,7 +120,7 @@ class _EditProfileState extends State<EditProfile> {
     return Scaffold(
       appBar: AppBar(
         title: TextWidget(
-          text: "Edit Profile".tr,
+          text: "editProfile".tr,
           fontSize: 24,
           fontWeight: FontWeight.w600,
           fontColor: AppColors.black,
@@ -228,7 +228,7 @@ class _EditProfileState extends State<EditProfile> {
               ),
               const SpaceWidget(spaceHeight: 10),
               TextWidget(
-                text: "Full Name".tr,
+                text: "fullName".tr,
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
                 fontColor: AppColors.black,
@@ -237,13 +237,13 @@ class _EditProfileState extends State<EditProfile> {
               EditProfileTextFieldWidget(
                 height: 50,
                 controller: nameController,
-                hintText: "Enter your full name",
+                hintText: "enterFullName".tr,
                 maxLines: 1,
                 keyboardType: TextInputType.text,
               ),
               const SpaceWidget(spaceHeight: 10),
               TextWidget(
-                  text: "Facebook".tr,
+                  text: "facebook".tr,
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                   fontColor: AppColors.black),
@@ -251,13 +251,13 @@ class _EditProfileState extends State<EditProfile> {
               EditProfileTextFieldWidget(
                 height: 50,
                 controller: faceBookController,
-                hintText: "Enter your Facebook",
+                hintText: "enterYourFacebookId".tr,
                 maxLines: 1,
                 keyboardType: TextInputType.text,
               ),
               const SpaceWidget(spaceHeight: 10),
               TextWidget(
-                  text: "Instagram".tr,
+                  text: "instagram".tr,
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                   fontColor: AppColors.black),
@@ -265,13 +265,13 @@ class _EditProfileState extends State<EditProfile> {
               EditProfileTextFieldWidget(
                 height: 50,
                 controller: instaController,
-                hintText: "Enter your Instagram",
+                hintText: "enterYourInstagramId".tr,
                 maxLines: 1,
                 keyboardType: TextInputType.text,
               ),
               const SpaceWidget(spaceHeight: 10),
               TextWidget(
-                  text: "WhatsApp".tr,
+                  text: "whatsapp".tr,
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                   fontColor: AppColors.black),
@@ -279,7 +279,7 @@ class _EditProfileState extends State<EditProfile> {
               EditProfileTextFieldWidget(
                 height: 50,
                 controller: whastappController,
-                hintText: "Enter your WhatsApp",
+                hintText: "enterYourWhatsappId",
                 maxLines: 1,
                 keyboardType: TextInputType.number,
               ),
@@ -331,7 +331,7 @@ class _EditProfileState extends State<EditProfile> {
                           // Navigation is handled in updateProfile() with Get.back()
                         }
                       },
-                      label: "Edit Profile".tr,
+                      label: "editProfile".tr,
                       buttonHeight: 50,
                       buttonWidth: double.infinity,
                     )),
