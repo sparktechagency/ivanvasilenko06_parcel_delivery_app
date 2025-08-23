@@ -26,7 +26,6 @@ class PrivacyPolicyController extends GetxController {
         // Try parsing the response directly first
         privacyPolicyData.value = PrivacyPolicyModel.fromJson(response);
         //! appLog( "Terms data loaded: ${termsAndConditionData.value?.data?.content}");
-
         // Check if content is actually available
         if (privacyPolicyData.value?.data?.content == null ||
             privacyPolicyData.value!.data!.content!.isEmpty) {

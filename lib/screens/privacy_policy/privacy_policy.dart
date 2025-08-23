@@ -13,96 +13,96 @@ class PrivacyPolicy extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-     final controller = Get.put(PrivacyPolicyController());
-    return  Scaffold(
+    final controller = Get.put(PrivacyPolicyController());
+    return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-           padding:const EdgeInsets.symmetric(
+          padding: const EdgeInsets.symmetric(
             horizontal: 20,
           ),
-          child:  Column(
-             crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SpaceWidget(spaceHeight: 40),
-                TextWidget(
-                  text: "privacyNpolicy".tr,
-                  fontSize: 30,
-                  fontWeight: FontWeight.w600,
-                  fontColor: AppColors.black,
-                ),
-                const SpaceWidget(spaceHeight: 20),
-                Obx(() {
-                  if (controller.isLoading.value) {
-                    return Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 50),
-                        child: LoadingAnimationWidget.hexagonDots(
-                          color: AppColors.black,
-                          size: 40,
-                        ),
-                      ),
-                    );
-                  }
-                  
-                  if (controller.privacyPolicyData.value?.data?.content != null &&
-                      controller.privacyPolicyData.value!.data!.content!.isNotEmpty) {
-                    return HtmlWidget(
-                      controller.privacyPolicyData.value!.data!.content!,
-                      textStyle: const TextStyle(
-                        color: AppColors.black,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    );
-                  }
-                  
-                  // Show error state with refresh button
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SpaceWidget(spaceHeight: 40),
+              TextWidget(
+                text: "privacyNpolicy".tr,
+                fontSize: 30,
+                fontWeight: FontWeight.w600,
+                fontColor: AppColors.black,
+              ),
+              const SpaceWidget(spaceHeight: 20),
+              Obx(() {
+                if (controller.isLoading.value) {
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 50),
-                      child: Column(
-                        children: [
-                          const Icon(
-                            Icons.error_outline,
-                            size: 60,
-                            color: AppColors.greyLight,
-                          ),
-                          const SpaceWidget(spaceHeight: 16),
-                          const TextWidget(
-                            text: "No Terms Available",
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            fontColor: AppColors.black,
-                          ),
-                          const SpaceWidget(spaceHeight: 8),
-                          const TextWidget(
-                            text: "Unable to load terms and conditions.\nPlease try again.",
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            fontColor: AppColors.greyLight,
-                            textAlignment: TextAlign.center,
-                          ),
-                          const SpaceWidget(spaceHeight: 24),
-                          ButtonWidget(
-                            onPressed: () => controller.refreshTerms(),
-                            label: "refresh".tr,
-                            icon: Icons.refresh,
-                            buttonWidth: 140,
-                            buttonHeight: 45,
-                            backgroundColor: AppColors.black,
-                            textColor: AppColors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            buttonRadius: BorderRadius.circular(8),
-                          ),
-                        ],
+                      child: LoadingAnimationWidget.hexagonDots(
+                        color: AppColors.black,
+                        size: 40,
                       ),
                     ),
                   );
-                }),
-          ],
-        ),
+                }
+                if (controller.privacyPolicyData.value?.data?.content != null &&
+                    controller
+                        .privacyPolicyData.value!.data!.content!.isNotEmpty) {
+                  return HtmlWidget(
+                    controller.privacyPolicyData.value!.data!.content!,
+                    textStyle: const TextStyle(
+                      color: AppColors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  );
+                }
+                // Show error state with refresh button
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 50),
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          size: 60,
+                          color: AppColors.greyLight,
+                        ),
+                        const SpaceWidget(spaceHeight: 16),
+                        const TextWidget(
+                          text: "Privacy Policy",
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          fontColor: AppColors.black,
+                        ),
+                        const SpaceWidget(spaceHeight: 8),
+                        const TextWidget(
+                          text:
+                              "Unable to load Privacy Policy.\nPlease try again.",
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          fontColor: AppColors.greyLight,
+                          textAlignment: TextAlign.center,
+                        ),
+                        const SpaceWidget(spaceHeight: 24),
+                        ButtonWidget(
+                          onPressed: () => controller.refreshTerms(),
+                          label: "refresh".tr,
+                          icon: Icons.refresh,
+                          buttonWidth: 140,
+                          buttonHeight: 45,
+                          backgroundColor: AppColors.black,
+                          textColor: AppColors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          buttonRadius: BorderRadius.circular(8),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: Padding(
@@ -111,8 +111,8 @@ class PrivacyPolicy extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Spacer(),
-             ButtonWidget(
-              onPressed: ()=> Get.back(),
+            ButtonWidget(
+              onPressed: () => Get.back(),
               label: "next".tr,
               icon: Icons.arrow_forward,
               buttonWidth: 150,
