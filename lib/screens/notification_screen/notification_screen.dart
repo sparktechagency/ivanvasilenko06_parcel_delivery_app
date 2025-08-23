@@ -226,11 +226,11 @@ class _NotificationScreenState extends State<NotificationScreen>
             success = true;
             break;
           } catch (e) {
-           //!  log('❌ Failed to launch ${method['description']}: $e');
+            //!  log('❌ Failed to launch ${method['description']}: $e');
             continue;
           }
         } catch (e) {
-         //! log('❌ Error parsing URL for ${method['description']}: $e');
+          //! log('❌ Error parsing URL for ${method['description']}: $e');
           continue;
         }
       }
@@ -263,13 +263,13 @@ class _NotificationScreenState extends State<NotificationScreen>
 
         if (!success) {
           // If everything fails, provide helpful error message
-         //!  log('❌ All WhatsApp methods failed');
+          //!  log('❌ All WhatsApp methods failed');
           _showErrorSnackBar(
               'Unable to open WhatsApp. Please ensure WhatsApp is installed and try again.');
         }
       }
     } catch (e) {
-    //!   log('❌ Critical error in _openWhatsApp: $e');
+      //!   log('❌ Critical error in _openWhatsApp: $e');
       _showErrorSnackBar('Error opening WhatsApp: ${e.toString()}');
     }
   }
@@ -746,7 +746,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                     child: const Center(
                       child: TextWidget(
                         text: "👉 Check Deliveries Section to Send Request 👈",
-                        fontSize: 14,
+                        fontSize: 12,
                         fontWeight: FontWeight.w800,
                         fontColor: AppColors.green,
                       ),

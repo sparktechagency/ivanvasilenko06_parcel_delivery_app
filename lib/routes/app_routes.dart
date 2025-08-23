@@ -3,10 +3,8 @@ class AppRoutes {
 
   static const splashScreen = '/splashScreen';
   static const onboardingScreen = '/onboardingScreen';
-
   static const countrySelectScreen = '/countrySelectScreen';
   static const languageSelectScreen = '/languageSelectScreen';
-
   static const signupScreen = '/signupScreen';
   static const verifyPhoneScreen = '/verifyPhoneScreen';
   static const loginScreen = '/loginScreen';
@@ -41,4 +39,5 @@ class AppRoutes {
   static const parcelDetailsScreen = '/parcelDetailsScreen';
   static const serviceScreenDeliveryDetails = '/serviceScreenDeliveryDetails';
   static const termsNConditions = "/termNConditions";
+  static const privacyPolicy = "/privacyPolicy";
 }

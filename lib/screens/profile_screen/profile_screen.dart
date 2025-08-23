@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -420,8 +421,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         } else if (value == 3) {
                           Get.toNamed(AppRoutes.editProfile);
                         } else if (value == 4) {
-                          showLogoutDialog();
+                          Get.toNamed(AppRoutes.privacyPolicy);
                         } else if (value == 5) {
+                          showLogoutDialog();
+                        } else if (value == 6) {
                           showDeleteProfile(profileController
                               .profileData.value.data!.user!.id!);
                         }
@@ -442,10 +445,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         PopupMenuItem(
                           value: 4,
-                          child: Text("logout".tr),
+                          child: Text("privacyNpolicy".tr),
                         ),
                         PopupMenuItem(
                           value: 5,
+                          child: Text("logout".tr),
+                        ),
+                        PopupMenuItem(
+                          value: 6,
                           child: Text("deleteAccount".tr),
                         ),
                       ],
@@ -506,7 +513,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       );
                                     },
                                     errorBuilder: (context, error, stackTrace) {
-                                      log('❌ Error loading image: $error');
+                                      //! log('❌ Error loading image: $error');
                                       return Container(
                                         height: 116,
                                         width: 116,

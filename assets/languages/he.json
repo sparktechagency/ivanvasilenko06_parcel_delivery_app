@@ -31,7 +31,7 @@
   "verifyEmail": "אמתו את האימייל",
   "verifying....": "מאמת....",
   "home": "בית",
-  "services": "משלוח",  
+  "services": "משלוחים",  
   "bookings": "ההזמנות שלי",
   "profile": "פרופיל",
   "suggestions": "הצעות",
@@ -195,5 +195,6 @@
   "fullName": "שם מלא",
   "enterFullName": "הזן את שמך המלא",
   "senderNameText" : "שם השולח",
-  "priceText" : "מְחִירִים"
+  "priceText" : "מְחִירִים",
+  "privacyNpolicy" : "מדיניות פרטיות"
 }

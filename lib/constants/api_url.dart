@@ -42,4 +42,5 @@ class AppApiUrl {
   static const String appReveiw = "$baseUrl/review";
   static const String token = "";
   static const String termAndCondtion = "$baseUrl/rule/terms-and-conditions";
+  static const String privacyPolicy = "$baseUrl/rule/privacy-policy";
 }

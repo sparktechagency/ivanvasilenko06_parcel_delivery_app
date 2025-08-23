@@ -199,5 +199,6 @@
   "fullName": "Full Name",
   "enterFullName": "Enter your full name",
   "senderNameText" : "Sender's Name",
-  "priceText" : "Price"
+  "priceText" : "Price",
+  "privacyNpolicy" : "Privacy Policy"
 }

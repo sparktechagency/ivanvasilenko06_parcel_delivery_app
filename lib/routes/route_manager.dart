@@ -5,6 +5,7 @@ import 'package:parcel_delivery_app/screens/booking_screen/parcel_details_screen
 import 'package:parcel_delivery_app/screens/booking_screen/parcel_details_screen/view_details_screen.dart';
 import 'package:parcel_delivery_app/screens/delivery_man_details/delivery_man_details.dart';
 import 'package:parcel_delivery_app/screens/home_screen/home_screen.dart';
+import 'package:parcel_delivery_app/screens/privacy_policy/privacy_policy.dart';
 import 'package:parcel_delivery_app/screens/profile_screen/edit_profile.dart';
 import 'package:parcel_delivery_app/screens/radius_map_screen/radius_available_parcel/radius_avaiable_parcel.dart';
 import 'package:parcel_delivery_app/screens/radius_map_screen/radius_map_screen_details/radius_map_screen_details.dart';
@@ -262,6 +263,11 @@ class RouteManager {
       GetPage(
         name: AppRoutes.termsNConditions,
         page: () => const TermsAndCondition(),
+        transition: Transition.rightToLeft,
+      ),
+      GetPage(
+        name: AppRoutes.privacyPolicy,
+        page: () => const PrivacyPolicy(),
         transition: Transition.rightToLeft,
       ),
     ];
