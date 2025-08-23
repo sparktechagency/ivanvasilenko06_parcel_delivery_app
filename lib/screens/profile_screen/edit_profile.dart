@@ -72,13 +72,13 @@ class _EditProfileState extends State<EditProfile> {
 
   String _getProfileImagePath() {
     if (_profileController.isLoading.value) {
-      log('⏳ Profile is still loading, returning default image URL');
+      //! log('⏳ Profile is still loading, returning default image URL');
       return 'https://i.ibb.co/z5YHLV9/profile.png';
     }
 
     final imageUrl = _profileController.profileData.value.data?.user?.image;
-    log('Raw image URL from API: "$imageUrl"');
-    log('Image URL type: ${imageUrl.runtimeType}');
+    //! log('Raw image URL from API: "$imageUrl"');
+    //! log('Image URL type: ${imageUrl.runtimeType}');
 
     // Check for null, empty, or invalid URLs
     if (imageUrl == null ||
@@ -86,7 +86,7 @@ class _EditProfileState extends State<EditProfile> {
         imageUrl.trim().isEmpty ||
         imageUrl.toLowerCase() == 'null' ||
         imageUrl.toLowerCase() == 'undefined') {
-      log('❌ Image URL is null/empty/invalid, using default image URL');
+      //! log('❌ Image URL is null/empty/invalid, using default image URL');
       return 'https://i.ibb.co/z5YHLV9/profile.png';
     }
 
@@ -107,11 +107,11 @@ class _EditProfileState extends State<EditProfile> {
     // Validate the constructed URL
     final uri = Uri.tryParse(fullImageUrl);
     if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
-      log('❌ Invalid URL format: $fullImageUrl, using default image URL');
+     //!  log('❌ Invalid URL format: $fullImageUrl, using default image URL');
       return 'https://i.ibb.co/z5YHLV9/profile.png';
     }
 
-    log('✅ Constructed URL: $fullImageUrl');
+   //!  log('✅ Constructed URL: $fullImageUrl');
     return fullImageUrl;
   }
 

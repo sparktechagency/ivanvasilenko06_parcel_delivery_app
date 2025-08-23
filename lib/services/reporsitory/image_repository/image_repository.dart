@@ -49,7 +49,7 @@ class ImageMultipartUpload {
         GET.Get.toNamed(AppRoutes.hurrahScreen);
       }
     } catch (e) {
-      log("$e");
+      //! log("$e");
     }
     return null;
   }

@@ -30,7 +30,7 @@ class SignUpScreenController extends GetxController {
         isLoading.value = true;
         var fcmToken =
             await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
-        appLog(fcmToken);
+        //! appLog(fcmToken);
         // Get device info
         String deviceId = await _deviceInfo.getDeviceId();
         String deviceType = await _deviceInfo.getDeviceType();
@@ -64,7 +64,7 @@ class SignUpScreenController extends GetxController {
           statusCode: 201,
         );
         if (data != null) {
-          log('Data: $data');
+          //! log('Data: $data');
           Get.toNamed(AppRoutes.verifyPhoneScreen, arguments: {
             "mobileNumber": completePhoneNumber.value,
             "email": emailController.text.trim(),
@@ -77,11 +77,11 @@ class SignUpScreenController extends GetxController {
           });
         } else {
           // Handle error case
-          log("API returned null data");
+          //! log("API returned null data");
         }
       }
     } catch (e) {
-      log("Error in PhoneOtpVerification: $e");
+      //! log("Error in PhoneOtpVerification: $e");
     } finally {
       isLoading.value = false;
     }

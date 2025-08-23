@@ -27,9 +27,9 @@ class LoginScreenController extends GetxController {
 
   Future<void> phoneOtpLogin() async {
     try {
-      log("=== PHONE OTP LOGIN DEBUG ===");
-      log("Complete Phone Number: '${completePhoneNumber.value}'");
-      log("Phone Controller Text: '${phoneController.text}'");
+      //! log("=== PHONE OTP LOGIN DEBUG ===");
+      //! log("Complete Phone Number: '${completePhoneNumber.value}'");
+      //! log("Phone Controller Text: '${phoneController.text}'");
 
       //! Check if phone number is empty
       if (completePhoneNumber.value.isEmpty) {
@@ -40,7 +40,7 @@ class LoginScreenController extends GetxController {
       //! Validate form if it exists
       if (loginFormKey.currentState != null &&
           !loginFormKey.currentState!.validate()) {
-        log("Form validation failed");
+        //! log("Form validation failed");
         return;
       }
 
@@ -49,7 +49,7 @@ class LoginScreenController extends GetxController {
 
       var fcmToken =
           await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
-      log("FCM Token: '$fcmToken'");
+      //! log("FCM Token: '$fcmToken'");
 
       // Get device info
       String deviceId = await _deviceInfo.getDeviceId();
@@ -60,8 +60,8 @@ class LoginScreenController extends GetxController {
         deviceType = await _deviceInfo.getDeviceType();
       }
 
-      log("Device ID: '$deviceId'");
-      log("Device Type: '$deviceType'");
+      //! log("Device ID: '$deviceId'");
+      //! log("Device Type: '$deviceType'");
 
       // Ensure no null values are passed
       Map<String, String> body = {
@@ -71,8 +71,8 @@ class LoginScreenController extends GetxController {
         "deviceType": deviceType,
       };
 
-      log("API Request Body: $body");
-      log("API URL: ${AppApiUrl.phoneOtpLogin}");
+      //! log("API Request Body: $body");
+      //! log("API URL: ${AppApiUrl.phoneOtpLogin}");
 
       var data = await ApiPostServices().apiPostServices(
         url: AppApiUrl.phoneOtpLogin,
@@ -80,10 +80,10 @@ class LoginScreenController extends GetxController {
         statusCode: 200,
       );
 
-      log("API Response Data: $data");
+      //! log("API Response Data: $data");
 
       if (data != null) {
-        log("API call successful, navigating to verify screen");
+       //!  log("API call successful, navigating to verify screen");
         Get.toNamed(
           AppRoutes.verifyPhoneScreen,
           arguments: {
@@ -96,13 +96,13 @@ class LoginScreenController extends GetxController {
           },
         );
       } else {
-        log("API returned null data");
+        //! log("API returned null data");
       }
 
       debugPrint("✳️✳️✳️✳️✳️✳️✳️✳️✳️✳️ $fcmToken");
       debugPrint("📱📱📱 DeviceId: $deviceId, DeviceType: $deviceType");
     } catch (e) {
-      log("Error from phone OTP login: $e");
+     //!  log("Error from phone OTP login: $e");
       //AppSnackBar.error("An error occurred: ${e.toString()}");
       // AppSnackBar.success(
       //     "Please, Complete the sign-up process before Logging in.");
@@ -124,12 +124,12 @@ class LoginScreenController extends GetxController {
       await googleSignIn.signOut();
       await Future.delayed(const Duration(milliseconds: 500));
 
-      appLog("🔄 Starting Google Sign-In process...");
+      //! appLog("🔄 Starting Google Sign-In process...");
 
       final GoogleSignInAccount? acc = await googleSignIn.signIn();
 
       if (acc == null) {
-        appLog("Google Sign-In cancelled by user");
+        //! appLog("Google Sign-In cancelled by user");
         AppSnackBar.error("Sign-in cancelled");
         return;
       }
@@ -138,9 +138,9 @@ class LoginScreenController extends GetxController {
       final String? idToken = auth.idToken;
       final String uniqueId = acc.id;
 
-      appLog(uniqueId);
+      //! appLog(uniqueId);
       if (idToken == null) {
-        appLog("❌ Failed to get ID token");
+        //! appLog("❌ Failed to get ID token");
         AppSnackBar.error("Failed to get authentication token");
         return;
       }
@@ -154,12 +154,12 @@ class LoginScreenController extends GetxController {
         "mobileNumber": completePhoneNumber.value,
       };
 
-      appLog("Google Auth API Request Body: $body");
+      //! appLog("Google Auth API Request Body: $body");
 
       // Retry logic with support for both 200 and 201 status codes
       var data = await _retryApiCall(body, maxRetries: 3);
 
-      appLog("Google Auth API Response: $data");
+      //! appLog("Google Auth API Response: $data");
 
       if (data != null) {
         if (data["status"] == "success" && data["data"] != null) {
@@ -171,26 +171,25 @@ class LoginScreenController extends GetxController {
 
             String savedToken =
                 await SharePrefsHelper.getString(SharedPreferenceValue.token);
-            appLog(
-                "✅ Token saved successfully: ${savedToken.substring(0, 50)}...");
+            //! appLog("✅ Token saved successfully: ${savedToken.substring(0, 50)}...");
 
             AppSnackBar.success(data["message"] ?? "Login successful");
             Get.offAll(() => const BottomNavScreen());
           } else {
-            appLog("❌ Empty or null token received");
+            //! appLog("❌ Empty or null token received");
             AppSnackBar.error("Authentication failed: Invalid token");
           }
         } else {
-          appLog("❌ Invalid response structure: $data");
+          //! appLog("❌ Invalid response structure: $data");
           AppSnackBar.error(data["message"] ?? "Authentication failed");
         }
       } else {
-        appLog("❌ All retry attempts failed");
+        //! appLog("❌ All retry attempts failed");
         AppSnackBar.error(
             "Server is temporarily unavailable. Please try again later.");
       }
     } catch (e) {
-      appLog("❌ Error in Google Sign-In: $e");
+      //! appLog("❌ Error in Google Sign-In: $e");
       AppSnackBar.error("Sign-in failed. Please try again.");
     } finally {
       isGoogleLoading(false);
@@ -202,26 +201,26 @@ class LoginScreenController extends GetxController {
       {int maxRetries = 3}) async {
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        appLog("🔄 Attempt $attempt of $maxRetries");
+        //! appLog("🔄 Attempt $attempt of $maxRetries");
 
         // Try with 200 status code first (existing user)
         var data = await _tryApiCall(body, 200);
         if (data != null) {
-          appLog("✅ API call successful with status 200 (existing user)");
+          //! appLog("✅ API call successful with status 200 (existing user)");
           return data;
         }
 
         // If 200 fails, try with 201 status code (new user)
         data = await _tryApiCall(body, 201);
         if (data != null) {
-          appLog("✅ API call successful with status 201 (new user)");
+          //! appLog("✅ API call successful with status 201 (new user)");
           return data;
         }
 
         // If both fail, this attempt failed
         throw Exception("Both 200 and 201 status codes failed");
       } catch (e) {
-        appLog("❌ Attempt $attempt failed: $e");
+        //! appLog("❌ Attempt $attempt failed: $e");
 
         if (attempt == maxRetries) {
           // This was the last attempt, don't retry
@@ -230,7 +229,7 @@ class LoginScreenController extends GetxController {
 
         // Wait before retrying (exponential backoff)
         int delaySeconds = attempt * 2; // 2, 4, 6 seconds
-        appLog("⏳ Waiting $delaySeconds seconds before retry...");
+        //! appLog("⏳ Waiting $delaySeconds seconds before retry...");
         await Future.delayed(Duration(seconds: delaySeconds));
       }
     }

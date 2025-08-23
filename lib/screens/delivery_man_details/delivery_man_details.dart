@@ -125,7 +125,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
       for (var method in whatsappMethods) {
         try {
           final Uri uri = Uri.parse(method['url']!);
-          log('Trying ${method['description']}: ${method['url']}');
+          //! log('Trying ${method['description']}: ${method['url']}');
 
           // Try to launch the URL
           try {
@@ -133,15 +133,15 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
               uri,
               mode: LaunchMode.externalApplication,
             );
-            log('✅ Successfully launched via ${method['description']}');
+            //! log('✅ Successfully launched via ${method['description']}');
             success = true;
             break;
           } catch (e) {
-            log('❌ Failed to launch ${method['description']}: $e');
+            //! log('❌ Failed to launch ${method['description']}: $e');
             continue;
           }
         } catch (e) {
-          log('❌ Error parsing URL for ${method['description']}: $e');
+          //! log('❌ Error parsing URL for ${method['description']}: $e');
           continue;
         }
       }
@@ -164,12 +164,12 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
               success = true;
               break;
             } catch (e) {
-              log('Fallback scheme $scheme failed: $e');
+              //! log('Fallback scheme $scheme failed: $e');
               continue;
             }
           }
         } catch (e) {
-          log('All fallback methods failed: $e');
+          //! log('All fallback methods failed: $e');
         }
 
         if (!success) {
@@ -193,7 +193,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
       }
     } catch (e) {
       _showErrorSnackBar('An error occurred: $e');
-      log('An error occurred: $e');
+      //! log('An error occurred: $e');
     }
   }
 
@@ -240,7 +240,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
       setState(() {
         address = 'Error fetching address';
       });
-      log("Error fetching delivery address: $e");
+      //! log("Error fetching delivery address: $e");
     }
   }
 
@@ -271,7 +271,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
       setState(() {
         pickUpAddress = 'Error fetching address';
       });
-      log("Error fetching pickup address: $e");
+      //! log("Error fetching pickup address: $e");
     }
   }
 
@@ -284,7 +284,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
         double longitude = currentParcel.deliveryLocation.coordinates![0];
         double latitude = currentParcel.deliveryLocation.coordinates![1];
 
-        log("Delivery coordinates: Lat $latitude, Long $longitude");
+        //! log("Delivery coordinates: Lat $latitude, Long $longitude");
         _getAddress(latitude, longitude);
       } else {
         setState(() {
@@ -295,7 +295,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
       setState(() {
         address = 'Error processing delivery location';
       });
-      log("Error in delivery coordinates: $e");
+      //! log("Error in delivery coordinates: $e");
     }
   }
 
@@ -308,7 +308,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
         double longitude = currentParcel.pickupLocation.coordinates![0];
         double latitude = currentParcel.pickupLocation.coordinates![1];
 
-        log("Pickup coordinates: Lat $latitude, Long $longitude");
+        //! log("Pickup coordinates: Lat $latitude, Long $longitude");
         pickAddress(latitude, longitude);
       } else {
         setState(() {
@@ -319,13 +319,13 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
       setState(() {
         pickUpAddress = 'Error processing pickup location';
       });
-      log("Error in pickup coordinates: $e");
+      //! log("Error in pickup coordinates: $e");
     }
   }
 
   String _getFormattedDeliveryTime(currentParcel) {
-    log("deliveryStartTime: ${currentParcel?.deliveryStartTime}");
-    log("deliveryEndTime: ${currentParcel?.deliveryEndTime}");
+    //! log("deliveryStartTime: ${currentParcel?.deliveryStartTime}");
+    //! log("deliveryEndTime: ${currentParcel?.deliveryEndTime}");
     try {
       if (currentParcel?.deliveryStartTime != null &&
           currentParcel?.deliveryEndTime != null) {
@@ -339,7 +339,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
         return "N/A";
       }
     } catch (e) {
-      log("Error in _getFormattedDeliveryTime: $e");
+      //! log("Error in _getFormattedDeliveryTime: $e");
       return "N/A";
     }
   }
@@ -383,7 +383,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
       double avgRating = totalRating / count;
       return avgRating.toStringAsFixed(1); // Format to one decimal place
     } catch (e) {
-      log("Error calculating average rating: $e");
+      //! log("Error calculating average rating: $e");
       return "0.0";
     }
   }
@@ -391,13 +391,13 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
 //! Showing Image in App
   String _getProfileImagePath() {
     if (controller.isLoading.value) {
-      log('⏳ Profile is still loading, returning default image URL');
+      //! log('⏳ Profile is still loading, returning default image URL');
       return 'https://i.ibb.co/z5YHLV9/profile.png';
     }
 
     final imageUrl = deliveryMan.image;
-    log('Raw image URL from API: "$imageUrl"');
-    log('Image URL type: ${imageUrl.runtimeType}');
+    //! log('Raw image URL from API: "$imageUrl"');
+    //! log('Image URL type: ${imageUrl.runtimeType}');
 
     // Check for null, empty, or invalid URLs
     if (imageUrl == null ||
@@ -405,7 +405,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
         imageUrl.trim().isEmpty ||
         imageUrl.toLowerCase() == 'null' ||
         imageUrl.toLowerCase() == 'undefined') {
-      log('❌ Image URL is null/empty/invalid, using default image URL');
+      //! log('❌ Image URL is null/empty/invalid, using default image URL');
       return 'https://i.ibb.co/z5YHLV9/profile.png';
     }
 
@@ -426,11 +426,11 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
     // Validate the constructed URL
     final uri = Uri.tryParse(fullImageUrl);
     if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
-      log('❌ Invalid URL format: $fullImageUrl, using default image URL');
+      //!  log('❌ Invalid URL format: $fullImageUrl, using default image URL');
       return 'https://i.ibb.co/z5YHLV9/profile.png';
     }
 
-    log('✅ Constructed URL: $fullImageUrl');
+    //! log('✅ Constructed URL: $fullImageUrl');
     return fullImageUrl;
   }
 
@@ -493,7 +493,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                                   );
                                 },
                                 errorBuilder: (context, error, stackTrace) {
-                                  log('❌ Error loading image: $error');
+                                  //! log('❌ Error loading image: $error');
                                   return Container(
                                     height: 40,
                                     width: 40,
@@ -719,7 +719,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                           ),
                         );
                       } catch (error) {
-                        log('Error cancelling delivery: $error');
+                        //!  log('Error cancelling delivery: $error');
 
                         // Show error message
                         ScaffoldMessenger.of(context).showSnackBar(

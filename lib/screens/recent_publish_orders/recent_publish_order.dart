@@ -136,7 +136,7 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
         _handleAddressError(parcelId, isPickup, "No address found");
       }
     } catch (e) {
-      log("Error getting address for parcel $parcelId (${isPickup ? 'pickup' : 'delivery'}): $e");
+      //! log("Error getting address for parcel $parcelId (${isPickup ? 'pickup' : 'delivery'}): $e");
       _handleAddressError(parcelId, isPickup, "Error fetching address");
     }
   }
@@ -287,7 +287,7 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
                       formattedDate =
                           "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
                     } catch (e) {
-                      log("Error parsing dates: $e");
+                      //! log("Error parsing dates: $e");
                     }
 
                     return Padding(

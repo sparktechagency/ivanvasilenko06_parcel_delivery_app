@@ -51,7 +51,7 @@ class LoginScreen extends StatelessWidget {
                       controller: controller.googleSignInPhoneController,
                       onChanged: (phone) {
                         controller.updatePhoneNumber(phone.completeNumber);
-                        log(phone.completeNumber);
+                        //! log(phone.completeNumber);
                       },
                       fillColor: AppColors.white,
                       borderColor: AppColors.black,
@@ -119,7 +119,7 @@ class LoginScreen extends StatelessWidget {
                     controller: controller.phoneController,
                     onChanged: (phone) {
                       controller.updatePhoneNumber(phone.completeNumber);
-                      log(phone.completeNumber);
+                      //! log(phone.completeNumber);
                     },
                     fillColor: AppColors.white,
                     borderColor: AppColors.black,

@@ -18,7 +18,7 @@ class EarnMoneyRadiusController extends GetxController {
 
   Future<void> fetchParcelsInRadius() async {
     if (currentLocation.value == null) {
-      log('Current location is null. Cannot fetch parcels.');
+      //! log('Current location is null. Cannot fetch parcels.');
       return;
     }
 
@@ -26,19 +26,19 @@ class EarnMoneyRadiusController extends GetxController {
     final lng = currentLocation.value!.longitude;
     final radiusValue = radius.value;
 
-    log('Fetching parcels with: Lat: $lat, Lng: $lng, Radius: $radiusValue');
+   //!  log('Fetching parcels with: Lat: $lat, Lng: $lng, Radius: $radiusValue');
 
     try {
       final requestBody = json
           .encode({'latitude': lat, 'longitude': lng, 'radius': radiusValue});
 
-      log('API Request URL: ${AppApiUrl.getParcelInRadius}');
-      log('API Request Body: $requestBody');
+      //! log('API Request URL: ${AppApiUrl.getParcelInRadius}');
+      //! log('API Request Body: $requestBody');
 
       final response = await ApiPostServices()
           .apiPostServices(url: AppApiUrl.getParcelInRadius, body: requestBody);
 
-      log('API Response: $response');
+     //!  log('API Response: $response');
 
       if (response != null && response['status'] == 'success') {
         List<dynamic> data = response['data'];
@@ -57,15 +57,15 @@ class EarnMoneyRadiusController extends GetxController {
           ));
         }
 
-        log('Found ${markers.length} parcels in radius');
+        //! log('Found ${markers.length} parcels in radius');
       } else {
-        log('API returned error or invalid data: $response');
+        //! log('API returned error or invalid data: $response');
         parcelsInRadius.value = [];
         markers.clear();
       }
     } catch (e, stackTrace) {
-      log('Exception while fetching parcels: $e');
-      log('Stack trace: $stackTrace');
+     //!  log('Exception while fetching parcels: $e');
+      //! log('Stack trace: $stackTrace');
       parcelsInRadius.value = [];
       markers.clear();
     }

@@ -99,7 +99,7 @@ class _ChooseParcelForDeliveryScreenState
     if (args == null ||
         !args.containsKey("pickupLatLng") ||
         !args.containsKey("deliveryLatLng")) {
-      log('❌ Missing pickup or delivery coordinates');
+      //! log('❌ Missing pickup or delivery coordinates');
       return;
     }
 
@@ -147,13 +147,13 @@ class _ChooseParcelForDeliveryScreenState
             );
           }
         } else {
-          log('❌ Directions API error: ${data['status']}');
+          //! log('❌ Directions API error: ${data['status']}');
         }
       } else {
-        log('❌ HTTP error: ${response.statusCode}');
+       //!  log('❌ HTTP error: ${response.statusCode}');
       }
     } catch (e) {
-      log('❌ Error fetching route: $e');
+     //!  log('❌ Error fetching route: $e');
     }
   }
 
@@ -257,30 +257,30 @@ class _ChooseParcelForDeliveryScreenState
           double distance =
               _calculateDistance(currentLocationLatLng, pickupLocationLatLng);
 
-          log('📏 Distance between current location and pickup: $distance km');
+         //!  log('📏 Distance between current location and pickup: $distance km');
 
           // If pickup is within 15km radius, use current location as initial position
           if (distance <= 15) {
-            log('✅ Pickup is within 15km radius, using current location as initial position');
+          //!   log('✅ Pickup is within 15km radius, using current location as initial position');
             initialLatLng = currentLocationLatLng;
           } else {
-            log('🔍 Pickup is outside 15km radius, using pickup location as initial position');
+          //!   log('🔍 Pickup is outside 15km radius, using pickup location as initial position');
             initialLatLng = pickupLocationLatLng;
           }
         }
         // If only pickup location is available, use it
         else if (pickupLocationLatLng != null) {
-          log('📍 Using pickup location as initial position (no current location available)');
+         //!  log('📍 Using pickup location as initial position (no current location available)');
           initialLatLng = pickupLocationLatLng;
         }
         // If only current location is available, use it
         else if (currentLocationLatLng != null) {
-          log('📱 Using current location as initial position (no pickup location available)');
+         //!  log('📱 Using current location as initial position (no pickup location available)');
           initialLatLng = currentLocationLatLng;
         }
         // Fallback
         else {
-          log('⚠️ No valid location found, using default position');
+          //! log('⚠️ No valid location found, using default position');
           initialLatLng =
               const LatLng(23.8103, 90.4125); // Default to Dhaka, Bangladesh
         }

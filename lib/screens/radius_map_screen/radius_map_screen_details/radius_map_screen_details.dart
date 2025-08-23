@@ -46,7 +46,7 @@ class _RadiusMapScreenDetailsState extends State<RadiusMapScreenDetails> {
       }
 
       parcel = args;
-      log("Received parcel data: $parcel");
+      //! log("Received parcel data: $parcel");
 
       if (!_validateParcelData()) {
         setState(() {
@@ -62,7 +62,7 @@ class _RadiusMapScreenDetailsState extends State<RadiusMapScreenDetails> {
         isLoading = false;
       });
     } catch (e) {
-      log("Error initializing RadiusMapScreenDetails: $e");
+      //! log("Error initializing RadiusMapScreenDetails: $e");
       setState(() {
         hasError = true;
         errorMessage = 'Failed to load parcel details: $e';

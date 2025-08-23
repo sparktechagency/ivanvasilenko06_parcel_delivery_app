@@ -33,7 +33,7 @@ class CurrentOrderController extends GetxController {
       final response = await ApiGetServices()
           .apiGetServices(AppApiUrl.getCurrentOrders, statusCode: 200);
 
-      log("API response received: ${response.runtimeType}");
+      //! log("API response received: ${response.runtimeType}");
 
       try {
         if (response is Map<String, dynamic>) {
@@ -49,18 +49,18 @@ class CurrentOrderController extends GetxController {
             currentOrdersModel.value = CurrentOrderModel.fromJson(response);
           }
 
-          log("Current orders model updated: ${currentOrdersModel.value.data?.length ?? 0} orders found");
+          //! log("Current orders model updated: ${currentOrdersModel.value.data?.length ?? 0} orders found");
           return currentOrdersModel.value;
         } else {
-          log("Unexpected response type: ${response.runtimeType}");
+          //! log("Unexpected response type: ${response.runtimeType}");
           return null;
         }
       } catch (parseError) {
-        log("Error parsing response data: ${parseError.toString()}");
+        //! log("Error parsing response data: ${parseError.toString()}");
         return null;
       }
     } catch (ex) {
-      log("Error in getCurrentOrder: ${ex.toString()}");
+      //! log("Error in getCurrentOrder: ${ex.toString()}");
       return null;
     } finally {
       isLoading(false);
@@ -98,7 +98,7 @@ class CurrentOrderController extends GetxController {
         "targetUserId": userID.value,
       };
 
-      log("Submitting review: $body");
+      //! log("Submitting review: $body");
 
       final response = await ApiPostServices().apiPostServices(
           url: AppApiUrl.givingReview, body: body, statusCode: 200);
@@ -107,7 +107,7 @@ class CurrentOrderController extends GetxController {
       Get.back();
 
       if (response != null) {
-        log("Successfully given review");
+        //! log("Successfully given review");
 
         // Show success message
         AppSnackBar.success("Successfully given review");
@@ -115,7 +115,7 @@ class CurrentOrderController extends GetxController {
         // Refresh orders to show updated status
         await refreshCurrentOrder();
       } else {
-        log("Failed to give review");
+        //! log("Failed to give review");
         // AppSnackBar.error("Failed to submit your review. Please try again.");
       }
     } catch (ex) {
@@ -124,7 +124,7 @@ class CurrentOrderController extends GetxController {
         Get.back();
       }
 
-      log("Error in givingReview: ${ex.toString()}");
+      //! log("Error in givingReview: ${ex.toString()}");
       // AppSnackBar.error("Something went wrong : ${ex.toString()}");
     } finally {
       isLoading(false);
@@ -141,15 +141,15 @@ class CurrentOrderController extends GetxController {
       final response = await ApiPostServices().apiPostServices(
           url: AppApiUrl.finishedDelivery, body: body, statusCode: 200);
       if (response != null) {
-        log("Successfully finished delivery");
+        //! log("Successfully finished delivery");
         AppSnackBar.success("Successfully finished delivery");
         await refreshCurrentOrder();
       } else {
-        log("Failed to finish delivery");
+        //! log("Failed to finish delivery");
         // AppSnackBar.error("Failed to finish delivery. Please try again.");
       }
     } catch (ex) {
-      log("Error in finishedDelivery: ${ex.toString()}");
+      //! log("Error in finishedDelivery: ${ex.toString()}");
     }
   }
 

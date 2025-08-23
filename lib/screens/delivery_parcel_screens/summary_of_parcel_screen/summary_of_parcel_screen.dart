@@ -76,7 +76,7 @@ class _SummaryOfParcelScreenState extends State<SummaryOfParcelScreen> {
       setState(() {
         isLoading = false;
       });
-      log("Error fetching parcel details: $e");
+      //! log("Error fetching parcel details: $e");
     }
   }
 
@@ -145,8 +145,8 @@ class _SummaryOfParcelScreenState extends State<SummaryOfParcelScreen> {
   }
 
   String _getFormattedDeliveryTime(currentParcel) {
-    log("deliveryStartTime: ${currentParcel?.deliveryStartTime}");
-    log("deliveryEndTime: ${currentParcel?.deliveryEndTime}");
+    //! log("deliveryStartTime: ${currentParcel?.deliveryStartTime}");
+    //! log("deliveryEndTime: ${currentParcel?.deliveryEndTime}");
     try {
       if (currentParcel?.deliveryStartTime != null &&
           currentParcel?.deliveryEndTime != null) {
@@ -159,7 +159,7 @@ class _SummaryOfParcelScreenState extends State<SummaryOfParcelScreen> {
         return "N/A";
       }
     } catch (e) {
-      log("Error in _getFormattedDeliveryTime: $e");
+      //! log("Error in _getFormattedDeliveryTime: $e");
       return "N/A";
     }
   }

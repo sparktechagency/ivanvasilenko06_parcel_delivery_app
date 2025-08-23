@@ -17,13 +17,12 @@ class TermsAndConditionController extends GetxController {
       var response =
           await ApiGetServices().apiGetServices(AppApiUrl.termAndCondtion);
 
-      appLog("Terms API Response: $response");
+      //! appLog("Terms API Response: $response");
 
       if (response != null) {
         // Try parsing the response directly first
         termsAndConditionData.value = TermsAndConditonModel.fromJson(response);
-        appLog(
-            "Terms data loaded: ${termsAndConditionData.value?.data?.content}");
+        //! appLog( "Terms data loaded: ${termsAndConditionData.value?.data?.content}");
 
         // Check if content is actually available
         if (termsAndConditionData.value?.data?.content == null ||
@@ -34,7 +33,7 @@ class TermsAndConditionController extends GetxController {
         hasError(true);
       }
     } catch (e) {
-      appLog("Error loading terms: ${e.toString()}");
+      //! appLog("Error loading terms: ${e.toString()}");
       hasError(true);
     } finally {
       isLoading(false);

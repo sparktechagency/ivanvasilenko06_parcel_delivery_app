@@ -390,15 +390,15 @@ class _SelectDeliveryLocationScreenState
       "currentLocationLongitude": controller.currentLocationLongitude.value,
     });
 
-    log('🆒 DeliveryType: ${controller.selectedDeliveryType.value}');
-    log('✳️ PickupLocation: ${controller.pickupLocation.value}');
-    log('☑️ PickupLatLng: ${controller.startingCoordinates.value}');
-    log('📍 PickupLat: ${controller.pickupLocationLatitude.value}');
-    log('📍 PickupLng: ${controller.pickupLocationLongitude.value}');
-    log('🛑 DeliveryLocation: ${controller.selectedDeliveryLocation.value}');
-    log('🚩 DeliveryLatLng: ${controller.endingCoordinates.value}');
-    log('🎯 DeliveryLat: ${controller.deliveryLocationLatitude.value}');
-    log('🎯 DeliveryLng: ${controller.deliveryLocationLongitude.value}');
+    //! log('🆒 DeliveryType: ${controller.selectedDeliveryType.value}');
+    //! log('✳️ PickupLocation: ${controller.pickupLocation.value}');
+    //! log('☑️ PickupLatLng: ${controller.startingCoordinates.value}');
+    //! log('📍 PickupLat: ${controller.pickupLocationLatitude.value}');
+    //! log('📍 PickupLng: ${controller.pickupLocationLongitude.value}');
+    //! log('🛑 DeliveryLocation: ${controller.selectedDeliveryLocation.value}');
+    //! log('🚩 DeliveryLatLng: ${controller.endingCoordinates.value}');
+    //! log('🎯 DeliveryLat: ${controller.deliveryLocationLatitude.value}');
+    //! log('🎯 DeliveryLng: ${controller.deliveryLocationLongitude.value}');
   }
 
   // Build predictions list with icons - BIGGER SIZE VERSION
@@ -660,7 +660,7 @@ class _SelectDeliveryLocationScreenState
             ),
             ButtonWidget(
               onPressed: () {
-                log("<================================== Tapped Next ==========================================>");
+                //! log("<================================== Tapped Next ==========================================>");
                 controller.fetchDeliveryParcelsList();
                 _fetchParcelsAndProceed();
               },

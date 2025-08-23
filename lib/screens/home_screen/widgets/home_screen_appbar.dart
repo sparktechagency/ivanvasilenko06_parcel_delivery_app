@@ -27,7 +27,7 @@ class HomeScreenAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log('🖼️ HomeScreenAppBar building with profileImagePath: $profileImagePath');
+    //! log('🖼️ HomeScreenAppBar building with profileImagePath: $profileImagePath');
 
     return Container(
       width: double.infinity,
@@ -91,7 +91,7 @@ class HomeScreenAppBar extends StatelessWidget {
               'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         },
         placeholder: (context, url) {
-          log('⏳ Loading image: $url');
+          //! log('⏳ Loading image: $url');
           return Container(
             height: 40,
             width: 40,
@@ -106,9 +106,9 @@ class HomeScreenAppBar extends StatelessWidget {
           );
         },
         errorWidget: (context, url, error) {
-          log('🚨 CachedNetworkImage Error for URL: $url');
-          log('🚨 Error details: $error');
-          log('🚨 Error type: ${error.runtimeType}');
+          //! log('🚨 CachedNetworkImage Error for URL: $url');
+         //!  log('🚨 Error details: $error');
+         //!  log('🚨 Error type: ${error.runtimeType}');
 
           // Try to determine the type of error
           String errorMessage = 'Network error';

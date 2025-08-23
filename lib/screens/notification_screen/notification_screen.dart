@@ -58,7 +58,7 @@ class _NotificationScreenState extends State<NotificationScreen>
         return 'No address found';
       }
     } catch (e) {
-      log('Error fetching address: $e');
+      //! log('Error fetching address: $e');
       return 'Error fetching address';
     }
   }
@@ -214,7 +214,7 @@ class _NotificationScreenState extends State<NotificationScreen>
       for (var method in whatsappMethods) {
         try {
           final Uri uri = Uri.parse(method['url']!);
-          log('Trying ${method['description']}: ${method['url']}');
+          //! log('Trying ${method['description']}: ${method['url']}');
 
           // Try to launch the URL
           try {
@@ -222,15 +222,15 @@ class _NotificationScreenState extends State<NotificationScreen>
               uri,
               mode: LaunchMode.externalApplication,
             );
-            log('✅ Successfully launched via ${method['description']}');
+            //! log('✅ Successfully launched via ${method['description']}');
             success = true;
             break;
           } catch (e) {
-            log('❌ Failed to launch ${method['description']}: $e');
+           //!  log('❌ Failed to launch ${method['description']}: $e');
             continue;
           }
         } catch (e) {
-          log('❌ Error parsing URL for ${method['description']}: $e');
+         //! log('❌ Error parsing URL for ${method['description']}: $e');
           continue;
         }
       }
@@ -253,23 +253,23 @@ class _NotificationScreenState extends State<NotificationScreen>
               success = true;
               break;
             } catch (e) {
-              log('Fallback scheme $scheme failed: $e');
+              //! log('Fallback scheme $scheme failed: $e');
               continue;
             }
           }
         } catch (e) {
-          log('All fallback methods failed: $e');
+          //! log('All fallback methods failed: $e');
         }
 
         if (!success) {
           // If everything fails, provide helpful error message
-          log('❌ All WhatsApp methods failed');
+         //!  log('❌ All WhatsApp methods failed');
           _showErrorSnackBar(
               'Unable to open WhatsApp. Please ensure WhatsApp is installed and try again.');
         }
       }
     } catch (e) {
-      log('❌ Critical error in _openWhatsApp: $e');
+    //!   log('❌ Critical error in _openWhatsApp: $e');
       _showErrorSnackBar('Error opening WhatsApp: ${e.toString()}');
     }
   }
@@ -284,7 +284,7 @@ class _NotificationScreenState extends State<NotificationScreen>
 
     // Skip availability check and directly try to open WhatsApp
     // This is more reliable as the availability check can be unreliable
-    log('Attempting to open WhatsApp for number: $phoneNumber');
+    //! log('Attempting to open WhatsApp for number: $phoneNumber');
 
     // Proceed with opening WhatsApp - let the _openWhatsApp method handle all fallbacks
     await _openWhatsApp(phoneNumber, message);
@@ -332,7 +332,7 @@ class _NotificationScreenState extends State<NotificationScreen>
         return "$years year${years == 1 ? '' : 's'} ago";
       }
     } catch (e) {
-      log("Error in _getTimeAgo: $e");
+      //! log("Error in _getTimeAgo: $e");
       return "Unknown time";
     }
   }
@@ -581,7 +581,7 @@ class _NotificationScreenState extends State<NotificationScreen>
     String title = notification.title ?? "Parcel";
     String timeAgo = _getTimeAgo(notification.localCreatedAt.toString());
     try {} catch (e) {
-      log("Error in _buildParcelNotificationCard: $e");
+      //! log("Error in _buildParcelNotificationCard: $e");
       timeAgo = "Unknown time";
     }
     notification.avgRating?.toDouble();
@@ -640,7 +640,7 @@ class _NotificationScreenState extends State<NotificationScreen>
         formattedDate =
             "${DateFormat('dd.MM').format(startDate)} to ${DateFormat('dd.MM').format(endDate)}";
       } catch (e) {
-        log("Error parsing dates (fallback): $e");
+        //! log("Error parsing dates (fallback): $e");
         formattedDate = "N/A";
       }
     }
@@ -816,7 +816,7 @@ class _NotificationScreenState extends State<NotificationScreen>
         }
       }
     } catch (e) {
-      log("Error parsing createdAt time: $e, value: ${notification.createdAt}");
+      //! log("Error parsing createdAt time: $e, value: ${notification.createdAt}");
       timeAgo = "Unknown time";
     }
 
@@ -858,24 +858,24 @@ class _NotificationScreenState extends State<NotificationScreen>
       formattedDate =
           "${DateFormat('dd.MM').format(startDate)} to ${DateFormat('dd.MM').format(endDate)}";
     } catch (e) {
-      log("Error parsing dates: $e");
+      //! log("Error parsing dates: $e");
     }
     String getProfileImagePath() {
       if (controller.isLoading.value) {
-        log('⏳ Profile is still loading, returning default image URL');
+        //! log('⏳ Profile is still loading, returning default image URL');
         return 'https://i.ibb.co/z5YHLV9/profile.png';
       }
 
       final imageUrl = image;
-      log('Raw image URL from API: "$imageUrl"');
-      log('Image URL type: ${imageUrl.runtimeType}');
+      //! log('Raw image URL from API: "$imageUrl"');
+      //! log('Image URL type: ${imageUrl.runtimeType}');
 
       // Check for null, empty, or invalid URLs
       if (imageUrl.isEmpty ||
           imageUrl.trim().isEmpty ||
           imageUrl.toLowerCase() == 'null' ||
           imageUrl.toLowerCase() == 'undefined') {
-        log('❌ Image URL is null/empty/invalid, using default image URL');
+        //! log('❌ Image URL is null/empty/invalid, using default image URL');
         return 'https://i.ibb.co/z5YHLV9/profile.png';
       }
 
@@ -896,11 +896,11 @@ class _NotificationScreenState extends State<NotificationScreen>
       // Validate the constructed URL
       final uri = Uri.tryParse(fullImageUrl);
       if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
-        log('❌ Invalid URL format: $fullImageUrl, using default image URL');
+        //! log('❌ Invalid URL format: $fullImageUrl, using default image URL');
         return 'https://i.ibb.co/z5YHLV9/profile.png';
       }
 
-      log('✅ Constructed URL: $fullImageUrl');
+      //! log('✅ Constructed URL: $fullImageUrl');
       return fullImageUrl;
     }
 
@@ -937,7 +937,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                           );
                         },
                         errorBuilder: (context, error, stackTrace) {
-                          log('❌ Error loading image: $error');
+                          //! log('❌ Error loading image: $error');
                           return Container(
                             height: 40,
                             width: 40,

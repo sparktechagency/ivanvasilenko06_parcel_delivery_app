@@ -18,12 +18,12 @@ class ServiceController extends GetxController {
   Future<void> fetchParcelList() async {
     try {
       loading.value = true;
-      log("Fetching parcel list...");
+      //! log("Fetching parcel list...");
 
       // Retrieve token
       var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
       if (token.isEmpty) {
-        log("Error: No token found in SharedPreferences");
+        //! log("Error: No token found in SharedPreferences");
         // AppSnackBar.error('Authentication token missing. Please log in again.');
         loading.value = false;
         return;
@@ -33,11 +33,11 @@ class ServiceController extends GetxController {
       final response = await ApiGetServices()
           .apiGetServices(AppApiUrl.servicePromote, token: token);
 
-      log("API Response: $response");
+      //! log("API Response: $response");
 
       // Check if response is valid
       if (response == null || response.isEmpty) {
-        log("Error: Empty or null API response");
+        //! log("Error: Empty or null API response");
         // AppSnackBar.error(
         //     'Failed to load parcels. Empty response from server.');
         recentParcelList.clear();
@@ -51,7 +51,7 @@ class ServiceController extends GetxController {
         List<dynamic> dataList = response["data"];
 
         if (dataList.isEmpty) {
-          log("No parcels found in API response");
+          //! log("No parcels found in API response");
           // AppSnackBar.error('No parcels found.');
         } else {
           // Create individual ServiceScreenModel objects for each parcel
@@ -64,20 +64,20 @@ class ServiceController extends GetxController {
 
               // Add to the list
               recentParcelList.add(serviceModel);
-              log("Added parcel: ${parcel["_id"]} - ${parcel["title"] ?? 'No title'}");
+             //!  log("Added parcel: ${parcel["_id"]} - ${parcel["title"] ?? 'No title'}");
             } catch (e) {
-              log("Error processing parcel: $e for parcel: $parcel");
+             //!  log("Error processing parcel: $e for parcel: $parcel");
             }
           }
-          log("Parcel list updated. Total items: ${recentParcelList.length}");
+          //! log("Parcel list updated. Total items: ${recentParcelList.length}");
         }
       } else {
-        log("API Error: ${response["message"] ?? "Unknown error"}");
+        //! log("API Error: ${response["message"] ?? "Unknown error"}");
         // AppSnackBar.error(response["message"] ?? 'Failed to load parcels.');
         recentParcelList.clear();
       }
     } catch (e, stackTrace) {
-      log("Error fetching parcel list: $e", stackTrace: stackTrace);
+      //! log("Error fetching parcel list: $e", stackTrace: stackTrace);
       // AppSnackBar.error('Failed to load parcels. Please try again later.');
       recentParcelList.clear();
     } finally {
@@ -105,7 +105,7 @@ class ServiceController extends GetxController {
   Future<Datum?> fetchParcelById(String id) async {
     try {
       detailLoading.value = true;
-      log("Fetching parcel details for ID: $id");
+      //! log("Fetching parcel details for ID: $id");
 
       // First check if we already have this parcel
       Datum? existingParcel = getParcelById(id);
@@ -117,7 +117,7 @@ class ServiceController extends GetxController {
       // If not found in local storage, make API call
       var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
       if (token.isEmpty) {
-        log("Error: No token found in SharedPreferences");
+        //! log("Error: No token found in SharedPreferences");
         // AppSnackBar.error('Authentication token missing. Please log in again.');
         return null;
       }
@@ -129,7 +129,7 @@ class ServiceController extends GetxController {
           .apiGetServices("${AppApiUrl.servicePromote}/$id", token: token);
 
       if (response == null || response.isEmpty) {
-        log("Error: Empty or null API response");
+        //! log("Error: Empty or null API response");
         // AppSnackBar.error('Failed to load parcel details.');
         return null;
       }
@@ -140,13 +140,13 @@ class ServiceController extends GetxController {
         selectedParcel.value = parcel;
         return parcel;
       } else {
-        log("API Error: ${response["message"] ?? "Unknown error"}");
+        //! log("API Error: ${response["message"] ?? "Unknown error"}");
         // AppSnackBar.error(
         //     response["message"] ?? 'Failed to load parcel details.');
         return null;
       }
     } catch (e) {
-      log("Error fetching parcel details: $e");
+      //! log("Error fetching parcel details: $e");
       // AppSnackBar.error(
       //     'Failed to load parcel details. Please try again later.');
       return null;

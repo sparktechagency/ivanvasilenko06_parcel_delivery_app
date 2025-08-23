@@ -80,12 +80,12 @@ class NotificationController extends GetxController {
           notificationModel.refresh();
         }
 
-        log("✅✅✅ Fetched notifications, page $page of ${totalPages.value}");
+       //!  log("✅✅✅ Fetched notifications, page $page of ${totalPages.value}");
       } else {
         throw Exception("Failed to load notifications - null response");
       }
     } catch (ex) {
-      log("❎❎❎❎❎❎ Error fetching notifications: ${ex.toString()} ❎❎❎❎❎❎");
+      //! log("❎❎❎❎❎❎ Error fetching notifications: ${ex.toString()} ❎❎❎❎❎❎");
       errorMessage(ex.toString());
     } finally {
       isLoading(false);
@@ -120,16 +120,16 @@ class NotificationController extends GetxController {
             parcelNotifications.clear();
           }
           parcelNotifications.add(parcelModel);
-          log("✅ Parcel notifications fetched: Page $page");
+          //! log("✅ Parcel notifications fetched: Page $page");
         } else {
           if (page == 1) parcelNotifications.clear();
-          log("⚠️ No parcel notifications found");
+          //! log("⚠️ No parcel notifications found");
         }
       } else {
         throw Exception("Failed to load parcel notifications - null response");
       }
     } catch (ex) {
-      log("❌ Error fetching parcel notifications: ${ex.toString()}");
+      //! log("❌ Error fetching parcel notifications: ${ex.toString()}");
       parcelError(ex.toString());
     } finally {
       isParcelLoading(false);
@@ -163,10 +163,10 @@ class NotificationController extends GetxController {
         refresh();
       }
 
-      log("✅✅✅ Delivery notification status changed to: ${receivingDeliveries.value}");
+      //! log("✅✅✅ Delivery notification status changed to: ${receivingDeliveries.value}");
       return serverStatus;
     } catch (ex) {
-      log("❎❎❎❎❎❎ Error updating delivery notification status: ${ex.toString()} ❎❎❎❎❎❎");
+      //! log("❎❎❎❎❎❎ Error updating delivery notification status: ${ex.toString()} ❎❎❎❎❎❎");
       errorMessage(ex.toString());
       return receivingDeliveries.value;
     } finally {
@@ -182,16 +182,16 @@ class NotificationController extends GetxController {
         statusCode: 200,
       );
 
-      log("API Response: $response");
+      //! log("API Response: $response");
 
       if (response["status"] == "success") {
         final notificationModel = ReadingNotificaitonModel.fromJson(response);
-        log("Unread count from API: ${notificationModel.data?.unreadCount}");
+        //! log("Unread count from API: ${notificationModel.data?.unreadCount}");
 
         if (notificationModel.status == "success" &&
             notificationModel.data != null) {
           unreadCount.value = (notificationModel.data!.unreadCount!).toInt();
-          log("Final unread count: ${unreadCount.value}");
+          //! log("Final unread count: ${unreadCount.value}");
         }
       }
     } catch (ex) {
@@ -205,14 +205,14 @@ class NotificationController extends GetxController {
       final response = await ApiPatchServices()
           .apiPatchServices(url: AppApiUrl.isReadNotification, statusCode: 200);
       if (response["status"] == "success") {
-        log("✅✅✅ All notifications marked as read successfully ✅✅✅");
+        //! log("✅✅✅ All notifications marked as read successfully ✅✅✅");
         unreadCount.value = 0; // Reset unread count
         fetchNotifications(); // Refresh notifications
       } else {
-        log("❎❎❎❎❎❎ Failed to mark all notifications as read ❎❎❎❎❎❎");
+        //! log("❎❎❎❎❎❎ Failed to mark all notifications as read ❎❎❎❎❎❎");
       }
     } catch (ex) {
-      log("❎❎❎❎❎❎ Error marking all notifications as read: ${ex.toString()} ❎❎❎❎❎❎");
+      //! log("❎❎❎❎❎❎ Error marking all notifications as read: ${ex.toString()} ❎❎❎❎❎❎");
     }
   }
 }

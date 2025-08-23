@@ -169,7 +169,7 @@ class RouteManager {
       ),
       GetPage(
         name: AppRoutes.contactUsScreen,
-        page: () =>  const ContactUsScreen(),
+        page: () => const ContactUsScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),
@@ -259,7 +259,11 @@ class RouteManager {
         page: () => const ViewDetailsScreen(),
         transition: Transition.rightToLeft,
       ),
-      GetPage(name: AppRoutes.termsNConditions, page: () => const TermsAndCondition(),transition: Transition.rightToLeft,),
+      GetPage(
+        name: AppRoutes.termsNConditions,
+        page: () => const TermsAndCondition(),
+        transition: Transition.rightToLeft,
+      ),
     ];
   }
 }

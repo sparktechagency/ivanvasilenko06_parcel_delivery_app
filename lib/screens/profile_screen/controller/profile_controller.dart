@@ -23,53 +23,53 @@ class ProfileController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    log('🎯 ProfileController initialized');
+    //! log('🎯 ProfileController initialized');
     getProfileInfo();
   }
 
   Future<void> getProfileInfo() async {
-    log('🚀 Starting getProfileInfo API call');
+   //!  log('🚀 Starting getProfileInfo API call');
 
     isLoading.value = true;
     errorMessage.value = '';
 
     try {
       var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
-      log("🔑 Authorization Token: ${token.isNotEmpty ? '${token.substring(0, 20)}...' : 'EMPTY'}");
+      //! "🔑 Authorization Token: ${token.isNotEmpty ? '${token.substring(0, 20)}...' : 'EMPTY'}");
 
       if (token.isEmpty) {
-        log('❌ No token found, cannot make API call');
+       //!  log('❌ No token found, cannot make API call');
         errorMessage.value = 'No authentication token found';
         return;
       }
 
-      log('🌐 Making API call to: ${AppApiUrl.getProfile}');
+      //! log('🌐 Making API call to: ${AppApiUrl.getProfile}');
       final response = await ApiGetServices()
           .apiGetServices(AppApiUrl.getProfile, token: token);
 
-      log('📥 Raw API Response Type: ${response.runtimeType}');
-      log('📥 Raw API Response: ${response.toString()}');
+      //! vlog('📥 Raw API Response Type: ${response.runtimeType}');
+     //!  log('📥 Raw API Response: ${response.toString()}');
 
       if (response is Map<String, dynamic>) {
-        log('✅ Response is valid Map');
-        log('📊 Response keys: ${response.keys.toList()}');
-        log('📊 Response status: ${response['status']}');
-        log('📊 Response message: ${response['message']}');
+       //!  log('✅ Response is valid Map');
+        //! log('📊 Response keys: ${response.keys.toList()}');
+        //! log('📊 Response status: ${response['status']}');
+        //! log('📊 Response message: ${response['message']}');
 
         if (response['status'] == 'success' && response['data'] != null) {
-          log('✅ Response status is success, parsing data...');
+          //! log('✅ Response status is success, parsing data...');
 
           // Parse the profile data
           profileData.value = ProfileModel.fromJson(response);
 
 
           if (profileData.value.data != null) {
-            log('   - User exists: ${profileData.value.data!.user != null}');
+           //!  log('   - User exists: ${profileData.value.data!.user != null}');
 
             if (profileData.value.data!.user != null) {
               final user = profileData.value.data!.user!;
-              log('   - Image (raw): "${user.image}"');
-              log('   - Image type: ${user.image.runtimeType}');
+             //!  log('   - Image (raw): "${user.image}"');
+             //!  log('   - Image type: ${user.image.runtimeType}');
 
 
               // Test image URL construction
@@ -80,66 +80,66 @@ class ProfileController extends GetxController {
                 } else {
                   testUrl = "${AppApiUrl.liveDomain}/${user.image!.replaceAll(RegExp(r'^/+'), '')}";
                 }
-                log('🔗 Constructed image URL: $testUrl');
+               //!  log('🔗 Constructed image URL: $testUrl');
 
                 // Test the URL accessibility
                 _testImageUrl(testUrl);
               } else {
-                log('❌ No image URL available');
+               //!  log('❌ No image URL available');
               }
             }
           }
 
-          log('✅ Profile data successfully parsed and stored');
+          //! log('✅ Profile data successfully parsed and stored');
         } else {
           errorMessage.value = 'Error: ${response['message'] ?? 'Unknown error occurred'}';
-          log("❌ API returned error: ${response['message'] ?? 'No error message'}");
+          //! log("❌ API returned error: ${response['message'] ?? 'No error message'}");
         }
       } else {
         errorMessage.value = 'Invalid server response format';
-        log("❌ Invalid response format - not a Map: ${response.runtimeType}");
+        //! log("❌ Invalid response format - not a Map: ${response.runtimeType}");
       }
     } catch (e, stackTrace) {
       errorMessage.value = 'An error occurred: ${e.toString()}';
-      log('❌ Exception in getProfileInfo: ${e.toString()}');
-      log('❌ Stack trace: $stackTrace');
+      //! log('❌ Exception in getProfileInfo: ${e.toString()}');
+      //! log('❌ Stack trace: $stackTrace');
     } finally {
       isLoading.value = false;
-      log('🏁 getProfileInfo completed, isLoading set to false');
+     //!  log('🏁 getProfileInfo completed, isLoading set to false');
     }
   }
 
   // Helper method to test image URL accessibility
   Future<void> _testImageUrl(String url) async {
     try {
-      log('🔍 Testing image URL: $url');
+     //!  log('🔍 Testing image URL: $url');
 
       final response = await http.head(Uri.parse(url)).timeout(
         const Duration(seconds: 10),
         onTimeout: () {
-          log('⏰ Image URL test timed out');
+         //!  log('⏰ Image URL test timed out');
           throw Exception('Timeout');
         },
       );
 
-      log('🔍 Image URL test result:');
-      log('   - Status Code: ${response.statusCode}');
-      log('   - Content-Type: ${response.headers['content-type']}');
-      log('   - Content-Length: ${response.headers['content-length']}');
+      //! log('🔍 Image URL test result:');
+      //! log('   - Status Code: ${response.statusCode}');
+      //! log('   - Content-Type: ${response.headers['content-type']}');
+      //! log('   - Content-Length: ${response.headers['content-length']}');
 
       if (response.statusCode == 200) {
-        log('✅ Image URL is accessible');
+        //! log('✅ Image URL is accessible');
       } else {
-        log('❌ Image URL returned status: ${response.statusCode}');
+        //! log('❌ Image URL returned status: ${response.statusCode}');
       }
     } catch (e) {
-      log('❌ Image URL test failed: $e');
+      //! log('❌ Image URL test failed: $e');
     }
   }
 
   // Method to manually trigger a profile reload (for debugging)
   void forceReload() {
-    log('🔄 Force reloading profile data');
+    //! log('🔄 Force reloading profile data');
     getProfileInfo();
   }
 
@@ -157,11 +157,11 @@ class ProfileController extends GetxController {
       var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
       if (token.isEmpty) {
         errorMessage.value = 'Authorization token is missing';
-        log("Token missing");
+        //! log("Token missing");
         isLoading.value = false;
         return;
       }
-      log("🔑 Authorization Token: $token");
+      //! log("🔑 Authorization Token: $token");
 
       var request =
           http.MultipartRequest('PUT', Uri.parse(AppApiUrl.updateProfile));
@@ -175,7 +175,7 @@ class ProfileController extends GetxController {
         File imageFile = File(Image.path);
         if (!await imageFile.exists()) {
           errorMessage.value = 'Image file does not exist';
-          log("Image file error");
+          //! log("Image file error");
           isLoading.value = false;
           return;
         }
@@ -196,10 +196,10 @@ class ProfileController extends GetxController {
       request.headers['Authorization'] = 'Bearer $token';
       var response = await request.send();
       final responseBody = await response.stream.bytesToString();
-      log("Raw API Response: $responseBody");
+      //! log("Raw API Response: $responseBody");
 
       if (response.statusCode == 200) {
-        log("Profile updated successfully");
+        //! log("Profile updated successfully");
         await refreshProfileData(); // Refresh profile data
         Get.back(); // Navigate back to ProfileScreen
       } else {
@@ -211,11 +211,11 @@ class ProfileController extends GetxController {
           errorMessage.value =
               'Error: ${response.statusCode} - ${response.reasonPhrase}';
         }
-        log("Error Response: $responseBody");
+        //! log("Error Response: $responseBody");
       }
     } catch (e) {
       errorMessage.value = 'An error occurred: ${e.toString()}';
-      log('Exception error: ${e.toString()}');
+      //! log('Exception error: ${e.toString()}');
     } finally {
       isLoading.value = false;
     }
@@ -234,13 +234,13 @@ class ProfileController extends GetxController {
         return;
       }
       var url = AppApiUrl.deleteProfile;
-      log("Deleting profile at: $url with token: ${token.substring(0, 20)}...");
+     //!  log("Deleting profile at: $url with token: ${token.substring(0, 20)}...");
 
       final response =
           await ApiDeleteServices().apiDeleteServices(url: url, token: token);
 
       if (response != null) {
-        log("Profile deleted successfully");
+       //!  log("Profile deleted successfully");
         SharePrefsHelper.remove(SharedPreferenceValue.token);
 
         // Use a slight delay to ensure all UI operations complete
@@ -250,7 +250,7 @@ class ProfileController extends GetxController {
       } else {
         errorMessage.value =
             'Failed to delete profile - server returned null response';
-        log('Failed to delete profile - null response');
+        //! log('Failed to delete profile - null response');
       }
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
@@ -261,10 +261,10 @@ class ProfileController extends GetxController {
         errorMessage.value =
             'Delete failed: ${e.response?.data?['message'] ?? e.message}';
       }
-      log('DioException in deleteProfile: ${e.toString()}');
+     //!  log('DioException in deleteProfile: ${e.toString()}');
     } catch (e) {
       errorMessage.value = 'An error occurred: ${e.toString()}';
-      log('Exception error in deleteProfile: ${e.toString()}');
+     //!  log('Exception error in deleteProfile: ${e.toString()}');
     } finally {
       isLoading(false);
     }

@@ -49,7 +49,7 @@ class NewBookingsController extends GetxController {
 
       // Handle the response based on status field in the Map
       if (response['status'] == 'success') {
-        log('Parcel delivery updated successfully');
+        //! log('Parcel delivery updated successfully');
         final CurrentOrderController controller =
             Get.find<CurrentOrderController>();
         await controller.refreshCurrentOrder();
@@ -57,7 +57,7 @@ class NewBookingsController extends GetxController {
         resetNewBookingsBadge();
         // Get.snackbar('Success', 'Delivery request accepted successfully');
       } else {
-        log('Failed to update parcel: ${response['message']}');
+        //! log('Failed to update parcel: ${response['message']}');
         // Get.snackbar('Error', 'Failed to accept delivery request');
 
         // Revert state on failure
@@ -65,7 +65,7 @@ class NewBookingsController extends GetxController {
         requestStates.refresh();
       }
     } catch (error) {
-      log('Error: $error');
+      //! log('Error: $error');
       // Get.snackbar('Error', 'An error occurred while accepting the request');
 
       // Revert state on error
@@ -94,7 +94,7 @@ class NewBookingsController extends GetxController {
 
       // Handle the response based on the 'status' field in the Map
       if (response['status'] == 'success') {
-        log('Parcel delivery rejected successfully');
+        //! log('Parcel delivery rejected successfully');
         final CurrentOrderController controller =
             Get.find<CurrentOrderController>();
         await controller.refreshCurrentOrder();
@@ -102,7 +102,7 @@ class NewBookingsController extends GetxController {
         resetNewBookingsBadge();
         // Get.snackbar('Success', 'Delivery request rejected successfully');
       } else {
-        log('Failed to reject parcel: ${response['message']}');
+        //! log('Failed to reject parcel: ${response['message']}');
         // Get.snackbar('Error', 'Failed to reject delivery request');
 
         // Revert state on failure
@@ -110,7 +110,7 @@ class NewBookingsController extends GetxController {
         requestStates.refresh();
       }
     } catch (error) {
-      log('Error: $error');
+      //! log('Error: $error');
       // Get.snackbar('Error', 'An error occurred while rejecting the request');
 
       // Revert state on error
@@ -144,14 +144,14 @@ class NewBookingsController extends GetxController {
           await controller.getCurrentOrder();
           update(); // Use update() instead of refresh() if using GetX
         } else {
-          log('Failed to remove parcel: ${response.statusCode}');
+          //! log('Failed to remove parcel: ${response.statusCode}');
         }
       } else {
         // Fallback for unexpected response type
-        log('Unexpected response type: ${response.runtimeType}');
+        //! log('Unexpected response type: ${response.runtimeType}');
       }
     } catch (error) {
-      log('Error: $error');
+      //! log('Error: $error');
       rethrow; // Rethrow to handle in UI
     }
   }
@@ -171,13 +171,13 @@ class NewBookingsController extends GetxController {
       if (response is Map<String, dynamic>) {
         // Handle success case based on your API response structure
         if (response['status'] == 'success') {
-          log('Delivery cancelled successfully');
+          //! log('Delivery cancelled successfully');
           final CurrentOrderController controller =
               Get.find<CurrentOrderController>();
           await controller.getCurrentOrder();
           update();
         } else {
-          log('Failed to cancel delivery: ${response['message']}');
+          //! log('Failed to cancel delivery: ${response['message']}');
         }
       } else if (response != null && response.statusCode == 201) {
         // Handle Response object case
@@ -186,10 +186,10 @@ class NewBookingsController extends GetxController {
         await controller.getCurrentOrder();
         update();
       } else {
-        log('Failed to cancel delivery: ${response?.statusCode ?? 'Unknown error'}');
+        //! log('Failed to cancel delivery: ${response?.statusCode ?? 'Unknown error'}');
       }
     } catch (error) {
-      log('Error: $error');
+      //! log('Error: $error');
       rethrow;
     }
   }

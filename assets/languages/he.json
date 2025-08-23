@@ -193,5 +193,7 @@
   "iagree" : "אני מסכים",
   "refresh": "רענן",
   "fullName": "שם מלא",
-  "enterFullName": "הזן את שמך המלא"
+  "enterFullName": "הזן את שמך המלא",
+  "senderNameText" : "שם השולח",
+  "priceText" : "מְחִירִים"
 }

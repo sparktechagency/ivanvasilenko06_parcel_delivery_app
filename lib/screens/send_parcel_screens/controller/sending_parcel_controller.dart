@@ -249,7 +249,7 @@ class ParcelController extends GetxController {
     }
 
     var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
-    log("🔑 Authorization Token: $token");
+    //! log("🔑 Authorization Token: $token");
 
     if (token.isEmpty) {
       // AppSnackBar.error("Authorization token is missing.");
@@ -278,7 +278,7 @@ class ParcelController extends GetxController {
         imagePath: selectedImages,
       );
     } catch (e) {
-      log("❌ Error submitting parcel: $e");
+      //! log("❌ Error submitting parcel: $e");
       // AppSnackBar.error("Failed to submit parcel data.");
     } finally {
       isLoading.value = false;
@@ -317,7 +317,7 @@ class ParcelController extends GetxController {
       // Navigate back
       Get.back();
     } catch (e) {
-      log("Error during navigation back: $e");
+      //! log("Error during navigation back: $e");
       // Force navigation if there's an error
       Get.back();
     }
@@ -337,7 +337,7 @@ class ParcelController extends GetxController {
       pageController.dispose();
       tabController.dispose();
     } catch (e) {
-      log("Error disposing controllers: $e");
+      //! log("Error disposing controllers: $e");
     }
     super.onClose();
   }

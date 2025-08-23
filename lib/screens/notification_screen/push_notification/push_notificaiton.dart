@@ -274,14 +274,14 @@ class NotificationService {
         provisional: false,
         criticalAlert: false,
       );
-      log('User granted permission: ${settings.authorizationStatus}');
+      //! log('User granted permission: ${settings.authorizationStatus}');
       // Get the token for the device
       String? token = await _firebaseMessaging.getToken();
-      log('🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑 Device Token: $token');
+      //! log('🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑 Device Token: $token');
       await SharePrefsHelper.setString(SharedPreferenceValue.fcmToken, token);
       String savedToken =
           await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
-      log("Saved FCM Token: $savedToken");
+      //! log("Saved FCM Token: $savedToken");
           // Handle foreground messages
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         _handleForegroundMessage(message);
@@ -300,12 +300,12 @@ class NotificationService {
         _handleNotificationNavigation(message);
       });
     } catch (e) {
-      log("An error occurred during FCM setup: $e");
+       //!  log("An error occurred during FCM setup: $e");
     }
   }
 
   void _handleForegroundMessage(RemoteMessage message) {
-    log('Received message in foreground: ${message.notification?.title}, ${message.notification?.body}');
+      //! log('Received message in foreground: ${message.notification?.title}, ${message.notification?.body}');
     Get.snackbar(message.notification?.title ?? 'Notification',
         message.notification?.body ?? 'You have a new message.',
         backgroundColor: AppColors.black, colorText: Colors.white, onTap: (x) {
@@ -325,7 +325,7 @@ class NotificationService {
 
     Get.toNamed(AppRoutes.notificationScreen);
 
-    log('Handling a background message: ${message.messageId}');
+      //! log('Handling a background message: ${message.messageId}');
     // Additional background handling logic can be added here
   }
 
@@ -335,7 +335,7 @@ class NotificationService {
       arguments: {'tabIndex': 0},
     );
 
-    log('Navigating to notification screen due to message: ${message.notification?.title}');
+    //! log('Navigating to notification screen due to message: ${message.notification?.title}');
     // Implement your navigation logic here
     // Example: Get.toNamed(AppRoute.notification);
   }

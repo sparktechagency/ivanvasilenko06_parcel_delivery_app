@@ -100,7 +100,7 @@ class _DeliveryDetailsScreenState extends State<DeliveryDetailsScreen> {
         }
       }
     } catch (e) {
-      log("Error loading addresses: $e");
+      //! log("Error loading addresses: $e");
     }
   }
 
@@ -129,7 +129,7 @@ class _DeliveryDetailsScreenState extends State<DeliveryDetailsScreen> {
         ];
       }
     } catch (e) {
-      log("Error extracting coordinates: $e");
+      //! log("Error extracting coordinates: $e");
     }
 
     return null;
@@ -173,14 +173,14 @@ class _DeliveryDetailsScreenState extends State<DeliveryDetailsScreen> {
       }
       return 'No address found';
     } catch (e) {
-      log("Error fetching address: $e");
+      //! log("Error fetching address: $e");
       return 'Error fetching address';
     }
   }
 
   String _getFormattedDeliveryTime(currentParcel) {
-    log("deliveryStartTime: ${currentParcel?.deliveryStartTime}");
-    log("deliveryEndTime: ${currentParcel?.deliveryEndTime}");
+    //! log("deliveryStartTime: ${currentParcel?.deliveryStartTime}");
+    //! log("deliveryEndTime: ${currentParcel?.deliveryEndTime}");
     try {
       if (currentParcel?.deliveryStartTime != null &&
           currentParcel?.deliveryEndTime != null) {
@@ -194,7 +194,7 @@ class _DeliveryDetailsScreenState extends State<DeliveryDetailsScreen> {
         return "N/A";
       }
     } catch (e) {
-      log("Error in _getFormattedDeliveryTime: $e");
+      //! log("Error in _getFormattedDeliveryTime: $e");
       return "N/A";
     }
   }
@@ -390,7 +390,7 @@ class _DeliveryDetailsScreenState extends State<DeliveryDetailsScreen> {
         return "${location.coordinates[1]}, ${location.coordinates[0]}";
       }
     } catch (e) {
-      log("Error getting location string: $e");
+      //! log("Error getting location string: $e");
     }
 
     return "N/A";

@@ -128,7 +128,7 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
         _handleAddressError(parcelId, isPickup, "No address found");
       }
     } catch (e) {
-      log("Error getting address for parcel $parcelId (${isPickup ? 'pickup' : 'delivery'}): $e");
+     //!  log("Error getting address for parcel $parcelId (${isPickup ? 'pickup' : 'delivery'}): $e");
       _handleAddressError(parcelId, isPickup, "Error fetching address");
     }
   }
@@ -245,7 +245,7 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                           formattedDate =
                               "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
                         } catch (e) {
-                          log("Error parsing dates: $e");
+                         //!  log("Error parsing dates: $e");
                         }
                         //! Get address display values
                         final bool isPickupLoading =
@@ -417,7 +417,7 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                                       onTap: () {
                                         if (parcel != null) {
                                           // Debug the parcel object to ensure it's not null
-                                          log("Navigating with parcel: $parcel");
+                                          //! log("Navigating with parcel: $parcel");
 
                                           //! Check if parcel has required coordinates
                                           final pickupCoords =
@@ -445,7 +445,7 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                                             arguments: parcelCopy,
                                           );
                                         } else {
-                                          log("Parcel is null or missing required fields");
+                                          //! "Parcel is null or missing required fields");
                                           // Get.snackbar(
                                           //   "Error",
                                           //   "Parcel details are missing.",

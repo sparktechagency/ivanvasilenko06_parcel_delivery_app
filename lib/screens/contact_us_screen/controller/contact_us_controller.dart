@@ -55,7 +55,7 @@ class ContactUsController extends GetxController {
           url: AppApiUrl.appReveiw, body: body, statusCode: 201);
 
       if (response['data'] != null) {
-        appLog("Post your review successfully");
+        //! appLog("Post your review successfully");
         AppSnackBar.success("Post Your Review Successfully");
         // Clear the form after successful submission
         reviewtext.value.clear();
@@ -64,7 +64,7 @@ class ContactUsController extends GetxController {
         AppSnackBar.error("Post Your Review Failed");
       }
     } catch (e) {
-      appLog("Error posting review: $e");
+      //! appLog("Error posting review: $e");
       AppSnackBar.error("An error occurred while posting your review");
     } finally {
       isLoading(false);

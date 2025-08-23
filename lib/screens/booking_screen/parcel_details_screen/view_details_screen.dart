@@ -149,8 +149,8 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
   }
 
   String _getFormattedDeliveryTime(currentParcel) {
-    log("deliveryStartTime: ${currentParcel?.deliveryStartTime}");
-    log("deliveryEndTime: ${currentParcel?.deliveryEndTime}");
+    //! log("deliveryStartTime: ${currentParcel?.deliveryStartTime}");
+    //! log("deliveryEndTime: ${currentParcel?.deliveryEndTime}");
     try {
       if (currentParcel?.deliveryStartTime != null &&
           currentParcel?.deliveryEndTime != null) {
@@ -164,7 +164,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
         return "N/A";
       }
     } catch (e) {
-      log("Error in _getFormattedDeliveryTime: $e");
+     //!  log("Error in _getFormattedDeliveryTime: $e");
       return "N/A";
     }
   }

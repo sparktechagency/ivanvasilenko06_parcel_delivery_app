@@ -48,13 +48,13 @@ class VerifyEmailController extends GetxController {
     screen = arguments["screen"] ?? "";
     isFromLogin = screen == "login";
 
-    log("Screen type: $screen, isFromLogin: $isFromLogin");
+    //! log("Screen type: $screen, isFromLogin: $isFromLogin");
 
     startTimer();
 
     // Validation check
     if (Get.arguments == null || firebaseID.isEmpty || phoneNumber.isEmpty) {
-      log("Missing required arguments");
+      //! log("Missing required arguments");
       Get.back();
     }
   }
@@ -91,7 +91,7 @@ class VerifyEmailController extends GetxController {
           await FirebaseAuth.instance.signInWithCredential(credential);
 
       if (userCredential.user != null) {
-        log("Firebase OTP verification successful");
+        //! log("Firebase OTP verification successful");
 
         // Route to appropriate flow based on screen type
         if (isFromLogin) {
@@ -103,10 +103,10 @@ class VerifyEmailController extends GetxController {
         AppSnackBar.error("OTP verification failed. Please try again.");
       }
     } on FirebaseAuthException catch (e) {
-      log("Firebase Auth Error: ${e.code} - ${e.message}");
+      //! log("Firebase Auth Error: ${e.code} - ${e.message}");
       _handleFirebaseAuthError(e);
     } catch (e) {
-      log("Error in Firebase OTP verification: $e");
+      //! log("Error in Firebase OTP verification: $e");
       AppSnackBar.error(
           "An error occurred while verifying the OTP. Please try again.");
     } finally {
@@ -137,7 +137,7 @@ class VerifyEmailController extends GetxController {
       );
 
       if (response["status"] == "success") {
-        log("Registration successful");
+        //! log("Registration successful");
 
         if (response["token"] != null) {
           await SharePrefsHelper.setString(
@@ -145,7 +145,7 @@ class VerifyEmailController extends GetxController {
 
           String token =
               await SharePrefsHelper.getString(SharedPreferenceValue.token);
-          log("Saved registration token: $token");
+          //! log("Saved registration token: $token");
         }
 
         AppSnackBar.success("Account created successfully!");
@@ -161,7 +161,7 @@ class VerifyEmailController extends GetxController {
         AppSnackBar.error("Registration failed. Please try again.");
       }
     } catch (e) {
-      log("Error in signup flow: $e");
+      //! log("Error in signup flow: $e");
       AppSnackBar.error("Registration failed. Please try again.");
     }
   }
@@ -196,7 +196,7 @@ class VerifyEmailController extends GetxController {
 
           String token =
               await SharePrefsHelper.getString(SharedPreferenceValue.token);
-          log("Saved login token: $token");
+          //! log("Saved login token: $token");
         }
 
         AppSnackBar.success("Login successful!");
@@ -213,7 +213,7 @@ class VerifyEmailController extends GetxController {
         AppSnackBar.error("Login failed. Please try again.");
       }
     } catch (e) {
-      log("Error in login flow: $e");
+      //! log("Error in login flow: $e");
       AppSnackBar.error("Login failed. Please try again.");
     }
   }
@@ -242,7 +242,7 @@ class VerifyEmailController extends GetxController {
 
   // Resend OTP functionality
   void resendCode() {
-    log("Resend code initiated");
+    //! log("Resend code initiated");
     // You might want to call the appropriate resend method based on the flow
     if (isFromLogin) {
       _resendLoginOTP();
@@ -261,7 +261,7 @@ class VerifyEmailController extends GetxController {
           await FirebaseAuth.instance.signInWithCredential(credential);
         },
         verificationFailed: (FirebaseAuthException e) {
-          log("Resend failed: ${e.message}");
+          //! log("Resend failed: ${e.message}");
           AppSnackBar.error("Failed to resend OTP. Please try again.");
         },
         codeSent: (String verificationId, int? resendToken) {
@@ -273,7 +273,7 @@ class VerifyEmailController extends GetxController {
         },
       );
     } catch (e) {
-      log("Error resending signup OTP: $e");
+      //! log("Error resending signup OTP: $e");
       AppSnackBar.error("Failed to resend OTP. Please try again.");
     }
   }
@@ -287,7 +287,7 @@ class VerifyEmailController extends GetxController {
           await FirebaseAuth.instance.signInWithCredential(credential);
         },
         verificationFailed: (FirebaseAuthException e) {
-          log("Resend failed: ${e.message}");
+          //! log("Resend failed: ${e.message}");
           AppSnackBar.error("Failed to resend OTP. Please try again.");
         },
         codeSent: (String verificationId, int? resendToken) {
@@ -299,7 +299,7 @@ class VerifyEmailController extends GetxController {
         },
       );
     } catch (e) {
-      log("Error resending login OTP: $e");
+      //! log("Error resending login OTP: $e");
       AppSnackBar.error("Failed to resend OTP. Please try again.");
     }
   }

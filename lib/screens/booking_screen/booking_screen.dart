@@ -70,7 +70,7 @@ class _BookingScreenState extends State<BookingScreen> {
         return 'No address found';
       }
     } catch (e) {
-      log('Error fetching address: $e');
+      //! log('Error fetching address: $e');
       return 'Error fetching address';
     }
   }
@@ -153,7 +153,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         setState(() {
                           selectedRating = rating;
                         });
-                        appLog('Rating: $rating');
+                        //! appLog('Rating: $rating');
                       },
                     ),
                   ),
@@ -235,7 +235,7 @@ class _BookingScreenState extends State<BookingScreen> {
         }
       }
     } catch (e) {
-      log('Error launching phone call: $e');
+      //! log('Error launching phone call: $e');
       _showErrorSnackBar('Error opening dialer: $e');
     }
   }
@@ -290,7 +290,7 @@ class _BookingScreenState extends State<BookingScreen> {
       for (var method in whatsappMethods) {
         try {
           final Uri uri = Uri.parse(method['url']!);
-          log('Trying ${method['description']}: ${method['url']}');
+          //! log('Trying ${method['description']}: ${method['url']}');
 
           // Try to launch the URL
           try {
@@ -298,15 +298,15 @@ class _BookingScreenState extends State<BookingScreen> {
               uri,
               mode: LaunchMode.externalApplication,
             );
-            log('✅ Successfully launched via ${method['description']}');
+            //! log('✅ Successfully launched via ${method['description']}');
             success = true;
             break;
           } catch (e) {
-            log('❌ Failed to launch ${method['description']}: $e');
+            //! log('❌ Failed to launch ${method['description']}: $e');
             continue;
           }
         } catch (e) {
-          log('❌ Error parsing URL for ${method['description']}: $e');
+          //! log('❌ Error parsing URL for ${method['description']}: $e');
           continue;
         }
       }
@@ -329,23 +329,23 @@ class _BookingScreenState extends State<BookingScreen> {
               success = true;
               break;
             } catch (e) {
-              log('Fallback scheme $scheme failed: $e');
+              //! log('Fallback scheme $scheme failed: $e');
               continue;
             }
           }
         } catch (e) {
-          log('All fallback methods failed: $e');
+          //! log('All fallback methods failed: $e');
         }
 
         if (!success) {
           // If everything fails, provide helpful error message
-          log('❌ All WhatsApp methods failed');
+          //! log('❌ All WhatsApp methods failed');
           _showErrorSnackBar(
               'Unable to open WhatsApp. Please ensure WhatsApp is installed and try again.');
         }
       }
     } catch (e) {
-      log('❌ Critical error in _openWhatsApp: $e');
+      //! log('❌ Critical error in _openWhatsApp: $e');
       _showErrorSnackBar('Error opening WhatsApp: ${e.toString()}');
     }
   }
@@ -370,7 +370,7 @@ class _BookingScreenState extends State<BookingScreen> {
           final businessUri = Uri.parse('whatsapp://send?phone=1234567890');
           availability['whatsapp_business'] = await canLaunchUrl(businessUri);
         } catch (e) {
-          log('WhatsApp Business scheme check failed: $e');
+          //! log('WhatsApp Business scheme check failed: $e');
         }
 
         // Method 2: If regular WhatsApp check failed, assume any WhatsApp variant might be available
@@ -379,14 +379,14 @@ class _BookingScreenState extends State<BookingScreen> {
             final webWhatsappUri = Uri.parse('https://wa.me/1234567890');
             availability['whatsapp'] = await canLaunchUrl(webWhatsappUri);
           } catch (e) {
-            log('Web WhatsApp check failed: $e');
+            //! log('Web WhatsApp check failed: $e');
           }
         }
       }
 
-      log('WhatsApp availability: $availability');
+      //! log('WhatsApp availability: $availability');
     } catch (e) {
-      log('Error checking WhatsApp availability: $e');
+      //! log('Error checking WhatsApp availability: $e');
     }
 
     return availability;
@@ -402,7 +402,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
     // Skip availability check and directly try to open WhatsApp
     // This is more reliable as the availability check can be unreliable
-    log('Attempting to open WhatsApp for number: $phoneNumber');
+    //! log('Attempting to open WhatsApp for number: $phoneNumber');
 
     // Proceed with opening WhatsApp - let the _openWhatsApp method handle all fallbacks
     await _openWhatsApp(phoneNumber, message);
@@ -830,7 +830,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   formattedDate =
                       "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
                 } catch (e) {
-                  log("Error parsing dates: $e");
+                  //! log("Error parsing dates: $e");
                 }
                 //!
                 return Column(
@@ -1422,7 +1422,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 formattedDate =
                     "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
               } catch (e) {
-                log("Error parsing dates: $e");
+                //! log("Error parsing dates: $e");
               }
               final deliveryLocation = parcel.deliveryLocation?.coordinates;
               final pickupLocation = parcel.pickupLocation?.coordinates;
@@ -1457,20 +1457,20 @@ class _BookingScreenState extends State<BookingScreen> {
 
               String getProfileImagePath() {
                 if (newBookingController.isLoading.value) {
-                  log('⏳ Profile is still loading, returning default image URL');
+                  //! log('⏳ Profile is still loading, returning default image URL');
                   return 'https://i.ibb.co/z5YHLV9/profile.png';
                 }
 
                 final imageUrl = deliveryRequest.image!;
-                log('Raw image URL from API: "$imageUrl"');
-                log('Image URL type: ${imageUrl.runtimeType}');
+                //! log('Raw image URL from API: "$imageUrl"');
+                //! log('Image URL type: ${imageUrl.runtimeType}');
 
                 // Check for null, empty, or invalid URLs
                 if (imageUrl.isEmpty ||
                     imageUrl.trim().isEmpty ||
                     imageUrl.toLowerCase() == 'null' ||
                     imageUrl.toLowerCase() == 'undefined') {
-                  log('❌ Image URL is null/empty/invalid, using default image URL');
+                  //! log('❌ Image URL is null/empty/invalid, using default image URL');
                   return 'https://i.ibb.co/z5YHLV9/profile.png';
                 }
                 String fullImageUrl;
@@ -1490,11 +1490,11 @@ class _BookingScreenState extends State<BookingScreen> {
                 // Validate the constructed URL
                 final uri = Uri.tryParse(fullImageUrl);
                 if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
-                  log('❌ Invalid URL format: $fullImageUrl, using default image URL');
+                  //! log('❌ Invalid URL format: $fullImageUrl, using default image URL');
                   return 'https://i.ibb.co/z5YHLV9/profile.png';
                 }
 
-                log('✅ Constructed URL: $fullImageUrl');
+                //! log('✅ Constructed URL: $fullImageUrl');
                 return fullImageUrl;
               }
 

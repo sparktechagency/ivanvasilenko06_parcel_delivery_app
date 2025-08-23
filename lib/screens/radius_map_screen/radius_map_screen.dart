@@ -56,7 +56,7 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
         customMarkerIcon = BitmapDescriptor.fromBytes(markerIconBytes);
       });
     } catch (e) {
-      log('Error loading custom marker: $e');
+      //! log('Error loading custom marker: $e');
       setState(() {
         customMarkerIcon = BitmapDescriptor.defaultMarker;
       });

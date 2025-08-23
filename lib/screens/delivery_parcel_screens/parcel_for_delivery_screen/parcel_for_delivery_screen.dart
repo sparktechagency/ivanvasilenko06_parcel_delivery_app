@@ -57,7 +57,7 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
         return 'No address found';
       }
     } catch (e) {
-      log('Error fetching address: $e');
+      //! log('Error fetching address: $e');
       return 'Error fetching address';
     }
   }
@@ -85,7 +85,7 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
   Widget build(BuildContext context) {
     final deliveryScreenController = Get.find<DeliveryScreenController>();
 
-    log("▶️▶️▶️▶️▶️ The parcels are: ${deliveryScreenController.parcels}◀️◀️◀️◀️◀️");
+    //! log("▶️▶️▶️▶️▶️ The parcels are: ${deliveryScreenController.parcels}◀️◀️◀️◀️◀️");
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -196,14 +196,14 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
                         formattedDate =
                             "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
                       } catch (e) {
-                        log("Error parsing dates: $e");
+                       //!  log("Error parsing dates: $e");
                       }
 
                       //! Check if request is already sent for this parcel
                       final isRequestSent = controller.isRequestSent(parcelId);
 
                       //! Debug log to verify status
-                      log("Parcel ID: $parcelId, Request Sent: $isRequestSent");
+                      //! "Parcel ID: $parcelId, Request Sent: $isRequestSent");
                       return Padding(
                         padding: const EdgeInsets.all(14),
                         child: Column(

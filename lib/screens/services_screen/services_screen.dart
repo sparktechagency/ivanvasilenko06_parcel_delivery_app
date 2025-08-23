@@ -156,7 +156,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
         _handleAddressError(parcelId, isPickup, "No address found");
       }
     } catch (e) {
-      log("Error getting address for parcel $parcelId (${isPickup ? 'pickup' : 'delivery'}): $e");
+      //! log("Error getting address for parcel $parcelId (${isPickup ? 'pickup' : 'delivery'}): $e");
       _handleAddressError(parcelId, isPickup, "Error fetching address");
     }
   }
@@ -189,15 +189,16 @@ class _ServicesScreenState extends State<ServicesScreen> {
       });
     }
   }
+
   String _getProfileImagePath() {
     if (profileController.isLoading.value) {
-      log('⏳ Profile is still loading, returning default image URL');
+      //! log('⏳ Profile is still loading, returning default image URL');
       return 'https://i.ibb.co/z5YHLV9/profile.png';
     }
 
     final imageUrl = profileController.profileData.value.data?.user?.image;
-    log('Raw image URL from API: "$imageUrl"');
-    log('Image URL type: ${imageUrl.runtimeType}');
+    //! log('Raw image URL from API: "$imageUrl"');
+    //! log('Image URL type: ${imageUrl.runtimeType}');
 
     // Check for null, empty, or invalid URLs
     if (imageUrl == null ||
@@ -205,29 +206,32 @@ class _ServicesScreenState extends State<ServicesScreen> {
         imageUrl.trim().isEmpty ||
         imageUrl.toLowerCase() == 'null' ||
         imageUrl.toLowerCase() == 'undefined') {
-      log('❌ Image URL is null/empty/invalid, using default image URL');
+      //! log('❌ Image URL is null/empty/invalid, using default image URL');
       return 'https://i.ibb.co/z5YHLV9/profile.png';
     }
 
     String fullImageUrl;
     // Trim and clean the URL
     String cleanImageUrl = imageUrl.trim();
-    if (cleanImageUrl.startsWith('https://') || cleanImageUrl.startsWith('http://')) {
+    if (cleanImageUrl.startsWith('https://') ||
+        cleanImageUrl.startsWith('http://')) {
       fullImageUrl = cleanImageUrl;
     } else {
       // Remove leading slashes and ensure proper concatenation
-      cleanImageUrl = cleanImageUrl.startsWith('/') ? cleanImageUrl.substring(1) : cleanImageUrl;
+      cleanImageUrl = cleanImageUrl.startsWith('/')
+          ? cleanImageUrl.substring(1)
+          : cleanImageUrl;
       fullImageUrl = "${AppApiUrl.liveDomain}/$cleanImageUrl";
     }
 
     // Validate the constructed URL
     final uri = Uri.tryParse(fullImageUrl);
     if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
-      log('❌ Invalid URL format: $fullImageUrl, using default image URL');
+      //! log('❌ Invalid URL format: $fullImageUrl, using default image URL');
       return 'https://i.ibb.co/z5YHLV9/profile.png';
     }
 
-    log('✅ Constructed URL: $fullImageUrl');
+    //!  log('✅ Constructed URL: $fullImageUrl');
     return fullImageUrl;
   }
 
@@ -237,10 +241,12 @@ class _ServicesScreenState extends State<ServicesScreen> {
       backgroundColor: AppColors.white,
       body: Obx(() {
         if (profileController.isLoading.value) {
-          return  Center(child: LoadingAnimationWidget.hexagonDots(
-                color: AppColors.black,
-                size: 40,
-              ),);
+          return Center(
+            child: LoadingAnimationWidget.hexagonDots(
+              color: AppColors.black,
+              size: 40,
+            ),
+          );
         }
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -287,8 +293,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                       const SpaceWidget(spaceWidth: 12),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(100),
-                        child:
-                        Image.network(
+                        child: Image.network(
                           _getProfileImagePath(),
                           height: 40,
                           width: 40,
@@ -308,9 +313,9 @@ class _ServicesScreenState extends State<ServicesScreen> {
                               width: 40,
                               child: Center(
                                 child: LoadingAnimationWidget.hexagonDots(
-                color: AppColors.black,
-                size: 40,
-              ),
+                                  color: AppColors.black,
+                                  size: 40,
+                                ),
                               ),
                             );
                           },
@@ -338,9 +343,9 @@ class _ServicesScreenState extends State<ServicesScreen> {
                     () => controller.loading.value
                         ? Center(
                             child: LoadingAnimationWidget.hexagonDots(
-                color: AppColors.black,
-                size: 40,
-              ),
+                              color: AppColors.black,
+                              size: 40,
+                            ),
                           )
                         : Column(
                             children: [
@@ -500,7 +505,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                       formattedDate =
                                           "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
                                     } catch (e) {
-                                      log("Error parsing dates: $e");
+                                      //! log("Error parsing dates: $e");
                                     }
 
                                     return Column(

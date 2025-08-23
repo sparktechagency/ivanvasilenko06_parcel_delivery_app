@@ -41,23 +41,23 @@ class _HomeScreenState extends State<HomeScreen> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          log('Location permissions denied.');
+          //! log('Location permissions denied.');
           return;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
-        log('Location permissions permanently denied.');
+        //! log('Location permissions permanently denied.');
         return;
       }
 
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
       _radiusController.setCurrentLocation(LatLng(position.latitude, position.longitude));
-      log('Current Location: Latitude: ${position.latitude}');
-      log('Current Location: Longitude: ${position.longitude}');
+      //! log('Current Location: Latitude: ${position.latitude}');
+      //! log('Current Location: Longitude: ${position.longitude}');
     } catch (e) {
-      log('Error getting location: $e');
+      //! log('Error getting location: $e');
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Could not get current location. Please try again.')));
     }
@@ -65,13 +65,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _getProfileImagePath() {
     if (profileController.isLoading.value) {
-      log('⏳ Profile is still loading, returning default image URL');
+     //!  log('⏳ Profile is still loading, returning default image URL');
       return 'https://i.ibb.co/z5YHLV9/profile.png';
     }
 
     final imageUrl = profileController.profileData.value.data?.user?.image;
-    log('Raw image URL from API: "$imageUrl"');
-    log('Image URL type: ${imageUrl.runtimeType}');
+    //! log('Raw image URL from API: "$imageUrl"');
+    //! log('Image URL type: ${imageUrl.runtimeType}');
 
     // Check for null, empty, or invalid URLs
     if (imageUrl == null ||
@@ -79,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
         imageUrl.trim().isEmpty ||
         imageUrl.toLowerCase() == 'null' ||
         imageUrl.toLowerCase() == 'undefined') {
-      log('❌ Image URL is null/empty/invalid, using default image URL');
+     //! '❌ Image URL is null/empty/invalid, using default image URL');
       return 'https://i.ibb.co/z5YHLV9/profile.png';
     }
 
@@ -97,11 +97,11 @@ class _HomeScreenState extends State<HomeScreen> {
     // Validate the constructed URL
     final uri = Uri.tryParse(fullImageUrl);
     if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
-      log('❌ Invalid URL format: $fullImageUrl, using default image URL');
+      //! log('❌ Invalid URL format: $fullImageUrl, using default image URL');
       return 'https://i.ibb.co/z5YHLV9/profile.png';
     }
 
-    log('✅ Constructed URL: $fullImageUrl');
+    //! log('✅ Constructed URL: $fullImageUrl');
     return fullImageUrl;
   }
 
@@ -235,7 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             onPressed: () {
                               _radiusController.fetchParcelsInRadius();
                               Get.offNamed(AppRoutes.radiusMapScreen);
-                              log("😉😉😉😉😉😉😉😉 ${_radiusController.currentLocation.value?.latitude} ${_radiusController.currentLocation.value?.longitude}");
+                              //! log("😉😉😉😉😉😉😉😉 ${_radiusController.currentLocation.value?.latitude} ${_radiusController.currentLocation.value?.longitude}");
                             },
                             label: "next".tr,
                             textColor: AppColors.white,
@@ -269,10 +269,10 @@ class _HomeScreenState extends State<HomeScreen> {
       notificationController.isReadNotification();
 
       // Log profile data after it's loaded
-      appLog('🔍 Profile loaded in initState');
-      appLog('Profile Status: ${profileController.profileData.value.status}');
-      appLog('Profile Image: ${profileController.profileData.value.data?.user?.image ?? "No image"}');
-      appLog('Full Name: ${profileController.profileData.value.data?.user?.fullName ?? "No name"}');
+      //! appLog('🔍 Profile loaded in initState');
+      //! appLog('Profile Status: ${profileController.profileData.value.status}');
+      //! appLog('Profile Image: ${profileController.profileData.value.data?.user?.image ?? "No image"}');
+      //! appLog('Full Name: ${profileController.profileData.value.data?.user?.fullName ?? "No name"}');
     });
   }
 

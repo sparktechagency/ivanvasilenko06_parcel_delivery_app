@@ -85,23 +85,23 @@ class DeliveryScreenController extends GetxController {
     isLoading.value = true;
 
     // Validate coordinates before making API call
-    appLog("🔍 Validating coordinates before API call:");
-    appLog("📍 Pickup Location: ${pickupLocation.value}");
-    appLog("📍 Pickup Lat: ${pickupLocationLatitude.value}");
-    appLog("📍 Pickup Lng: ${pickupLocationLongitude.value}");
-    appLog("🎯 Delivery Location: ${selectedDeliveryLocation.value}");
-    appLog("🎯 Delivery Lat: ${deliveryLocationLatitude.value}");
-    appLog("🎯 Delivery Lng: ${deliveryLocationLongitude.value}");
+    //! appLog("🔍 Validating coordinates before API call:");
+    //! appLog("📍 Pickup Location: ${pickupLocation.value}");
+    //! appLog("📍 Pickup Lat: ${pickupLocationLatitude.value}");
+    //! appLog("📍 Pickup Lng: ${pickupLocationLongitude.value}");
+    //! appLog("🎯 Delivery Location: ${selectedDeliveryLocation.value}");
+    //! appLog("🎯 Delivery Lat: ${deliveryLocationLatitude.value}");
+    //! appLog("🎯 Delivery Lng: ${deliveryLocationLongitude.value}");
 
     try {
       final String url =
           '${AppApiUrl.deliverParcel}?deliveryType=${selectedDeliveryType.value}&pickupLocation=${pickupLocation.value}&deliveryLocation=${selectedDeliveryLocation.value}&pickupLat=${pickupLocationLatitude.value}&pickupLng=${pickupLocationLongitude.value}&deliveryLat=${deliveryLocationLatitude.value}&deliveryLng=${deliveryLocationLongitude.value}';
 
-      appLog("🚀 Final API URL: $url");
+      //! appLog("🚀 Final API URL: $url");
 
       final response = await ApiGetServices().apiGetServices(url);
-      appLog("Body res 👀👀👀👀👀👀👀👀👀👀👀👀👀👀👀");
-      appLog(response);
+      //! appLog("Body res 👀👀👀👀👀👀👀👀👀👀👀👀👀👀👀");
+      //! appLog(response);
 
       if (response != null &&
           response['status'] == 'success' &&
@@ -117,13 +117,13 @@ class DeliveryScreenController extends GetxController {
           parcels.clear();
         }
 
-        appLog("Parcel list**********=============================");
-        appLog(parcels.value.length);
+        //! appLog("Parcel list**********=============================");
+        //! appLog(parcels.value.length);
       } else {
         parcels.clear();
       }
     } catch (e) {
-      appLog("Error fetching parcels: $e");
+      //! appLog("Error fetching parcels: $e");
       parcels.clear();
     } finally {
       isLoading.value = false;

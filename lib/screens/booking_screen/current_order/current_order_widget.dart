@@ -113,7 +113,7 @@ class _CurrentOrderWidgetState extends State<CurrentOrderWidget> {
       }
     } catch (e) {
       _showErrorSnackBar('An error occurred: $e');
-      appLog('An error occurred: $e');
+      //! appLog('An error occurred: $e');
     }
   }
 

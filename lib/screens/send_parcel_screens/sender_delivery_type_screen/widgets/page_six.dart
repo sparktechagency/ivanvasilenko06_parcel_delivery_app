@@ -50,9 +50,9 @@ class PageSix extends StatelessWidget {
             controller: parcelController.phoneController,
             onChanged: (phone) {
               parcelController.updatePhoneNumber(phone.completeNumber);
-              log("Complete number: ${phone.completeNumber}");
-              log("Country code: ${phone.countryCode}");
-              log("Number without code: ${phone.number}");
+              //! log("Complete number: ${phone.completeNumber}");
+              //! log("Country code: ${phone.countryCode}");
+              //! log("Number without code: ${phone.number}");
             },
             fillColor: AppColors.white,
             borderColor: AppColors.black,

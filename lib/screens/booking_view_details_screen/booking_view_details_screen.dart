@@ -63,7 +63,7 @@ class _BookingViewDetailsScreenState extends State<BookingViewDetailsScreen> {
       }
     } catch (e) {
       _showErrorSnackBar('An error occurred: $e');
-      log('An error occurred: $e');
+      //! log('An error occurred: $e');
     }
   }
 

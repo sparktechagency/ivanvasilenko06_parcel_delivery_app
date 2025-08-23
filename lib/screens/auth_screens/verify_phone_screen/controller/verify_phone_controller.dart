@@ -46,14 +46,14 @@ class VerifyPhoneController extends GetxController {
     screen = arguments["screen"]?.toString() ?? "";
 
     isFromLogin = screen == "login";
-    log("Screen type: $screen, isFromLogin: $isFromLogin");
-    log("Phone number received: $phoneNumber");
+    //! log("Screen type: $screen, isFromLogin: $isFromLogin");
+    //! log("Phone number received: $phoneNumber");
 
     startTimer();
 
     // Validation check
     if (phoneNumber.isEmpty) {
-      log("Missing phone number");
+      //! log("Missing phone number");
       AppSnackBar.error("Missing phone number");
       Get.back();
       return;
@@ -73,7 +73,7 @@ class VerifyPhoneController extends GetxController {
         await handleSignupFlow();
       }
     } catch (e) {
-      log("Error from verifyOTP: $e");
+      //! log("Error from verifyOTP: $e");
       AppSnackBar.error("An error occurred. Please try again.");
     }
   }
@@ -105,15 +105,15 @@ class VerifyPhoneController extends GetxController {
               SharedPreferenceValue.token, data["data"]["token"].toString());
           String token =
               await SharePrefsHelper.getString(SharedPreferenceValue.token);
-          log("Saved login token: $token");
+          //! log("Saved login token: $token");
         }
-        log('Login Data: $data');
+        //! log('Login Data: $data');
         Get.offAll(() => const BottomNavScreen());
       } else {
         AppSnackBar.error("Failed to log in. Please try again.");
       }
     } catch (e) {
-      log("Error from handleLoginFlow: $e");
+      //! log("Error from handleLoginFlow: $e");
       AppSnackBar.error("Login failed: ${e.toString()}");
     } finally {
       isLoading.value = false;
@@ -147,15 +147,15 @@ class VerifyPhoneController extends GetxController {
               SharedPreferenceValue.token, data["token"].toString());
           String token =
               await SharePrefsHelper.getString(SharedPreferenceValue.token);
-          log("Saved registration token: $token");
+          //! log("Saved registration token: $token");
         }
-        log('Signup Data: $data');
+       //!  log('Signup Data: $data');
         Get.offAll(() => const BottomNavScreen());
       } else {
         AppSnackBar.error("Failed to sign up. Please try again.");
       }
     } catch (e) {
-      log("Error from handleSignupFlow: $e");
+     //!  log("Error from handleSignupFlow: $e");
       AppSnackBar.error("Signup failed: ${e.toString()}");
     } finally {
       isLoading.value = false;
@@ -175,11 +175,11 @@ class VerifyPhoneController extends GetxController {
       );
 
       if (data != null) {
-        log('Resend Data: $data');
+       //!  log('Resend Data: $data');
         startTimer();
       }
     } catch (e) {
-      log("Error from resendCode: $e");
+     //!  log("Error from resendCode: $e");
       AppSnackBar.error("Resend code failed: ${e.toString()}");
     }
   }
