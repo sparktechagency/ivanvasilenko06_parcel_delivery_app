@@ -196,7 +196,7 @@ class _ChooseParcelForDeliveryScreenState
         backgroundColor: AppColors.white,
         leading: const Icon(Icons.arrow_back, size: 28),
         title: TextWidget(
-          text: "Choose Delivery Parcel".tr,
+          text: "Delivery Route".tr,
           fontSize: 24,
           fontWeight: FontWeight.w600,
           fontColor: AppColors.black,

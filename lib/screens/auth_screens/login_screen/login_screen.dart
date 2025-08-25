@@ -46,7 +46,7 @@ class LoginScreen extends StatelessWidget {
                       spaceHeight: 20,
                     ),
                     IntlPhoneFieldWidget(
-                      hintText: "Enter Your Number".tr,
+                      hintText: "enterNumber0".tr,
                       controller: controller.googleSignInPhoneController,
                       onChanged: (phone) {
                         controller.updatePhoneNumber(phone.completeNumber);

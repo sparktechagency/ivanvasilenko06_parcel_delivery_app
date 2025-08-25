@@ -156,19 +156,19 @@ class _BookingScreenState extends State<BookingScreen> {
                     ),
                   ),
                   const SpaceWidget(spaceHeight: 16),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                   Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         TextWidget(
-                          text: AppStrings.veryBad,
+                          text: "veryBad".tr,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                           fontColor: AppColors.black,
                         ),
                         TextWidget(
-                          text: AppStrings.veryGood,
+                          text: "veryGood".tr,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                           fontColor: AppColors.black,
@@ -534,8 +534,8 @@ class _BookingScreenState extends State<BookingScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const TextWidget(
-                    text: 'Are you sure you want to remove this parcel?',
+                  TextWidget(
+                    text: 'areYouSureYouwantToRemovethisParcel'.tr,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     fontColor: AppColors.black,
@@ -775,7 +775,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
                 const SpaceWidget(spaceHeight: 16),
                 TextWidget(
-                  text: "No current orders available".tr,
+                  text: "noCurrentOrderAvailable".tr,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   fontColor: AppColors.greyDark2,
@@ -957,9 +957,9 @@ class _BookingScreenState extends State<BookingScreen> {
                                               data[index].status ==
                                                   "REQUESTED" ||
                                               data[index].status == "WAITING"
-                                          ? "Waiting"
+                                          ? "Waiting".tr
                                           : data[index].status == "IN_TRANSIT"
-                                              ? "In Transit"
+                                              ? "inTransit".tr
                                               : data[index].status ==
                                                       "DELIVERED"
                                                   ? "Delivered"
@@ -1250,7 +1250,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                         child: TextWidget(
                                           text:
                                               data[index].status == "DELIVERED"
-                                                  ? "Rate Driver"
+                                                  ? "rateDriver".tr
                                                   : _getActionButtonText(
                                                       data[index]),
                                           fontSize: 14,
@@ -1293,7 +1293,7 @@ class _BookingScreenState extends State<BookingScreen> {
       } else if (parcel.status == "REQUESTED" ||
           parcel.status == "PENDING" ||
           parcel.status == "WAITING") {
-        return "Cancel Request".tr;
+        return "cancelRequest".tr;
       }
     } else if (parcel.typeParcel.toString() == "assignedParcel") {
       // For finished Delivery
@@ -1393,7 +1393,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   ),
                   const SizedBox(height: 16),
                   TextWidget(
-                    text: "No New Bookings".tr,
+                    text: "noNewBookings".tr,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     fontColor: AppColors.greyDark2,

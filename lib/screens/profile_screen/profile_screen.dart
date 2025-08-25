@@ -247,8 +247,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const TextWidget(
-                    text: 'Are you sure Delete your profile?',
+                  TextWidget(
+                    text: 'areyoursuredeleteyouraccount'.tr,
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                     fontColor: AppColors.black,
@@ -261,7 +261,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ButtonWidget(
                         buttonWidth: 100,
                         buttonHeight: 40,
-                        label: 'No',
+                        label: 'No'.tr,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 10),
                         buttonRadius: BorderRadius.circular(10),
@@ -274,7 +274,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ButtonWidget(
                         buttonWidth: 100,
                         buttonHeight: 40,
-                        label: 'Yes',
+                        label: 'Yes'.tr,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 10),
                         buttonRadius: BorderRadius.circular(10),
@@ -796,16 +796,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               .profileData.value.data?.user?.instagram ??
                           'N/A',
                     ),
-                    const Divider(
-                      color: AppColors.grey,
-                      thickness: 1,
-                    ),
-                    ProfileCardWidget(
-                      titleText: "whatsapp".tr,
-                      subtitleText: profileController
-                              .profileData.value.data?.user?.whatsapp ??
-                          'N/A',
-                    ),
+                    // const Divider(
+                    //   color: AppColors.grey,
+                    //   thickness: 1,
+                    // ),
+                    // ProfileCardWidget(
+                    //   titleText: "whatsapp".tr,
+                    //   subtitleText: profileController
+                    //           .profileData.value.data?.user?.whatsapp ??
+                    //       'N/A',
+                    // ),
                     const SpaceWidget(spaceHeight: 90),
                   ],
                 ),

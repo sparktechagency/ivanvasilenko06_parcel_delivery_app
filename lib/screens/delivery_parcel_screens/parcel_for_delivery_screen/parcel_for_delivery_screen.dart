@@ -120,7 +120,7 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
                         ),
                         const SpaceWidget(spaceHeight: 16),
                         TextWidget(
-                          text: "No Parcels Available".tr,
+                          text: "".tr,
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                           fontColor: AppColors.black,
@@ -287,12 +287,12 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
                             ),
                             if (isRequestSent == true) ...[
                               const SpaceWidget(spaceHeight: 8),
-                              const Row(
+                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  SpaceWidget(spaceWidth: 8),
+                                  const SpaceWidget(spaceWidth: 8),
                                   TextWidget(
-                                    text: "Request Sent",
+                                    text: "requestSent".tr,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                     fontColor: Colors.green,
@@ -352,7 +352,7 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
                                           const SpaceWidget(spaceWidth: 8),
                                           TextWidget(
                                             text: isRequestSent
-                                                ? "Request Sent"
+                                                ? "requestSent".tr
                                                 : "sendRequest".tr,
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,

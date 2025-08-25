@@ -540,7 +540,7 @@ class _PageTwoState extends State<PageTwo> {
                   color: AppColors.black,
                 ),
                 decoration: InputDecoration(
-                  hintText: "Pickup Location".tr,
+                  hintText: "pickupLocation".tr,
                   hintStyle: const TextStyle(
                     color: AppColors.greyDarkLight2,
                   ),
@@ -562,7 +562,7 @@ class _PageTwoState extends State<PageTwo> {
                   color: AppColors.black,
                 ),
                 decoration: InputDecoration(
-                  hintText: "Destination".tr,
+                  hintText: "destination".tr,
                   hintStyle: const TextStyle(
                     color: AppColors.greyDarkLight2,
                   ),

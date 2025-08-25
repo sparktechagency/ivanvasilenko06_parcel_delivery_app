@@ -205,14 +205,14 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                         ),
                       const SpaceWidget(spaceHeight: 16),
                       TextWidget(
-                        text: "No Parcel Found".tr,
+                        text: "noParcelFound".tr,
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
                         fontColor: AppColors.greyDark2,
                       ),
                       const SpaceWidget(spaceHeight: 8),
                       TextWidget(
-                        text: "Try Different Radius".tr,
+                        text: "tryDifferentRadius".tr,
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
                         fontColor: AppColors.greyDark,
@@ -340,17 +340,17 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                               ),
                               if (hasRequestSent) ...[
                                 const SpaceWidget(spaceHeight: 8),
-                                const Row(
+                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.check_circle,
                                       color: Colors.green,
                                       size: 12,
                                     ),
-                                    SpaceWidget(spaceWidth: 8),
+                                    const SpaceWidget(spaceWidth: 8),
                                     TextWidget(
-                                      text: "Request Sent",
+                                      text: "requestSent".tr,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                       fontColor: Colors.green,

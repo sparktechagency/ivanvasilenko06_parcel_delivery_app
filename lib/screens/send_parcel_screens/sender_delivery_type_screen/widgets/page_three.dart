@@ -62,7 +62,7 @@ class _PageThreeState extends State<PageThree> {
         try {
           if (!mounted) return;
 
-          final startTime = await _selectTime(context, "Select Start Time",
+          final startTime = await _selectTime(context, "selectStartTime".tr,
               const TimeOfDay(hour: 9, minute: 0));
 
           if (!mounted) return;
@@ -106,7 +106,7 @@ class _PageThreeState extends State<PageThree> {
           if (!mounted) return;
 
           final endTime = await _selectTime(
-              context, "Select End Time", const TimeOfDay(hour: 17, minute: 0));
+              context, "selectEndTime".tr, const TimeOfDay(hour: 17, minute: 0));
 
           if (!mounted) return;
 
@@ -367,7 +367,7 @@ class CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                 ButtonWidget(
                   buttonWidth: 100,
                   buttonHeight: 40,
-                  label: 'Cancel',
+                  label: 'cancel'.tr,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   buttonRadius: BorderRadius.circular(10),
@@ -381,7 +381,7 @@ class CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                 ButtonWidget(
                   buttonWidth: 100,
                   buttonHeight: 40,
-                  label: 'OK',
+                  label: 'ok'.tr,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   buttonRadius: BorderRadius.circular(10),

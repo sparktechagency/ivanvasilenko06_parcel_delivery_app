@@ -743,9 +743,9 @@ class _NotificationScreenState extends State<NotificationScreen>
                       color: AppColors.whiteLight,
                       borderRadius: BorderRadius.circular(100),
                     ),
-                    child: const Center(
+                    child:  Center(
                       child: TextWidget(
-                        text: "👉 Check Deliveries Section to Send Request 👈",
+                        text: "checkDeliveriesSectiontoSendRequests".tr,
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
                         fontColor: AppColors.green,
@@ -1162,8 +1162,8 @@ class _NotificationScreenState extends State<NotificationScreen>
                     color: AppColors.whiteLight,
                     borderRadius: BorderRadius.circular(50),
                   ),
-                  child: const TextWidget(
-                    text: "Accepted",
+                  child: TextWidget(
+                    text: "accepted".tr,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                     fontColor: AppColors.greyDark2,
@@ -1177,8 +1177,8 @@ class _NotificationScreenState extends State<NotificationScreen>
                         color: AppColors.whiteLight,
                         borderRadius: BorderRadius.circular(50),
                       ),
-                      child: const TextWidget(
-                        text: "Rejected",
+                      child: TextWidget(
+                        text: "rejected".tr,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         fontColor: AppColors.red,

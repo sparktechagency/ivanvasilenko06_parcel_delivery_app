@@ -370,17 +370,17 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
                           ),
                           if (hasRequestSent) ...[
                             const SpaceWidget(spaceHeight: 8),
-                            const Row(
+                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.check_circle,
                                   color: Colors.green,
                                   size: 12,
                                 ),
-                                SpaceWidget(spaceWidth: 8),
+                                const SpaceWidget(spaceWidth: 8),
                                 TextWidget(
-                                  text: "Request Sent",
+                                  text: "requestSent".tr,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                   fontColor: Colors.green,

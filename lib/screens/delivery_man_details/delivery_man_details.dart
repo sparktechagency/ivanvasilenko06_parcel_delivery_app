@@ -451,7 +451,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: TextWidget(
-                    text: "Delivery Man Details".tr,
+                    text: "deliveryManDetails".tr,
                     fontSize: 24,
                     fontWeight: FontWeight.w600,
                     fontColor: AppColors.black,
@@ -597,13 +597,13 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                         const SpaceWidget(spaceHeight: 16),
                         SummaryInfoRowWidget(
                           image: AppImagePath.sendParcel,
-                          label: "Parcel Name".tr,
+                          label: "parcelName".tr,
                           value: currentParcel?.title ?? "Parcel",
                         ),
                         const SpaceWidget(spaceHeight: 8),
                         SummaryInfoRowWidget(
                           icon: AppIconsPath.ratingIcon,
-                          label: "Ratings".tr,
+                          label: "ratingsText".tr,
                           value: deliveryMan?.reviews != null &&
                                   deliveryMan!.reviews!.isNotEmpty
                               ? _calculateAverageRating(deliveryMan)
@@ -612,7 +612,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                         const SpaceWidget(spaceHeight: 8),
                         SummaryInfoRowWidget(
                           icon: AppIconsPath.callIcon,
-                          label: "Phone Number".tr,
+                          label: "phoneNumber".tr,
                           value: deliveryMan?.mobileNumber ?? "N/A",
                         ),
                         const SpaceWidget(spaceHeight: 8),

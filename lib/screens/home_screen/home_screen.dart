@@ -145,17 +145,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontColor: AppColors.black,
                   ),
                   const SpaceWidget(spaceHeight: 12),
-                  const Row(
+                   Row(
                     children: [
-                      ImageWidget(
+                      const ImageWidget(
                         height: 40,
                         width: 40,
                         imagePath: AppImagePath.sendParcel,
                       ),
-                      SpaceWidget(spaceWidth: 12),
+                      const SpaceWidget(spaceWidth: 12),
                       Flexible(
                         child: TextWidget(
-                          text: "Pick the distance you want to work within. We'll only show you jobs nearby!",
+                          text: "pickthedistanceYouwantoWork".tr,
                           fontSize: 14,
                           fontFamily: "AeonikTRIAL",
                           fontWeight: FontWeight.w600,
