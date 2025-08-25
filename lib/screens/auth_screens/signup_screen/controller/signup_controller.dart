@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
@@ -6,7 +5,6 @@ import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart';
 import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
 import 'package:parcel_delivery_app/services/deviceInfo/device_info.dart';
-import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
 
 class SignUpScreenController extends GetxController {
   RxBool isLoading = false.obs;

@@ -1,5 +1,4 @@
 import 'dart:convert'; // for JSON decoding
-import 'dart:developer';
 import 'dart:math' as math; // for distance calculation
 
 import 'package:flutter/material.dart';

@@ -76,7 +76,7 @@ class ServiceController extends GetxController {
         // AppSnackBar.error(response["message"] ?? 'Failed to load parcels.');
         recentParcelList.clear();
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       //! log("Error fetching parcel list: $e", stackTrace: stackTrace);
       // AppSnackBar.error('Failed to load parcels. Please try again later.');
       recentParcelList.clear();

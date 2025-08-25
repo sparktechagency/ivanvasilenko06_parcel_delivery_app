@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/screens/termsNconditon/models/terms_and_conditon_models.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_get_services.dart';
-import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
 
 class TermsAndConditionController extends GetxController {
   RxBool isLoading = false.obs;

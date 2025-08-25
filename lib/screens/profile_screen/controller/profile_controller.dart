@@ -99,7 +99,7 @@ class ProfileController extends GetxController {
         errorMessage.value = 'Invalid server response format';
         //! log("❌ Invalid response format - not a Map: ${response.runtimeType}");
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       errorMessage.value = 'An error occurred: ${e.toString()}';
       //! log('❌ Exception in getProfileInfo: ${e.toString()}');
       //! log('❌ Stack trace: $stackTrace');

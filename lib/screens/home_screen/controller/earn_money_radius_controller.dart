@@ -63,7 +63,7 @@ class EarnMoneyRadiusController extends GetxController {
         parcelsInRadius.value = [];
         markers.clear();
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
      //!  log('Exception while fetching parcels: $e');
       //! log('Stack trace: $stackTrace');
       parcelsInRadius.value = [];

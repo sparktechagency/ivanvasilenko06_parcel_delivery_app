@@ -16,7 +16,6 @@ import 'package:parcel_delivery_app/screens/home_screen/widgets/reserve_bottom_s
 import 'package:parcel_delivery_app/screens/home_screen/widgets/suggestionCardWidget.dart';
 import 'package:parcel_delivery_app/screens/notification_screen/controller/notification_controller.dart';
 import 'package:parcel_delivery_app/screens/profile_screen/controller/profile_controller.dart';
-import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import '../../utils/app_size.dart';
 import '../../widgets/button_widget/button_widget.dart';
