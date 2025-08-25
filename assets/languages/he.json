@@ -220,5 +220,6 @@
   "parcelName" : "שם החבילה",
   "deliveryRoute" : "מסלול משלוח",
   "noParcelsAvailable" : " אין חבילות זמינות",
-  "checkItLate" : "בדוק שוב מאוחר יותר"
+  "checkItLate" : "בדוק שוב מאוחר יותר",
+  "recentPublishOrders" : "הזמנות שפורסמו לאחרונה"
 }

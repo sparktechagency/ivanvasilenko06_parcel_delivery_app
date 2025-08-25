@@ -47,29 +47,29 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAx1xdjTrI0dQNVchHAFCBRBj2NHJxToq4',
-    appId: '1:292426184503:web:a92de35e25b8c16c8fccb2',
-    messagingSenderId: '292426184503',
-    projectId: 'deliverly-4811e',
-    authDomain: 'deliverly-4811e.firebaseapp.com',
-    storageBucket: 'deliverly-4811e.firebasestorage.app',
-    measurementId: 'G-TQEF5BC7W5',
+    apiKey: 'AIzaSyCwLFz22RPTDxPDxUx0w0cF7PIUInGjcOI',
+    appId: '1:413010641256:web:6ec5ba02eaf40ce13316dd',
+    messagingSenderId: '413010641256',
+    projectId: 'deliverly-2f903',
+    authDomain: 'deliverly-2f903.firebaseapp.com',
+    storageBucket: 'deliverly-2f903.firebasestorage.app',
+    measurementId: 'G-5MFWPDKYD0',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDfvuwVDKQKx-fHJ7Lu4_IyV7bYy2-l2hw',
-    appId: '1:292426184503:android:a02e474918df5fcc8fccb2',
-    messagingSenderId: '292426184503',
-    projectId: 'deliverly-4811e',
-    storageBucket: 'deliverly-4811e.firebasestorage.app',
+    apiKey: 'AIzaSyDsqcKrPQUGqvU_EScI2xE6K-itSPshnng',
+    appId: '1:413010641256:android:1be6c858c00d72a33316dd',
+    messagingSenderId: '413010641256',
+    projectId: 'deliverly-2f903',
+    storageBucket: 'deliverly-2f903.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCXlhOaPor6qfjs48Yjd9PjlAWsbJQUxJk',
-    appId: '1:292426184503:ios:36e7ba03166722118fccb2',
-    messagingSenderId: '292426184503',
-    projectId: 'deliverly-4811e',
-    storageBucket: 'deliverly-4811e.firebasestorage.app',
+    apiKey: 'AIzaSyDXnVE3eVWKWzZ8FF-lnUwROv6f9fXkRO8',
+    appId: '1:413010641256:ios:134234442cfd3b0d3316dd',
+    messagingSenderId: '413010641256',
+    projectId: 'deliverly-2f903',
+    storageBucket: 'deliverly-2f903.firebasestorage.app',
     iosBundleId: 'com.ivan.delivery',
   );
 

@@ -182,8 +182,8 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SpaceWidget(spaceHeight: 30),
-              const TextWidget(
-                text: "Recent Publish Order",
+              TextWidget(
+                text: "recentPublishOrders".tr,
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
                 fontColor: AppColors.black,

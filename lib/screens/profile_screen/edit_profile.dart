@@ -107,11 +107,11 @@ class _EditProfileState extends State<EditProfile> {
     // Validate the constructed URL
     final uri = Uri.tryParse(fullImageUrl);
     if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
-     //!  log('❌ Invalid URL format: $fullImageUrl, using default image URL');
+      //!  log('❌ Invalid URL format: $fullImageUrl, using default image URL');
       return 'https://i.ibb.co/z5YHLV9/profile.png';
     }
 
-   //!  log('✅ Constructed URL: $fullImageUrl');
+    //!  log('✅ Constructed URL: $fullImageUrl');
     return fullImageUrl;
   }
 
@@ -269,20 +269,20 @@ class _EditProfileState extends State<EditProfile> {
                 maxLines: 1,
                 keyboardType: TextInputType.text,
               ),
-              const SpaceWidget(spaceHeight: 10),
-              TextWidget(
-                  text: "whatsapp".tr,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  fontColor: AppColors.black),
-              const SpaceWidget(spaceHeight: 10),
-              EditProfileTextFieldWidget(
-                height: 50,
-                controller: whastappController,
-                hintText: "enterYourWhatsappId",
-                maxLines: 1,
-                keyboardType: TextInputType.number,
-              ),
+              // const SpaceWidget(spaceHeight: 10),
+              // TextWidget(
+              //     text: "whatsapp".tr,
+              //     fontSize: 15,
+              //     fontWeight: FontWeight.w500,
+              //     fontColor: AppColors.black),
+              // const SpaceWidget(spaceHeight: 10),
+              // EditProfileTextFieldWidget(
+              //   height: 50,
+              //   controller: whastappController,
+              //   hintText: "enterYourWhatsappId",
+              //   maxLines: 1,
+              //   keyboardType: TextInputType.number,
+              // ),
               const SpaceWidget(spaceHeight: 20),
               Obx(() => _profileController.isLoading.value
                   ? Container(

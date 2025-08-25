@@ -1,51 +1,26 @@
 {
   "project_info": {
-    "project_number": "292426184503",
-    "project_id": "deliverly-4811e",
-    "storage_bucket": "deliverly-4811e.firebasestorage.app"
+    "project_number": "413010641256",
+    "project_id": "deliverly-2f903",
+    "storage_bucket": "deliverly-2f903.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:292426184503:android:a02e474918df5fcc8fccb2",
+        "mobilesdk_app_id": "1:413010641256:android:1be6c858c00d72a33316dd",
         "android_client_info": {
           "package_name": "com.ivan.delivery"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "292426184503-i1qosbiq6r5iin69ldi5lng7anoeha5u.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.ivan.delivery",
-            "certificate_hash": "a8655ca557ce60c5e14342a0c7ad6c150f7f9714"
-          }
-        },
-        {
-          "client_id": "292426184503-jtqqnl996ppq7fp9jrt6g50t5un7430g.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDfvuwVDKQKx-fHJ7Lu4_IyV7bYy2-l2hw"
+          "current_key": "AIzaSyDsqcKrPQUGqvU_EScI2xE6K-itSPshnng"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "104128260964981933882",
-              "client_type": 3
-            },
-            {
-              "client_id": "292426184503-7jlk5jm6pohuv6nlaeeqi9c0pv22tge4.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.ivan.delivery"
-              }
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

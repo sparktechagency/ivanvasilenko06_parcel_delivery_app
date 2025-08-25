@@ -49,90 +49,60 @@ class _PageThreeState extends State<PageThree> {
   }
 
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) async {
-    if (!mounted || _isProcessingSelection) return;
-
     if (args.value is PickerDateRange) {
-      DateTime? startDate = args.value.startDate;
-      DateTime? endDate = args.value.endDate;
+      final DateTime? startDate = args.value.startDate;
+      final DateTime? endDate = args.value.endDate;
 
-      // Handle start date selection
-      if (startDate != null && _fromDateTime == null) {
-        _isProcessingSelection = true;
+      // Show "From" time picker
+      if (startDate != null) {
+        final TimeOfDay? startTime = await _selectTime(
+          context,
+          'selectStartTime'.tr,
+          const TimeOfDay(hour: 9, minute: 0),
+        );
 
-        try {
-          if (!mounted) return;
+        if (!mounted) return;
 
-          final startTime = await _selectTime(context, "selectStartTime".tr,
-              const TimeOfDay(hour: 9, minute: 0));
+        if (startTime != null) {
+          final newFromDateTime = DateTime(
+            startDate.year,
+            startDate.month,
+            startDate.day,
+            startTime.hour,
+            startTime.minute,
+          );
 
-          if (!mounted) return;
+          setState(() {
+            _fromDateTime = newFromDateTime;
+          });
 
-          if (startTime != null) {
-            final newDateTime = DateTime(
-              startDate.year,
-              startDate.month,
-              startDate.day,
-              startTime.hour,
-              startTime.minute,
+          _parcelController?.setStartDateTime(newFromDateTime);
+
+          // If an end date is also selected, show the "To" time picker
+          if (endDate != null) {
+            final TimeOfDay? endTime = await _selectTime(
+              context,
+              'selectEndTime'.tr,
+              const TimeOfDay(hour: 17, minute: 0),
             );
 
-            if (mounted) {
+            if (!mounted) return;
+
+            if (endTime != null) {
+              final newToDateTime = DateTime(
+                endDate.year,
+                endDate.month,
+                endDate.day,
+                endTime.hour,
+                endTime.minute,
+              );
+
               setState(() {
-                _fromDateTime = newDateTime;
+                _toDateTime = newToDateTime;
               });
-              _parcelController?.setStartDateTime(newDateTime);
+
+              _parcelController?.setEndDateTime(newToDateTime);
             }
-          }
-        } catch (e) {
-          if (mounted) {
-            debugPrint('Error selecting start time: $e');
-          }
-        } finally {
-          if (mounted) {
-            _isProcessingSelection = false;
-          }
-        }
-      }
-
-      // Handle end date selection - only if we have both start date set AND end date is different from start date
-      else if (endDate != null &&
-          _fromDateTime != null &&
-          _toDateTime == null &&
-          endDate != startDate &&
-          !_isProcessingSelection) {
-        _isProcessingSelection = true;
-
-        try {
-          if (!mounted) return;
-
-          final endTime = await _selectTime(
-              context, "selectEndTime".tr, const TimeOfDay(hour: 17, minute: 0));
-
-          if (!mounted) return;
-
-          if (endTime != null) {
-            final newDateTime = DateTime(
-              endDate.year,
-              endDate.month,
-              endDate.day,
-              endTime.hour,
-              endTime.minute,
-            );
-
-            if (mounted) {
-              setState(() {
-                _toDateTime = newDateTime;
-              });
-              _parcelController?.setEndDateTime(newDateTime);
-            }
-          }
-        } catch (e) {
-          if (mounted) {
-            debugPrint('Error selecting end time: $e');
-          }
-        } finally {
-          if (mounted) {
-            _isProcessingSelection = false;
           }
         }
       }

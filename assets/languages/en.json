@@ -222,5 +222,6 @@
   "parcelName" : "Parcel Name",
   "deliveryRoute" : "Delivery Route",
   "noParcelsAvailable" : "No Parcels Available",
-  "checkItLate" : "Check it later"
+  "checkItLate" : "Check it later",
+  "recentPublishOrders" : "Recent Publish Orders"
 }
