@@ -35,7 +35,7 @@ class _PageTwoState extends State<PageTwo> {
   String? _currentLocationAddress;
   bool _showCurrentLocationMarker = false;
   bool _locationLoaded = false;
-  bool _isDisposed = false;
+  bool _isDisposed = false; // Add disposal tracking
 
   // Add controller reference
   ParcelController? _parcelController;
@@ -43,6 +43,8 @@ class _PageTwoState extends State<PageTwo> {
   @override
   void initState() {
     super.initState();
+    _isDisposed = false; // Initialize disposal state
+
     // Initialize controller safely
     try {
       _parcelController = Get.find<ParcelController>();
@@ -53,6 +55,7 @@ class _PageTwoState extends State<PageTwo> {
     // Clear existing polylines and markers when initializing
     _clearPreviousRouteData();
     _getCurrentLocation();
+
     _startingFocusNode.addListener(() {
       if (_startingFocusNode.hasFocus && mounted && !_isDisposed) {
         setState(() {
@@ -72,11 +75,12 @@ class _PageTwoState extends State<PageTwo> {
 
   @override
   void dispose() {
-    _isDisposed = true;
+    _isDisposed = true; // Mark as disposed first
 
     // Clear the polyline and location data when leaving the screen
     _clearPreviousRouteData();
 
+    // Dispose controllers and focus nodes
     startingController.dispose();
     endingController.dispose();
     _mapController?.dispose();
@@ -94,7 +98,7 @@ class _PageTwoState extends State<PageTwo> {
     _locationRepository.clearLocationCoordinates();
 
     // Clear markers only if widget is still mounted
-    if (mounted) {
+    if (mounted && !_isDisposed) {
       setState(() {
         _markers = {};
       });
@@ -147,9 +151,13 @@ class _PageTwoState extends State<PageTwo> {
 
         // Move camera to current location
         if (_mapController != null && !_isDisposed) {
-          _mapController?.animateCamera(
-            CameraUpdate.newLatLng(location),
-          );
+          try {
+            _mapController?.animateCamera(
+              CameraUpdate.newLatLng(location),
+            );
+          } catch (e) {
+            debugPrint('Error animating camera: $e');
+          }
         }
       } else {
         // Handle case where location is null (permission denied, etc.)
@@ -169,7 +177,7 @@ class _PageTwoState extends State<PageTwo> {
     }
   }
 
-  // Handle place autocomplete
+  // Handle place autocomplete with disposal checks
   Future<void> _placeAutoComplete(String query) async {
     if (!mounted || _isDisposed) return;
 
@@ -261,11 +269,15 @@ class _PageTwoState extends State<PageTwo> {
         _locationRepository.startingLocationCoordinates =
             _locationRepository.currentLocationCoordinates;
 
-        if (!_isDisposed) {
-          _mapController?.animateCamera(
-            CameraUpdate.newLatLng(
-                _locationRepository.currentLocationCoordinates!),
-          );
+        if (!_isDisposed && _mapController != null) {
+          try {
+            _mapController?.animateCamera(
+              CameraUpdate.newLatLng(
+                  _locationRepository.currentLocationCoordinates!),
+            );
+          } catch (e) {
+            debugPrint('Error animating camera: $e');
+          }
         }
 
         // Update markers
@@ -294,9 +306,13 @@ class _PageTwoState extends State<PageTwo> {
         // If we already have an ending location, fetch directions
         if (_locationRepository.endingLocationCoordinates != null &&
             !_isDisposed) {
-          await _locationRepository.fetchDirections();
-          if (mounted && !_isDisposed) {
-            setState(() {}); // Trigger rebuild to show polyline
+          try {
+            await _locationRepository.fetchDirections();
+            if (mounted && !_isDisposed) {
+              setState(() {}); // Trigger rebuild to show polyline
+            }
+          } catch (e) {
+            debugPrint('Error fetching directions: $e');
           }
         }
       }
@@ -311,10 +327,14 @@ class _PageTwoState extends State<PageTwo> {
         // Check if widget is still mounted before updating UI
         if (location != null && mounted && !_isDisposed) {
           // Move camera to the location
-          if (!_isDisposed) {
-            _mapController?.animateCamera(
-              CameraUpdate.newLatLng(location),
-            );
+          if (!_isDisposed && _mapController != null) {
+            try {
+              _mapController?.animateCamera(
+                CameraUpdate.newLatLng(location),
+              );
+            } catch (e) {
+              debugPrint('Error animating camera: $e');
+            }
           }
 
           // Update markers - hide current location marker
@@ -331,9 +351,13 @@ class _PageTwoState extends State<PageTwo> {
           // If we already have an ending location, fetch directions
           if (_locationRepository.endingLocationCoordinates != null &&
               !_isDisposed) {
-            await _locationRepository.fetchDirections();
-            if (mounted && !_isDisposed) {
-              setState(() {}); // Ensure UI updates to show polyline
+            try {
+              await _locationRepository.fetchDirections();
+              if (mounted && !_isDisposed) {
+                setState(() {}); // Ensure UI updates to show polyline
+              }
+            } catch (e) {
+              debugPrint('Error fetching directions: $e');
             }
           }
         }
@@ -348,7 +372,7 @@ class _PageTwoState extends State<PageTwo> {
     }
   }
 
-  // Handle ending location selection
+  // Handle ending location selection with disposal checks
   void _onEndingLocationSelected(String placeId, String description) async {
     if (!mounted || _isDisposed) return;
 
@@ -372,10 +396,14 @@ class _PageTwoState extends State<PageTwo> {
 
       if (location != null && mounted && !_isDisposed) {
         // Move camera to the location
-        if (!_isDisposed) {
-          _mapController?.animateCamera(
-            CameraUpdate.newLatLng(location),
-          );
+        if (!_isDisposed && _mapController != null) {
+          try {
+            _mapController?.animateCamera(
+              CameraUpdate.newLatLng(location),
+            );
+          } catch (e) {
+            debugPrint('Error animating camera: $e');
+          }
         }
 
         // Update markers
@@ -392,9 +420,13 @@ class _PageTwoState extends State<PageTwo> {
 
         if (_locationRepository.startingLocationCoordinates != null &&
             !_isDisposed) {
-          await _locationRepository.fetchDirections();
-          if (mounted && !_isDisposed) {
-            setState(() {});
+          try {
+            await _locationRepository.fetchDirections();
+            if (mounted && !_isDisposed) {
+              setState(() {});
+            }
+          } catch (e) {
+            debugPrint('Error fetching directions: $e');
           }
         }
       }
@@ -408,7 +440,7 @@ class _PageTwoState extends State<PageTwo> {
   }
 
   Widget _buildPredictionsList() {
-    if (_placePredictions.isEmpty || _isLoading) {
+    if (_placePredictions.isEmpty || _isLoading || _isDisposed) {
       return const SizedBox.shrink();
     }
 
@@ -455,6 +487,8 @@ class _PageTwoState extends State<PageTwo> {
                 overflow: TextOverflow.ellipsis,
               ),
               onTap: () {
+                if (_isDisposed) return;
+
                 final placeId = prediction['place_id'];
                 final description = prediction['description'];
 
@@ -473,6 +507,8 @@ class _PageTwoState extends State<PageTwo> {
   }
 
   Widget _buildLocationInputs() {
+    if (_isDisposed) return const SizedBox.shrink();
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -577,8 +613,10 @@ class _PageTwoState extends State<PageTwo> {
     );
   }
 
-  // Build the map section
+  // Build the map section with disposal checks
   Widget _buildMap() {
+    if (_isDisposed) return const SizedBox.shrink();
+
     // Show loading indicator until location is loaded
     if (!_locationLoaded) {
       return SizedBox(
@@ -673,10 +711,14 @@ class _PageTwoState extends State<PageTwo> {
 
             // Animate to current location immediately after map creation
             if (!_isDisposed) {
-              _mapController?.animateCamera(
-                CameraUpdate.newLatLng(
-                    _locationRepository.currentLocationCoordinates!),
-              );
+              try {
+                _mapController?.animateCamera(
+                  CameraUpdate.newLatLng(
+                      _locationRepository.currentLocationCoordinates!),
+                );
+              } catch (e) {
+                debugPrint('Error animating camera on map creation: $e');
+              }
             }
           }
         },
@@ -698,6 +740,11 @@ class _PageTwoState extends State<PageTwo> {
 
   @override
   Widget build(BuildContext context) {
+    // Return empty container if disposed to prevent build errors
+    if (_isDisposed) {
+      return const SizedBox.shrink();
+    }
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
@@ -743,7 +790,8 @@ class _PageTwoState extends State<PageTwo> {
               ),
               // Position predictions list properly
               if (_activeLocationType.isNotEmpty &&
-                  _placePredictions.isNotEmpty)
+                  _placePredictions.isNotEmpty &&
+                  !_isDisposed)
                 Positioned(
                   top: _activeLocationType == 'starting' ? 60 : 120,
                   left: 47,
@@ -751,7 +799,7 @@ class _PageTwoState extends State<PageTwo> {
                   child: _buildPredictionsList(),
                 ),
               // Loading indicator
-              if (_isLoading)
+              if (_isLoading && !_isDisposed)
                 Positioned(
                   top: _activeLocationType == 'starting' ? 60 : 120,
                   left: 47,
