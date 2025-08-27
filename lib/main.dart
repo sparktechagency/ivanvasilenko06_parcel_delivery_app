@@ -28,7 +28,7 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
-// Set up push notifications
+// Set up push notifications just added a commnet
   await NotificationService().setupFCM();
   SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
