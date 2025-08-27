@@ -41,7 +41,7 @@ class Datum {
   DateTime? deliveryEndTime;
   String? deliveryType;
   String? senderType;
-  int? price;
+  dynamic price;
   String? name;
   String? phoneNumber;
   List<dynamic>? images;
@@ -104,7 +104,7 @@ class Datum {
             : DateTime.parse(json["deliveryEndTime"]),
         deliveryType: json["deliveryType"],
         senderType: json["senderType"],
-        price: json["price"],
+        price: json["price"]?.toDouble() ?? 0.0,
         name: json["name"],
         phoneNumber: json["phoneNumber"],
         images: json["images"] == null
@@ -245,7 +245,7 @@ class SenderId {
 
 class Review {
   String? parcelId;
-  int? rating;
+  dynamic rating;
   String? id;
 
   Review({
@@ -260,7 +260,7 @@ class Review {
 
   factory Review.fromJson(Map<String, dynamic> json) => Review(
         parcelId: json["parcelId"],
-        rating: json["rating"],
+        rating: json["rating"]?.toDouble() ?? 0.0,
         id: json["_id"],
       );
 

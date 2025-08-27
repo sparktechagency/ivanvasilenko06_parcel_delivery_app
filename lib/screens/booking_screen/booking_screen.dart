@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/constants/app_strings.dart';
 import 'package:parcel_delivery_app/screens/booking_screen/current_order/controller/current_order_controller.dart';
 import 'package:parcel_delivery_app/screens/booking_screen/new_booking/controller/new_bookings_controller.dart';
+import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
@@ -35,19 +37,20 @@ class _BookingScreenState extends State<BookingScreen> {
   Map<String, String> locationToAddressCache = {};
   final PageController _pageController = PageController();
 
-  final CurrentOrderController currentOrderController =
-      Get.put(CurrentOrderController());
-  final CurrentOrderController newBookingController =
-      Get.put(CurrentOrderController());
-  final NewBookingsController newBookingsController =
-      Get.put(NewBookingsController());
+  late final CurrentOrderController currentOrderController;
+  late final NewBookingsController newBookingsController;
 
   @override
   void initState() {
+    super.initState();
+    // Initialize controllers
+    currentOrderController =
+        Get.put(CurrentOrderController(), tag: 'booking_screen');
+    newBookingsController = Get.put(NewBookingsController());
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       currentOrderController.getCurrentOrder();
     });
-    super.initState();
   }
 
   Future<String> getAddressFromCoordinates(
@@ -68,7 +71,7 @@ class _BookingScreenState extends State<BookingScreen> {
         return 'No address found';
       }
     } catch (e) {
-      //! log('Error fetching address: $e');
+      log('Error fetching address: $e');
       return 'Error fetching address';
     }
   }
@@ -151,24 +154,24 @@ class _BookingScreenState extends State<BookingScreen> {
                         setState(() {
                           selectedRating = rating;
                         });
-                        //! appLog('Rating: $rating');
+                        appLog('Rating: $rating');
                       },
                     ),
                   ),
                   const SpaceWidget(spaceHeight: 16),
-                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         TextWidget(
-                          text: "veryBad".tr,
+                          text: AppStrings.veryBad,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                           fontColor: AppColors.black,
                         ),
                         TextWidget(
-                          text: "veryGood".tr,
+                          text: AppStrings.veryGood,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                           fontColor: AppColors.black,
@@ -181,7 +184,7 @@ class _BookingScreenState extends State<BookingScreen> {
                     onPressed: () async {
                       // Set the rating value in the controller
                       final currentOrderController =
-                          Get.find<CurrentOrderController>();
+                          Get.find<CurrentOrderController>(tag: 'current');
                       currentOrderController.rating.value = selectedRating;
                       await currentOrderController.givingReview();
                       Navigator.pop(context);
@@ -233,12 +236,13 @@ class _BookingScreenState extends State<BookingScreen> {
         }
       }
     } catch (e) {
-      //! log('Error launching phone call: $e');
+      log('Error launching phone call: $e');
       _showErrorSnackBar('Error opening dialer: $e');
     }
   }
 
   //! Function to send a message
+
   Future<void> _openWhatsApp(String phoneNumber, String message) async {
     if (phoneNumber.isEmpty) {
       _showErrorSnackBar('No phone number available');
@@ -248,162 +252,39 @@ class _BookingScreenState extends State<BookingScreen> {
     // Format the phone number (remove any non-digit characters)
     String formattedNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
 
-    // Ensure the number has country code format
+    // Ensure the number has country code (add + if not present)
     if (!formattedNumber.startsWith('+')) {
       formattedNumber = '+$formattedNumber';
     }
 
-    // Remove + for certain URL schemes that don't need it
-    String numberWithoutPlus = formattedNumber.startsWith('+')
-        ? formattedNumber.substring(1)
-        : formattedNumber;
-
     try {
-      // Simplified approach - try the most reliable methods first
-      List<Map<String, String>> whatsappMethods = [
-        // Universal web link (works for all WhatsApp variants)
-        {
-          'url':
-              "https://wa.me/$numberWithoutPlus?text=${Uri.encodeComponent(message)}",
-          'description': 'WhatsApp universal web link'
-        },
-
-        // Native WhatsApp schemes
-        {
-          'url':
-              "whatsapp://send?phone=$numberWithoutPlus&text=${Uri.encodeComponent(message)}",
-          'description': 'WhatsApp native scheme'
-        },
-
-        // Alternative API link
-        {
-          'url':
-              "https://api.whatsapp.com/send?phone=$numberWithoutPlus&text=${Uri.encodeComponent(message)}",
-          'description': 'WhatsApp API link'
-        },
+      // Try different WhatsApp URL schemes in order of reliability
+      List<String> whatsappUrls = [
+        "whatsapp://send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}",
+        "https://wa.me/$formattedNumber?text=${Uri.encodeComponent(message)}",
+        "https://api.whatsapp.com/send?phone=$formattedNumber&text=${Uri.encodeComponent(message)}"
       ];
 
-      bool success = false;
-
-      for (var method in whatsappMethods) {
+      for (String urlString in whatsappUrls) {
         try {
-          final Uri uri = Uri.parse(method['url']!);
-          //! log('Trying ${method['description']}: ${method['url']}');
-
-          // Try to launch the URL
-          try {
-            await launchUrl(
-              uri,
-              mode: LaunchMode.externalApplication,
-            );
-            //! log('✅ Successfully launched via ${method['description']}');
-            success = true;
-            break;
-          } catch (e) {
-            //! log('❌ Failed to launch ${method['description']}: $e');
-            continue;
+          final Uri uri = Uri.parse(urlString);
+          if (await canLaunchUrl(uri)) {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+            return;
           }
         } catch (e) {
-          //! log('❌ Error parsing URL for ${method['description']}: $e');
+          log('Failed to launch $urlString: $e');
           continue;
         }
       }
 
-      if (!success) {
-        // Final fallback: try to open any WhatsApp app without message
-        try {
-          final List<String> fallbackSchemes = [
-            'whatsapp://',
-            'https://wa.me/',
-          ];
-
-          for (String scheme in fallbackSchemes) {
-            try {
-              final Uri fallbackUri = Uri.parse(scheme);
-              await launchUrl(fallbackUri,
-                  mode: LaunchMode.externalApplication);
-              _showErrorSnackBar(
-                  'WhatsApp opened. Please manually navigate to contact: $phoneNumber');
-              success = true;
-              break;
-            } catch (e) {
-              //! log('Fallback scheme $scheme failed: $e');
-              continue;
-            }
-          }
-        } catch (e) {
-          //! log('All fallback methods failed: $e');
-        }
-
-        if (!success) {
-          // If everything fails, provide helpful error message
-          //! log('❌ All WhatsApp methods failed');
-          _showErrorSnackBar(
-              'Unable to open WhatsApp. Please ensure WhatsApp is installed and try again.');
-        }
-      }
+      // If all methods fail, show error
+      log('Could not find any working WhatsApp method');
+      _showErrorSnackBar('WhatsApp not installed or unable to open');
     } catch (e) {
-      //! log('❌ Critical error in _openWhatsApp: $e');
+      log('Error opening WhatsApp: $e');
       _showErrorSnackBar('Error opening WhatsApp: ${e.toString()}');
     }
-  }
-
-  //! Helper method to check WhatsApp availability
-  // ignore: unused_element
-  Future<Map<String, bool>> _checkWhatsAppAvailability() async {
-    Map<String, bool> availability = {
-      'whatsapp': false,
-      'whatsapp_business': false,
-    };
-
-    try {
-      // Check regular WhatsApp
-      final whatsappUri = Uri.parse('whatsapp://');
-      availability['whatsapp'] = await canLaunchUrl(whatsappUri);
-
-      // For WhatsApp Business, try multiple detection methods
-      if (Platform.isAndroid) {
-        // Method 1: Try WhatsApp Business specific scheme
-        try {
-          final businessUri = Uri.parse('whatsapp://send?phone=1234567890');
-          availability['whatsapp_business'] = await canLaunchUrl(businessUri);
-        } catch (e) {
-          //! log('WhatsApp Business scheme check failed: $e');
-        }
-
-        // Method 2: If regular WhatsApp check failed, assume any WhatsApp variant might be available
-        if (!availability['whatsapp']!) {
-          try {
-            final webWhatsappUri = Uri.parse('https://wa.me/1234567890');
-            availability['whatsapp'] = await canLaunchUrl(webWhatsappUri);
-          } catch (e) {
-            //! log('Web WhatsApp check failed: $e');
-          }
-        }
-      }
-
-      //! log('WhatsApp availability: $availability');
-    } catch (e) {
-      //! log('Error checking WhatsApp availability: $e');
-    }
-
-    return availability;
-  }
-
-  //! Enhanced WhatsApp opening with availability check
-  Future<void> _openWhatsAppWithCheck(
-      String phoneNumber, String message) async {
-    if (phoneNumber.isEmpty) {
-      _showErrorSnackBar('No phone number available');
-      return;
-    }
-
-    // Skip availability check and directly try to open WhatsApp
-    // This is more reliable as the availability check can be unreliable
-    //! log('Attempting to open WhatsApp for number: $phoneNumber');
-
-    // Proceed with opening WhatsApp - let the _openWhatsApp method handle all fallbacks
-    await _openWhatsApp(phoneNumber, message);
   }
 
   //! Helper method to show error messages
@@ -414,19 +295,6 @@ class _BookingScreenState extends State<BookingScreen> {
         content: Text(message),
         backgroundColor: Colors.red,
         duration: const Duration(seconds: 3),
-      ),
-    );
-  }
-
-  //! Helper method to show success messages
-  // ignore: unused_element
-  void _showSuccessSnackBar(String message) {
-    final scaffoldMessenger = ScaffoldMessenger.of(Get.context!);
-    scaffoldMessenger.showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -489,7 +357,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       onPressed: () async {
                         try {
                           final currentOrderController =
-                              Get.find<CurrentOrderController>();
+                              Get.find<CurrentOrderController>(tag: 'current');
                           // Set the parcel ID to finish
                           currentOrderController.finishedParcelId.value =
                               parcelId;
@@ -534,8 +402,8 @@ class _BookingScreenState extends State<BookingScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  TextWidget(
-                    text: 'areYouSureYouwantToRemovethisParcel'.tr,
+                  const TextWidget(
+                    text: 'Are you sure you want to remove this parcel?',
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     fontColor: AppColors.black,
@@ -658,7 +526,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         Obx(() {
                           final newBookingsController =
                               Get.find<NewBookingsController>();
-                          final allParcels = newBookingController
+                          final allParcels = currentOrderController
                               .currentOrdersModel.value.data;
                           final parcelsWithRequests = allParcels
                                   ?.where((parcel) =>
@@ -775,7 +643,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
                 const SpaceWidget(spaceHeight: 16),
                 TextWidget(
-                  text: "noCurrentOrderAvailable".tr,
+                  text: "No current orders available".tr,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   fontColor: AppColors.greyDark2,
@@ -828,7 +696,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   formattedDate =
                       "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
                 } catch (e) {
-                  //! log("Error parsing dates: $e");
+                  log("Error parsing dates: $e");
                 }
                 //!
                 return Column(
@@ -957,9 +825,9 @@ class _BookingScreenState extends State<BookingScreen> {
                                               data[index].status ==
                                                   "REQUESTED" ||
                                               data[index].status == "WAITING"
-                                          ? "Waiting".tr
+                                          ? "Waiting"
                                           : data[index].status == "IN_TRANSIT"
-                                              ? "inTransit".tr
+                                              ? "In Transit"
                                               : data[index].status ==
                                                       "DELIVERED"
                                                   ? "Delivered"
@@ -1034,7 +902,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                                     "";
                                               }
                                             }
-                                            _openWhatsAppWithCheck(phoneNumber,
+                                            _openWhatsApp(phoneNumber,
                                                 "Hello, regarding your parcel delivery.");
                                           },
                                           borderRadius:
@@ -1207,8 +1075,9 @@ class _BookingScreenState extends State<BookingScreen> {
                                           _showErrorSnackBar(
                                               "You have already reviewed this delivery");
                                         } else {
-                                          final currentOrderController = Get
-                                              .find<CurrentOrderController>();
+                                          final currentOrderController =
+                                              Get.find<CurrentOrderController>(
+                                                  tag: 'current');
                                           // Set parcel ID and user ID for review
                                           currentOrderController.parcelID
                                               .value = data[index].id ?? "";
@@ -1250,7 +1119,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                         child: TextWidget(
                                           text:
                                               data[index].status == "DELIVERED"
-                                                  ? "rateDriver".tr
+                                                  ? "Rate Driver"
                                                   : _getActionButtonText(
                                                       data[index]),
                                           fontSize: 14,
@@ -1293,7 +1162,7 @@ class _BookingScreenState extends State<BookingScreen> {
       } else if (parcel.status == "REQUESTED" ||
           parcel.status == "PENDING" ||
           parcel.status == "WAITING") {
-        return "cancelRequest".tr;
+        return "Cancel Request".tr;
       }
     } else if (parcel.typeParcel.toString() == "assignedParcel") {
       // For finished Delivery
@@ -1356,8 +1225,13 @@ class _BookingScreenState extends State<BookingScreen> {
     return SingleChildScrollView(
       child: Obx(() {
         final newBookingsController = Get.find<NewBookingsController>();
-        if (newBookingController.currentOrdersModel.value.data == null) {
-          newBookingController.getCurrentOrder();
+        if (currentOrderController.currentOrdersModel.value.data == null) {
+          // Only call getCurrentOrder if not already loading
+          if (!currentOrderController.isLoading.value) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              currentOrderController.getCurrentOrder();
+            });
+          }
           return Padding(
             padding: const EdgeInsets.only(top: 20),
             child: Center(
@@ -1368,7 +1242,7 @@ class _BookingScreenState extends State<BookingScreen> {
             ),
           );
         }
-        final allParcels = newBookingController.currentOrdersModel.value.data;
+        final allParcels = currentOrderController.currentOrdersModel.value.data;
         // Filter only parcels that have deliveryRequests
         final parcelsWithRequests = allParcels
                 ?.where((parcel) =>
@@ -1393,7 +1267,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   ),
                   const SizedBox(height: 16),
                   TextWidget(
-                    text: "noNewBookings".tr,
+                    text: "No New Bookings".tr,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     fontColor: AppColors.greyDark2,
@@ -1420,7 +1294,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 formattedDate =
                     "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
               } catch (e) {
-                //! log("Error parsing dates: $e");
+                log("Error parsing dates: $e");
               }
               final deliveryLocation = parcel.deliveryLocation?.coordinates;
               final pickupLocation = parcel.pickupLocation?.coordinates;
@@ -1454,21 +1328,21 @@ class _BookingScreenState extends State<BookingScreen> {
               final pickupAddress = getParcelAddress(parcelId, 'pickup');
 
               String getProfileImagePath() {
-                if (newBookingController.isLoading.value) {
-                  //! log('⏳ Profile is still loading, returning default image URL');
+                if (currentOrderController.isLoading.value) {
+                  log('⏳ Profile is still loading, returning default image URL');
                   return 'https://i.ibb.co/z5YHLV9/profile.png';
                 }
 
                 final imageUrl = deliveryRequest.image!;
-                //! log('Raw image URL from API: "$imageUrl"');
-                //! log('Image URL type: ${imageUrl.runtimeType}');
+                log('Raw image URL from API: "$imageUrl"');
+                log('Image URL type: ${imageUrl.runtimeType}');
 
                 // Check for null, empty, or invalid URLs
                 if (imageUrl.isEmpty ||
                     imageUrl.trim().isEmpty ||
                     imageUrl.toLowerCase() == 'null' ||
                     imageUrl.toLowerCase() == 'undefined') {
-                  //! log('❌ Image URL is null/empty/invalid, using default image URL');
+                  log('❌ Image URL is null/empty/invalid, using default image URL');
                   return 'https://i.ibb.co/z5YHLV9/profile.png';
                 }
                 String fullImageUrl;
@@ -1488,11 +1362,11 @@ class _BookingScreenState extends State<BookingScreen> {
                 // Validate the constructed URL
                 final uri = Uri.tryParse(fullImageUrl);
                 if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
-                  //! log('❌ Invalid URL format: $fullImageUrl, using default image URL');
+                  log('❌ Invalid URL format: $fullImageUrl, using default image URL');
                   return 'https://i.ibb.co/z5YHLV9/profile.png';
                 }
 
-                //! log('✅ Constructed URL: $fullImageUrl');
+                log('✅ Constructed URL: $fullImageUrl');
                 return fullImageUrl;
               }
 
@@ -1846,7 +1720,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   ],
                 ),
               );
-            }),
+             }),
             const SpaceWidget(spaceHeight: 80),
           ],
         );

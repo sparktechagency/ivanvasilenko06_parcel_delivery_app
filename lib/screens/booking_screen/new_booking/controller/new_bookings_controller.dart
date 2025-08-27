@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
@@ -48,15 +49,19 @@ class NewBookingsController extends GetxController {
 
       // Handle the response based on status field in the Map
       if (response['status'] == 'success') {
-        //! log('Parcel delivery updated successfully');
-        final CurrentOrderController controller =
-            Get.find<CurrentOrderController>();
-        await controller.refreshCurrentOrder();
+        log('Parcel delivery updated successfully');
+        try {
+          final CurrentOrderController controller =
+              Get.find<CurrentOrderController>(tag: 'booking_screen');
+          await controller.refreshCurrentOrder();
+        } catch (e) {
+          log('Controller not found, skipping refresh');
+        }
         // Reset badge since the booking list has changed
         resetNewBookingsBadge();
         // Get.snackbar('Success', 'Delivery request accepted successfully');
       } else {
-        //! log('Failed to update parcel: ${response['message']}');
+        log('Failed to update parcel: ${response['message']}');
         // Get.snackbar('Error', 'Failed to accept delivery request');
 
         // Revert state on failure
@@ -64,7 +69,7 @@ class NewBookingsController extends GetxController {
         requestStates.refresh();
       }
     } catch (error) {
-      //! log('Error: $error');
+      log('Error: $error');
       // Get.snackbar('Error', 'An error occurred while accepting the request');
 
       // Revert state on error
@@ -93,15 +98,19 @@ class NewBookingsController extends GetxController {
 
       // Handle the response based on the 'status' field in the Map
       if (response['status'] == 'success') {
-        //! log('Parcel delivery rejected successfully');
-        final CurrentOrderController controller =
-            Get.find<CurrentOrderController>();
-        await controller.refreshCurrentOrder();
+        log('Parcel delivery rejected successfully');
+        try {
+          final CurrentOrderController controller =
+              Get.find<CurrentOrderController>(tag: 'booking_screen');
+          await controller.refreshCurrentOrder();
+        } catch (e) {
+          log('Controller not found, skipping refresh');
+        }
         // Reset badge since the booking list has changed
         resetNewBookingsBadge();
         // Get.snackbar('Success', 'Delivery request rejected successfully');
       } else {
-        //! log('Failed to reject parcel: ${response['message']}');
+        log('Failed to reject parcel: ${response['message']}');
         // Get.snackbar('Error', 'Failed to reject delivery request');
 
         // Revert state on failure
@@ -109,7 +118,7 @@ class NewBookingsController extends GetxController {
         requestStates.refresh();
       }
     } catch (error) {
-      //! log('Error: $error');
+      log('Error: $error');
       // Get.snackbar('Error', 'An error occurred while rejecting the request');
 
       // Revert state on error
@@ -129,28 +138,36 @@ class NewBookingsController extends GetxController {
       // Check if response is a Map (could happen if your service returns a Map instead of Response)
       if (response is Map<String, dynamic>) {
         // Handle success case based on your API response structure
-        final CurrentOrderController controller =
-            Get.find<CurrentOrderController>();
-        await controller.getCurrentOrder();
+        try {
+          final CurrentOrderController controller =
+              Get.find<CurrentOrderController>(tag: 'booking_screen');
+          await controller.getCurrentOrder();
+        } catch (e) {
+          log('Controller not found, skipping refresh');
+        }
         update(); // Use update() instead of refresh() if using GetX
       }
       // Check if response is a Response object (the expected type)
       else if (response is Response) {
         if (response.statusCode == 200) {
           // Refresh the data
-          final CurrentOrderController controller =
-              Get.find<CurrentOrderController>();
-          await controller.getCurrentOrder();
+          try {
+            final CurrentOrderController controller =
+                Get.find<CurrentOrderController>(tag: 'booking_screen');
+            await controller.getCurrentOrder();
+          } catch (e) {
+            log('Controller not found, skipping refresh');
+          }
           update(); // Use update() instead of refresh() if using GetX
         } else {
-          //! log('Failed to remove parcel: ${response.statusCode}');
+          log('Failed to remove parcel: ${response.statusCode}');
         }
       } else {
         // Fallback for unexpected response type
-        //! log('Unexpected response type: ${response.runtimeType}');
+        log('Unexpected response type: ${response.runtimeType}');
       }
     } catch (error) {
-      //! log('Error: $error');
+      log('Error: $error');
       rethrow; // Rethrow to handle in UI
     }
   }
@@ -159,36 +176,44 @@ class NewBookingsController extends GetxController {
     const String url = AppApiUrl.cancelAssignDeliver;
     final body = json.encode({
       "parcelId": parcelId,
-      //"delivererId": delivererId,
+      "delivererId": delivererId,
     });
 
     try {
       var response =
-          await ApiPostServices().apiPostServices(url: url, body: body);
+          await ApiPutServices().apiPutServices(url: url, body: body);
 
       // Handle the response based on the response type
       if (response is Map<String, dynamic>) {
         // Handle success case based on your API response structure
         if (response['status'] == 'success') {
-          //! log('Delivery cancelled successfully');
-          final CurrentOrderController controller =
-              Get.find<CurrentOrderController>();
-          await controller.getCurrentOrder();
+          log('Delivery cancelled successfully');
+          try {
+            final CurrentOrderController controller =
+                Get.find<CurrentOrderController>(tag: 'booking_screen');
+            await controller.getCurrentOrder();
+          } catch (e) {
+            log('Controller not found, skipping refresh');
+          }
           update();
         } else {
-          //! log('Failed to cancel delivery: ${response['message']}');
+          log('Failed to cancel delivery: ${response['message']}');
         }
       } else if (response != null && response.statusCode == 201) {
         // Handle Response object case
-        final CurrentOrderController controller =
-            Get.find<CurrentOrderController>();
-        await controller.getCurrentOrder();
+        try {
+          final CurrentOrderController controller =
+              Get.find<CurrentOrderController>(tag: 'booking_screen');
+          await controller.getCurrentOrder();
+        } catch (e) {
+          log('Controller not found, skipping refresh');
+        }
         update();
       } else {
-        //! log('Failed to cancel delivery: ${response?.statusCode ?? 'Unknown error'}');
+        log('Failed to cancel delivery: ${response?.statusCode ?? 'Unknown error'}');
       }
     } catch (error) {
-      //! log('Error: $error');
+      log('Error: $error');
       rethrow;
     }
   }
