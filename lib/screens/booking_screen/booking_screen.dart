@@ -1119,7 +1119,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                         child: TextWidget(
                                           text:
                                               data[index].status == "DELIVERED"
-                                                  ? "Rate Driver"
+                                                  ? "rateDriver".tr
                                                   : _getActionButtonText(
                                                       data[index]),
                                           fontSize: 14,
@@ -1162,7 +1162,7 @@ class _BookingScreenState extends State<BookingScreen> {
       } else if (parcel.status == "REQUESTED" ||
           parcel.status == "PENDING" ||
           parcel.status == "WAITING") {
-        return "Cancel Request".tr;
+        return "cancelRequest".tr;
       }
     } else if (parcel.typeParcel.toString() == "assignedParcel") {
       // For finished Delivery

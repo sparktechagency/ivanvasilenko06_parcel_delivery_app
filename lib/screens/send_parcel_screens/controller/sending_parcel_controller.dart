@@ -12,6 +12,9 @@ import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
 import 'package:parcel_delivery_app/services/reporsitory/image_repository/image_repository.dart';
 
 class ParcelController extends GetxController {
+  // Add disposal tracking
+  bool _isDisposed = false;
+  
   // Observable data
   RxString startingLocation = ''.obs;
   RxString endingLocation = ''.obs;
@@ -38,14 +41,17 @@ class ParcelController extends GetxController {
 
   //! Location methods
   void setStartingLocationId(String id) {
+    if (_isDisposed) return;
     startingLocationId.value = id;
   }
 
   void setEndingLocationId(String id) {
+    if (_isDisposed) return;
     endingLocationId.value = id;
   }
 
   void setCurrentLocationCoordinates(String latitude, String longitude) {
+    if (_isDisposed) return;
     currentLocationLatitude.value = latitude;
     currentLocationLongitude.value = longitude;
   }
@@ -53,6 +59,7 @@ class ParcelController extends GetxController {
   final RxString completePhoneNumber = ''.obs;
 
   void updatePhoneNumber(String phoneNumber) {
+    if (_isDisposed) return;
     completePhoneNumber.value = phoneNumber;
   }
 
@@ -73,60 +80,117 @@ class ParcelController extends GetxController {
 
   final ImagePicker _picker = ImagePicker();
 
-  //! Setters
-  void setStartingLocation(String location) =>
-      startingLocation.value = location;
+  //! Setters with disposal checks
+  void setStartingLocation(String location) {
+    if (_isDisposed) return;
+    startingLocation.value = location;
+  }
 
-  void setEndingLocation(String location) => endingLocation.value = location;
+  void setEndingLocation(String location) {
+    if (_isDisposed) return;
+    endingLocation.value = location;
+  }
 
-  void setDeliveryType(String type) => selectedDeliveryType.value = type;
+  void setDeliveryType(String type) {
+    if (_isDisposed) return;
+    selectedDeliveryType.value = type;
+  }
 
-  void setVehicleType(String type) => selectedVehicleType.value = type;
+  void setVehicleType(String type) {
+    if (_isDisposed) return;
+    selectedVehicleType.value = type;
+  }
 
-  void setStartDateTime(DateTime start) => startDateTime.value = start;
+  void setStartDateTime(DateTime start) {
+    if (_isDisposed) return;
+    startDateTime.value = start;
+  }
 
-  void setEndDateTime(DateTime end) => endDateTime.value = end;
+  void setEndDateTime(DateTime end) {
+    if (_isDisposed) return;
+    endDateTime.value = end;
+  }
 
-  void setReceiverNumber(String number) => phoneController.text = number;
+  void setReceiverNumber(String number) {
+    if (_isDisposed) return;
+    phoneController.text = number;
+  }
 
-  //! Step navigation with validation
+  //! Step navigation with validation and disposal checks
   void goToNextStep() {
+    if (_isDisposed) return;
+    
     if (!validateCurrentStep()) return;
 
     if (currentStep.value < 5) {
       currentStep.value++;
-      pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+      
+      // Check if pageController is still valid before using it
+      if (!_isDisposed && pageController.hasClients) {
+        try {
+          pageController.nextPage(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        } catch (e) {
+          debugPrint('Error in goToNextStep: $e');
+        }
+      }
     } else {
-      Get.toNamed(AppRoutes.senderSummaryOfParcelScreen);
+      if (!_isDisposed) {
+        Get.toNamed(AppRoutes.senderSummaryOfParcelScreen);
+      }
     }
   }
 
   void goToPreviousStep() {
+    if (_isDisposed) return;
+    
     if (currentStep.value > 0) {
       currentStep.value--;
-      pageController.previousPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+      
+      // Check if pageController is still valid before using it
+      if (!_isDisposed && pageController.hasClients) {
+        try {
+          pageController.previousPage(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        } catch (e) {
+          debugPrint('Error in goToPreviousStep: $e');
+        }
+      }
     } else {
       // Reset fields without disposing controllers here
       // Controllers will be disposed in onClose()
+      if (!_isDisposed) {
+        _resetFieldsSafely();
+        
+        // Navigate back after clearing fields
+        Get.back();
+      }
+    }
+  }
+
+  // Safe field reset method
+  void _resetFieldsSafely() {
+    if (_isDisposed) return;
+    
+    try {
       startingLocation.value = '';
       endingLocation.value = '';
       startingLocationId.value = '';
       endingLocationId.value = '';
       currentLocationController.clear();
       destinationController.clear();
-
-      // Navigate back after clearing fields
-      Get.back();
+    } catch (e) {
+      debugPrint('Error resetting fields: $e');
     }
   }
 
   bool validateCurrentStep() {
+    if (_isDisposed) return false;
+    
     switch (currentStep.value) {
       case 1:
         //! Step 1: Location Validation
@@ -177,6 +241,8 @@ class ParcelController extends GetxController {
 
   //! Comprehensive validation for final submission
   bool validateAllFields() {
+    if (_isDisposed) return false;
+    
     //! Step 1: Location Validation
     if (startingLocation.isEmpty || endingLocation.isEmpty) {
       // AppSnackBar.error("Please fill both pickup and destination locations.");
@@ -213,10 +279,16 @@ class ParcelController extends GetxController {
     return true;
   }
 
-  //! Image logic
+  //! Image logic with disposal checks
   Future<void> pickImages() async {
+    if (_isDisposed) return;
+    
     try {
       final List<XFile> images = await _picker.pickMultiImage();
+      
+      // Check disposal after async operation
+      if (_isDisposed) return;
+      
       if (images.isNotEmpty) {
         selectedImages.addAll(images.map((img) => File(img.path).path));
       } else {
@@ -228,6 +300,7 @@ class ParcelController extends GetxController {
   }
 
   void removeImage(int index) {
+    if (_isDisposed) return;
     selectedImages.removeAt(index);
   }
 
@@ -242,6 +315,8 @@ class ParcelController extends GetxController {
 
   // Submission with complete validation
   Future<void> submitParcelData() async {
+    if (_isDisposed) return;
+    
     //! Validate all required fields before submission
     if (!validateAllFields()) {
       return;
@@ -255,6 +330,8 @@ class ParcelController extends GetxController {
       return;
     }
 
+    if (_isDisposed) return;
+    
     isLoading.value = true;
     try {
       final parcelData = {
@@ -277,35 +354,45 @@ class ParcelController extends GetxController {
         imagePath: selectedImages,
       );
     } catch (e) {
-      //! log("❌ Error submitting parcel: $e");
+      //! log("⚠️ Error submitting parcel: $e");
       // AppSnackBar.error("Failed to submit parcel data.");
     } finally {
-      isLoading.value = false;
+      if (!_isDisposed) {
+        isLoading.value = false;
+      }
     }
   }
 
   void resetAllFields() {
-    selectedDeliveryType.value = 'non-professional';
-    selectedVehicleType.value = '';
-    startingLocation.value = '';
-    endingLocation.value = '';
-    selectedDate.value = DateTime.now();
-    selectedTime.value = DateTime.now();
-    startDateTime.value = DateTime.now();
-    endDateTime.value = DateTime.now();
-    selectedImages.clear();
+    if (_isDisposed) return;
+    
+    try {
+      selectedDeliveryType.value = 'non-professional';
+      selectedVehicleType.value = '';
+      startingLocation.value = '';
+      endingLocation.value = '';
+      selectedDate.value = DateTime.now();
+      selectedTime.value = DateTime.now();
+      startDateTime.value = DateTime.now();
+      endDateTime.value = DateTime.now();
+      selectedImages.clear();
 
-    currentLocationController.clear();
-    destinationController.clear();
-    titleController.clear();
-    descriptionController.clear();
-    priceController.clear();
-    nameController.clear();
-    phoneController.clear();
+      currentLocationController.clear();
+      destinationController.clear();
+      titleController.clear();
+      descriptionController.clear();
+      priceController.clear();
+      nameController.clear();
+      phoneController.clear();
+    } catch (e) {
+      debugPrint('Error resetting fields: $e');
+    }
   }
 
   // Safe navigation method that can be called from UI
   void navigateBack() {
+    if (_isDisposed) return;
+    
     try {
       // Reset current step to 0
       currentStep.value = 0;
@@ -318,12 +405,16 @@ class ParcelController extends GetxController {
     } catch (e) {
       //! log("Error during navigation back: $e");
       // Force navigation if there's an error
-      Get.back();
+      if (!_isDisposed) {
+        Get.back();
+      }
     }
   }
 
   @override
   void onClose() {
+    _isDisposed = true; // Mark as disposed first
+    
     // Dispose all controllers safely
     try {
       currentLocationController.dispose();

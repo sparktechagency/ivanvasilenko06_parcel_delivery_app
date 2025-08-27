@@ -21,10 +21,11 @@ class _PageThreeState extends State<PageThree> {
   DateTime? _fromDateTime;
   DateTime? _toDateTime;
   bool _isProcessingSelection = false;
+  bool _isDisposed = false;
 
   Future<TimeOfDay?> _selectTime(
       BuildContext context, String title, TimeOfDay initialTime) async {
-    if (!mounted) return null;
+    if (!mounted || _isDisposed) return null;
 
     return await showDialog<TimeOfDay>(
       context: context,
@@ -40,7 +41,8 @@ class _PageThreeState extends State<PageThree> {
   @override
   void initState() {
     super.initState();
-    // Initialize controller safely
+    _isDisposed = false;
+
     try {
       _parcelController = Get.find<ParcelController>();
     } catch (e) {
@@ -48,45 +50,126 @@ class _PageThreeState extends State<PageThree> {
     }
   }
 
+  @override
+  void dispose() {
+    _isDisposed = true;
+    _isProcessingSelection = false;
+    super.dispose();
+  }
+
   void _onSelectionChanged(DateRangePickerSelectionChangedArgs args) async {
-    if (args.value is PickerDateRange) {
-      final DateTime? startDate = args.value.startDate;
-      final DateTime? endDate = args.value.endDate;
+    if (_isProcessingSelection || !mounted || _isDisposed) return;
 
-      // Show "From" time picker
-      if (startDate != null) {
-        final TimeOfDay? startTime = await _selectTime(
-          context,
-          'selectStartTime'.tr,
-          const TimeOfDay(hour: 9, minute: 0),
-        );
+    _isProcessingSelection = true;
 
-        if (!mounted) return;
+    try {
+      if (args.value is PickerDateRange) {
+        final DateTime? startDate = args.value.startDate;
+        final DateTime? endDate = args.value.endDate;
 
-        if (startTime != null) {
-          final newFromDateTime = DateTime(
-            startDate.year,
-            startDate.month,
-            startDate.day,
-            startTime.hour,
-            startTime.minute,
+        // Handle start date selection
+        if (startDate != null &&
+            _fromDateTime == null &&
+            mounted &&
+            !_isDisposed) {
+          final TimeOfDay? startTime = await _selectTime(
+            context,
+            'selectStartTime'.tr,
+            const TimeOfDay(hour: 9, minute: 0),
           );
 
-          setState(() {
-            _fromDateTime = newFromDateTime;
-          });
+          if (!mounted || _isDisposed) return;
 
-          _parcelController?.setStartDateTime(newFromDateTime);
+          if (startTime != null) {
+            final newFromDateTime = DateTime(
+              startDate.year,
+              startDate.month,
+              startDate.day,
+              startTime.hour,
+              startTime.minute,
+            );
 
-          // If an end date is also selected, show the "To" time picker
-          if (endDate != null) {
+            if (mounted && !_isDisposed) {
+              setState(() {
+                _fromDateTime = newFromDateTime;
+              });
+              _parcelController?.setStartDateTime(newFromDateTime);
+            }
+          }
+        }
+
+        // Handle end date selection - only show end time picker
+        if (endDate != null &&
+            _fromDateTime != null &&
+            mounted &&
+            !_isDisposed) {
+          // Only show end time picker, don't show start time again
+          final TimeOfDay? endTime = await _selectTime(
+            context,
+            'selectEndTime'.tr,
+            const TimeOfDay(hour: 17, minute: 0),
+          );
+
+          if (!mounted || _isDisposed) return;
+
+          if (endTime != null) {
+            final newToDateTime = DateTime(
+              endDate.year,
+              endDate.month,
+              endDate.day,
+              endTime.hour,
+              endTime.minute,
+            );
+
+            if (mounted && !_isDisposed) {
+              setState(() {
+                _toDateTime = newToDateTime;
+              });
+              _parcelController?.setEndDateTime(newToDateTime);
+            }
+          }
+        }
+
+        // Handle case where user selects same date for both start and end
+        if (startDate != null &&
+            endDate != null &&
+            startDate.isAtSameMomentAs(endDate) &&
+            _fromDateTime == null &&
+            mounted &&
+            !_isDisposed) {
+          // First select start time
+          final TimeOfDay? startTime = await _selectTime(
+            context,
+            'selectStartTime'.tr,
+            const TimeOfDay(hour: 9, minute: 0),
+          );
+
+          if (!mounted || _isDisposed) return;
+
+          if (startTime != null) {
+            final newFromDateTime = DateTime(
+              startDate.year,
+              startDate.month,
+              startDate.day,
+              startTime.hour,
+              startTime.minute,
+            );
+
+            if (mounted && !_isDisposed) {
+              setState(() {
+                _fromDateTime = newFromDateTime;
+              });
+              _parcelController?.setStartDateTime(newFromDateTime);
+            }
+
+            // Then select end time
             final TimeOfDay? endTime = await _selectTime(
               context,
               'selectEndTime'.tr,
-              const TimeOfDay(hour: 17, minute: 0),
+              TimeOfDay(hour: startTime.hour + 1, minute: startTime.minute),
             );
 
-            if (!mounted) return;
+            if (!mounted || _isDisposed) return;
 
             if (endTime != null) {
               final newToDateTime = DateTime(
@@ -97,20 +180,43 @@ class _PageThreeState extends State<PageThree> {
                 endTime.minute,
               );
 
-              setState(() {
-                _toDateTime = newToDateTime;
-              });
-
-              _parcelController?.setEndDateTime(newToDateTime);
+              if (mounted && !_isDisposed) {
+                setState(() {
+                  _toDateTime = newToDateTime;
+                });
+                _parcelController?.setEndDateTime(newToDateTime);
+              }
             }
           }
         }
       }
+    } catch (e) {
+      debugPrint('Error in _onSelectionChanged: $e');
+    } finally {
+      if (mounted && !_isDisposed) {
+        _isProcessingSelection = false;
+      }
+    }
+  }
+
+  // Add method to reset dates if needed
+  void _resetDates() {
+    if (_isDisposed) return;
+
+    if (mounted && !_isDisposed) {
+      setState(() {
+        _fromDateTime = null;
+        _toDateTime = null;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isDisposed) {
+      return const SizedBox.shrink();
+    }
+
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -137,31 +243,40 @@ class _PageThreeState extends State<PageThree> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(08),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.grey, width: 1.5),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    _fromDateTime == null
-                        ? "fromDate".tr
-                        : _formatDateTime(_fromDateTime!),
-                    style: const TextStyle(fontSize: 16, color: Colors.black),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.grey, width: 1.5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      _fromDateTime == null
+                          ? "fromDate".tr
+                          : _formatDateTime(_fromDateTime!),
+                      style: const TextStyle(fontSize: 16, color: Colors.black),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.grey, width: 1.5),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    _toDateTime == null
-                        ? "toDate".tr
-                        : _formatDateTime(_toDateTime!),
-                    style: const TextStyle(fontSize: 16, color: Colors.black),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Icon(Icons.arrow_forward_ios),
+                ),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.grey, width: 1.5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      _toDateTime == null
+                          ? "toDate".tr
+                          : _formatDateTime(_toDateTime!),
+                      style: const TextStyle(fontSize: 16, color: Colors.black),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
               ],
@@ -184,26 +299,27 @@ class _PageThreeState extends State<PageThree> {
               ),
             ),
             const SpaceWidget(spaceHeight: 16),
+            // Add reset button for better UX
+            // if (_fromDateTime != null || _toDateTime != null)
+            //   Center(
+            //     child: TextButton(
+            //       onPressed: _resetDates,
+            //       child: Text(
+            //         'resetDates'.tr.isNotEmpty
+            //             ? 'resetDates'.tr
+            //             : 'Reset Dates',
+            //         style: const TextStyle(
+            //           color: AppColors.black,
+            //           fontSize: 14,
+            //           fontWeight: FontWeight.w500,
+            //         ),
+            //       ),
+            //     ),
+            //   ),
           ],
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _isProcessingSelection = false;
-    super.dispose();
-  }
-
-  void _resetSelection() {
-    if (mounted) {
-      setState(() {
-        _fromDateTime = null;
-        _toDateTime = null;
-        _isProcessingSelection = false;
-      });
-    }
   }
 
   String _formatDateTime(DateTime dateTime) {
@@ -212,8 +328,7 @@ class _PageThreeState extends State<PageThree> {
   }
 }
 
-// Custom Time Picker Dialog remains unchanged
-// Custom Time Picker Dialog
+// Custom Time Picker Dialog with improved state management
 class CustomTimePickerDialog extends StatefulWidget {
   final String title;
   final TimeOfDay initialTime;
@@ -230,10 +345,12 @@ class CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
   late int _minute;
   final _hourController = TextEditingController();
   final _minuteController = TextEditingController();
+  bool _isDisposed = false;
 
   @override
   void initState() {
     super.initState();
+    _isDisposed = false;
     _hour = widget.initialTime.hour;
     _minute = widget.initialTime.minute;
 
@@ -243,12 +360,15 @@ class CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
 
   @override
   void dispose() {
+    _isDisposed = true;
     _hourController.dispose();
     _minuteController.dispose();
     super.dispose();
   }
 
   void _validateHour(String value) {
+    if (_isDisposed || !mounted) return;
+
     setState(() {
       _hour = int.tryParse(value) ?? _hour;
       if (_hour < 0) _hour = 0;
@@ -258,6 +378,8 @@ class CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
   }
 
   void _validateMinute(String value) {
+    if (_isDisposed || !mounted) return;
+
     setState(() {
       _minute = int.tryParse(value) ?? _minute;
       if (_minute < 0) _minute = 0;
@@ -268,6 +390,10 @@ class CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isDisposed) {
+      return const SizedBox.shrink();
+    }
+
     return Dialog(
       backgroundColor: AppColors.grey,
       child: Padding(
@@ -344,7 +470,9 @@ class CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                   backgroundColor: AppColors.white,
                   textColor: AppColors.black,
                   onPressed: () {
-                    Navigator.pop(context);
+                    if (mounted && !_isDisposed) {
+                      Navigator.pop(context);
+                    }
                   },
                 ),
                 // OK button
@@ -358,12 +486,13 @@ class CustomTimePickerDialogState extends State<CustomTimePickerDialog> {
                   backgroundColor: AppColors.black,
                   textColor: AppColors.white,
                   onPressed: () {
-                    final selectedTime = TimeOfDay(
-                      hour: _hour, // Directly using the hour from the input
-                      minute:
-                          _minute, // Directly using the minute from the input
-                    );
-                    Navigator.pop(context, selectedTime);
+                    if (mounted && !_isDisposed) {
+                      final selectedTime = TimeOfDay(
+                        hour: _hour,
+                        minute: _minute,
+                      );
+                      Navigator.pop(context, selectedTime);
+                    }
                   },
                 ),
               ],
