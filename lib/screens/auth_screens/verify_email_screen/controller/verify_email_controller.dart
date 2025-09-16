@@ -142,8 +142,8 @@ class VerifyEmailController extends GetxController {
           await SharePrefsHelper.setString(
               SharedPreferenceValue.token, response["token"].toString());
 
-          String token =
-              await SharePrefsHelper.getString(SharedPreferenceValue.token);
+          // String token =
+          //     await SharePrefsHelper.getString(SharedPreferenceValue.token);
           //! log("Saved registration token: $token");
         }
 
@@ -193,8 +193,8 @@ class VerifyEmailController extends GetxController {
           await SharePrefsHelper.setString(
               SharedPreferenceValue.token, response["token"].toString());
 
-          String token =
-              await SharePrefsHelper.getString(SharedPreferenceValue.token);
+          // String token =
+              // await SharePrefsHelper.getString(SharedPreferenceValue.token);
           //! log("Saved login token: $token");
         }
 

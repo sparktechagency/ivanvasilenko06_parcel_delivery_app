@@ -71,7 +71,7 @@ class ButtonWidget extends StatelessWidget {
             if (prefixIcon != null)
               IconWidget(
                 icon: prefixIcon!,
-                color: AppColors.white ?? textColor,
+                color: AppColors.white,
                 height: 22,
                 width: 22,
               ),

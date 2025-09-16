@@ -42,7 +42,6 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
   Future<void> _getAddress(
       double latitude, double longitude, bool isPickup) async {
     final String key = '$latitude,$longitude';
-    String addressType = isPickup ? "Pickup" : "Delivery";
 
     if (addressCache.containsKey(key)) {
       // Use cached address if available

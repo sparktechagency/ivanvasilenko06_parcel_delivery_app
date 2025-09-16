@@ -102,8 +102,8 @@ class VerifyPhoneController extends GetxController {
             data["data"]["token"].toString().isNotEmpty) {
           await SharePrefsHelper.setString(
               SharedPreferenceValue.token, data["data"]["token"].toString());
-          String token =
-              await SharePrefsHelper.getString(SharedPreferenceValue.token);
+          // String token =
+          //     await SharePrefsHelper.getString(SharedPreferenceValue.token);
           //! log("Saved login token: $token");
         }
         //! log('Login Data: $data');
@@ -144,8 +144,8 @@ class VerifyPhoneController extends GetxController {
         if (data["token"] != null && data["token"].toString().isNotEmpty) {
           await SharePrefsHelper.setString(
               SharedPreferenceValue.token, data["token"].toString());
-          String token =
-              await SharePrefsHelper.getString(SharedPreferenceValue.token);
+          // String token =
+          //     await SharePrefsHelper.getString(SharedPreferenceValue.token);
           //! log("Saved registration token: $token");
         }
        //!  log('Signup Data: $data');

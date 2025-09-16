@@ -134,8 +134,6 @@ class LoginScreenController extends GetxController {
 
       final GoogleSignInAuthentication auth = await acc.authentication;
       final String? idToken = auth.idToken;
-      final String uniqueId = acc.id;
-
       //! appLog(uniqueId);
       if (idToken == null) {
         //! appLog("❌ Failed to get ID token");
@@ -167,8 +165,6 @@ class LoginScreenController extends GetxController {
             await SharePrefsHelper.setString(
                 SharedPreferenceValue.token, token);
 
-            String savedToken =
-                await SharePrefsHelper.getString(SharedPreferenceValue.token);
             //! appLog("✅ Token saved successfully: ${savedToken.substring(0, 50)}...");
 
             AppSnackBar.success(data["message"] ?? "Login successful");

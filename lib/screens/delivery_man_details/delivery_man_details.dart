@@ -343,23 +343,6 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
     }
   }
 
-  String _formatDeliveryDate(dynamic dateInput) {
-    if (dateInput == null) return '';
-    try {
-      DateTime date;
-      if (dateInput is DateTime) {
-        date = dateInput;
-      } else if (dateInput is String) {
-        date = DateTime.parse(dateInput);
-      } else {
-        return '';
-      }
-      return '${date.day}/${date.month}/${date.year}';
-    } catch (e) {
-      return '';
-    }
-  }
-
   //! Helper method to calculate average rating from reviews
   String _calculateAverageRating(dynamic deliveryMan) {
     if (deliveryMan?.reviews == null || deliveryMan.reviews.isEmpty) {
