@@ -47,29 +47,29 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCwLFz22RPTDxPDxUx0w0cF7PIUInGjcOI',
-    appId: '1:413010641256:web:6ec5ba02eaf40ce13316dd',
-    messagingSenderId: '413010641256',
-    projectId: 'deliverly-2f903',
-    authDomain: 'deliverly-2f903.firebaseapp.com',
-    storageBucket: 'deliverly-2f903.firebasestorage.app',
-    measurementId: 'G-5MFWPDKYD0',
+    apiKey: 'AIzaSyCFwKicGYHoCobn8B8lzsfb9AmENOOEKsA',
+    appId: '1:10243427761:web:599ae7bc9edf3695700190',
+    messagingSenderId: '10243427761',
+    projectId: 'deliverly-launch',
+    authDomain: 'deliverly-launch.firebaseapp.com',
+    storageBucket: 'deliverly-launch.firebasestorage.app',
+    measurementId: 'G-Y669Y9JBWN',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDsqcKrPQUGqvU_EScI2xE6K-itSPshnng',
-    appId: '1:413010641256:android:1be6c858c00d72a33316dd',
-    messagingSenderId: '413010641256',
-    projectId: 'deliverly-2f903',
-    storageBucket: 'deliverly-2f903.firebasestorage.app',
+    apiKey: 'AIzaSyBl6FqxCYm46Kg4yKFBKuARtAHFdySOajM',
+    appId: '1:10243427761:android:54537c71c32ca8b9700190',
+    messagingSenderId: '10243427761',
+    projectId: 'deliverly-launch',
+    storageBucket: 'deliverly-launch.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDXnVE3eVWKWzZ8FF-lnUwROv6f9fXkRO8',
-    appId: '1:413010641256:ios:134234442cfd3b0d3316dd',
-    messagingSenderId: '413010641256',
-    projectId: 'deliverly-2f903',
-    storageBucket: 'deliverly-2f903.firebasestorage.app',
+    apiKey: 'AIzaSyDPztriwQxawrBedJycTZCOqVPRyrJ6yPI',
+    appId: '1:10243427761:ios:025de6237df7f205700190',
+    messagingSenderId: '10243427761',
+    projectId: 'deliverly-launch',
+    storageBucket: 'deliverly-launch.firebasestorage.app',
     iosBundleId: 'com.ivan.delivery',
   );
 
