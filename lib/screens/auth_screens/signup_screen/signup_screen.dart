@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -49,6 +48,10 @@ class SignupScreen extends StatelessWidget {
                   controller: controller.fullNameController,
                   hintText: "enterYourName".tr,
                   maxLines: 1,
+                  onSubmitted: () {
+                    // Handle done button tap
+                    FocusScope.of(context).unfocus(); // Hide keyboard
+                  },
                 ),
                 const SpaceWidget(spaceHeight: 16),
                 // Phone Field
@@ -69,6 +72,10 @@ class SignupScreen extends StatelessWidget {
                   controller: controller.emailController,
                   hintText: "Enter Your Email (Optional)".tr,
                   maxLines: 1,
+                  onSubmitted: () {
+                    // Handle done button tap
+                    FocusScope.of(context).unfocus(); // Hide keyboard
+                  },
                 ),
                 const SpaceWidget(spaceHeight: 16),
                 Row(
@@ -92,7 +99,9 @@ class SignupScreen extends StatelessWidget {
                       fontColor: AppColors.black,
                       textAlignment: TextAlign.left,
                     ),
-                    const SpaceWidget(spaceWidth: 02,),
+                    const SpaceWidget(
+                      spaceWidth: 02,
+                    ),
                     InkWell(
                       splashColor: Colors.transparent,
                       hoverColor: Colors.transparent,
@@ -106,7 +115,6 @@ class SignupScreen extends StatelessWidget {
                         fontColor: AppColors.black,
                         textAlignment: TextAlign.left,
                         underline: true,
-                      
                       ),
                     ),
                   ],
@@ -142,20 +150,20 @@ class SignupScreen extends StatelessWidget {
               ),
             ),
             Obx(() => ButtonWidget(
-              onPressed: controller.isTermsAccepted.value 
-                  ? () => controller.phoneOtpSignup()
-                  : null,
-              label: "next".tr,
-              icon: Icons.arrow_forward,
-              buttonWidth: 120,
-              buttonHeight: 50,
-              backgroundColor: controller.isTermsAccepted.value 
-                  ? AppColors.black 
-                  : AppColors.greyLight,
-              textColor: controller.isTermsAccepted.value 
-                  ? AppColors.white 
-                  : AppColors.grey,
-            )),
+                  onPressed: controller.isTermsAccepted.value
+                      ? () => controller.phoneOtpSignup()
+                      : null,
+                  label: "next".tr,
+                  icon: Icons.arrow_forward,
+                  buttonWidth: 120,
+                  buttonHeight: 50,
+                  backgroundColor: controller.isTermsAccepted.value
+                      ? AppColors.black
+                      : AppColors.greyLight,
+                  textColor: controller.isTermsAccepted.value
+                      ? AppColors.white
+                      : AppColors.grey,
+                )),
           ],
         ),
       ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
+import 'dart:io' show Platform;
 
 import '../../constants/app_colors.dart';
 import '../../utils/app_size.dart';
@@ -47,6 +49,13 @@ class IntlPhoneFieldWidget extends StatelessWidget {
         style: const TextStyle(
           color: AppColors.black,
         ),
+        // Add iOS-specific keyboard configuration
+        keyboardType: TextInputType.phone,
+        textInputAction: Platform.isIOS ? TextInputAction.done : TextInputAction.next,
+        onSubmitted: Platform.isIOS ? (value) {
+          // Dismiss keyboard on iOS when done button is pressed
+          FocusScope.of(context).unfocus();
+        } : null,
         decoration: InputDecoration(
           filled: true,
           fillColor: AppColors.grey,

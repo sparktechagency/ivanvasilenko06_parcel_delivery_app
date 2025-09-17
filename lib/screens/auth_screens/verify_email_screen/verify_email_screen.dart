@@ -39,6 +39,10 @@ class VerifyEmailScreen extends StatelessWidget {
                 hintText: '******',
                 maxLines: 1,
                 keyboardType: TextInputType.number,
+                onSubmitted: () {
+                  // Handle done button tap
+                  FocusScope.of(context).unfocus(); // Hide keyboard
+                },
               ),
               const SpaceWidget(spaceHeight: 16),
 

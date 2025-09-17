@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
@@ -9,6 +10,7 @@ import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart'
 import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
 import 'package:parcel_delivery_app/services/deviceInfo/device_info.dart';
 import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
+import 'dart:io' show Platform;
 
 class LoginScreenController extends GetxController {
   RxBool isLoading = false.obs;
@@ -117,9 +119,27 @@ class LoginScreenController extends GetxController {
   Future<void> googleSignIn() async {
     try {
       isGoogleLoading(true);
-      final GoogleSignIn googleSignIn = GoogleSignIn();
+      
+      // iOS-specific configuration for Google Sign-In
+      GoogleSignIn googleSignIn;
+      if (Platform.isIOS) {
+        googleSignIn = GoogleSignIn(
+          scopes: ['email', 'profile'],
+          // Add iOS-specific configuration
+          clientId: '10243427761-cp6rebbhe0a0ugomqabd4n1jtv4qo0ro.apps.googleusercontent.com',
+        );
+      } else {
+        googleSignIn = GoogleSignIn();
+      }
 
-      await googleSignIn.signOut();
+      // Ensure clean state before starting
+      try {
+        await googleSignIn.signOut();
+      } catch (e) {
+        // Ignore sign out errors as user might not be signed in
+        debugPrint("Sign out error (ignored): $e");
+      }
+      
       await Future.delayed(const Duration(milliseconds: 500));
 
       //! appLog("🔄 Starting Google Sign-In process...");
@@ -132,10 +152,16 @@ class LoginScreenController extends GetxController {
         return;
       }
 
+      // Add null safety checks for iOS
+      if (acc.email.isEmpty) {
+        AppSnackBar.error("Failed to get user email");
+        return;
+      }
+
       final GoogleSignInAuthentication auth = await acc.authentication;
       final String? idToken = auth.idToken;
-      //! appLog(uniqueId);
-      if (idToken == null) {
+      
+      if (idToken == null || idToken.isEmpty) {
         //! appLog("❌ Failed to get ID token");
         AppSnackBar.error("Failed to get authentication token");
         return;
@@ -148,6 +174,8 @@ class LoginScreenController extends GetxController {
         "idToken": idToken,
         "fcmToken": fcmToken.toString(),
         "mobileNumber": completePhoneNumber.value,
+        // "email": acc.email, 
+        // "displayName": acc.displayName ?? "", // Add display name with null safety
       };
 
       //! appLog("Google Auth API Request Body: $body");
@@ -182,9 +210,34 @@ class LoginScreenController extends GetxController {
         AppSnackBar.error(
             "Server is temporarily unavailable. Please try again later.");
       }
+    } on PlatformException catch (e) {
+      // Handle iOS-specific platform exceptions
+      debugPrint("Platform Exception: ${e.code} - ${e.message}");
+      if (e.code == 'sign_in_canceled') {
+        AppSnackBar.error("Sign-in was cancelled");
+      } else if (e.code == 'network_error') {
+        AppSnackBar.error("Network error. Please check your connection.");
+      } else if (e.code == 'sign_in_failed') {
+        AppSnackBar.error("Sign-in failed. Please try again.");
+      } else {
+        AppSnackBar.error("Authentication error: ${e.message ?? 'Unknown error'}");
+      }
     } catch (e) {
       //! appLog("❌ Error in Google Sign-In: $e");
-      AppSnackBar.error("Sign-in failed. Please try again.");
+      debugPrint("Google Sign-In Error: $e");
+      
+      // Provide more specific error messages for iOS
+      if (Platform.isIOS) {
+        if (e.toString().contains('network')) {
+          AppSnackBar.error("Network error. Please check your internet connection.");
+        } else if (e.toString().contains('configuration')) {
+          AppSnackBar.error("Configuration error. Please contact support.");
+        } else {
+          AppSnackBar.error("Sign-in failed. Please try again.");
+        }
+      } else {
+        AppSnackBar.error("Sign-in failed. Please try again.");
+      }
     } finally {
       isGoogleLoading(false);
     }

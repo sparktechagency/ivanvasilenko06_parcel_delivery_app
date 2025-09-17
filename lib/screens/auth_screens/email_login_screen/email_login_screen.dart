@@ -44,12 +44,20 @@ class EmailLoginScreen extends StatelessWidget {
                 controller: emailController,
                 hintText: "enterEmail".tr,
                 maxLines: 1,
+                onSubmitted: () {
+                  // Handle done button tap
+                  FocusScope.of(context).unfocus(); // Hide keyboard
+                },
               ),
               const SpaceWidget(spaceHeight: 16),
               TextFieldWidget(
                 controller: passwordController,
                 hintText: "enterPassword".tr,
                 maxLines: 1,
+                onSubmitted: () {
+                  // Handle done button tap
+                  FocusScope.of(context).unfocus(); // Hide keyboard
+                },
               ),
               const SpaceWidget(spaceHeight: 16),
             ],
