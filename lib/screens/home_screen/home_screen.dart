@@ -16,6 +16,7 @@ import 'package:parcel_delivery_app/screens/home_screen/widgets/reserve_bottom_s
 import 'package:parcel_delivery_app/screens/home_screen/widgets/suggestionCardWidget.dart';
 import 'package:parcel_delivery_app/screens/notification_screen/controller/notification_controller.dart';
 import 'package:parcel_delivery_app/screens/profile_screen/controller/profile_controller.dart';
+import 'package:parcel_delivery_app/services/location_permission_service.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import '../../utils/app_size.dart';
 import '../../widgets/button_widget/button_widget.dart';
@@ -33,32 +34,71 @@ class _HomeScreenState extends State<HomeScreen> {
   final EarnMoneyRadiusController _radiusController = Get.put(EarnMoneyRadiusController());
   final NotificationController notificationController = Get.put(NotificationController());
   final ProfileController profileController = Get.put(ProfileController());
+  final LocationPermissionService _locationService = LocationPermissionService.instance;
 
   Future<void> _getCurrentLocation() async {
     try {
+      // Check if location services are enabled first (iOS requirement)
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('locationServicesDisabled'.tr),
+            backgroundColor: AppColors.red,
+          ));
+        }
+        return;
+      }
+
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           //! log('Location permissions denied.');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text('locationPermissionDenied'.tr),
+              backgroundColor: AppColors.red,
+            ));
+          }
           return;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
         //! log('Location permissions permanently denied.');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('locationPermissionPermanentlyDenied'.tr),
+            backgroundColor: AppColors.red,
+            action: SnackBarAction(
+              label: 'Settings',
+              onPressed: () => Geolocator.openAppSettings(),
+            ),
+          ));
+        }
         return;
       }
 
+      // Add timeout for iOS stability
       Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
-      _radiusController.setCurrentLocation(LatLng(position.latitude, position.longitude));
-      //! log('Current Location: Latitude: ${position.latitude}');
-      //! log('Current Location: Longitude: ${position.longitude}');
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 10),
+      );
+      
+      if (mounted) {
+        _radiusController.setCurrentLocation(LatLng(position.latitude, position.longitude));
+        //! log('Current Location: Latitude: ${position.latitude}');
+        //! log('Current Location: Longitude: ${position.longitude}');
+      }
     } catch (e) {
       //! log('Error getting location: $e');
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Could not get current location. Please try again.')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('couldNotGetLocation'.tr),
+          backgroundColor: AppColors.red,
+        ));
+      }
     }
   }
 
@@ -105,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _openBottomSheet(BuildContext context) {
-    _getCurrentLocation();
+    // Don't call _getCurrentLocation here - it will be called when needed
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -232,26 +272,38 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           ButtonWidget(
                             onPressed: () async {
-                              // Check if location is available before proceeding
+                              // Get location first with proper error handling
+                              await _getCurrentLocation();
+                              
+                              // Check if location is available after getting it
                               if (_radiusController.currentLocation.value == null) {
-                                // Try to get location again
-                                await _getCurrentLocation();
-                                
-                                // If still null, show error and return
-                                if (_radiusController.currentLocation.value == null) {
+                                // Location request failed or was denied
+                                if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text('locationRequired'.tr),
+                                      content: Text('locationRequiredToContinue'.tr),
                                       backgroundColor: AppColors.red,
                                     ),
                                   );
-                                  return;
                                 }
+                                return;
                               }
                               
-                              _radiusController.fetchParcelsInRadius();
-                              Get.offNamed(AppRoutes.radiusMapScreen);
-                              //! log("😉😉😉😉😉😉😉😉 ${_radiusController.currentLocation.value?.latitude} ${_radiusController.currentLocation.value?.longitude}");
+                              // Proceed with fetching parcels and navigation
+                              try {
+                                _radiusController.fetchParcelsInRadius();
+                                Get.offNamed(AppRoutes.radiusMapScreen);
+                                //! log("😉😉😉😉😉😉😉😉 ${_radiusController.currentLocation.value?.latitude} ${_radiusController.currentLocation.value?.longitude}");
+                              } catch (e) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('errorLoadingParcels'.tr),
+                                      backgroundColor: AppColors.red,
+                                    ),
+                                  );
+                                }
+                              }
                             },
                             label: "next".tr,
                             textColor: AppColors.white,
@@ -412,8 +464,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SpaceWidget(spaceHeight: 12),
                       EarnMoneyCardWidget(
-                        onTap: () {
-                          _openBottomSheet(context);
+                        onTap: () async {
+                          // Check location permission first using the LocationPermissionService
+                          bool hasPermission = await _locationService.ensureLocationPermission(
+                            showDialog: true,
+                            customMessage: 'earnMoneyDesc'.tr,
+                          );
+                          
+                          if (hasPermission) {
+                            // Permission granted, proceed to open bottom sheet
+                            _openBottomSheet(context);
+                          }
+                          // If permission is denied, the service will handle showing appropriate dialogs
                         },
                       ),
                       const SpaceWidget(spaceHeight: 20),

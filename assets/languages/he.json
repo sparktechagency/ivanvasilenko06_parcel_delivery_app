@@ -221,5 +221,11 @@
   "deliveryRoute" : "מסלול משלוח",
   "noParcelsAvailable" : " אין חבילות זמינות",
   "checkItLate" : "בדוק שוב מאוחר יותר",
-  "recentPublishOrders" : "הזמנות שפורסמו לאחרונה"
+  "recentPublishOrders" : "הזמנות שפורסמו לאחרונה",
+  "locationServicesDisabled": "שירותי המיקום מושבתים. אנא הפעל אותם בהגדרות המכשיר שלך.",
+  "locationPermissionDenied": "הרשאת מיקום נדחתה. אנא הפעל גישה למיקום בהגדרות.",
+  "locationPermissionPermanentlyDenied": "הרשאת מיקום נדחתה לצמיתות. אנא הפעל גישה למיקום בהגדרות.",
+  "locationTimeout": "בקשת המיקום פגה. אנא נסה שוב.",
+  "locationError": "לא ניתן לקבל מיקום. אנא בדוק את הגדרות המיקום שלך ונסה שוב.",
+  "openSettings": "פתח הגדרות"
 }

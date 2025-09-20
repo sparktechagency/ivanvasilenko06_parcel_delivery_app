@@ -223,5 +223,11 @@
   "deliveryRoute" : "Delivery Route",
   "noParcelsAvailable" : "No Parcels Available",
   "checkItLate" : "Check it later",
-  "recentPublishOrders" : "Recent Publish Orders"
+  "recentPublishOrders" : "Recent Publish Orders",
+  "locationServicesDisabled": "Location services are disabled. Please enable them in your device settings.",
+  "locationPermissionDenied": "Location permission denied. Please enable location access in Settings.",
+  "locationPermissionPermanentlyDenied": "Location permission permanently denied. Please enable location access in Settings.",
+  "locationTimeout": "Location request timed out. Please try again.",
+  "locationError": "Unable to get location. Please check your location settings and try again.",
+  "openSettings": "Open Settings"
 }
