@@ -123,6 +123,7 @@ class LoginScreen extends StatelessWidget {
                     fillColor: AppColors.white,
                     borderColor: AppColors.black,
                     initialCountryCode: "IL",
+
                   ),
                   const SpaceWidget(spaceHeight: 24),
                   Obx(() {
@@ -195,7 +196,7 @@ class LoginScreen extends StatelessWidget {
             const SpaceWidget(spaceWidth: 4),
             TextButtonWidget(
               onPressed: () {
-                Get.offAllNamed(AppRoutes.countrySelectScreen);
+                Get.toNamed(AppRoutes.countrySelectScreen);
               },
               text: "signUp".tr,
               textColor: AppColors.greyDark,

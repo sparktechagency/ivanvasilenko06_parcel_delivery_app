@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
 import 'dart:io' show Platform;
@@ -57,6 +56,7 @@ class IntlPhoneFieldWidget extends StatelessWidget {
           FocusScope.of(context).unfocus();
         } : null,
         decoration: InputDecoration(
+
           filled: true,
           fillColor: AppColors.grey,
           hintText: hintText,

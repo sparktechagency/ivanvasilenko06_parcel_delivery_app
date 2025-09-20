@@ -41,7 +41,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       body: tabs[_currentIndex],
       extendBody: true,
       bottomNavigationBar: Container(
-        height: ResponsiveUtils.height(85),
+        height: ResponsiveUtils.height(95),
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(40),

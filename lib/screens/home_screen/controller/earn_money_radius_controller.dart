@@ -64,9 +64,4 @@ class EarnMoneyRadiusController extends GetxController {
     }
   }
 
-  @override
-  void onInit() {
-    super.onInit();
-    // Don't fetch parcels on init since location might not be available yet
-  }
 }

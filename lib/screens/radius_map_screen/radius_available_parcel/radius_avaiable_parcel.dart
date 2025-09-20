@@ -414,41 +414,32 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
 //! Locate this code block in your onTap handler for "View Summary" button
                                     InkWell(
                                       onTap: () {
-                                        if (parcel != null) {
-                                          // Debug the parcel object to ensure it's not null
-                                          //! log("Navigating with parcel: $parcel");
+                                        // Debug the parcel object to ensure it's not null
+                                        //! log("Navigating with parcel: $parcel");
 
-                                          //! Check if parcel has required coordinates
-                                          final pickupCoords =
-                                              parcel.pickupLocation?.coordinates;
-                                          final deliveryCoords =
-                                              parcel.deliveryLocation?.coordinates;
-                                          if (pickupCoords == null ||
-                                              deliveryCoords == null) {
-                                            // Get.snackbar(
-                                            //   "Error",
-                                            //   "Parcel location coordinates are missing.",
-                                            //   snackPosition:
-                                            //       SnackPosition.BOTTOM,
-                                            // );
-                                            return;
-                                          }
-                                          //! Make a copy of the parcel to avoid reference issues
-                                          final parcelCopy = parcel.toJson();
-                                          //! Navigate with the parcel data
-                                          Get.toNamed(
-                                            AppRoutes.radiusMapScreenDetails,
-                                            arguments: parcelCopy,
-                                          );
-                                        } else {
-                                          //! "Parcel is null or missing required fields");
+                                        //! Check if parcel has required coordinates
+                                        final pickupCoords =
+                                            parcel.pickupLocation?.coordinates;
+                                        final deliveryCoords =
+                                            parcel.deliveryLocation?.coordinates;
+                                        if (pickupCoords == null ||
+                                            deliveryCoords == null) {
                                           // Get.snackbar(
                                           //   "Error",
-                                          //   "Parcel details are missing.",
-                                          //   snackPosition: SnackPosition.BOTTOM,
+                                          //   "Parcel location coordinates are missing.",
+                                          //   snackPosition:
+                                          //       SnackPosition.BOTTOM,
                                           // );
+                                          return;
                                         }
-                                      },
+                                        //! Make a copy of the parcel to avoid reference issues
+                                        final parcelCopy = parcel.toJson();
+                                        //! Navigate with the parcel data
+                                        Get.toNamed(
+                                          AppRoutes.radiusMapScreenDetails,
+                                          arguments: parcelCopy,
+                                        );
+                                                                            },
                                       splashColor: Colors.transparent,
                                       highlightColor: Colors.transparent,
                                       child: Row(

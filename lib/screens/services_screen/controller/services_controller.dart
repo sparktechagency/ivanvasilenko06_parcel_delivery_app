@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/screens/services_screen/model/service_screen_model.dart';
