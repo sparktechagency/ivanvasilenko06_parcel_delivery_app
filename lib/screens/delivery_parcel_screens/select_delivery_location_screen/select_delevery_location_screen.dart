@@ -10,6 +10,7 @@ import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/services/reporsitory/location_repository/location_repository.dart';
+import 'package:parcel_delivery_app/services/location_permission_service.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
@@ -126,14 +127,21 @@ class _SelectDeliveryLocationScreenState
   }
 
   Future<void> _getCurrentLocation() async {
-    final location = await _locationRepository.getCurrentLocation();
-    if (location != null && mounted) {
+    // Use the uniform location permission service
+    final locationService = LocationPermissionService.instance;
+    final position = await locationService.getCurrentPosition(
+      requestPermission: true,
+    );
+    
+    if (position != null && mounted) {
+      final location = LatLng(position.latitude, position.longitude);
+      
       controller.setStartingLocation(
         "", // Empty string instead of "Current Location"
         location,
       );
-      controller.currentLocationLatitude.value = location.latitude.toString();
-      controller.currentLocationLongitude.value = location.longitude.toString();
+      controller.currentLocationLatitude.value = position.latitude.toString();
+      controller.currentLocationLongitude.value = position.longitude.toString();
 
       setState(() {
         _hasCurrentLocation = true;

@@ -50,9 +50,9 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
   }
 
   void _initializeAddressStates() {
-    if (_radiusController.parcelsInRadius.isNotEmpty) {
-      for (var parcel in _radiusController.parcelsInRadius) {
-        final parcelId = parcel["_id"];
+    if (_radiusController.parcels.isNotEmpty) {
+      for (var parcel in _radiusController.parcels) {
+        final parcelId = parcel.sId ?? "unknown";
 
         //! Initialize loading states
         setState(() {
@@ -67,11 +67,11 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
   }
 
   void _loadParcelAddresses(dynamic parcel) {
-    final parcelId = parcel["_id"];
+    final parcelId = parcel.sId ?? "unknown";
 
     //! Safely extract coordinates with null checks
-    final pickupCoordinates = parcel["pickupLocation"]?["coordinates"];
-    final deliveryCoordinates = parcel["deliveryLocation"]?["coordinates"];
+    final pickupCoordinates = parcel.pickupLocation?.coordinates;
+    final deliveryCoordinates = parcel.deliveryLocation?.coordinates;
 
     if (pickupCoordinates != null && pickupCoordinates.length >= 2) {
       final pickupLat = double.tryParse(pickupCoordinates[1].toString()) ?? 0.0;
@@ -182,7 +182,7 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                 ),
                 Obx(() => TextWidget(
                       text:
-                          "${_radiusController.parcelsInRadius.length} ${"found".tr}",
+                          "${_radiusController.parcels.length} ${"found".tr}",
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                       fontColor: AppColors.greyDark2,
@@ -193,7 +193,7 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
           const SpaceWidget(spaceHeight: 16),
           Expanded(
             child: Obx(() {
-              if (_radiusController.parcelsInRadius.isEmpty) {
+              if (_radiusController.parcels.isEmpty) {
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -230,17 +230,17 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                   scrollDirection: Axis.vertical,
                   child: Column(
                     children: List.generate(
-                      _radiusController.parcelsInRadius.length,
+                      _radiusController.parcels.length,
                       (index) {
-                        final parcel = _radiusController.parcelsInRadius[index];
-                        final parcelId = parcel["_id"] ?? "unknown";
+                        final parcel = _radiusController.parcels[index];
+                        final parcelId = parcel.sId ?? "unknown";
                         //! Format dates
                         String formattedDate = "N/A";
                         try {
                           final startDate =
-                              DateTime.parse(parcel["deliveryStartTime"]);
+                              DateTime.parse(parcel.deliveryStartTime ?? "");
                           final endDate =
-                              DateTime.parse(parcel["deliveryEndTime"]);
+                              DateTime.parse(parcel.deliveryEndTime ?? "");
                           formattedDate =
                               "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
                         } catch (e) {
@@ -283,7 +283,7 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                                       ),
                                       const SpaceWidget(spaceWidth: 12),
                                       TextWidget(
-                                        text: parcel["title"] ??
+                                        text: parcel.title ??
                                             "Untitled Parcel",
                                         fontSize: 15.5,
                                         fontWeight: FontWeight.w600,
@@ -293,7 +293,7 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                                   ),
                                   TextWidget(
                                     text:
-                                        "${AppStrings.currency} ${parcel["price"] ?? 0}",
+                                        "${AppStrings.currency} ${parcel.price ?? 0}",
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                     fontColor: AppColors.black,
@@ -420,11 +420,9 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
 
                                           //! Check if parcel has required coordinates
                                           final pickupCoords =
-                                              parcel["pickupLocation"]
-                                                  ?["coordinates"];
+                                              parcel.pickupLocation?.coordinates;
                                           final deliveryCoords =
-                                              parcel["deliveryLocation"]
-                                                  ?["coordinates"];
+                                              parcel.deliveryLocation?.coordinates;
                                           if (pickupCoords == null ||
                                               deliveryCoords == null) {
                                             // Get.snackbar(
@@ -436,8 +434,7 @@ class _RadiusAvailableParcelState extends State<RadiusAvailableParcel> {
                                             return;
                                           }
                                           //! Make a copy of the parcel to avoid reference issues
-                                          final parcelCopy =
-                                              Map<String, dynamic>.from(parcel);
+                                          final parcelCopy = parcel.toJson();
                                           //! Navigate with the parcel data
                                           Get.toNamed(
                                             AppRoutes.radiusMapScreenDetails,

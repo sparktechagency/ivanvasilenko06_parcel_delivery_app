@@ -6,6 +6,7 @@ import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/controller/sending_parcel_controller.dart';
 import 'package:parcel_delivery_app/services/reporsitory/location_repository/location_repository.dart';
+import 'package:parcel_delivery_app/services/location_permission_service.dart';
 import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
@@ -112,10 +113,16 @@ class _PageTwoState extends State<PageTwo> {
     if (_isDisposed) return;
 
     try {
-      final location = await _locationRepository.getCurrentLocation();
+      // Use the uniform location permission service
+      final locationService = LocationPermissionService.instance;
+      final position = await locationService.getCurrentPosition(
+        requestPermission: true,
+      );
       if (_isDisposed) return;
 
-      if (location != null && mounted && !_isDisposed) {
+      if (position != null && mounted && !_isDisposed) {
+        final location = LatLng(position.latitude, position.longitude);
+        
         // Create marker for current location
         _currentLocationMarker = Marker(
           markerId: const MarkerId('current_location'),
@@ -126,7 +133,7 @@ class _PageTwoState extends State<PageTwo> {
 
         if (mounted && !_isDisposed) {
           setState(() {
-            _markers = {..._locationRepository.markers};
+            _markers = {_currentLocationMarker!};
             _locationLoaded = true; // Mark location as loaded
           });
         }
@@ -134,7 +141,7 @@ class _PageTwoState extends State<PageTwo> {
         // Get address for current location
         try {
           final address = await _locationRepository.getAddressFromLatLng(
-              location.latitude, location.longitude);
+              position.latitude, position.longitude);
           if (mounted && !_isDisposed) {
             setState(() {
               _currentLocationAddress = address;

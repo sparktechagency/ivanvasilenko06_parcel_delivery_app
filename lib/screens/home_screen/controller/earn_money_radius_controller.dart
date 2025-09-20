@@ -1,79 +1,72 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
-import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart';
+import 'package:parcel_delivery_app/services/apiServices/api_get_services.dart';
+import 'package:parcel_delivery_app/screens/delivery_parcel_screens/models/delivery_screen_models.dart';
+import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
 
 class EarnMoneyRadiusController extends GetxController {
   RxDouble radius = 5.0.obs;
   Rxn<LatLng> currentLocation = Rxn<LatLng>();
   RxList<Marker> markers = <Marker>[].obs;
-  RxList<dynamic> parcelsInRadius = <dynamic>[].obs;
+  RxList<DeliverParcelList> parcels = <DeliverParcelList>[].obs;
+  RxBool isLoading = false.obs;
 
   void setCurrentLocation(LatLng location) {
     currentLocation.value = location;
   }
 
-  Future<void> fetchParcelsInRadius() async {
-    if (currentLocation.value == null) {
-      //! log('Current location is null. Cannot fetch parcels.');
-      return;
-    }
-
-    final lat = currentLocation.value!.latitude;
-    final lng = currentLocation.value!.longitude;
-    final radiusValue = radius.value;
-
-   //!  log('Fetching parcels with: Lat: $lat, Lng: $lng, Radius: $radiusValue');
-
+  void fetchParcelsInRadius() async {
     try {
-      final requestBody = json
-          .encode({'latitude': lat, 'longitude': lng, 'radius': radiusValue});
+      // Check if current location is available
+      if (currentLocation.value == null) {
+        appLog("Error: Current location is null, cannot fetch parcels");
+        return;
+      }
 
-      //! log('API Request URL: ${AppApiUrl.getParcelInRadius}');
-      //! log('API Request Body: $requestBody');
-
-      final response = await ApiPostServices()
-          .apiPostServices(url: AppApiUrl.getParcelInRadius, body: requestBody);
-
-     //!  log('API Response: $response');
+      isLoading.value = true;
+      
+      final response = await ApiGetServices().apiGetServices(
+        "${AppApiUrl.getParcelInRadius}?lat=${currentLocation.value!.latitude}&lng=${currentLocation.value!.longitude}&radius=${radius.value}",
+      );
 
       if (response != null && response['status'] == 'success') {
-        List<dynamic> data = response['data'];
-        parcelsInRadius.value = data; // Store the fetched parcels
-
+        final List<dynamic> parcelsData = response['data'];
+        parcels.value = parcelsData.map((json) => DeliverParcelList.fromJson(json)).toList();
+        
+        // Create markers for each parcel
         markers.clear();
-        for (var parcel in data) {
-          double pickupLat = parcel["pickupLocation"]["coordinates"][1];
-          double pickupLng = parcel["pickupLocation"]["coordinates"][0];
-
-          markers.add(Marker(
-            markerId: MarkerId(parcel["_id"]),
-            position: LatLng(pickupLat, pickupLng),
-            infoWindow: InfoWindow(
-                title: parcel["title"], snippet: parcel["description"]),
-          ));
+        for (var parcel in parcels) {
+          if (parcel.pickupLocation?.coordinates != null && 
+              parcel.pickupLocation!.coordinates!.length >= 2) {
+            markers.add(
+              Marker(
+                markerId: MarkerId(parcel.sId ?? ''),
+                position: LatLng(
+                  parcel.pickupLocation!.coordinates![1], // latitude
+                  parcel.pickupLocation!.coordinates![0], // longitude
+                ),
+                infoWindow: InfoWindow(
+                  title: parcel.title ?? 'Parcel',
+                  snippet: parcel.description ?? '',
+                ),
+              ),
+            );
+          }
         }
-
-        //! log('Found ${markers.length} parcels in radius');
-      } else {
-        //! log('API returned error or invalid data: $response');
-        parcelsInRadius.value = [];
-        markers.clear();
       }
     } catch (e) {
-     //!  log('Exception while fetching parcels: $e');
-      //! log('Stack trace: $stackTrace');
-      parcelsInRadius.value = [];
-      markers.clear();
+      appLog("Error fetching parcels: $e");
+    } finally {
+      isLoading.value = false;
     }
   }
 
   @override
   void onInit() {
     super.onInit();
-    fetchParcelsInRadius();
+    // Don't fetch parcels on init since location might not be available yet
   }
 }

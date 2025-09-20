@@ -25,7 +25,7 @@ class ParcelDetailsScreen extends StatefulWidget {
 }
 
 class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
-  final CurrentOrderController controller = Get.find<CurrentOrderController>();
+  late final CurrentOrderController controller;
 
   // Regular String variables for address and pickupAddress
   String address = "";
@@ -38,6 +38,46 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
 
   var parcelId = Get.arguments;
 
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the controller if it doesn't exist, or get the existing one
+    if (Get.isRegistered<CurrentOrderController>()) {
+      controller = Get.find<CurrentOrderController>();
+    } else {
+      controller = Get.put(CurrentOrderController());
+    }
+
+    // Wait for the controller to load data, then find the current parcel
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _waitForDataAndFindParcel();
+    });
+  }
+
+  // Function to wait for data to load and then find the current parcel
+  void _waitForDataAndFindParcel() async {
+    // If data is already loaded, find the parcel immediately
+    if (controller.currentOrdersModel.value.data != null &&
+        controller.currentOrdersModel.value.data!.isNotEmpty) {
+      _findCurrentParcel();
+      return;
+    }
+
+    // If controller is currently loading, wait for it to complete
+    if (controller.isLoading.value) {
+      // Listen for changes in loading state
+      ever(controller.isLoading, (bool isLoading) {
+        if (!isLoading) {
+          _findCurrentParcel();
+        }
+      });
+    } else {
+      // If not loading and no data, trigger a refresh
+      await controller.getCurrentOrder();
+      _findCurrentParcel();
+    }
+  }
+
   // Function to get address based on latitude and longitude
   Future<void> _getAddress(
       double latitude, double longitude, bool isPickup) async {
@@ -49,7 +89,7 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
         if (isPickup) {
           pickupAddress = addressCache[key] ?? "No pickup address found";
         } else {
-          address = addressCache[key]?? "No delivery address found";
+          address = addressCache[key] ?? "No delivery address found";
         }
       });
       return;
@@ -126,20 +166,15 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-
-    _findCurrentParcel();
-  }
-
   // Function to find the current parcel based on the parcelId passed from the arguments
   void _findCurrentParcel() {
     if (controller.currentOrdersModel.value.data != null) {
       for (var parcel in controller.currentOrdersModel.value.data!) {
         if (parcel.id == parcelId) {
           // Ensure to compare the parcelId correctly
-          currentParcel = parcel;
+          setState(() {
+            currentParcel = parcel;
+          });
           findAddressesFromCoordinates();
           break;
         }
@@ -173,9 +208,12 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
     return Scaffold(
       backgroundColor: AppColors.white,
       body: currentParcel == null
-          ?  Center(child: LoadingAnimationWidget.hexagonDots(
-        color: AppColors.black,
-        size: 40,),)
+          ? Center(
+              child: LoadingAnimationWidget.hexagonDots(
+                color: AppColors.black,
+                size: 40,
+              ),
+            )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

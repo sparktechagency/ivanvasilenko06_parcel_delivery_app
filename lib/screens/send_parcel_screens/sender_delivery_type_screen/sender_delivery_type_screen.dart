@@ -10,6 +10,7 @@ import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/page_three.dart';
 import 'package:parcel_delivery_app/screens/send_parcel_screens/sender_delivery_type_screen/widgets/page_two.dart';
 import 'package:parcel_delivery_app/services/reporsitory/location_repository/location_repository.dart';
+import 'package:parcel_delivery_app/services/location_permission_service.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
@@ -30,13 +31,20 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
   ParcelController parcelController = Get.put(ParcelController());
 
   Future<void> _getCurrentLocation() async {
-    final location = await _locationRepository.getCurrentLocation();
-    if (location != null && mounted) {
+    // Use the uniform location permission service
+    final locationService = LocationPermissionService.instance;
+    final position = await locationService.getCurrentPosition(
+      requestPermission: true,
+    );
+    
+    if (position != null && mounted) {
+      final location = LatLng(position.latitude, position.longitude);
+      
       // Store the location in the controller so it's accessible by PageTwo
       parcelController.currentLocationLatitude.value =
-          location.latitude.toString();
+          position.latitude.toString();
       parcelController.currentLocationLongitude.value =
-          location.longitude.toString();
+          position.longitude.toString();
 
       if (_mapController != null) {
         _mapController?.animateCamera(

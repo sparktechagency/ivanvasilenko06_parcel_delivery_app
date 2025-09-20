@@ -22,7 +22,8 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
   String address = "Loading...";
   Map<String, String> addressCache = {};
   late GoogleMapController mapController;
-  final EarnMoneyRadiusController _radiusController = Get.find();
+  final EarnMoneyRadiusController _radiusController =
+      Get.find<EarnMoneyRadiusController>();
   bool isLoading = true;
   BitmapDescriptor customMarkerIcon = BitmapDescriptor.defaultMarker;
 
@@ -107,7 +108,7 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
     setState(() {
       isLoading = true;
     });
-    await _radiusController.fetchParcelsInRadius();
+    _radiusController.fetchParcelsInRadius();
     _updateCurrentAddress();
     setState(() {
       isLoading = false;
@@ -116,6 +117,52 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Add safety check for current location
+    if (_radiusController.currentLocation.value == null) {
+      return Scaffold(
+        backgroundColor: AppColors.white,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.location_off,
+                size: 64,
+                color: AppColors.greyDark,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'locationNotAvailable'.tr,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.black,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'pleaseEnableLocation'.tr,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.greyDark,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ButtonWidget(
+                onPressed: () {
+                  Get.back();
+                },
+                label: "goBack".tr,
+                buttonWidth: 120,
+                buttonHeight: 50,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Stack(

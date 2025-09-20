@@ -231,7 +231,24 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           ButtonWidget(
-                            onPressed: () {
+                            onPressed: () async {
+                              // Check if location is available before proceeding
+                              if (_radiusController.currentLocation.value == null) {
+                                // Try to get location again
+                                await _getCurrentLocation();
+                                
+                                // If still null, show error and return
+                                if (_radiusController.currentLocation.value == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('locationRequired'.tr),
+                                      backgroundColor: AppColors.red,
+                                    ),
+                                  );
+                                  return;
+                                }
+                              }
+                              
                               _radiusController.fetchParcelsInRadius();
                               Get.offNamed(AppRoutes.radiusMapScreen);
                               //! log("😉😉😉😉😉😉😉😉 ${_radiusController.currentLocation.value?.latitude} ${_radiusController.currentLocation.value?.longitude}");
