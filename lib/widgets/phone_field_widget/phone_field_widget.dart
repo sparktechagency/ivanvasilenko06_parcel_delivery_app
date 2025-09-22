@@ -54,7 +54,6 @@ class IntlPhoneFieldWidget extends StatelessWidget {
             Platform.isIOS ? TextInputAction.send : TextInputAction.next,
         onSubmitted: Platform.isIOS
             ? (value) {
-                // Dismiss keyboard on iOS when done button is pressed
                 FocusScope.of(context).unfocus();
               }
             : null,

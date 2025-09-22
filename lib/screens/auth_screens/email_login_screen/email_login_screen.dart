@@ -54,9 +54,9 @@ class EmailLoginScreen extends StatelessWidget {
                 controller: passwordController,
                 hintText: "enterPassword".tr,
                 maxLines: 1,
+                textInputAction: TextInputAction.send,
                 onSubmitted: () {
-                  // Handle done button tap
-                  FocusScope.of(context).unfocus(); // Hide keyboard
+                  FocusScope.of(context).unfocus();
                 },
               ),
               const SpaceWidget(spaceHeight: 16),

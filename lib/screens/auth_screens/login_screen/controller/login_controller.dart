@@ -119,8 +119,6 @@ class LoginScreenController extends GetxController {
   Future<void> googleSignIn() async {
     try {
       isGoogleLoading(true);
-      
-      // iOS-specific configuration for Google Sign-In
       GoogleSignIn googleSignIn;
       if (Platform.isIOS) {
         googleSignIn = GoogleSignIn(
@@ -131,12 +129,10 @@ class LoginScreenController extends GetxController {
       } else {
         googleSignIn = GoogleSignIn();
       }
-
       // Ensure clean state before starting
       try {
         await googleSignIn.signOut();
       } catch (e) {
-        // Ignore sign out errors as user might not be signed in
         debugPrint("Sign out error (ignored): $e");
       }
       

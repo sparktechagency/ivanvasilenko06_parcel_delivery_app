@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -11,7 +10,6 @@ import 'package:parcel_delivery_app/screens/auth_screens/login_screen/widgets/cu
 import 'package:parcel_delivery_app/screens/auth_screens/login_screen/widgets/or_widget.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_button_widget/text_button_widget.dart';
-
 import '../../../widgets/phone_field_widget/phone_field_widget.dart';
 import '../../../widgets/space_widget/space_widget.dart';
 import '../../../widgets/text_widget/text_widgets.dart';
@@ -123,7 +121,6 @@ class LoginScreen extends StatelessWidget {
                     fillColor: AppColors.white,
                     borderColor: AppColors.black,
                     initialCountryCode: "IL",
-
                   ),
                   const SpaceWidget(spaceHeight: 24),
                   Obx(() {

@@ -46,7 +46,6 @@ class VerifyPhoneScreen extends StatelessWidget {
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.send,
                 onSubmitted: () {
-                  // Handle done button tap
                   FocusScope.of(context).unfocus();
                 },
               ),
