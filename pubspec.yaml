@@ -17,6 +17,7 @@ dependencies:
   flutter_rating_bar: ^4.0.1
   intl: 0.20.2
   intl_phone_field: ^3.2.0
+  keyboard_actions: ^4.2.0
   carousel_slider: ^5.0.0
   url_launcher: ^6.3.1
   shared_preferences: ^2.5.2

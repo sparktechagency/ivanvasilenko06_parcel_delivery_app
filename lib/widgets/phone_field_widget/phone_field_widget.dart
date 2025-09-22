@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
 import 'dart:io' show Platform;
 
 import '../../constants/app_colors.dart';
@@ -15,6 +16,7 @@ class IntlPhoneFieldWidget extends StatelessWidget {
   final Color? fillColor;
   final VoidCallback? onSubmitted;
   final TextInputAction? textInputAction;
+  final FocusNode? focusNode;
 
   const IntlPhoneFieldWidget({
     super.key,
@@ -26,6 +28,7 @@ class IntlPhoneFieldWidget extends StatelessWidget {
     this.fillColor,
     this.onSubmitted,
     this.textInputAction,
+    this.focusNode,
   });
 
   @override
@@ -35,13 +38,50 @@ class IntlPhoneFieldWidget extends StatelessWidget {
     final Color effectiveBorderColor = borderColor ?? AppColors.grey;
     final Color effectiveFillColor = fillColor ?? AppColors.grey;
 
-    return Container(
+    // Create keyboard actions config for iOS
+    KeyboardActionsConfig _buildKeyboardActionsConfig() {
+      return KeyboardActionsConfig(
+        keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
+        keyboardBarColor: const Color(0xFFCAD1D9), // Apple keyboard color
+        actions: [
+          KeyboardActionsItem(
+            focusNode: focusNode ?? FocusNode(),
+            toolbarButtons: [
+              (node) {
+                return GestureDetector(
+                  onTap: () {
+                    if (onSubmitted != null) {
+                      onSubmitted!();
+                    } else {
+                      node.unfocus();
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(12.0),
+                    child: const Text(
+                      'Done',
+                      style: TextStyle(
+                        color: Color(0xFF0978ED), // Done button color
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                );
+              }
+            ],
+          ),
+        ],
+      );
+    }
+
+    Widget phoneField = Container(
       decoration: BoxDecoration(
         color: effectiveFillColor,
         borderRadius: BorderRadius.circular(8),
       ),
       child: IntlPhoneField(
         controller: controller,
+        focusNode: focusNode,
         flagsButtonPadding: EdgeInsets.only(left: ResponsiveUtils.width(10)),
         dropdownTextStyle: const TextStyle(color: AppColors.black),
         dropdownIconPosition: IconPosition.leading,
@@ -106,5 +146,15 @@ class IntlPhoneFieldWidget extends StatelessWidget {
         onChanged: onChanged,
       ),
     );
+
+    // Wrap with KeyboardActions only on iOS
+    if (Platform.isIOS && focusNode != null) {
+      return KeyboardActions(
+        config: _buildKeyboardActionsConfig(),
+        child: phoneField,
+      );
+    }
+
+    return phoneField;
   }
 }
