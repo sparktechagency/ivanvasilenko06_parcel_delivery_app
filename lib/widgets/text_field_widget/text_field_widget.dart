@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
+import 'dart:io';
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_icons_path.dart';
@@ -16,6 +18,7 @@ class TextFieldWidget extends StatefulWidget {
   final bool? read;
   final VoidCallback? onSubmitted;
   final TextInputAction? textInputAction;
+  final FocusNode? focusNode;
 
   const TextFieldWidget({
     super.key,
@@ -29,6 +32,7 @@ class TextFieldWidget extends StatefulWidget {
     this.onTapSuffix,
     this.onSubmitted,
     this.textInputAction,
+    this.focusNode,
   });
 
   @override
@@ -48,7 +52,8 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
   @override
   Widget build(BuildContext context) {
     ResponsiveUtils.initialize(context);
-    return Container(
+    
+    Widget textField = Container(
       decoration: BoxDecoration(
         color: AppColors.grey,
         borderRadius: BorderRadius.circular(8),
@@ -61,6 +66,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
         keyboardType: widget.keyboardType,
         maxLines: widget.maxLines,
         textInputAction: widget.textInputAction ?? TextInputAction.send,
+        focusNode: widget.focusNode,
         onFieldSubmitted: (value) {
           if (widget.onSubmitted != null) {
             widget.onSubmitted!();
@@ -130,6 +136,49 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
           ),
         ),
       ),
+    );
+
+    // Wrap with KeyboardActions for iOS to show Done button
+    if (Platform.isIOS && widget.focusNode != null) {
+      return KeyboardActions(
+        config: _buildKeyboardActionsConfig(),
+        child: textField,
+      );
+    }
+
+    return textField;
+  }
+
+  KeyboardActionsConfig _buildKeyboardActionsConfig() {
+    return KeyboardActionsConfig(
+      keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
+      keyboardBarColor: Colors.grey[200],
+      nextFocus: false,
+      actions: [
+        KeyboardActionsItem(
+          focusNode: widget.focusNode!,
+          toolbarButtons: [
+            (node) {
+              return GestureDetector(
+                onTap: () {
+                  node.unfocus();
+                  if (widget.onSubmitted != null) {
+                    widget.onSubmitted!();
+                  }
+                },
+                child: Container(
+                  color: Colors.grey[200],
+                  padding: const EdgeInsets.all(8.0),
+                  child: const Text(
+                    "Done",
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                ),
+              );
+            }
+          ],
+        ),
+      ],
     );
   }
 }

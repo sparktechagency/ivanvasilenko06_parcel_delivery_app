@@ -12,6 +12,7 @@ import 'controller/verify_phone_controller.dart';
 
 class VerifyPhoneScreen extends StatelessWidget {
   final VerifyPhoneController controller = Get.put(VerifyPhoneController());
+  final FocusNode _otpFocusNode = FocusNode();
 
   VerifyPhoneScreen({super.key});
 
@@ -45,8 +46,10 @@ class VerifyPhoneScreen extends StatelessWidget {
                 maxLines: 1,
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.send,
+                focusNode: _otpFocusNode,
                 onSubmitted: () {
                   FocusScope.of(context).unfocus();
+                  controller.verifyOTP();
                 },
               ),
               const SpaceWidget(spaceHeight: 16),
