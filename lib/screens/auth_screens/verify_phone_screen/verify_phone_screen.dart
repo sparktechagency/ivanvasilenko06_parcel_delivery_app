@@ -40,17 +40,19 @@ class VerifyPhoneScreen extends StatelessWidget {
                 fontColor: AppColors.black,
               ),
               const SpaceWidget(spaceHeight: 16),
-              TextFieldWidget(
-                controller: controller.otpController,
-                hintText: '******',
-                maxLines: 1,
-                keyboardType: TextInputType.number,
-                textInputAction: TextInputAction.send,
-                focusNode: _otpFocusNode,
-                onSubmitted: () {
-                  FocusScope.of(context).unfocus();
-                  controller.verifyOTP();
-                },
+              Expanded(
+                child: TextFieldWidget(
+                  controller: controller.otpController,
+                  hintText: '******',
+                  maxLines: 1,
+                  keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.send,
+                  focusNode: _otpFocusNode,
+                  onSubmitted: () {
+                    FocusScope.of(context).unfocus();
+                    controller.verifyOTP();
+                  },
+                ),
               ),
               const SpaceWidget(spaceHeight: 16),
               TextWidget(

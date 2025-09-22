@@ -28,7 +28,7 @@ class TextFieldWidget extends StatefulWidget {
     this.suffixIcon,
     this.keyboardType,
     this.read = false,
-    this.maxLines = 1, // Default value is 1
+    this.maxLines = 1,
     this.onTapSuffix,
     this.onSubmitted,
     this.textInputAction,
