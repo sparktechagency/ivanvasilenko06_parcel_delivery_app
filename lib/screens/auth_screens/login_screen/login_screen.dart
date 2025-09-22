@@ -26,65 +26,70 @@ class LoginScreen extends StatelessWidget {
     void showDialogBoxPhone() {
       Get.dialog(
           barrierDismissible: false,
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-            child: Dialog(
-              backgroundColor: AppColors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(15),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextWidget(
-                      text: "beforeGoogleSignInEnterYourNumber".tr,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      fontColor: AppColors.black,
-                      textAlignment: TextAlign.center,
+          Material(
+            color: Colors.transparent,
+            child: SizedBox.expand(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                child: Dialog(
+                  backgroundColor: AppColors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextWidget(
+                          text: "beforeGoogleSignInEnterYourNumber".tr,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          fontColor: AppColors.black,
+                          textAlignment: TextAlign.center,
+                        ),
+                        const SpaceWidget(
+                          spaceHeight: 20,
+                        ),
+                        IntlPhoneFieldWidget(
+                          hintText: "enterNumber0".tr,
+                          controller: controller.googleSignInPhoneController,
+                          onChanged: (phone) {
+                            controller.updatePhoneNumber(phone.completeNumber);
+                            //! log(phone.completeNumber);
+                          },
+                          fillColor: AppColors.white,
+                          borderColor: AppColors.black,
+                          initialCountryCode: "IL",
+                          textInputAction: TextInputAction.done,
+                          focusNode: _dialogPhoneFocusNode,
+                          onSubmitted: () {
+                            FocusScope.of(context).unfocus();
+                          },
+                        ),
+                        const SpaceWidget(
+                          spaceHeight: 20,
+                        ),
+                        Obx(
+                          () => controller.isLoading.value
+                              ? Center(
+                                  child: LoadingAnimationWidget.progressiveDots(
+                                    color: Colors.white,
+                                    size: 40,
+                                  ),
+                                )
+                              : ButtonWidget(
+                                  label: "continueWithGoogle".tr,
+                                  buttonHeight: 50,
+                                  buttonWidth: double.infinity,
+                                  onPressed: () {
+                                    controller.googleSignIn();
+                                  },
+                                ),
+                        ),
+                        const SpaceWidget(
+                          spaceHeight: 20,
+                        ),
+                      ],
                     ),
-                    const SpaceWidget(
-                      spaceHeight: 20,
-                    ),
-                    IntlPhoneFieldWidget(
-                      hintText: "enterNumber0".tr,
-                      controller: controller.googleSignInPhoneController,
-                      onChanged: (phone) {
-                        controller.updatePhoneNumber(phone.completeNumber);
-                        //! log(phone.completeNumber);
-                      },
-                      fillColor: AppColors.white,
-                      borderColor: AppColors.black,
-                      initialCountryCode: "IL",
-                      textInputAction: TextInputAction.done,
-                      focusNode: _dialogPhoneFocusNode,
-                      onSubmitted: () {
-                        FocusScope.of(context).unfocus();
-                      },
-                    ),
-                    const SpaceWidget(
-                      spaceHeight: 20,
-                    ),
-                    Obx(
-                      () => controller.isLoading.value
-                          ? Center(
-                              child: LoadingAnimationWidget.progressiveDots(
-                                color: Colors.white,
-                                size: 40,
-                              ),
-                            )
-                          : ButtonWidget(
-                              label: "continueWithGoogle".tr,
-                              buttonHeight: 50,
-                              buttonWidth: double.infinity,
-                              onPressed: () {
-                                controller.googleSignIn();
-                              },
-                            ),
-                    ),
-                    const SpaceWidget(
-                      spaceHeight: 20,
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
