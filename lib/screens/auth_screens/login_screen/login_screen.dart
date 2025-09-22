@@ -53,6 +53,10 @@ class LoginScreen extends StatelessWidget {
                       fillColor: AppColors.white,
                       borderColor: AppColors.black,
                       initialCountryCode: "IL",
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: () {
+                        FocusScope.of(context).unfocus();
+                      },
                     ),
                     const SpaceWidget(
                       spaceHeight: 20,
@@ -121,6 +125,10 @@ class LoginScreen extends StatelessWidget {
                     fillColor: AppColors.white,
                     borderColor: AppColors.black,
                     initialCountryCode: "IL",
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: () {
+                      FocusScope.of(context).unfocus();
+                    },
                   ),
                   const SpaceWidget(spaceHeight: 24),
                   Obx(() {

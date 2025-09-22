@@ -147,8 +147,6 @@ class LoginScreenController extends GetxController {
         AppSnackBar.error("Sign-in cancelled");
         return;
       }
-
-      // Add null safety checks for iOS
       if (acc.email.isEmpty) {
         AppSnackBar.error("Failed to get user email");
         return;

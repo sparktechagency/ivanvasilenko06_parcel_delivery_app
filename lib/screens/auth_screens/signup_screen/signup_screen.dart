@@ -65,6 +65,11 @@ class SignupScreen extends StatelessWidget {
                   fillColor: AppColors.white,
                   borderColor: AppColors.black,
                   initialCountryCode: "IL",
+                  textInputAction: TextInputAction.next,
+                  onSubmitted: () {
+                    // Move focus to the next field (email field)
+                    FocusScope.of(context).nextFocus();
+                  },
                 ),
                 const SpaceWidget(spaceHeight: 10),
                 // Email Field

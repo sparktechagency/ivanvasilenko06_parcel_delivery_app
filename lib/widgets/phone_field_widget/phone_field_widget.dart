@@ -13,6 +13,8 @@ class IntlPhoneFieldWidget extends StatelessWidget {
   final ValueChanged<PhoneNumber>? onChanged;
   final Color? borderColor;
   final Color? fillColor;
+  final VoidCallback? onSubmitted;
+  final TextInputAction? textInputAction;
 
   const IntlPhoneFieldWidget({
     super.key,
@@ -22,6 +24,8 @@ class IntlPhoneFieldWidget extends StatelessWidget {
     this.onChanged,
     this.borderColor,
     this.fillColor,
+    this.onSubmitted,
+    this.textInputAction,
   });
 
   @override
@@ -48,15 +52,17 @@ class IntlPhoneFieldWidget extends StatelessWidget {
         style: const TextStyle(
           color: AppColors.black,
         ),
-        // Add iOS-specific keyboard configuration
+        // Configure keyboard and text input actions for both platforms
         keyboardType: TextInputType.phone,
-        textInputAction:
-            Platform.isIOS ? TextInputAction.send : TextInputAction.next,
-        onSubmitted: Platform.isIOS
-            ? (value) {
-                FocusScope.of(context).unfocus();
-              }
-            : null,
+        textInputAction: textInputAction ?? 
+            (Platform.isIOS ? TextInputAction.done : TextInputAction.next),
+        onSubmitted: (value) {
+          if (onSubmitted != null) {
+            onSubmitted!();
+          } else if (Platform.isIOS) {
+            FocusScope.of(context).unfocus();
+          }
+        },
         decoration: InputDecoration(
           filled: true,
           fillColor: AppColors.grey,
