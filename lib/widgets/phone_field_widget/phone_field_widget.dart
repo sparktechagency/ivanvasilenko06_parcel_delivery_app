@@ -50,13 +50,15 @@ class IntlPhoneFieldWidget extends StatelessWidget {
         ),
         // Add iOS-specific keyboard configuration
         keyboardType: TextInputType.phone,
-        textInputAction: Platform.isIOS ? TextInputAction.done : TextInputAction.next,
-        onSubmitted: Platform.isIOS ? (value) {
-          // Dismiss keyboard on iOS when done button is pressed
-          FocusScope.of(context).unfocus();
-        } : null,
+        textInputAction:
+            Platform.isIOS ? TextInputAction.send : TextInputAction.next,
+        onSubmitted: Platform.isIOS
+            ? (value) {
+                // Dismiss keyboard on iOS when done button is pressed
+                FocusScope.of(context).unfocus();
+              }
+            : null,
         decoration: InputDecoration(
-
           filled: true,
           fillColor: AppColors.grey,
           hintText: hintText,
