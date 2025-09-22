@@ -15,6 +15,7 @@ class TextFieldWidget extends StatefulWidget {
   final VoidCallback? onTapSuffix;
   final bool? read;
   final VoidCallback? onSubmitted;
+  final TextInputAction? textInputAction;
 
   const TextFieldWidget({
     super.key,
@@ -27,6 +28,7 @@ class TextFieldWidget extends StatefulWidget {
     this.maxLines = 1, // Default value is 1
     this.onTapSuffix,
     this.onSubmitted,
+    this.textInputAction,
   });
 
   @override
@@ -58,7 +60,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
         obscureText: obscureText,
         keyboardType: widget.keyboardType,
         maxLines: widget.maxLines,
-        textInputAction: TextInputAction.done,
+        textInputAction: widget.textInputAction ?? TextInputAction.send,
         onFieldSubmitted: (value) {
           if (widget.onSubmitted != null) {
             widget.onSubmitted!();
