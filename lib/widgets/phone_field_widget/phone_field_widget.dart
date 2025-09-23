@@ -93,7 +93,7 @@ class IntlPhoneFieldWidget extends StatelessWidget {
           color: AppColors.black,
         ),
         // Configure keyboard and text input actions for both platforms
-        keyboardType: TextInputType.number,
+        keyboardType: TextInputType.phone,
         textInputAction: textInputAction ?? 
             (Platform.isIOS ? TextInputAction.done : TextInputAction.next),
         onSubmitted: (value) {

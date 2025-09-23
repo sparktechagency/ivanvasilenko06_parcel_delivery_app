@@ -24,8 +24,13 @@ class VerifyPhoneScreen extends StatelessWidget {
     final String phoneNumber = arguments["phoneNumber"]?.toString() ??
         arguments["mobileNumber"]?.toString() ??
         "Unknown Number";
+    
+    // Check if keyboard is visible
+    final bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+    
     return Scaffold(
       backgroundColor: AppColors.white,
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -40,19 +45,17 @@ class VerifyPhoneScreen extends StatelessWidget {
                 fontColor: AppColors.black,
               ),
               const SpaceWidget(spaceHeight: 16),
-              Expanded(
-                child: TextFieldWidget(
-                  controller: controller.otpController,
-                  hintText: '******',
-                  maxLines: 1,
-                  keyboardType: TextInputType.number,
-                  textInputAction: TextInputAction.send,
-                  focusNode: _otpFocusNode,
-                  onSubmitted: () {
-                    FocusScope.of(context).unfocus();
-                    controller.verifyOTP();
-                  },
-                ),
+              TextFieldWidget(
+                controller: controller.otpController,
+                hintText: '******',
+                maxLines: 1,
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.send,
+                focusNode: _otpFocusNode,
+                onSubmitted: () {
+                  FocusScope.of(context).unfocus();
+                  controller.verifyOTP();
+                },
               ),
               const SpaceWidget(spaceHeight: 16),
               TextWidget(
@@ -81,34 +84,40 @@ class VerifyPhoneScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: Obx(
-          () => controller.isLoading.value
-              ? Container(
-                  height: 50,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: AppColors.black,
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  child: Center(
-                    child: LoadingAnimationWidget.progressiveDots(
-                      color: Colors.white,
-                      size: 40,
-                    ),
-                  ),
-                )
-              : ButtonWidget(
-                  onPressed: controller.isLoading.value
-                      ? null // Disable button while loading
-                      : () => controller.verifyOTP(),
-                  label: "verify".tr,
-                  buttonWidth: double.infinity,
-                  buttonHeight: 50,
-                ),
-        ),
-      ),
+      bottomNavigationBar: isKeyboardVisible
+          ? Padding(
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                bottom: 16 + MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: Obx(
+                () => controller.isLoading.value
+                    ? Container(
+                        height: 50,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: AppColors.black,
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: Center(
+                          child: LoadingAnimationWidget.progressiveDots(
+                            color: Colors.white,
+                            size: 40,
+                          ),
+                        ),
+                      )
+                    : ButtonWidget(
+                        onPressed: controller.isLoading.value
+                            ? null // Disable button while loading
+                            : () => controller.verifyOTP(),
+                        label: "verify".tr,
+                        buttonWidth: double.infinity,
+                        buttonHeight: 50,
+                      ),
+              ),
+            )
+          : null,
     );
   }
 }
