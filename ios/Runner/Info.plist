@@ -2,8 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-<key>NSCameraUsageDescription</key>
-	<string>We need access to your camera for capturing photos.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera for capturing photos and scanning.</string>
 
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to upload and select images.</string>
@@ -18,7 +18,7 @@
 	<string>We need access to your contacts for communication features.</string>
 
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>We need your location to show your position on the map.</string>
+	<string>We need your location to show your position on the map and provide delivery services.</string>
 
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>We need your location even in the background for tracking deliveries.</string>
@@ -35,14 +35,12 @@
 	<key>NSRemindersUsageDescription</key>
 	<string>We need access to reminders for delivery notifications.</string>
 
-	<key>NSCameraUsageDescription</key>
-	<string>We need your camera access for scanning and photo uploads.</string>
-
 	<key>NSFaceIDUsageDescription</key>
 	<string>We need Face ID for secure login and authentication.</string>
 
 	<key>NSAppleMusicUsageDescription</key>
 	<string>We need access to your media library for playback functionality.</string>
+	
 	<key>GMSApiKey</key>
 	<string>AIzaSyDKyLxGB8Dd0C5nWBuEh0l0D17MnbYHV5c</string>
 
@@ -92,14 +90,6 @@
 
 	<key>io.flutter.embedded_views_preview</key>
     <true/>
-
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>We need your location for map functionality</string>
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>We need your location for map functionality</string>
-
-    <key>GMSApiKey</key>
-    <string>AIzaSyDk7p1Vl9WOtcDztagS6yPsgUYaVu_bCro</string>
 
     <!-- Google Sign-In URL Schemes -->
     <key>CFBundleURLTypes</key>

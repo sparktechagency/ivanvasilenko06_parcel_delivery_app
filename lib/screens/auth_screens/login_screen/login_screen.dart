@@ -25,91 +25,87 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     void showDialogBoxPhone() {
       Get.dialog(
-          barrierDismissible: false,
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-            child: Dialog(
-              backgroundColor: AppColors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(15),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextWidget(
-                      text: "beforeGoogleSignInEnterYourNumber".tr,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      fontColor: AppColors.black,
-                      textAlignment: TextAlign.center,
-                    ),
-                    const SpaceWidget(
-                      spaceHeight: 20,
-                    ),
-                    IntlPhoneFieldWidget(
-                      hintText: "enterNumber0".tr,
-                      controller: controller.googleSignInPhoneController,
-                      onChanged: (phone) {
-                        controller.updatePhoneNumber(phone.completeNumber);
-                        //! log(phone.completeNumber);
+        barrierDismissible: false,
+        BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+          child: Dialog(
+            backgroundColor: AppColors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(15),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextWidget(
+                    text: "beforeGoogleSignInEnterYourNumber".tr,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    fontColor: AppColors.black,
+                    textAlignment: TextAlign.center,
+                  ),
+                  const SpaceWidget(
+                    spaceHeight: 20,
+                  ),
+                  IntlPhoneFieldWidget(
+                    hintText: "enterNumber0".tr,
+                    controller: controller.googleSignInPhoneController,
+                    onChanged: (phone) {
+                      controller.updatePhoneNumber(phone.completeNumber);
+                    },
+                    fillColor: AppColors.white,
+                    borderColor: AppColors.black,
+                    initialCountryCode: "IL",
+                  ),
+                  const SpaceWidget(
+                    spaceHeight: 20,
+                  ),
+                  Obx(
+                        () => controller.isLoading.value
+                        ? Center(
+                      child: LoadingAnimationWidget.progressiveDots(
+                        color: Colors.white,
+                        size: 40,
+                      ),
+                    )
+                        : ButtonWidget(
+                      label: "continueWithGoogle".tr,
+                      buttonHeight: 50,
+                      buttonWidth: double.infinity,
+                      onPressed: () {
+                        controller.googleSignIn();
                       },
-                      fillColor: AppColors.white,
-                      borderColor: AppColors.black,
-                      initialCountryCode: "IL",
-                      textInputAction: TextInputAction.done,
-                      focusNode: _dialogPhoneFocusNode,
-                      onSubmitted: () {
-                        FocusScope.of(context).unfocus();
-                      },
                     ),
-                    const SpaceWidget(
-                      spaceHeight: 20,
-                    ),
-                    Obx(
-                      () => controller.isLoading.value
-                          ? Center(
-                              child: LoadingAnimationWidget.progressiveDots(
-                                color: Colors.white,
-                                size: 40,
-                              ),
-                            )
-                          : ButtonWidget(
-                              label: "continueWithGoogle".tr,
-                              buttonHeight: 50,
-                              buttonWidth: double.infinity,
-                              onPressed: () {
-                                controller.googleSignIn();
-                              },
-                            ),
-                    ),
-                    const SpaceWidget(
-                      spaceHeight: 20,
-                    ),
-                  ],
-                ),
+                  ),
+                  const SpaceWidget(
+                    spaceHeight: 20,
+                  ),
+                ],
               ),
             ),
-          ));
+          ),
+        ),
+      );
     }
 
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: SingleChildScrollView(
-        child: SafeArea(
+      body: SafeArea(
+        child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Form(
               key: controller.loginFormKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SpaceWidget(spaceHeight: 48),
+                  const SizedBox(height: 48),
                   TextWidget(
                     text: "welcome".tr,
                     fontSize: 30,
                     fontWeight: FontWeight.w600,
                     fontColor: AppColors.black,
                   ),
-                  const SpaceWidget(spaceHeight: 10),
+                  const SizedBox(height: 10),
                   TextWidget(
                     text: "enterNumber0".tr,
                     fontSize: 14,
@@ -117,59 +113,52 @@ class LoginScreen extends StatelessWidget {
                     fontColor: AppColors.black,
                     textAlignment: TextAlign.left,
                   ),
-                  const SpaceWidget(spaceHeight: 24),
+                  const SizedBox(height: 24),
                   IntlPhoneFieldWidget(
                     hintText: "enterNumber0".tr,
                     controller: controller.phoneController,
                     onChanged: (phone) {
                       controller.updatePhoneNumber(phone.completeNumber);
-                      //! log(phone.completeNumber);
                     },
                     fillColor: AppColors.white,
                     borderColor: AppColors.black,
                     initialCountryCode: "IL",
-                    textInputAction: TextInputAction.done,
-                    focusNode: _phoneFocusNode,
-                    onSubmitted: () {
-                      FocusScope.of(context).unfocus();
-                    },
                   ),
-                  const SpaceWidget(spaceHeight: 24),
+                  const SizedBox(height: 24),
                   Obx(() {
                     return controller.isLoading.value
                         ? Container(
-                            height: 50,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: AppColors.black,
-                              borderRadius: BorderRadius.circular(50),
-                            ),
-                            child: Center(
-                              child: LoadingAnimationWidget.progressiveDots(
-                                color: Colors.white,
-                                size: 40,
-                              ),
-                            ),
-                          )
+                      height: 50,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: AppColors.black,
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: Center(
+                        child: LoadingAnimationWidget.progressiveDots(
+                          color: Colors.white,
+                          size: 40,
+                        ),
+                      ),
+                    )
                         : ButtonWidget(
-                            onPressed: controller.phoneOtpLogin,
-                            label: "login".tr,
-                            buttonHeight: 50,
-                            buttonWidth: double.infinity,
-                          );
+                      onPressed: controller.phoneOtpLogin,
+                      label: "login".tr,
+                      buttonHeight: 50,
+                      buttonWidth: double.infinity,
+                    );
                   }),
-                  const SpaceWidget(spaceHeight: 16),
+                  const SizedBox(height: 16),
                   const OrWidget(),
-                  const SpaceWidget(spaceHeight: 16),
+                  const SizedBox(height: 16),
                   CustomInkWellButton(
                     onTap: () {
-                      //controller.googleSignIn();
                       showDialogBoxPhone();
                     },
                     icon: AppIconsPath.googleIcon,
                     text: "continueWithGoogle".tr,
                   ),
-                  const SpaceWidget(spaceHeight: 16),
+                  const SizedBox(height: 16),
                   CustomInkWellButton(
                     onTap: () {
                       Get.snackbar(
@@ -185,34 +174,37 @@ class LoginScreen extends StatelessWidget {
                     icon: AppIconsPath.appleIcon,
                     text: "continueWithApple".tr,
                   ),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.15),
                 ],
               ),
             ),
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextWidget(
-              text: "dontHaveAccount".tr,
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              fontColor: AppColors.greyDark,
-            ),
-            const SpaceWidget(spaceWidth: 4),
-            TextButtonWidget(
-              onPressed: () {
-                Get.toNamed(AppRoutes.countrySelectScreen);
-              },
-              text: "signUp".tr,
-              textColor: AppColors.greyDark,
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-            ),
-          ],
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextWidget(
+                text: "dontHaveAccount".tr,
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                fontColor: AppColors.greyDark,
+              ),
+              const SizedBox(width: 4),
+              TextButtonWidget(
+                onPressed: () {
+                  Get.toNamed(AppRoutes.countrySelectScreen);
+                },
+                text: "signUp".tr,
+                textColor: AppColors.greyDark,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            ],
+          ),
         ),
       ),
     );

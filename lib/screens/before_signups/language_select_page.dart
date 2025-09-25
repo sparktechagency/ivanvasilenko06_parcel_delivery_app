@@ -29,108 +29,122 @@ class _LanguageSelectPageState extends State<LanguageSelectPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SpaceWidget(spaceHeight: 48),
-              TextWidget(
-                text: "selectLanguage".tr,
-                fontSize: 30,
-                fontWeight: FontWeight.w600,
-                fontColor: AppColors.black,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight,
               ),
-              const SpaceWidget(spaceHeight: 10),
-              TextWidget(
-                text: "enterYourPreferredLanguage".tr,
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                fontColor: AppColors.black,
-                textAlignment: TextAlign.left,
-              ),
-              const SpaceWidget(spaceHeight: 24),
-              Center(
-                child: GetBuilder<LocalizationController>(
-                    builder: (localizationController) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      InkWell(
-                        onTap:(){
-                          localizationController.setLanguage(Locale(
-                            AppConstants.languages[0].languageCode,
-                            AppConstants.languages[0].countryCode,
-                          ));
-                          localizationController.setSelectedIndex(0);
-                          _saveLanguage(
-                              'en'); // Save 'en' as selected language
+              child: IntrinsicHeight(
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SpaceWidget(spaceHeight: 48),
+                        TextWidget(
+                          text: "selectLanguage".tr,
+                          fontSize: 30,
+                          fontWeight: FontWeight.w600,
+                          fontColor: AppColors.black,
+                        ),
+                        const SpaceWidget(spaceHeight: 10),
+                        TextWidget(
+                          text: "enterYourPreferredLanguage".tr,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          fontColor: AppColors.black,
+                          textAlignment: TextAlign.left,
+                        ),
+                        const SpaceWidget(spaceHeight: 24),
+                        Center(
+                          child: GetBuilder<LocalizationController>(
+                              builder: (localizationController) {
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                InkWell(
+                                  onTap:(){
+                                    localizationController.setLanguage(Locale(
+                                      AppConstants.languages[0].languageCode,
+                                      AppConstants.languages[0].countryCode,
+                                    ));
+                                    localizationController.setSelectedIndex(0);
+                                    _saveLanguage(
+                                        'en'); // Save 'en' as selected language
 
-                        },
-                        child: Row(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: const ImageWidget(
-                                height: 40,
-                                width: 45,
-                                imagePath: AppImagePath.usaFlag,
-                              ),
-                            ),
-                            const SizedBox(width:05),
-                            const Text(
-                              'English',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.black,
-                              ),
-                            ),
-                          ],
+                                  },
+                                  child: Row(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(4),
+                                        child: const ImageWidget(
+                                          height: 40,
+                                          width: 45,
+                                          imagePath: AppImagePath.usaFlag,
+                                        ),
+                                      ),
+                                      const SizedBox(width:05),
+                                      const Text(
+                                        'English',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                InkWell(
+                                  onTap: () {
+                                    localizationController.setLanguage(Locale(
+                                      AppConstants.languages[1].languageCode,
+                                      AppConstants.languages[1].countryCode,
+                                    ));
+                                    localizationController.setSelectedIndex(1);
+                                    _saveLanguage(
+                                        'he'); // Save 'ar' as selected language
+                                  },
+                                  child: Row(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(4),
+                                        child: const ImageWidget(
+                                          height: 40,
+                                          width: 45,
+                                          imagePath: AppImagePath.israeilFlag,
+                                        ),
+                                      ),
+                                      const SizedBox(width:05),
+                                      const Text(
+                                        // 'עברי',
+                                        'Hebrew',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.black,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            );
+                          }),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      InkWell(
-                        onTap: () {
-                          localizationController.setLanguage(Locale(
-                            AppConstants.languages[1].languageCode,
-                            AppConstants.languages[1].countryCode,
-                          ));
-                          localizationController.setSelectedIndex(1);
-                          _saveLanguage(
-                              'he'); // Save 'ar' as selected language
-                        },
-                        child: Row(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: const ImageWidget(
-                                height: 40,
-                                width: 45,
-                                imagePath: AppImagePath.israeilFlag,
-                              ),
-                            ),
-                            const SizedBox(width:05),
-                            const Text(
-                              // 'עברי',
-                              'Hebrew',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                }),
+                        const Spacer(),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),

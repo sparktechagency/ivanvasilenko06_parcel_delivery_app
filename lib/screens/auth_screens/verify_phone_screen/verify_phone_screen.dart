@@ -32,64 +32,68 @@ class VerifyPhoneScreen extends StatelessWidget {
       backgroundColor: AppColors.white,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SpaceWidget(spaceHeight: 48),
-              TextWidget(
-                text: "verifyPhone".tr,
-                fontSize: 30,
-                fontWeight: FontWeight.w600,
-                fontColor: AppColors.black,
-              ),
-              const SpaceWidget(spaceHeight: 16),
-              TextFieldWidget(
-                controller: controller.otpController,
-                hintText: '******',
-                maxLines: 1,
-                keyboardType: TextInputType.number,
-                textInputAction: TextInputAction.send,
-                focusNode: _otpFocusNode,
-                onSubmitted: () {
-                  FocusScope.of(context).unfocus();
-                  controller.verifyOTP();
-                },
-              ),
-              const SpaceWidget(spaceHeight: 16),
-              TextWidget(
-                text: "${"codeHasSendTo".tr} $phoneNumber. ${"usually".tr}",
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                fontColor: AppColors.greyDarkLight,
-                textAlignment: TextAlign.left,
-              ),
-              Obx(
-                () => TextButtonWidget(
-                  onPressed: controller.isButtonDisabled.value
-                      ? () {}
-                      : controller.resendCode,
-                  text: controller.isButtonDisabled.value
-                      ? "${"sendRepeatSMS".tr} ${controller.start.value} ${"sec".tr}"
-                      : "resendCode".tr,
-                  textColor: controller.isButtonDisabled.value
-                      ? AppColors.greyDarkLight
-                      : AppColors.black,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SpaceWidget(spaceHeight: 48),
+                    TextWidget(
+                      text: "verifyPhone".tr,
+                      fontSize: 30,
+                      fontWeight: FontWeight.w600,
+                      fontColor: AppColors.black,
+                    ),
+                    const SpaceWidget(spaceHeight: 16),
+                    TextFieldWidget(
+                      controller: controller.otpController,
+                      hintText: '******',
+                      maxLines: 1,
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.send,
+                      focusNode: _otpFocusNode,
+                      onSubmitted: () {
+                        FocusScope.of(context).unfocus();
+                        controller.verifyOTP();
+                      },
+                    ),
+                    const SpaceWidget(spaceHeight: 16),
+                    TextWidget(
+                      text: "${"codeHasSendTo".tr} $phoneNumber. ${"usually".tr}",
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      fontColor: AppColors.greyDarkLight,
+                      textAlignment: TextAlign.left,
+                    ),
+                    Obx(
+                      () => TextButtonWidget(
+                        onPressed: controller.isButtonDisabled.value
+                            ? () {}
+                            : controller.resendCode,
+                        text: controller.isButtonDisabled.value
+                            ? "${"sendRepeatSMS".tr} ${controller.start.value} ${"sec".tr}"
+                            : "resendCode".tr,
+                        textColor: controller.isButtonDisabled.value
+                            ? AppColors.greyDarkLight
+                            : AppColors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: isKeyboardVisible
-          ? Padding(
+            ),
+            Container(
               padding: EdgeInsets.only(
                 left: 16,
                 right: 16,
-                bottom: 16 + MediaQuery.of(context).viewInsets.bottom,
+                bottom: isKeyboardVisible 
+                    ? 16 + MediaQuery.of(context).viewInsets.bottom
+                    : 16,
               ),
               child: Obx(
                 () => controller.isLoading.value
@@ -116,8 +120,10 @@ class VerifyPhoneScreen extends StatelessWidget {
                         buttonHeight: 50,
                       ),
               ),
-            )
-          : null,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
