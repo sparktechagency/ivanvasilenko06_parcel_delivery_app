@@ -7,7 +7,7 @@ import 'dart:io' show Platform;
 import '../../constants/app_colors.dart';
 import '../../utils/app_size.dart';
 
-class IntlPhoneFieldWidget extends StatelessWidget {
+class IntlPhoneFieldWidget extends StatefulWidget {
   final TextEditingController controller;
   final String initialCountryCode;
   final String hintText;
@@ -32,27 +32,56 @@ class IntlPhoneFieldWidget extends StatelessWidget {
   });
 
   @override
+  State<IntlPhoneFieldWidget> createState() => _IntlPhoneFieldWidgetState();
+}
+
+class _IntlPhoneFieldWidgetState extends State<IntlPhoneFieldWidget> {
+  late FocusNode _internalFocusNode;
+  
+  @override
+  void initState() {
+    super.initState();
+    _internalFocusNode = widget.focusNode ?? FocusNode();
+  }
+
+  @override
+  void dispose() {
+    // Only dispose if we created the focus node internally
+    if (widget.focusNode == null) {
+      _internalFocusNode.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     ResponsiveUtils.initialize(context);
 
-    final Color effectiveBorderColor = borderColor ?? AppColors.grey;
-    final Color effectiveFillColor = fillColor ?? AppColors.grey;
+    final Color effectiveBorderColor = widget.borderColor ?? AppColors.grey;
+    final Color effectiveFillColor = widget.fillColor ?? AppColors.grey;
 
     // Create keyboard actions config for iOS
     KeyboardActionsConfig _buildKeyboardActionsConfig() {
       return KeyboardActionsConfig(
         keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-        keyboardBarColor: const Color(0xFFCAD1D9), // Apple keyboard color
+        keyboardBarColor: const Color(0xFFCAD1D9),
+        nextFocus: false,
         actions: [
           KeyboardActionsItem(
-            focusNode: focusNode ?? FocusNode(),
+            focusNode: _internalFocusNode,
             toolbarButtons: [
               (node) {
                 return GestureDetector(
                   onTap: () {
-                    if (onSubmitted != null) {
-                      onSubmitted!();
-                    } else {
+                    // Safely handle the done button tap
+                    try {
+                      if (widget.onSubmitted != null) {
+                        widget.onSubmitted!();
+                      }
+                      // Always unfocus after handling
+                      node.unfocus();
+                    } catch (e) {
+                      // Fallback: just unfocus
                       node.unfocus();
                     }
                   },
@@ -61,7 +90,7 @@ class IntlPhoneFieldWidget extends StatelessWidget {
                     child: const Text(
                       'Done',
                       style: TextStyle(
-                        color: Color(0xFF0978ED), // Done button color
+                        color: Color(0xFF0978ED),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -80,8 +109,8 @@ class IntlPhoneFieldWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: IntlPhoneField(
-        controller: controller,
-        focusNode: focusNode,
+        controller: widget.controller,
+        focusNode: _internalFocusNode,
         flagsButtonPadding: EdgeInsets.only(left: ResponsiveUtils.width(10)),
         dropdownTextStyle: const TextStyle(color: AppColors.black),
         dropdownIconPosition: IconPosition.leading,
@@ -94,19 +123,27 @@ class IntlPhoneFieldWidget extends StatelessWidget {
         ),
         // Configure keyboard and text input actions for both platforms
         keyboardType: TextInputType.phone,
-        textInputAction: textInputAction ?? 
+        textInputAction: widget.textInputAction ?? 
             (Platform.isIOS ? TextInputAction.done : TextInputAction.next),
         onSubmitted: (value) {
-          if (onSubmitted != null) {
-            onSubmitted!();
-          } else if (Platform.isIOS) {
+          // Prevent multiple rapid submissions that can cause freezing
+          if (!_internalFocusNode.hasFocus) return;
+          
+          try {
+            if (widget.onSubmitted != null) {
+              widget.onSubmitted!();
+            } else if (Platform.isIOS) {
+              FocusScope.of(context).unfocus();
+            }
+          } catch (e) {
+            // Fallback: just unfocus
             FocusScope.of(context).unfocus();
           }
         },
         decoration: InputDecoration(
           filled: true,
           fillColor: AppColors.grey,
-          hintText: hintText,
+          hintText: widget.hintText,
           hintStyle: TextStyle(
             color: AppColors.greyDark,
             fontWeight: FontWeight.w400,
@@ -142,13 +179,13 @@ class IntlPhoneFieldWidget extends StatelessWidget {
             ),
           ),
         ),
-        initialCountryCode: initialCountryCode,
-        onChanged: onChanged,
+        initialCountryCode: widget.initialCountryCode,
+        onChanged: widget.onChanged,
       ),
     );
 
-    // Wrap with KeyboardActions only on iOS
-    if (Platform.isIOS && focusNode != null) {
+    // Wrap with KeyboardActions only on iOS and when focus node is available
+    if (Platform.isIOS) {
       return KeyboardActions(
         config: _buildKeyboardActionsConfig(),
         child: phoneField,

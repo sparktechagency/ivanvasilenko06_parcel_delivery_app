@@ -9,23 +9,7 @@ import '../../../routes/app_routes.dart';
 
 class SplashController extends GetxController {
   @override
-  // void onInit() {
-  //   super.onInit();
-  //   // Wait for 3 seconds before navigating to the HomeScreen
-  //   Future.delayed(const Duration(seconds: 3)).then((_) async{
-  //    // Get.offAllNamed(AppRoutes.homeScreen);
-  //    String token = AppAuthStorage().getToken().toString();
-  //
-  //     debugPrint("This is my  B token =-=-==-=-=-=-=-=-=-=-=-=-=-=-${token}");
-  //
-  //     if(AppAuthStorage().getToken().toString() != null){
-  //
-  //       Get.offAll(() => const BottomNavScreen());
-  //     }
-  //     Get.offAllNamed(AppRoutes.onboardingScreen);
-  //    // Get.offAll(() => const BottomNavScreen());
-  //   });
-  // }
+
   void onInit() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(seconds: 3)).then((_) async {
