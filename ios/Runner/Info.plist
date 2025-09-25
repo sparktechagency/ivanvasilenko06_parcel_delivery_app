@@ -2,6 +2,50 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera for capturing photos.</string>
+
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to upload and select images.</string>
+
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need permission to save photos to your library.</string>
+
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need access to your microphone for recording audio.</string>
+
+	<key>NSContactsUsageDescription</key>
+	<string>We need access to your contacts for communication features.</string>
+
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need your location to show your position on the map.</string>
+
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>We need your location even in the background for tracking deliveries.</string>
+
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We need your location even in the background for continuous tracking.</string>
+
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>We need Bluetooth access to connect with nearby devices.</string>
+
+	<key>NSCalendarsUsageDescription</key>
+	<string>We need access to your calendar to schedule deliveries.</string>
+
+	<key>NSRemindersUsageDescription</key>
+	<string>We need access to reminders for delivery notifications.</string>
+
+	<key>NSCameraUsageDescription</key>
+	<string>We need your camera access for scanning and photo uploads.</string>
+
+	<key>NSFaceIDUsageDescription</key>
+	<string>We need Face ID for secure login and authentication.</string>
+
+	<key>NSAppleMusicUsageDescription</key>
+	<string>We need access to your media library for playback functionality.</string>
+	<key>GMSApiKey</key>
+	<string>AIzaSyDKyLxGB8Dd0C5nWBuEh0l0D17MnbYHV5c</string>
+
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -45,5 +89,29 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<key>io.flutter.embedded_views_preview</key>
+    <true/>
+
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>We need your location for map functionality</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>We need your location for map functionality</string>
+
+    <key>GMSApiKey</key>
+    <string>AIzaSyDk7p1Vl9WOtcDztagS6yPsgUYaVu_bCro</string>
+
+    <!-- Google Sign-In URL Schemes -->
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>com.ivan.delivery</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>com.googleusercontent.apps.10243427761-cp6rebbhe0a0ugomqabd4n1jtv4qo0ro</string>
+            </array>
+        </dict>
+    </array>
 </dict>
 </plist>

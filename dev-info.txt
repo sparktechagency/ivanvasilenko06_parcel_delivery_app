@@ -1,0 +1,33 @@
+java : java 17.0.12+8-LTS-286 LTS
+===============================================
+Mac/Linux:-keytool -genkey -v -keystore ~/upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias {your alias name}
+key make command (windows): keytool -genkeypair -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias key
+===============================================
+
+===============================================
+Command to get SHA1 key: keytool -list -v -keystore key.jks
+===============================================
+
+===============================================
+
+first and last name: ivan
+name of your organizational :ivan
+name of your City : ivan
+two-letter country code : IL
+State or Province : ivan
+password : IVANIVAN
+
+
+==================================================
+What is your first and last name?
+  [Unknown]:  ivan
+What is the name of your organizational unit?
+  [Unknown]:  deliverly
+What is the name of your organization?
+  [Unknown]:  deliverly
+What is the name of your City or Locality?
+  [Unknown]:  israel
+What is the name of your State or Province?
+  [Unknown]:  israel
+What is the two-letter country code for this unit?
+  [Unknown]:  il

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "10243427761",
+    "project_id": "deliverly-launch",
+    "storage_bucket": "deliverly-launch.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:10243427761:android:54537c71c32ca8b9700190",
+        "android_client_info": {
+          "package_name": "com.ivan.delivery"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBl6FqxCYm46Kg4yKFBKuARtAHFdySOajM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
