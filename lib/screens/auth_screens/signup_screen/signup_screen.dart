@@ -81,7 +81,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     maxLines: 1,
                     onSubmitted: () {
                       // Handle done button tap
-                      FocusScope.of(context).unfocus(); // Hide keyboard
+                      FocusScope.of(context).unfocus(); 
                     },
                   ),
                   const SpaceWidget(spaceHeight: 16),
@@ -106,7 +106,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     maxLines: 1,
                     onSubmitted: () {
                       // Handle done button tap
-                      FocusScope.of(context).unfocus(); // Hide keyboard
+                      FocusScope.of(context).unfocus(); 
                     },
                   ),
                   const SpaceWidget(spaceHeight: 16),

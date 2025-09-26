@@ -36,32 +36,37 @@ class SplashController extends GetxController {
   /// Request location permission specifically for iOS devices
   Future<void> _requestLocationPermissionForIOS() async {
     try {
-      // Check if location services are enabled
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      var status = await Permission.location.request();
-
-      if (!serviceEnabled) {
-        debugPrint('🔴 Location services are disabled on iOS device');
-        // You can show a dialog to user to enable location services
-        return;
-      }
-      // Check current permission status
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        // Request permission
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
+      // Check current permission status using permission_handler
+      PermissionStatus status = await Permission.location.status;
+      
+      // If permission is denied, request it
+      if (status.isDenied) {
+        status = await Permission.location.request();
+        if (status.isDenied) {
           debugPrint('🔴 Location permissions are denied on iOS device');
           return;
         }
       }
-      if (permission == LocationPermission.deniedForever) {
+      
+      // If permission is permanently denied, guide user to settings
+      if (status.isPermanentlyDenied) {
         debugPrint('🔴 Location permissions are permanently denied on iOS device');
         // You can show a dialog to guide user to app settings
+        await openAppSettings();
         return;
       }
-      // Permission granted
-      debugPrint('✅ Location permission granted on iOS device');
+      
+      // If permission is granted, check if location services are enabled
+      if (status.isGranted) {
+        bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+        if (!serviceEnabled) {
+          debugPrint('🔴 Location services are disabled on iOS device');
+          // You can show a dialog to user to enable location services
+          return;
+        }
+        
+        debugPrint('✅ Location permission granted and services enabled on iOS device');
+      }
 
     } catch (e) {
       debugPrint('❌ Error requesting location permission on iOS: $e');
