@@ -17,78 +17,142 @@ class VerifyPhoneController extends GetxController {
   bool isFromLogin = false;
   final DeviceInfo _deviceInfo = DeviceInfo();
 
-  late String firebaseID;
-  late String phoneNumber;
-  late String email;
-  late String fullName;
-  late String country;
-  late String fcmToken;
-  late String deviceId;
-  late String deviceType;
-  late String screen;
+  // Initialize with default values to prevent null issues
+  String firebaseID = '';
+  String phoneNumber = '';
+  String email = '';
+  String fullName = '';
+  String country = '';
+  String fcmToken = '';
+  String deviceId = '';
+  String deviceType = '';
+  String screen = '';
+
+  // Add a flag to prevent multiple initializations
+  bool _isInitialized = false;
 
   @override
   void onInit() {
     super.onInit();
-    final arguments = Get.arguments as Map<String, dynamic>? ?? {};
+    
+    // Prevent multiple initializations
+    if (_isInitialized) return;
+    _isInitialized = true;
 
-    // Use null-aware operators and provide defaults
-    phoneNumber = arguments["phoneNumber"]?.toString() ??
-        arguments["mobileNumber"]?.toString() ??
-        "";
-    email = arguments["email"]?.toString() ?? "";
-    fullName = arguments["fullName"]?.toString() ?? "";
-    country = arguments["country"]?.toString() ?? "";
-    fcmToken = arguments["fcmToken"]?.toString() ?? "";
-    deviceId = arguments["deviceId"]?.toString() ?? "";
-    deviceType = arguments["deviceType"]?.toString() ?? "";
-    screen = arguments["screen"]?.toString() ?? "";
+    // Move heavy operations to the next frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeController();
+    });
+  }
 
-    isFromLogin = screen == "login";
-    //! log("Screen type: $screen, isFromLogin: $isFromLogin");
-    //! log("Phone number received: $phoneNumber");
+  Future<void> _initializeController() async {
+    try {
+      final arguments = Get.arguments;
+      
+      // Validate arguments exist
+      if (arguments == null) {
+        AppSnackBar.error("Missing verification data");
+        Get.back();
+        return;
+      }
 
-    startTimer();
+      final Map<String, dynamic> args = arguments is Map<String, dynamic> 
+          ? arguments 
+          : {};
 
-    // Validation check
-    if (phoneNumber.isEmpty) {
-      //! log("Missing phone number");
-      AppSnackBar.error("Missing phone number");
+      // Extract arguments with proper null handling
+      phoneNumber = args["phoneNumber"]?.toString() ?? 
+                   args["mobileNumber"]?.toString() ?? "";
+      email = args["email"]?.toString() ?? "";
+      fullName = args["fullName"]?.toString() ?? "";
+      country = args["country"]?.toString() ?? "";
+      fcmToken = args["fcmToken"]?.toString() ?? "";
+      deviceId = args["deviceId"]?.toString() ?? "";
+      deviceType = args["deviceType"]?.toString() ?? "";
+      screen = args["screen"]?.toString() ?? "";
+
+      isFromLogin = screen == "login";
+
+      // Validate required phone number
+      if (phoneNumber.isEmpty) {
+        AppSnackBar.error("Phone number is required");
+        Get.back();
+        return;
+      }
+
+      // Start timer after validation
+      _startTimerSafely();
+      
+    } catch (e) {
+      debugPrint("Error initializing VerifyPhoneController: $e");
+      AppSnackBar.error("Failed to initialize verification screen");
       Get.back();
-      return;
+    }
+  }
+
+  void _startTimerSafely() {
+    try {
+      // Cancel existing timer if any
+      _timer?.cancel();
+      
+      isButtonDisabled.value = true;
+      start.value = 60;
+      
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (!_isInitialized) {
+          timer.cancel();
+          return;
+        }
+        
+        if (start.value <= 0) {
+          isButtonDisabled.value = false;
+          timer.cancel();
+        } else {
+          start.value--;
+        }
+      });
+    } catch (e) {
+      debugPrint("Error starting timer: $e");
+      isButtonDisabled.value = false;
     }
   }
 
   Future<void> verifyOTP() async {
-    if (otpController.text.isEmpty) {
+    if (otpController.text.trim().isEmpty) {
       AppSnackBar.error("Please enter the OTP");
       return;
     }
+
+    if (isLoading.value) return; // Prevent multiple calls
+
     try {
       isLoading.value = true;
+      
       if (isFromLogin) {
         await handleLoginFlow();
       } else {
         await handleSignupFlow();
       }
     } catch (e) {
-      //! log("Error from verifyOTP: $e");
-      AppSnackBar.error("An error occurred. Please try again.");
+      debugPrint("Error from verifyOTP: $e");
+      AppSnackBar.error("Verification failed. Please try again.");
+    } finally {
+      isLoading.value = false;
     }
   }
 
   Future<void> handleLoginFlow() async {
     try {
-      // Get fresh device info
-      String deviceId = await _deviceInfo.getDeviceId();
-      String deviceType = await _deviceInfo.getDeviceType();
+      // Get fresh device info asynchronously
+      String currentDeviceId = await _deviceInfo.getDeviceId();
+      String currentDeviceType = await _deviceInfo.getDeviceType();
 
       Map<String, String> body = {
         "mobileNumber": phoneNumber,
         "otpCode": otpController.text.trim(),
         "fcmToken": fcmToken.isEmpty ? "" : fcmToken,
-        "deviceId": deviceId,
-        "deviceType": deviceType,
+        "deviceId": currentDeviceId,
+        "deviceType": currentDeviceType,
       };
 
       var data = await ApiPostServices().apiPostServices(
@@ -97,40 +161,40 @@ class VerifyPhoneController extends GetxController {
         statusCode: 200,
       );
 
-      if (data != null) {
-        if (data["data"]["token"] != null &&
-            data["data"]["token"].toString().isNotEmpty) {
+      if (data != null && data["data"] != null) {
+        String? token = data["data"]["token"]?.toString();
+        
+        if (token != null && token.isNotEmpty) {
           await SharePrefsHelper.setString(
-              SharedPreferenceValue.token, data["data"]["token"].toString());
-          // String token =
-          //     await SharePrefsHelper.getString(SharedPreferenceValue.token);
-          //! log("Saved login token: $token");
+              SharedPreferenceValue.token, token);
+          
+          // Use Get.offAll with a delay to ensure proper navigation
+          await Future.delayed(const Duration(milliseconds: 100));
+          Get.offAll(() => const BottomNavScreen());
+        } else {
+          AppSnackBar.error("Invalid authentication token received");
         }
-        //! log('Login Data: $data');
-        Get.offAll(() => const BottomNavScreen());
       } else {
-        AppSnackBar.error("Failed to log in. Please try again.");
+        AppSnackBar.error("Login verification failed");
       }
     } catch (e) {
-      //! log("Error from handleLoginFlow: $e");
-      AppSnackBar.error("Login failed: ${e.toString()}");
-    } finally {
-      isLoading.value = false;
+      debugPrint("Error from handleLoginFlow: $e");
+      AppSnackBar.error("Login failed: Please try again");
     }
   }
 
   Future<void> handleSignupFlow() async {
     try {
-      // Get fresh device info
-      String deviceId = await _deviceInfo.getDeviceId();
-      String deviceType = await _deviceInfo.getDeviceType();
+      // Get fresh device info asynchronously
+      String currentDeviceId = await _deviceInfo.getDeviceId();
+      String currentDeviceType = await _deviceInfo.getDeviceType();
 
       Map<String, String> body = {
         "mobileNumber": phoneNumber,
         "otpCode": otpController.text.trim(),
         "fcmToken": fcmToken.isEmpty ? "" : fcmToken,
-        "deviceId": deviceId,
-        "deviceType": deviceType,
+        "deviceId": currentDeviceId,
+        "deviceType": currentDeviceType,
         "role": "sender"
       };
 
@@ -141,27 +205,33 @@ class VerifyPhoneController extends GetxController {
       );
 
       if (data != null) {
-        if (data["token"] != null && data["token"].toString().isNotEmpty) {
+        String? token = data["token"]?.toString();
+        
+        if (token != null && token.isNotEmpty) {
           await SharePrefsHelper.setString(
-              SharedPreferenceValue.token, data["token"].toString());
-          // String token =
-          //     await SharePrefsHelper.getString(SharedPreferenceValue.token);
-          //! log("Saved registration token: $token");
+              SharedPreferenceValue.token, token);
+          
+          // Use Get.offAll with a delay to ensure proper navigation
+          await Future.delayed(const Duration(milliseconds: 100));
+          Get.offAll(() => const BottomNavScreen());
+        } else {
+          AppSnackBar.error("Invalid registration token received");
         }
-       //!  log('Signup Data: $data');
-        Get.offAll(() => const BottomNavScreen());
       } else {
-        AppSnackBar.error("Failed to sign up. Please try again.");
+        AppSnackBar.error("Signup verification failed");
       }
     } catch (e) {
-     //!  log("Error from handleSignupFlow: $e");
-      AppSnackBar.error("Signup failed: ${e.toString()}");
-    } finally {
-      isLoading.value = false;
+      debugPrint("Error from handleSignupFlow: $e");
+      AppSnackBar.error("Signup failed: Please try again");
     }
   }
 
   Future<void> resendCode() async {
+    if (phoneNumber.isEmpty) {
+      AppSnackBar.error("Phone number not available");
+      return;
+    }
+
     try {
       Map<String, String> body = {
         "mobileNumber": phoneNumber,
@@ -174,31 +244,22 @@ class VerifyPhoneController extends GetxController {
       );
 
       if (data != null) {
-       //!  log('Resend Data: $data');
-        startTimer();
+        AppSnackBar.success("OTP resent successfully");
+        _startTimerSafely();
+      } else {
+        AppSnackBar.error("Failed to resend OTP");
       }
     } catch (e) {
-     //!  log("Error from resendCode: $e");
-      AppSnackBar.error("Resend code failed: ${e.toString()}");
+      debugPrint("Error from resendCode: $e");
+      AppSnackBar.error("Failed to resend code");
     }
-  }
-
-  void startTimer() {
-    isButtonDisabled.value = true;
-    start.value = 60;
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (start.value == 0) {
-        isButtonDisabled.value = false;
-        timer.cancel();
-      } else {
-        start.value--;
-      }
-    });
   }
 
   @override
   void onClose() {
+    _isInitialized = false;
     _timer?.cancel();
+    otpController.dispose();
     super.onClose();
   }
 }

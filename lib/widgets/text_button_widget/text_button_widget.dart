@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../utils/app_size.dart';
 
 class TextButtonWidget extends StatelessWidget {
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final String text;
   final Color textColor;
   final double fontSize;
@@ -14,7 +14,7 @@ class TextButtonWidget extends StatelessWidget {
 
   const TextButtonWidget({
     super.key,
-    required this.onPressed,
+    this.onPressed,
     required this.text,
     required this.textColor,
     required this.fontSize,

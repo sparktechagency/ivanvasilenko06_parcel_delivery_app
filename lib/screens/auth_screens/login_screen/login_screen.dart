@@ -16,9 +16,7 @@ import '../../../widgets/text_widget/text_widgets.dart';
 
 class LoginScreen extends StatelessWidget {
   final LoginScreenController controller = Get.put(LoginScreenController());
-  final FocusNode _phoneFocusNode = FocusNode();
-  final FocusNode _dialogPhoneFocusNode = FocusNode();
-
+  
   LoginScreen({super.key});
 
   @override
