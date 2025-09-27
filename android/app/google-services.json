@@ -14,12 +14,8 @@
       },
       "oauth_client": [
         {
-          "client_id": "10243427761-cp6rebbhe0a0ugomqabd4n1jtv4qo0ro.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.ivan.delivery",
-            "certificate_hash": "a8655ca557ce60c5e14342a0c7ad6c150f7f9714"
-          }
+          "client_id": "10243427761-qao39588smaorge7n0em4rkhddjk7qkm.apps.googleusercontent.com",
+          "client_type": 3
         }
       ],
       "api_key": [
@@ -31,8 +27,15 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "10243427761-cp6rebbhe0a0ugomqabd4n1jtv4qo0ro.apps.googleusercontent.com",
+              "client_id": "10243427761-qao39588smaorge7n0em4rkhddjk7qkm.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "10243427761-cp6rebbhe0a0ugomqabd4n1jtv4qo0ro.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ivan.delivery"
+              }
             }
           ]
         }
