@@ -23,6 +23,9 @@
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>We need your location even in the background for tracking deliveries.</string>
 
+	<key>NSLocationUsageDescription</key>
+    <string>We need your location to show your position on the map and provide delivery services.</string>
+
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>We need your location even in the background for continuous tracking.</string>
 

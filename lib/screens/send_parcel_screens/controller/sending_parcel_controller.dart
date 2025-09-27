@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
@@ -15,6 +16,14 @@ class ParcelController extends GetxController {
   // Add disposal tracking
   bool _isDisposed = false;
   
+
+   RxDouble currentLat=0.0.obs;
+
+    RxDouble currentLong=0.0.obs;
+
+
+
+
   // Observable data
   RxString startingLocation = ''.obs;
   RxString endingLocation = ''.obs;

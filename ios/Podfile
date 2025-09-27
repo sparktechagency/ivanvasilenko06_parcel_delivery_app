@@ -1,5 +1,5 @@
 # Uncomment this line to define a global platform for your project
-platform :ios, '14.0'
+platform :ios, '15.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -30,6 +30,9 @@ flutter_ios_podfile_setup
 target 'Runner' do
   use_frameworks!
 
+  # Add GoogleMaps dependency
+  pod 'GoogleMaps'
+
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   target 'RunnerTests' do
     inherit! :search_paths
@@ -37,7 +40,33 @@ target 'Runner' do
 end
 
 post_install do |installer|
+  # Flutter additional iOS build settings
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
   end
+
+  # Geolocator specific configuration
+  installer.pods_project.targets.each do |target|
+    if target.name == "geolocator_apple"
+      target.build_configurations.each do |config|
+        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', 'BYPASS_PERMISSION_LOCATION_ALWAYS=1']
+      end
+    end
+  end
+
+  # Set minimum deployment target for all pods
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      # Update this to match your platform version above (15.0)
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+    end
+  end
+
+  # Exclude arm64 architecture for simulator (if needed)
+  installer.pods_project.build_configurations.each do |config|
+    config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
+  end
+
+  # Note: Removed flipper_post_install(installer) as it's not needed for Flutter
+  # and would cause errors since Flipper isn't configured in this Flutter project
 end

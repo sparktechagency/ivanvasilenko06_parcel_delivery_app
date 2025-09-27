@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:keyboard_actions/keyboard_actions.dart';
-import 'dart:io';
 
 import '../../constants/app_colors.dart';
 import '../../constants/app_icons_path.dart';
@@ -54,6 +52,10 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
     ResponsiveUtils.initialize(context);
     
     Widget textField = Container(
+      constraints: const BoxConstraints(
+        minHeight: 50,
+        maxHeight: 80,
+      ),
       decoration: BoxDecoration(
         color: AppColors.grey,
         borderRadius: BorderRadius.circular(8),
@@ -138,47 +140,7 @@ class _TextFieldWidgetState extends State<TextFieldWidget> {
       ),
     );
 
-    // Wrap with KeyboardActions for iOS to show Done button
-    if (Platform.isIOS && widget.focusNode != null) {
-      return KeyboardActions(
-        config: _buildKeyboardActionsConfig(),
-        child: textField,
-      );
-    }
-
+    // Return textField without KeyboardActions to remove Done button
     return textField;
-  }
-
-  KeyboardActionsConfig _buildKeyboardActionsConfig() {
-    return KeyboardActionsConfig(
-      keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-      keyboardBarColor: Colors.grey[200],
-      nextFocus: false,
-      actions: [
-        KeyboardActionsItem(
-          focusNode: widget.focusNode!,
-          toolbarButtons: [
-            (node) {
-              return GestureDetector(
-                onTap: () {
-                  node.unfocus();
-                  if (widget.onSubmitted != null) {
-                    widget.onSubmitted!();
-                  }
-                },
-                child: Container(
-                  color: Colors.grey[200],
-                  padding: const EdgeInsets.all(8.0),
-                  child: const Text(
-                    "Done",
-                    style: TextStyle(color: Colors.blue),
-                  ),
-                ),
-              );
-            }
-          ],
-        ),
-      ],
-    );
   }
 }
