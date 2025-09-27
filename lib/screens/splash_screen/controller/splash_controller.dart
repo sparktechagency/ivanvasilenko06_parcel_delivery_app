@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
@@ -58,10 +57,9 @@ class SplashController extends GetxController {
         if (!serviceEnabled) {
           debugPrint('🔴 Location services are disabled');
           // For iOS, we can try to open location settings
-          if (Platform.isIOS) {
-            await _showLocationServiceDialog();
-          }
-          return;
+          // if (Platform.isIOS) {
+          //   await _showLocationServiceDialog();
+          // }
         }
         debugPrint('✅ Location permission granted and services enabled');
       }
@@ -120,9 +118,4 @@ class SplashController extends GetxController {
     }
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-
-  }
 }

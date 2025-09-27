@@ -81,7 +81,7 @@ class RouteManager {
       ),
       GetPage(
         name: AppRoutes.verifyPhoneScreen,
-        page: () => VerifyPhoneScreen(),
+        page: () => const VerifyPhoneScreen(),
         transition: Transition.rightToLeft,
         // binding: GeneralBindings(),
       ),

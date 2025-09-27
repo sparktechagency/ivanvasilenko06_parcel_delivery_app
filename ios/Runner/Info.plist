@@ -23,6 +23,9 @@
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>We need your location even in the background for tracking deliveries.</string>
 
+	<key>NSLocationUsageDescription</key>
+    <string>We need your location to show your position on the map and provide delivery services.</string>
+
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>We need your location even in the background for continuous tracking.</string>
 
@@ -47,7 +50,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Parcel Delivery App</string>
+	<string>Deliverly</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -55,7 +58,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>parcel_delivery_app</string>
+	<string>Deliverly</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

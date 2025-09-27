@@ -15,6 +15,14 @@ class ParcelController extends GetxController {
   // Add disposal tracking
   bool _isDisposed = false;
   
+
+   RxDouble currentLat=0.0.obs;
+
+    RxDouble currentLong=0.0.obs;
+
+
+
+
   // Observable data
   RxString startingLocation = ''.obs;
   RxString endingLocation = ''.obs;

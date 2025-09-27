@@ -165,14 +165,17 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                       fontColor: AppColors.black,
                     ),
                     const SpaceWidget(spaceHeight: 16),
-                    TextFieldWidget(
-                      controller: controller!.otpController,
-                      hintText: '******',
-                      maxLines: 1,
-                      keyboardType: TextInputType.number,
-                      textInputAction: TextInputAction.done,
-                      focusNode: _otpFocusNode,
-                      // onSubmitted: _handleVerifyOTP,
+                    SizedBox(
+                      height: 60, // Fixed height to prevent constraint issues
+                      child: TextFieldWidget(
+                        controller: controller!.otpController,
+                        hintText: '******',
+                        maxLines: 1,
+                        keyboardType: TextInputType.number,
+                        textInputAction: TextInputAction.done,
+                        focusNode: _otpFocusNode,
+                        // onSubmitted: _handleVerifyOTP,
+                      ),
                     ),
                     const SpaceWidget(spaceHeight: 16),
                     TextWidget(

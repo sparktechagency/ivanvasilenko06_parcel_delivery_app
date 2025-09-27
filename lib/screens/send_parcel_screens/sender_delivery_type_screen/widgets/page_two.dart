@@ -52,11 +52,13 @@ class _PageTwoState extends State<PageTwo> {
     } catch (e) {
       _parcelController = Get.put(ParcelController());
     }
-
     // Clear existing polylines and markers when initializing
     _clearPreviousRouteData();
-    _getCurrentLocation();
-
+    
+    // Use existing location data from parcelController instead of fetching again
+    _useExistingLocationData();
+    
+    debugPrint('=======================================Current location: lat=${_parcelController?.currentLocationLatitude.value}, lng=${_parcelController?.currentLocationLongitude.value}');
     _startingFocusNode.addListener(() {
       if (_startingFocusNode.hasFocus && mounted && !_isDisposed) {
         setState(() {
@@ -106,6 +108,76 @@ class _PageTwoState extends State<PageTwo> {
     } else {
       // If not mounted, just clear the markers without setState
       _markers = {};
+    }
+  }
+
+  Future<void> _useExistingLocationData() async {
+    if (_isDisposed) return;
+
+    try {
+      // Check if parcelController has location data
+      if (_parcelController != null && 
+          _parcelController!.currentLocationLatitude.value.isNotEmpty &&
+          _parcelController!.currentLocationLongitude.value.isNotEmpty) {
+        
+        final lat = double.parse(_parcelController!.currentLocationLatitude.value);
+        final lng = double.parse(_parcelController!.currentLocationLongitude.value);
+        final location = LatLng(lat, lng);
+        
+        // Set the location in the repository
+        _locationRepository.currentLocationCoordinates = location;
+        
+        // Create marker for current location
+        _currentLocationMarker = Marker(
+          markerId: const MarkerId('current_location'),
+          position: location,
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+          infoWindow: const InfoWindow(title: 'Current Location'),
+        );
+
+        if (mounted && !_isDisposed) {
+          setState(() {
+            _markers = {_currentLocationMarker!};
+            _locationLoaded = true; // Mark location as loaded
+          });
+        }
+
+        // Get address for current location
+        try {
+          final address = await _locationRepository.getAddressFromLatLng(lat, lng);
+          if (mounted && !_isDisposed) {
+            setState(() {
+              _currentLocationAddress = address;
+            });
+          }
+        } catch (e) {
+          debugPrint('Error getting address: $e');
+          if (mounted && !_isDisposed) {
+            setState(() {
+              _currentLocationAddress = "Your Current Location";
+            });
+          }
+        }
+
+        // Move camera to current location
+        if (_mapController != null && !_isDisposed) {
+          try {
+            _mapController?.animateCamera(
+              CameraUpdate.newLatLng(location),
+            );
+          } catch (e) {
+            debugPrint('Error animating camera: $e');
+          }
+        }
+      } else {
+        // Fallback to getting current location if parcelController doesn't have data
+        debugPrint('No location data in parcelController, falling back to getCurrentLocation');
+        _getCurrentLocation();
+      }
+    } catch (e) {
+      debugPrint('Error using existing location data: $e');
+      // Fallback to getting current location
+      _getCurrentLocation();
     }
   }
 
@@ -652,6 +724,7 @@ class _PageTwoState extends State<PageTwo> {
 
     // Show error state if location is not available
     if (_locationRepository.currentLocationCoordinates == null) {
+      
       return SizedBox(
         height: MediaQuery.of(context).size.height * 0.65,
         width: double.infinity,
@@ -686,7 +759,7 @@ class _PageTwoState extends State<PageTwo> {
                     setState(() {
                       _locationLoaded = false;
                     });
-                    _getCurrentLocation();
+                    _useExistingLocationData();
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -699,15 +772,16 @@ class _PageTwoState extends State<PageTwo> {
           ),
         ),
       );
-    }
+    }else
 
-    return SizedBox(
+    {
+      return SizedBox(
       height: MediaQuery.of(context).size.height * 0.65,
       width: double.infinity,
       child: GoogleMap(
         initialCameraPosition: CameraPosition(
           target: _locationRepository.currentLocationCoordinates!,
-          zoom: 15.0, // Increased zoom for better view
+          zoom: 15.0,
         ),
         onMapCreated: (GoogleMapController controller) {
           if (mounted && !_isDisposed) {
@@ -743,6 +817,7 @@ class _PageTwoState extends State<PageTwo> {
         zoomControlsEnabled: true,
       ),
     );
+    }
   }
 
   @override
