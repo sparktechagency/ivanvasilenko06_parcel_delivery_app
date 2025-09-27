@@ -16,6 +16,8 @@ import 'package:parcel_delivery_app/screens/home_screen/widgets/reserve_bottom_s
 import 'package:parcel_delivery_app/screens/home_screen/widgets/suggestionCardWidget.dart';
 import 'package:parcel_delivery_app/screens/notification_screen/controller/notification_controller.dart';
 import 'package:parcel_delivery_app/screens/profile_screen/controller/profile_controller.dart';
+import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
+import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import '../../utils/app_size.dart';
 import '../../widgets/button_widget/button_widget.dart';
@@ -30,8 +32,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final EarnMoneyRadiusController _radiusController = Get.put(EarnMoneyRadiusController());
-  final NotificationController notificationController = Get.put(NotificationController());
+  final EarnMoneyRadiusController _radiusController =
+      Get.put(EarnMoneyRadiusController());
+  final NotificationController notificationController =
+      Get.put(NotificationController());
   final ProfileController profileController = Get.put(ProfileController());
 
   Future<void> _getCurrentLocation() async {
@@ -52,7 +56,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.high);
-      _radiusController.setCurrentLocation(LatLng(position.latitude, position.longitude));
+      _radiusController
+          .setCurrentLocation(LatLng(position.latitude, position.longitude));
       //! log('Current Location: Latitude: ${position.latitude}');
       //! log('Current Location: Longitude: ${position.longitude}');
     } catch (e) {
@@ -64,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _getProfileImagePath() {
     if (profileController.isLoading.value) {
-     //!  log('⏳ Profile is still loading, returning default image URL');
+      //!  log('⏳ Profile is still loading, returning default image URL');
       return 'https://i.ibb.co/z5YHLV9/profile.png';
     }
 
@@ -78,18 +83,21 @@ class _HomeScreenState extends State<HomeScreen> {
         imageUrl.trim().isEmpty ||
         imageUrl.toLowerCase() == 'null' ||
         imageUrl.toLowerCase() == 'undefined') {
-     //! '❌ Image URL is null/empty/invalid, using default image URL');
+      //! '❌ Image URL is null/empty/invalid, using default image URL');
       return 'https://i.ibb.co/z5YHLV9/profile.png';
     }
 
     String fullImageUrl;
     // Trim and clean the URL
     String cleanImageUrl = imageUrl.trim();
-    if (cleanImageUrl.startsWith('https://') || cleanImageUrl.startsWith('http://')) {
+    if (cleanImageUrl.startsWith('https://') ||
+        cleanImageUrl.startsWith('http://')) {
       fullImageUrl = cleanImageUrl;
     } else {
       // Remove leading slashes and ensure proper concatenation
-      cleanImageUrl = cleanImageUrl.startsWith('/') ? cleanImageUrl.substring(1) : cleanImageUrl;
+      cleanImageUrl = cleanImageUrl.startsWith('/')
+          ? cleanImageUrl.substring(1)
+          : cleanImageUrl;
       fullImageUrl = "${AppApiUrl.liveDomain}/$cleanImageUrl";
     }
 
@@ -145,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontColor: AppColors.black,
                   ),
                   const SpaceWidget(spaceHeight: 12),
-                   Row(
+                  Row(
                     children: [
                       const ImageWidget(
                         height: 40,
@@ -176,12 +184,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           activeTrackColor: Colors.black,
                           inactiveTrackColor: Colors.grey.shade200,
                           thumbColor: Colors.black,
-                          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
+                          thumbShape: const RoundSliderThumbShape(
+                              enabledThumbRadius: 12),
                           overlayColor: Colors.black.withAlpha(51),
                           trackHeight: 6.0,
                         ),
                         child: Slider(
-                          label: '${_radiusController.radius.value.toStringAsFixed(0)} ${" km".tr}',
+                          label:
+                              '${_radiusController.radius.value.toStringAsFixed(0)} ${" km".tr}',
                           value: _radiusController.radius.value,
                           min: 0,
                           max: 50,
@@ -233,41 +243,23 @@ class _HomeScreenState extends State<HomeScreen> {
                           ButtonWidget(
                             onPressed: () async {
                               // Check if location is available before proceeding
-                              if (_radiusController.currentLocation.value == null) {
+                              if (_radiusController.currentLocation.value ==
+                                  null) {
                                 // Try to get location again
                                 await _getCurrentLocation();
-                                
                                 // If still null, show error and return
-                                if (_radiusController.currentLocation.value == null) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('locationRequired'.tr),
-                                      backgroundColor: AppColors.red,
-                                    ),
-                                  );
+                                if (_radiusController.currentLocation.value ==
+                                    null) {
+                                  appLog("Error");
                                   return;
                                 }
                               }
-                              
                               try {
-                                // Close the bottom sheet first
                                 Get.back();
-                                
-                                // Fetch parcels in radius
                                 _radiusController.fetchParcelsInRadius();
-                                
-                                // Navigate to radius map screen (using toNamed instead of offNamed to preserve controller)
                                 Get.toNamed(AppRoutes.radiusMapScreen);
-                                //! log("😉😉😉😉😉😉😉😉 ${_radiusController.currentLocation.value?.latitude} ${_radiusController.currentLocation.value?.longitude}");
                               } catch (e) {
-                                // Handle any errors during navigation
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('navigationError'.tr),
-                                    backgroundColor: AppColors.red,
-                                  ),
-                                );
-                                //! log("Navigation error: $e");
+                                appLog("Error: $e");
                               }
                             },
                             label: "next".tr,
@@ -320,30 +312,34 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           // Wrap AppBar with Obx to make it reactive
           Obx(() => HomeScreenAppBar(
-            isLabelVisible: notificationController.unreadCount.value.toInt() == 0 ? false : true,
-            logoImagePath: AppImagePath.appLogo,
-            notificationIconPath: AppIconsPath.notificationIcon,
-            onNotificationPressed: () {
-              notificationController.fetchNotifications();
-              notificationController.isReadAllNotificaton();
-              Get.toNamed(AppRoutes.notificationScreen);
-            },
-            badgeLabel: notificationController.unreadCount.value.toInt().toString(),
-            profileImagePath: _getProfileImagePath(),
-          )),
+                isLabelVisible:
+                    notificationController.unreadCount.value.toInt() == 0
+                        ? false
+                        : true,
+                logoImagePath: AppImagePath.appLogo,
+                notificationIconPath: AppIconsPath.notificationIcon,
+                onNotificationPressed: () {
+                  notificationController.fetchNotifications();
+                  notificationController.isReadAllNotificaton();
+                  Get.toNamed(AppRoutes.notificationScreen);
+                },
+                badgeLabel:
+                    notificationController.unreadCount.value.toInt().toString(),
+                profileImagePath: _getProfileImagePath(),
+              )),
           // Main content area
           Obx(() {
             // Show loading only if profile is still loading
             if (profileController.isLoading.value) {
-              return  Expanded(
+              return Expanded(
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       LoadingAnimationWidget.hexagonDots(
-                color: AppColors.black,
-                size: 40,
-              ),
+                        color: AppColors.black,
+                        size: 40,
+                      ),
                       const SizedBox(height: 16),
                       const Text('Loading Info...'),
                     ],
@@ -400,7 +396,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   builder: (BuildContext context) {
                                     return Container(
                                       decoration: const BoxDecoration(
-
                                         color: AppColors.white,
                                         borderRadius: BorderRadius.only(
                                           topLeft: Radius.circular(24),
@@ -408,7 +403,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                       width: double.infinity,
-                                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 26),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 15, horizontal: 26),
                                       child: const ReserveBottomSheetWidget(),
                                     );
                                   },

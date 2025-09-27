@@ -660,7 +660,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   text:
                                       "${profileController.profileData.value.data?.user?.totalOrders} "
                                       "${"orderCompleted".tr}",
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w400,
                                   fontColor: AppColors.greyDark2,
                                 ),
@@ -683,7 +683,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   text:
                                       "${profileController.profileData.value.data?.user?.totalDelivered} "
                                       "${"orderDelivered".tr}",
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w400,
                                   fontColor: AppColors.greyDark2,
                                 ),
@@ -706,7 +706,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   text:
                                       "${profileController.profileData.value.data?.user?.totalReceivedParcels}  "
                                       "${"orderReceived".tr}",
-                                  fontSize: 14,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w400,
                                   fontColor: AppColors.greyDark2,
                                 ),

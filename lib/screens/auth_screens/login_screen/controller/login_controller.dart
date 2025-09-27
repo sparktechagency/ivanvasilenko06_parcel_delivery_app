@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -27,11 +26,6 @@ class LoginScreenController extends GetxController {
 
   Future<void> phoneOtpLogin() async {
     try {
-      //! log("=== PHONE OTP LOGIN DEBUG ===");
-      //! log("Complete Phone Number: '${completePhoneNumber.value}'");
-      //! log("Phone Controller Text: '${phoneController.text}'");
-
-      //! Check if phone number is empty
       if (completePhoneNumber.value.isEmpty) {
         AppSnackBar.error("Please enter a valid phone number");
         return;
@@ -83,7 +77,7 @@ class LoginScreenController extends GetxController {
       //! log("API Response Data: $data");
 
       if (data != null) {
-       //!  log("API call successful, navigating to verify screen");
+        //!  log("API call successful, navigating to verify screen");
         Get.toNamed(
           AppRoutes.verifyPhoneScreen,
           arguments: {
@@ -102,7 +96,7 @@ class LoginScreenController extends GetxController {
       debugPrint("✳️✳️✳️✳️✳️✳️✳️✳️✳️✳️ $fcmToken");
       debugPrint("📱📱📱 DeviceId: $deviceId, DeviceType: $deviceType");
     } catch (e) {
-     //!  log("Error from phone OTP login: $e");
+      //!  log("Error from phone OTP login: $e");
       //AppSnackBar.error("An error occurred: ${e.toString()}");
       // AppSnackBar.success(
       //     "Please, Complete the sign-up process before Logging in.");
@@ -123,11 +117,14 @@ class LoginScreenController extends GetxController {
       if (Platform.isIOS) {
         googleSignIn = GoogleSignIn(
           scopes: ['email', 'profile'],
-          // Add iOS-specific configuration
-          clientId: '10243427761-cp6rebbhe0a0ugomqabd4n1jtv4qo0ro.apps.googleusercontent.com',
+          clientId:
+              '10243427761-cp6rebbhe0a0ugomqabd4n1jtv4qo0ro.apps.googleusercontent.com',
         );
       } else {
-        googleSignIn = GoogleSignIn();
+        // For Android, use default configuration from google-services.json
+        googleSignIn = GoogleSignIn(
+          scopes: ['email', 'profile'],
+        );
       }
       // Ensure clean state before starting
       try {
@@ -135,7 +132,7 @@ class LoginScreenController extends GetxController {
       } catch (e) {
         debugPrint("Sign out error (ignored): $e");
       }
-      
+
       await Future.delayed(const Duration(milliseconds: 500));
 
       //! appLog("🔄 Starting Google Sign-In process...");
@@ -154,7 +151,7 @@ class LoginScreenController extends GetxController {
 
       final GoogleSignInAuthentication auth = await acc.authentication;
       final String? idToken = auth.idToken;
-      
+
       if (idToken == null || idToken.isEmpty) {
         //! appLog("❌ Failed to get ID token");
         AppSnackBar.error("Failed to get authentication token");
@@ -168,7 +165,7 @@ class LoginScreenController extends GetxController {
         "idToken": idToken,
         "fcmToken": fcmToken.toString(),
         "mobileNumber": completePhoneNumber.value,
-        // "email": acc.email, 
+        // "email": acc.email,
         // "displayName": acc.displayName ?? "", // Add display name with null safety
       };
 
@@ -214,16 +211,18 @@ class LoginScreenController extends GetxController {
       } else if (e.code == 'sign_in_failed') {
         AppSnackBar.error("Sign-in failed. Please try again.");
       } else {
-        AppSnackBar.error("Authentication error: ${e.message ?? 'Unknown error'}");
+        AppSnackBar.error(
+            "Authentication error: ${e.message ?? 'Unknown error'}");
       }
     } catch (e) {
       //! appLog("❌ Error in Google Sign-In: $e");
       debugPrint("Google Sign-In Error: $e");
-      
+
       // Provide more specific error messages for iOS
       if (Platform.isIOS) {
         if (e.toString().contains('network')) {
-          AppSnackBar.error("Network error. Please check your internet connection.");
+          AppSnackBar.error(
+              "Network error. Please check your internet connection.");
         } else if (e.toString().contains('configuration')) {
           AppSnackBar.error("Configuration error. Please contact support.");
         } else {
@@ -287,7 +286,6 @@ class LoginScreenController extends GetxController {
         statusCode: statusCode,
       );
     } catch (e) {
-      // If this specific status code fails, return null
       return null;
     }
   }

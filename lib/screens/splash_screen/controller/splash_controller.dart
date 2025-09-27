@@ -14,10 +14,9 @@ class SplashController extends GetxController {
   void onInit() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(seconds: 1)).then((_) async {
-        // Check if device is iOS and request location services
-        if (Platform.isIOS) {
-          await _requestLocationPermissionForIOS();
-        }
+        // Request location permissions for both iOS and Android
+        await _requestLocationPermission();
+        
         // Get.offAllNamed(AppRoutes.homeScreen);
         var token =
         await SharePrefsHelper.getString(SharedPreferenceValue.token);
@@ -33,26 +32,23 @@ class SplashController extends GetxController {
     });
     super.onInit();
   }
-  /// Request location permission specifically for iOS devices
-  Future<void> _requestLocationPermissionForIOS() async {
+  /// Request location permission for both iOS and Android devices
+  Future<void> _requestLocationPermission() async {
     try {
       // Check current permission status using permission_handler
       PermissionStatus status = await Permission.location.status;
-      
-      // If permission is denied, request it
+      debugPrint('📍 Current location permission status: $status');
       if (status.isDenied) {
+        debugPrint('📍 Requesting location permission...');
         status = await Permission.location.request();
         if (status.isDenied) {
-          debugPrint('🔴 Location permissions are denied on iOS device');
+          debugPrint('🔴 Location permissions are denied');
           return;
         }
       }
-      
-      // If permission is permanently denied, guide user to settings
       if (status.isPermanentlyDenied) {
-        debugPrint('🔴 Location permissions are permanently denied on iOS device');
-        // You can show a dialog to guide user to app settings
-        await openAppSettings();
+        debugPrint('🔴 Location permissions are permanently denied');
+        await _showPermissionDialog();
         return;
       }
       
@@ -60,16 +56,67 @@ class SplashController extends GetxController {
       if (status.isGranted) {
         bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
         if (!serviceEnabled) {
-          debugPrint('🔴 Location services are disabled on iOS device');
-          // You can show a dialog to user to enable location services
+          debugPrint('🔴 Location services are disabled');
+          // For iOS, we can try to open location settings
+          if (Platform.isIOS) {
+            await _showLocationServiceDialog();
+          }
           return;
         }
-        
-        debugPrint('✅ Location permission granted and services enabled on iOS device');
+        debugPrint('✅ Location permission granted and services enabled');
       }
 
     } catch (e) {
-      debugPrint('❌ Error requesting location permission on iOS: $e');
+      debugPrint('❌ Error requesting location permission: $e');
+    }
+  }
+
+  /// Show dialog for permanently denied permissions
+  Future<void> _showPermissionDialog() async {
+    if (Get.context != null) {
+      await Get.dialog(
+        CupertinoAlertDialog(
+          title: const Text('Location Permission Required'),
+          content: const Text(
+            'This app needs location access to provide delivery services. Please enable location permission in app settings.',
+          ),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('Cancel'),
+              onPressed: () => Get.back(),
+            ),
+            CupertinoDialogAction(
+              child: const Text('Settings'),
+              onPressed: () async {
+                Get.back();
+                await openAppSettings();
+              },
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
+    }
+  }
+
+  /// Show dialog for disabled location services (iOS)
+  Future<void> _showLocationServiceDialog() async {
+    if (Get.context != null) {
+      await Get.dialog(
+        CupertinoAlertDialog(
+          title: const Text('Location Services Disabled'),
+          content: const Text(
+            'Please enable Location Services in your device settings to use this app.',
+          ),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('OK'),
+              onPressed: () => Get.back(),
+            ),
+          ],
+        ),
+        barrierDismissible: false,
+      );
     }
   }
 

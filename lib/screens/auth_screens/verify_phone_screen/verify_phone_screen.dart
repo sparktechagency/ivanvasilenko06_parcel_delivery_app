@@ -39,20 +39,16 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
     try {
       if (_isInitialized) return;
       _isInitialized = true;
-
       // Initialize controller
       controller = Get.put(VerifyPhoneController());
-
       // Extract phone number safely
       _extractPhoneNumber();
-
       // Request focus after initialization
       Future.delayed(const Duration(milliseconds: 300), () {
         if (mounted && _otpFocusNode.canRequestFocus) {
           _otpFocusNode.requestFocus();
         }
       });
-
       // Trigger rebuild with updated phone number
       if (mounted) {
         setState(() {});
@@ -148,8 +144,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
       builder: (context, constraints) {
         // Get keyboard height
         final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-        final screenHeight = constraints.maxHeight;
-
+        //final screenHeight = constraints.maxHeight;
         return Column(
           children: [
             Expanded(

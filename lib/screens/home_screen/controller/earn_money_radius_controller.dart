@@ -1,9 +1,10 @@
+import 'dart:convert';
+import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
-import 'package:parcel_delivery_app/services/apiServices/api_get_services.dart';
+import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart';
 import 'package:parcel_delivery_app/screens/delivery_parcel_screens/models/delivery_screen_models.dart';
-import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
 
 class EarnMoneyRadiusController extends GetxController {
   RxDouble radius = 5.0.obs;
@@ -16,50 +17,72 @@ class EarnMoneyRadiusController extends GetxController {
     currentLocation.value = location;
   }
 
-  void fetchParcelsInRadius() async {
-    try {
-      // Check if current location is available
-      if (currentLocation.value == null) {
-        appLog("Error: Current location is null, cannot fetch parcels");
-        return;
-      }
+  Future<void> fetchParcelsInRadius() async {
+    if (currentLocation.value == null) {
+      log('Current location is null. Cannot fetch parcels.');
+      return;
+    }
 
+    final lat = currentLocation.value!.latitude;
+    final lng = currentLocation.value!.longitude;
+    final radiusValue = radius.value;
+
+    log('Fetching parcels with: Lat: $lat, Lng: $lng, Radius: $radiusValue');
+
+    try {
       isLoading.value = true;
       
-      final response = await ApiGetServices().apiGetServices(
-        "${AppApiUrl.getParcelInRadius}?lat=${currentLocation.value!.latitude}&lng=${currentLocation.value!.longitude}&radius=${radius.value}",
-      );
+      final requestBody = json
+          .encode({'latitude': lat, 'longitude': lng, 'radius': radiusValue});
+
+      log('API Request URL: ${AppApiUrl.getParcelInRadius}');
+      log('API Request Body: $requestBody');
+
+      final response = await ApiPostServices()
+          .apiPostServices(url: AppApiUrl.getParcelInRadius, body: requestBody);
+
+      log('API Response: $response');
 
       if (response != null && response['status'] == 'success') {
-        final List<dynamic> parcelsData = response['data'];
-        parcels.value = parcelsData.map((json) => DeliverParcelList.fromJson(json)).toList();
-        
-        // Create markers for each parcel
+        List<dynamic> data = response['data'];
+        parcels.value = data.map((json) => DeliverParcelList.fromJson(json)).toList();
+
         markers.clear();
         for (var parcel in parcels) {
-          if (parcel.pickupLocation?.coordinates != null && 
+          if (parcel.pickupLocation?.coordinates != null &&
               parcel.pickupLocation!.coordinates!.length >= 2) {
-            markers.add(
-              Marker(
-                markerId: MarkerId(parcel.sId ?? ''),
-                position: LatLng(
-                  parcel.pickupLocation!.coordinates![1], // latitude
-                  parcel.pickupLocation!.coordinates![0], // longitude
-                ),
-                infoWindow: InfoWindow(
-                  title: parcel.title ?? 'Parcel',
-                  snippet: parcel.description ?? '',
-                ),
-              ),
-            );
+            double pickupLat = parcel.pickupLocation!.coordinates![1];
+            double pickupLng = parcel.pickupLocation!.coordinates![0];
+
+            markers.add(Marker(
+              markerId: MarkerId(parcel.sId ?? ''),
+              position: LatLng(pickupLat, pickupLng),
+              infoWindow: InfoWindow(
+                  title: parcel.title ?? 'Parcel', 
+                  snippet: parcel.description ?? ''),
+            ));
           }
         }
+
+        log('Found ${markers.length} parcels in radius');
+      } else {
+        log('API returned error or invalid data: $response');
+        parcels.value = [];
+        markers.clear();
       }
-    } catch (e) {
-      appLog("Error fetching parcels: $e");
+    } catch (e, stackTrace) {
+      log('Exception while fetching parcels: $e');
+      log('Stack trace: $stackTrace');
+      parcels.value = [];
+      markers.clear();
     } finally {
       isLoading.value = false;
     }
   }
 
+  @override
+  void onInit() {
+    super.onInit();
+    fetchParcelsInRadius();
+  }
 }
