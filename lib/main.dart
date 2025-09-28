@@ -30,7 +30,7 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
-  Position? position = await LocationPermissionService.instance.getCurrentPosition();
+  //Position? position = await LocationPermissionService.instance.getCurrentPosition();
 // Set up push notifications just added a commnet
   await NotificationService().setupFCM();
   

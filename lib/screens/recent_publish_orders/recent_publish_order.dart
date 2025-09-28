@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
@@ -122,11 +121,22 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
       if (placemarks.isNotEmpty) {
         //! Build a more complete address string
         final placemark = placemarks[0];
-        final List<String> addressParts = [
-          placemark.locality ?? '',
-        ].where((part) => part.isNotEmpty).toList();
 
-        String address = addressParts.join(', ');
+        // Build address with sub-locality first, then locality
+        List<String> addressParts = [];
+
+        if (placemark.subLocality != null &&
+            placemark.subLocality!.isNotEmpty) {
+          addressParts.add(placemark.subLocality!);
+        }
+
+        if (placemark.locality != null && placemark.locality!.isNotEmpty) {
+          addressParts.add(placemark.locality!);
+        }
+
+        String address = addressParts.isNotEmpty
+            ? addressParts.join(', ')
+            : 'Address not available';
 
         addressCache[key] = address;
 
@@ -191,11 +201,11 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
               const SpaceWidget(spaceHeight: 24),
               Obx(() {
                 if (controller.loading.value) {
-                  return  Center(
-                    child:LoadingAnimationWidget.hexagonDots(
-                color: AppColors.black,
-                size: 40,
-              ),
+                  return Center(
+                    child: LoadingAnimationWidget.hexagonDots(
+                      color: AppColors.black,
+                      size: 40,
+                    ),
                   );
                 }
 
@@ -370,7 +380,7 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
                           ),
                           if (hasRequestSent) ...[
                             const SpaceWidget(spaceHeight: 8),
-                             Row(
+                            Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 const Icon(

@@ -51,7 +51,24 @@ class _NotificationScreenState extends State<NotificationScreen>
       List<Placemark> placemarks =
           await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
-        String newAddress = '${placemarks[0].locality}';
+        final placemark = placemarks[0];
+
+        // Build address with locality and sub-locality
+        List<String> addressParts = [];
+
+        if (placemark.subLocality != null &&
+            placemark.subLocality!.isNotEmpty) {
+          addressParts.add(placemark.subLocality!);
+        }
+
+        if (placemark.locality != null && placemark.locality!.isNotEmpty) {
+          addressParts.add(placemark.locality!);
+        }
+
+        String newAddress = addressParts.isNotEmpty
+            ? addressParts.join(', ')
+            : 'Address not available';
+
         locationToAddressCache[key] = newAddress;
         return newAddress;
       } else {
@@ -135,7 +152,6 @@ class _NotificationScreenState extends State<NotificationScreen>
       if (_scrollController2.position.pixels >=
           _scrollController2.position.maxScrollExtent - 200) {
         if (_tabController.index == 1) {
-          // Second tab - load more parcel notifications
           controller.loadMoreParcelNotifications();
         }
       }
@@ -179,15 +195,12 @@ class _NotificationScreenState extends State<NotificationScreen>
       formattedNumber = '+$formattedNumber';
     }
 
-    // Remove + for certain URL schemes that don't need it
     String numberWithoutPlus = formattedNumber.startsWith('+')
         ? formattedNumber.substring(1)
         : formattedNumber;
 
     try {
-      // Simplified approach - try the most reliable methods first
       List<Map<String, String>> whatsappMethods = [
-        // Universal web link (works for all WhatsApp variants)
         {
           'url':
               "https://wa.me/$numberWithoutPlus?text=${Uri.encodeComponent(message)}",
@@ -743,7 +756,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                       color: AppColors.whiteLight,
                       borderRadius: BorderRadius.circular(100),
                     ),
-                    child:  Center(
+                    child: Center(
                       child: TextWidget(
                         text: "checkDeliveriesSectiontoSendRequests".tr,
                         fontSize: 12,

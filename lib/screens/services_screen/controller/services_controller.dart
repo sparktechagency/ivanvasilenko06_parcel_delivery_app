@@ -1,4 +1,6 @@
 
+import 'dart:developer';
+
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/screens/services_screen/model/service_screen_model.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_get_services.dart';
@@ -17,12 +19,12 @@ class ServiceController extends GetxController {
   Future<void> fetchParcelList() async {
     try {
       loading.value = true;
-      //! log("Fetching parcel list...");
+      log("Fetching parcel list...");
 
       // Retrieve token
       var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
       if (token.isEmpty) {
-        //! log("Error: No token found in SharedPreferences");
+        log("Error: No token found in SharedPreferences");
         // AppSnackBar.error('Authentication token missing. Please log in again.');
         loading.value = false;
         return;
@@ -32,11 +34,11 @@ class ServiceController extends GetxController {
       final response = await ApiGetServices()
           .apiGetServices(AppApiUrl.servicePromote, token: token);
 
-      //! log("API Response: $response");
+       log("API Response: $response");
 
       // Check if response is valid
       if (response == null || response.isEmpty) {
-        //! log("Error: Empty or null API response");
+        log("Error: Empty or null API response");
         // AppSnackBar.error(
         //     'Failed to load parcels. Empty response from server.');
         recentParcelList.clear();

@@ -1451,38 +1451,41 @@ class _BookingScreenState extends State<BookingScreen> {
                               ),
                             ),
                             const SpaceWidget(spaceWidth: 5),
-                            Container(
-                              width: ResponsiveUtils.width(55),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: AppColors.yellow,
-                                borderRadius: BorderRadius.circular(100),
+                            if ((deliveryRequest.reviews?.isNotEmpty == true &&
+                                deliveryRequest.reviews!
+                                            .map((r) => r.rating ?? 0)
+                                            .reduce((a, b) => a + b) /
+                                        deliveryRequest.reviews!.length >
+                                    0.0))
+                              Container(
+                                width: ResponsiveUtils.width(55),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.yellow,
+                                  borderRadius: BorderRadius.circular(100),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.star_rounded,
+                                      color: AppColors.white,
+                                      size: 12,
+                                    ),
+                                    const SpaceWidget(spaceWidth: 4),
+                                    TextWidget(
+                                      text: (deliveryRequest.reviews!
+                                                  .map((r) => r.rating ?? 0)
+                                                  .reduce((a, b) => a + b) /
+                                              deliveryRequest.reviews!.length)
+                                          .toStringAsFixed(1),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      fontColor: AppColors.white,
+                                    ),
+                                  ],
+                                ),
                               ),
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.star_rounded,
-                                    color: AppColors.white,
-                                    size: 12,
-                                  ),
-                                  const SpaceWidget(spaceWidth: 4),
-                                  TextWidget(
-                                    text: deliveryRequest.reviews?.isNotEmpty ==
-                                            true
-                                        ? (deliveryRequest.reviews!
-                                                    .map((r) => r.rating ?? 0)
-                                                    .reduce((a, b) => a + b) /
-                                                deliveryRequest.reviews!.length)
-                                            .toStringAsFixed(1)
-                                        : " ",
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.white,
-                                  ),
-                                ],
-                              ),
-                            ),
                           ],
                         ),
                         const SpaceWidget(spaceHeight: 16),
@@ -1720,7 +1723,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   ],
                 ),
               );
-             }),
+            }),
             const SpaceWidget(spaceHeight: 80),
           ],
         );

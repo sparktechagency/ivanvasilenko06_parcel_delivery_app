@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
@@ -18,7 +17,6 @@ import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_button_widget/text_button_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
-
 import '../../constants/api_url.dart';
 import '../delivery_parcel_screens/controller/delivery_screens_controller.dart';
 import '../notification_screen/controller/notification_controller.dart';
@@ -142,11 +140,21 @@ class _ServicesScreenState extends State<ServicesScreen> {
       if (placemarks.isNotEmpty) {
         //! Build a more complete address string
         final placemark = placemarks[0];
-        final List<String> addressParts = [
-          placemark.locality ?? '',
-        ].where((part) => part.isNotEmpty).toList();
-
-        String address = addressParts.join(', ');
+        
+        // Build address with sub-locality first, then locality
+        List<String> addressParts = [];
+        
+        if (placemark.subLocality != null && placemark.subLocality!.isNotEmpty) {
+          addressParts.add(placemark.subLocality!);
+        }
+        
+        if (placemark.locality != null && placemark.locality!.isNotEmpty) {
+          addressParts.add(placemark.locality!);
+        }
+        
+        String address = addressParts.isNotEmpty 
+            ? addressParts.join(', ') 
+            : 'Address not available';
 
         addressCache[key] = address;
 
@@ -589,7 +597,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                         ),
                                         if (hasRequestSent) ...[
                                           const SpaceWidget(spaceHeight: 8),
-                                           Row(
+                                          Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.end,
                                             children: [
@@ -691,8 +699,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                                       //     "Route name is not properly defined.");
                                                     }
                                                   } else {
-                                                    // AppSnackBar.error(
-                                                    //     "Parcel details not available or ID is missing.");
                                                   }
                                                 },
                                                 splashColor: Colors.transparent,

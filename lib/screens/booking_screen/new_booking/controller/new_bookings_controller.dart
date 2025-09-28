@@ -174,14 +174,14 @@ class NewBookingsController extends GetxController {
 
   Future<void> cancelDelivery(String parcelId, String delivererId) async {
     const String url = AppApiUrl.cancelAssignDeliver;
-    final body = json.encode({
+    final body = {
       "parcelId": parcelId,
       "delivererId": delivererId,
-    });
+    };
 
     try {
       var response =
-          await ApiPutServices().apiPutServices(url: url, body: body);
+          await ApiPostServices().apiPostServices(url: url, body: body);
 
       // Handle the response based on the response type
       if (response is Map<String, dynamic>) {

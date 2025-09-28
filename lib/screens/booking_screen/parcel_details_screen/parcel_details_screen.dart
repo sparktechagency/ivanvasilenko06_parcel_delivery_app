@@ -42,10 +42,10 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
   void initState() {
     super.initState();
     // Initialize the controller if it doesn't exist, or get the existing one
-    if (Get.isRegistered<CurrentOrderController>()) {
-      controller = Get.find<CurrentOrderController>();
+    if (Get.isRegistered<CurrentOrderController>(tag: 'booking_screen')) {
+      controller = Get.find<CurrentOrderController>(tag: 'booking_screen');
     } else {
-      controller = Get.put(CurrentOrderController());
+      controller = Get.put(CurrentOrderController(), tag: 'booking_screen');
     }
 
     // Wait for the controller to load data, then find the current parcel

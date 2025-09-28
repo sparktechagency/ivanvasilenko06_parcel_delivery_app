@@ -26,7 +26,7 @@ class DeliveryManDetails extends StatefulWidget {
 }
 
 class _DeliveryManDetailsState extends State<DeliveryManDetails> {
-  final CurrentOrderController controller = Get.find<CurrentOrderController>();
+  late final CurrentOrderController controller;
 
   final NewBookingsController newBookingsController =
       Get.find<NewBookingsController>();
@@ -45,6 +45,29 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
   void initState() {
     super.initState();
     parcelId = Get.arguments;
+
+    // Try to find existing controller first, if not found create new one
+    try {
+      controller = Get.find<CurrentOrderController>(tag: 'booking_screen');
+    } catch (e) {
+      try {
+        controller = Get.find<CurrentOrderController>();
+      } catch (e) {
+        controller = Get.put(CurrentOrderController());
+      }
+    }
+
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    // Ensure we have current order data
+    if (controller.currentOrdersModel.value.data == null ||
+        controller.currentOrdersModel.value.data!.isEmpty) {
+      await controller.getCurrentOrder();
+    }
+
+    // Now find the current parcel
     _findCurrentParcel();
   }
 
@@ -200,8 +223,10 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
     if (controller.currentOrdersModel.value.data != null) {
       for (var parcel in controller.currentOrdersModel.value.data!) {
         if (parcel.id == parcelId) {
-          currentParcel = parcel;
-          deliveryMan = parcel.assignedDelivererId;
+          setState(() {
+            currentParcel = parcel;
+            deliveryMan = parcel.assignedDelivererId;
+          });
 
           // Make sure to call both functions to get addresses
           findAddressFromCoordinates();
@@ -209,6 +234,15 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
           break;
         }
       }
+    }
+
+    // If parcel not found, try refreshing the data
+    if (currentParcel == null) {
+      controller.getCurrentOrder().then((_) {
+        if (mounted) {
+          _findCurrentParcel();
+        }
+      });
     }
   }
 
@@ -420,7 +454,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: currentParcel == null
+      body: Obx(() => controller.isLoading.value || currentParcel == null
           ? Center(
               child: LoadingAnimationWidget.hexagonDots(
                 color: AppColors.black,
@@ -640,7 +674,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                   ),
                 ),
               ],
-            ),
+            )),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
@@ -684,11 +718,24 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                   )
                 : ButtonWidget(
                     onPressed: () async {
+                      // Check if deliveryMan ID is available
+                      if (deliveryMan?.id == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content:
+                                Text('Delivery man information not available'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
+
                       newBookingsController.isCancellingDelivery.value = true;
                       try {
                         await newBookingsController.cancelDelivery(
-                            parcelId, deliveryMan?.id);
-                        final controller = Get.find<CurrentOrderController>();
+                            parcelId, deliveryMan!.id!);
+
+                        // Use the same controller instance that was initialized
                         await controller.getCurrentOrder();
                         controller.update();
                         Get.back();
