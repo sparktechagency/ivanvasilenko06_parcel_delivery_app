@@ -42,10 +42,10 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
   void initState() {
     super.initState();
     // Initialize the controller if it doesn't exist, or get the existing one
-    if (Get.isRegistered<CurrentOrderController>()) {
-      controller = Get.find<CurrentOrderController>();
+    if (Get.isRegistered<CurrentOrderController>(tag: 'booking_screen')) {
+      controller = Get.find<CurrentOrderController>(tag: 'booking_screen');
     } else {
-      controller = Get.put(CurrentOrderController());
+      controller = Get.put(CurrentOrderController(), tag: 'booking_screen');
     }
 
     // Wait for the controller to load data, then find the current parcel
@@ -97,7 +97,7 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
 
     try {
       List<Placemark> placemarks =
-          await placemarkFromCoordinates(latitude, longitude);
+      await placemarkFromCoordinates(latitude, longitude);
 
       if (placemarks.isNotEmpty) {
         String newAddress =
@@ -189,9 +189,9 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
       if (currentParcel?.deliveryStartTime != null &&
           currentParcel?.deliveryEndTime != null) {
         final startDate =
-            DateTime.parse(currentParcel.deliveryStartTime.toString());
+        DateTime.parse(currentParcel.deliveryStartTime.toString());
         final endDate =
-            DateTime.parse(currentParcel.deliveryEndTime.toString());
+        DateTime.parse(currentParcel.deliveryEndTime.toString());
         final formatter = DateFormat('dd.MM • hh:mm a');
         return "${formatter.format(startDate)} to ${formatter.format(endDate)}";
       } else {
@@ -209,120 +209,120 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
       backgroundColor: AppColors.white,
       body: currentParcel == null
           ? Center(
-              child: LoadingAnimationWidget.hexagonDots(
-                color: AppColors.black,
-                size: 40,
-              ),
-            )
+        child: LoadingAnimationWidget.hexagonDots(
+          color: AppColors.black,
+          size: 40,
+        ),
+      )
           : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SpaceWidget(spaceHeight: 48),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: TextWidget(
-                    text: "summary".tr,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    fontColor: AppColors.black,
-                  ),
-                ),
-                const SpaceWidget(spaceHeight: 40),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(100),
-                              child: const ImageWidget(
-                                height: 40,
-                                width: 40,
-                                imagePath: AppImagePath.sendParcel,
-                              ),
-                            ),
-                            const SpaceWidget(spaceWidth: 8),
-                            Flexible(
-                              child: TextWidget(
-                                text: currentParcel?.title ?? "Parcel",
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                                fontColor: AppColors.black,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SpaceWidget(spaceHeight: 16),
-                        const Divider(
-                          color: AppColors.grey,
-                          thickness: 1,
-                        ),
-                        const SpaceWidget(spaceHeight: 16),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.profileIcon,
-                          label: "sendersName".tr,
-                          value: currentParcel?.senderId?.fullName ??
-                              "Sender Name",
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.profileIcon,
-                          label: "receiversName".tr,
-                          value: currentParcel?.name ?? "Receiver Name",
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.callIcon,
-                          label: "receiversNumber".tr,
-                          value: currentParcel?.phoneNumber ??
-                              "Receiver Phone Number",
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.deliveryTimeIcon,
-                          label: "deliveryTimeText".tr,
-                          value: _getFormattedDeliveryTime(currentParcel),
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        // Use the regular String variables now
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.destinationIcon,
-                          label: "currentLocationText".tr,
-                          value: exactPickupLocation.isNotEmpty
-                              ? exactPickupLocation
-                              : pickupAddress, // Exact pickup location
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.currentLocationIcon,
-                          label: "destinationText".tr,
-                          value: exactDeliveryLocation.isNotEmpty
-                              ? exactDeliveryLocation
-                              : address, // Exact delivery location
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.priceIcon,
-                          label: "price".tr,
-                          value:
-                              "${AppStrings.currency} ${currentParcel.price}",
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.descriptionIcon,
-                          label: "descriptionText".tr,
-                          value: currentParcel.description ?? "No Description",
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SpaceWidget(spaceHeight: 48),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: TextWidget(
+              text: "summary".tr,
+              fontSize: 24,
+              fontWeight: FontWeight.w600,
+              fontColor: AppColors.black,
             ),
+          ),
+          const SpaceWidget(spaceHeight: 40),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: const ImageWidget(
+                          height: 40,
+                          width: 40,
+                          imagePath: AppImagePath.sendParcel,
+                        ),
+                      ),
+                      const SpaceWidget(spaceWidth: 8),
+                      Flexible(
+                        child: TextWidget(
+                          text: currentParcel?.title ?? "Parcel",
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          fontColor: AppColors.black,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SpaceWidget(spaceHeight: 16),
+                  const Divider(
+                    color: AppColors.grey,
+                    thickness: 1,
+                  ),
+                  const SpaceWidget(spaceHeight: 16),
+                  SummaryInfoRowWidget(
+                    icon: AppIconsPath.profileIcon,
+                    label: "sendersName".tr,
+                    value: currentParcel?.senderId?.fullName ??
+                        "Sender Name",
+                  ),
+                  const SpaceWidget(spaceHeight: 8),
+                  SummaryInfoRowWidget(
+                    icon: AppIconsPath.profileIcon,
+                    label: "receiversName".tr,
+                    value: currentParcel?.name ?? "Receiver Name",
+                  ),
+                  const SpaceWidget(spaceHeight: 8),
+                  SummaryInfoRowWidget(
+                    icon: AppIconsPath.callIcon,
+                    label: "receiversNumber".tr,
+                    value: currentParcel?.phoneNumber ??
+                        "Receiver Phone Number",
+                  ),
+                  const SpaceWidget(spaceHeight: 8),
+                  SummaryInfoRowWidget(
+                    icon: AppIconsPath.deliveryTimeIcon,
+                    label: "deliveryTimeText".tr,
+                    value: _getFormattedDeliveryTime(currentParcel),
+                  ),
+                  const SpaceWidget(spaceHeight: 8),
+                  // Use the regular String variables now
+                  SummaryInfoRowWidget(
+                    icon: AppIconsPath.destinationIcon,
+                    label: "currentLocationText".tr,
+                    value: exactPickupLocation.isNotEmpty
+                        ? exactPickupLocation
+                        : pickupAddress, // Exact pickup location
+                  ),
+                  const SpaceWidget(spaceHeight: 8),
+                  SummaryInfoRowWidget(
+                    icon: AppIconsPath.currentLocationIcon,
+                    label: "destinationText".tr,
+                    value: exactDeliveryLocation.isNotEmpty
+                        ? exactDeliveryLocation
+                        : address, // Exact delivery location
+                  ),
+                  const SpaceWidget(spaceHeight: 8),
+                  SummaryInfoRowWidget(
+                    icon: AppIconsPath.priceIcon,
+                    label: "price".tr,
+                    value:
+                    "${AppStrings.currency} ${currentParcel.price}",
+                  ),
+                  const SpaceWidget(spaceHeight: 8),
+                  SummaryInfoRowWidget(
+                    icon: AppIconsPath.descriptionIcon,
+                    label: "descriptionText".tr,
+                    value: currentParcel.description ?? "No Description",
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(

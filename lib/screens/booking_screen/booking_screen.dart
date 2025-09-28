@@ -55,24 +55,77 @@ class _BookingScreenState extends State<BookingScreen> {
 
   Future<String> getAddressFromCoordinates(
       double latitude, double longitude) async {
+    // Validate coordinates
+    if (latitude.isNaN || longitude.isNaN || 
+        latitude.abs() > 90 || longitude.abs() > 180) {
+      return 'Invalid coordinates';
+    }
+
     final String key = '$latitude,$longitude';
     if (locationToAddressCache.containsKey(key)) {
       return locationToAddressCache[key]!;
     }
 
     try {
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(latitude, longitude);
+      // Add timeout to prevent hanging
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        latitude, 
+        longitude
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw Exception('Address lookup timeout');
+        },
+      );
+
       if (placemarks.isNotEmpty) {
-        String newAddress = '${placemarks[0].locality}';
+        final placemark = placemarks[0];
+
+        // Get single address property in priority order: locality > subLocality > street > subAdministrativeArea
+        String newAddress;
+
+        if (placemark.locality != null && placemark.locality!.trim().isNotEmpty) {
+          newAddress = placemark.locality!.trim();
+        } else if (placemark.subLocality != null && placemark.subLocality!.trim().isNotEmpty) {
+          newAddress = placemark.subLocality!.trim();
+        } else if (placemark.street != null && placemark.street!.trim().isNotEmpty) {
+          newAddress = placemark.street!.trim();
+        } else if (placemark.subAdministrativeArea != null && placemark.subAdministrativeArea!.trim().isNotEmpty) {
+          newAddress = placemark.subAdministrativeArea!.trim();
+        } else if (placemark.administrativeArea != null && placemark.administrativeArea!.trim().isNotEmpty) {
+          newAddress = placemark.administrativeArea!.trim();
+        } else if (placemark.country != null && placemark.country!.trim().isNotEmpty) {
+          newAddress = placemark.country!.trim();
+        } else {
+          // Final fallback with coordinates (formatted nicely)
+          newAddress = '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
+        }
+
         locationToAddressCache[key] = newAddress;
         return newAddress;
       } else {
-        return 'No address found';
+        // Fallback to coordinates if no placemarks found
+        final coordinateAddress = '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
+        locationToAddressCache[key] = coordinateAddress;
+        return coordinateAddress;
       }
     } catch (e) {
-      log('Error fetching address: $e');
-      return 'Error fetching address';
+      // Enhanced error handling with specific error types
+      String errorMessage;
+      if (e.toString().contains('timeout')) {
+        errorMessage = 'Location lookup timeout';
+      } else if (e.toString().contains('network') || e.toString().contains('internet')) {
+        errorMessage = 'Network error';
+      } else if (e.toString().contains('permission')) {
+        errorMessage = 'Location permission denied';
+      } else {
+        errorMessage = 'Location service unavailable';
+      }
+      
+      // Always provide coordinates as final fallback
+      final coordinateAddress = '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
+      locationToAddressCache[key] = coordinateAddress;
+      return coordinateAddress;
     }
   }
 
@@ -1451,38 +1504,41 @@ class _BookingScreenState extends State<BookingScreen> {
                               ),
                             ),
                             const SpaceWidget(spaceWidth: 5),
-                            Container(
-                              width: ResponsiveUtils.width(55),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: AppColors.yellow,
-                                borderRadius: BorderRadius.circular(100),
+                            if ((deliveryRequest.reviews?.isNotEmpty == true &&
+                                deliveryRequest.reviews!
+                                            .map((r) => r.rating ?? 0)
+                                            .reduce((a, b) => a + b) /
+                                        deliveryRequest.reviews!.length >
+                                    0.0))
+                              Container(
+                                width: ResponsiveUtils.width(55),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.yellow,
+                                  borderRadius: BorderRadius.circular(100),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.star_rounded,
+                                      color: AppColors.white,
+                                      size: 12,
+                                    ),
+                                    const SpaceWidget(spaceWidth: 4),
+                                    TextWidget(
+                                      text: (deliveryRequest.reviews!
+                                                  .map((r) => r.rating ?? 0)
+                                                  .reduce((a, b) => a + b) /
+                                              deliveryRequest.reviews!.length)
+                                          .toStringAsFixed(1),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      fontColor: AppColors.white,
+                                    ),
+                                  ],
+                                ),
                               ),
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.star_rounded,
-                                    color: AppColors.white,
-                                    size: 12,
-                                  ),
-                                  const SpaceWidget(spaceWidth: 4),
-                                  TextWidget(
-                                    text: deliveryRequest.reviews?.isNotEmpty ==
-                                            true
-                                        ? (deliveryRequest.reviews!
-                                                    .map((r) => r.rating ?? 0)
-                                                    .reduce((a, b) => a + b) /
-                                                deliveryRequest.reviews!.length)
-                                            .toStringAsFixed(1)
-                                        : " ",
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.white,
-                                  ),
-                                ],
-                              ),
-                            ),
                           ],
                         ),
                         const SpaceWidget(spaceHeight: 16),
@@ -1720,7 +1776,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   ],
                 ),
               );
-             }),
+            }),
             const SpaceWidget(spaceHeight: 80),
           ],
         );

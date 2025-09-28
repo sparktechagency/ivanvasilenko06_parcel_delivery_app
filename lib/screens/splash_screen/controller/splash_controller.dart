@@ -47,7 +47,7 @@ class SplashController extends GetxController {
       }
       if (status.isPermanentlyDenied) {
         debugPrint('🔴 Location permissions are permanently denied');
-        await _showPermissionDialog();
+        //await _showPermissionDialog();
         return;
       }
       

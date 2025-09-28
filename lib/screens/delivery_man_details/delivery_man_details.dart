@@ -26,10 +26,10 @@ class DeliveryManDetails extends StatefulWidget {
 }
 
 class _DeliveryManDetailsState extends State<DeliveryManDetails> {
-  final CurrentOrderController controller = Get.find<CurrentOrderController>();
+  late final CurrentOrderController controller;
 
   final NewBookingsController newBookingsController =
-      Get.find<NewBookingsController>();
+  Get.find<NewBookingsController>();
   String parcelId = '';
   String address = "Loading...";
   String pickUpAddress = "Loading...";
@@ -45,6 +45,29 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
   void initState() {
     super.initState();
     parcelId = Get.arguments;
+
+    // Try to find existing controller first, if not found create new one
+    try {
+      controller = Get.find<CurrentOrderController>(tag: 'booking_screen');
+    } catch (e) {
+      try {
+        controller = Get.find<CurrentOrderController>();
+      } catch (e) {
+        controller = Get.put(CurrentOrderController());
+      }
+    }
+
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    // Ensure we have current order data
+    if (controller.currentOrdersModel.value.data == null ||
+        controller.currentOrdersModel.value.data!.isEmpty) {
+      await controller.getCurrentOrder();
+    }
+
+    // Now find the current parcel
     _findCurrentParcel();
   }
 
@@ -80,7 +103,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
 
     // Format the phone number (remove any non-digit characters)
     String formattedNumber =
-        deliveryMan.mobileNumber.replaceAll(RegExp(r'\D'), '');
+    deliveryMan.mobileNumber.replaceAll(RegExp(r'\D'), '');
 
     // Ensure the number has country code format
     if (!formattedNumber.startsWith('+')) {
@@ -100,21 +123,21 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
         // Universal web link (works for all WhatsApp variants)
         {
           'url':
-              "https://wa.me/$numberWithoutPlus?text=${Uri.encodeComponent(message)}",
+          "https://wa.me/$numberWithoutPlus?text=${Uri.encodeComponent(message)}",
           'description': 'WhatsApp universal web link'
         },
 
         // Native WhatsApp schemes
         {
           'url':
-              "whatsapp://send?phone=$numberWithoutPlus&text=${Uri.encodeComponent(message)}",
+          "whatsapp://send?phone=$numberWithoutPlus&text=${Uri.encodeComponent(message)}",
           'description': 'WhatsApp native scheme'
         },
 
         // Alternative API link
         {
           'url':
-              "https://api.whatsapp.com/send?phone=$numberWithoutPlus&text=${Uri.encodeComponent(message)}",
+          "https://api.whatsapp.com/send?phone=$numberWithoutPlus&text=${Uri.encodeComponent(message)}",
           'description': 'WhatsApp API link'
         },
       ];
@@ -200,8 +223,10 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
     if (controller.currentOrdersModel.value.data != null) {
       for (var parcel in controller.currentOrdersModel.value.data!) {
         if (parcel.id == parcelId) {
-          currentParcel = parcel;
-          deliveryMan = parcel.assignedDelivererId;
+          setState(() {
+            currentParcel = parcel;
+            deliveryMan = parcel.assignedDelivererId;
+          });
 
           // Make sure to call both functions to get addresses
           findAddressFromCoordinates();
@@ -209,6 +234,15 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
           break;
         }
       }
+    }
+
+    // If parcel not found, try refreshing the data
+    if (currentParcel == null) {
+      controller.getCurrentOrder().then((_) {
+        if (mounted) {
+          _findCurrentParcel();
+        }
+      });
     }
   }
 
@@ -222,7 +256,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
     }
     try {
       List<Placemark> placemarks =
-          await placemarkFromCoordinates(latitude, longitude);
+      await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
         String newAddress =
             '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
@@ -253,7 +287,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
     }
     try {
       List<Placemark> placemarks =
-          await placemarkFromCoordinates(latitude, longitude);
+      await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
         String newAddress =
             '${placemarks[0].street}, ${placemarks[0].locality}, ${placemarks[0].administrativeArea}';
@@ -329,9 +363,9 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
       if (currentParcel?.deliveryStartTime != null &&
           currentParcel?.deliveryEndTime != null) {
         final startDate =
-            DateTime.parse(currentParcel.deliveryStartTime.toString());
+        DateTime.parse(currentParcel.deliveryStartTime.toString());
         final endDate =
-            DateTime.parse(currentParcel.deliveryEndTime.toString());
+        DateTime.parse(currentParcel.deliveryEndTime.toString());
         final formatter = DateFormat('dd.MM • hh:mm a');
         return "${formatter.format(startDate)} to ${formatter.format(endDate)}";
       } else {
@@ -420,227 +454,227 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: currentParcel == null
+      body: Obx(() => controller.isLoading.value || currentParcel == null
           ? Center(
-              child: LoadingAnimationWidget.hexagonDots(
-                color: AppColors.black,
-                size: 40,
-              ),
-            )
+        child: LoadingAnimationWidget.hexagonDots(
+          color: AppColors.black,
+          size: 40,
+        ),
+      )
           : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SpaceWidget(spaceHeight: 48),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: TextWidget(
-                    text: "deliveryManDetails".tr,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    fontColor: AppColors.black,
-                  ),
-                ),
-                const SpaceWidget(spaceHeight: 40),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            //! Profile Image with null check
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(100),
-                              child: Image.network(
-                                _getProfileImagePath(),
-                                height: 40,
-                                width: 40,
-                                fit: BoxFit.cover,
-                                loadingBuilder:
-                                    (context, child, loadingProgress) {
-                                  if (loadingProgress == null) return child;
-                                  return Container(
-                                    height: 40,
-                                    width: 40,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.grey.withAlpha(78),
-                                      borderRadius: BorderRadius.circular(100),
-                                    ),
-                                    child: Center(
-                                      child: LoadingAnimationWidget.hexagonDots(
-                                        color: AppColors.black,
-                                        size: 40,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                errorBuilder: (context, error, stackTrace) {
-                                  //! log('❌ Error loading image: $error');
-                                  return Container(
-                                    height: 40,
-                                    width: 40,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.grey.withAlpha(78),
-                                      borderRadius: BorderRadius.circular(100),
-                                    ),
-                                    child: const Icon(
-                                      Icons.person,
-                                      size: 40,
-                                      color: AppColors.greyDark2,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            const SpaceWidget(spaceWidth: 8),
-
-                            // Name with null check
-                            Flexible(
-                              child: TextWidget(
-                                text: deliveryMan?.fullName ?? "Not Assigned",
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                fontColor: AppColors.black,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            const SpaceWidget(spaceWidth: 8),
-                            // Rating calculated from reviews array
-                            if (deliveryMan?.reviews != null &&
-                                deliveryMan!.reviews!.isNotEmpty)
-                              Container(
-                                width: ResponsiveUtils.width(45),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: AppColors.yellow,
-                                  borderRadius: BorderRadius.circular(100),
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.star_rounded,
-                                      color: AppColors.white,
-                                      size: 12,
-                                    ),
-                                    TextWidget(
-                                      text:
-                                          " ${_calculateAverageRating(deliveryMan)}",
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      fontColor: AppColors.white,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            const SpaceWidget(spaceWidth: 8),
-
-                            // Message button with null check for the onTap function
-                            InkWell(
-                              onTap: deliveryMan?.mobileNumber != null
-                                  ? _sendMessage
-                                  : null,
-                              borderRadius: BorderRadius.circular(100),
-                              child: const CircleAvatar(
-                                backgroundColor: AppColors.whiteDark,
-                                radius: 15,
-                                child: IconWidget(
-                                  icon: AppIconsPath.whatsAppIcon,
-                                  color: AppColors.black,
-                                  width: 18,
-                                  height: 18,
-                                ),
-                              ),
-                            ),
-                            const SpaceWidget(spaceWidth: 8),
-
-                            // Call button with null check for the onTap function
-                            InkWell(
-                              onTap: deliveryMan?.mobileNumber != null
-                                  ? _makePhoneCall
-                                  : null,
-                              borderRadius: BorderRadius.circular(100),
-                              child: const CircleAvatar(
-                                backgroundColor: AppColors.whiteDark,
-                                radius: 15,
-                                child: Icon(
-                                  Icons.call,
-                                  color: AppColors.black,
-                                  size: 18,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SpaceWidget(spaceHeight: 16),
-                        const Divider(
-                          color: AppColors.grey,
-                          thickness: 1,
-                        ),
-                        const SpaceWidget(spaceHeight: 16),
-                        SummaryInfoRowWidget(
-                          image: AppImagePath.sendParcel,
-                          label: "parcelName".tr,
-                          value: currentParcel?.title ?? "Parcel",
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.ratingIcon,
-                          label: "ratingsText".tr,
-                          value: deliveryMan?.reviews != null &&
-                                  deliveryMan!.reviews!.isNotEmpty
-                              ? _calculateAverageRating(deliveryMan)
-                              : "N/A",
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.callIcon,
-                          label: "phoneNumber".tr,
-                          value: deliveryMan?.mobileNumber ?? "N/A",
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        // SummaryInfoRowWidget(
-                        //   icon: AppIconsPath.profileIcon,
-                        //   label: "receiversName".tr,
-                        //   value: currentParcel?.name ?? "N/A",
-                        // ),
-                        // const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.deliveryTimeIcon,
-                          label: "deliveryTimeText".tr,
-                          value: _getFormattedDeliveryTime(currentParcel),
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.destinationIcon,
-                          label: "currentLocationText".tr,
-                          value: pickUpAddress,
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.currentLocationIcon,
-                          label: "destinationText".tr,
-                          value: address,
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.priceIcon,
-                          label: "price".tr,
-                          value:
-                              "${AppStrings.currency} ${currentParcel?.price ?? 0}",
-                        ),
-                        const SpaceWidget(spaceHeight: 8),
-                        SummaryInfoRowWidget(
-                          icon: AppIconsPath.descriptionIcon,
-                          label: "descriptionText".tr,
-                          value: currentParcel?.description ?? "No Description",
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SpaceWidget(spaceHeight: 48),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: TextWidget(
+              text: "deliveryManDetails".tr,
+              fontSize: 24,
+              fontWeight: FontWeight.w600,
+              fontColor: AppColors.black,
             ),
+          ),
+          const SpaceWidget(spaceHeight: 40),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      //! Profile Image with null check
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: Image.network(
+                          _getProfileImagePath(),
+                          height: 40,
+                          width: 40,
+                          fit: BoxFit.cover,
+                          loadingBuilder:
+                              (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              height: 40,
+                              width: 40,
+                              decoration: BoxDecoration(
+                                color: AppColors.grey.withAlpha(78),
+                                borderRadius: BorderRadius.circular(100),
+                              ),
+                              child: Center(
+                                child: LoadingAnimationWidget.hexagonDots(
+                                  color: AppColors.black,
+                                  size: 40,
+                                ),
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            //! log('❌ Error loading image: $error');
+                            return Container(
+                              height: 40,
+                              width: 40,
+                              decoration: BoxDecoration(
+                                color: AppColors.grey.withAlpha(78),
+                                borderRadius: BorderRadius.circular(100),
+                              ),
+                              child: const Icon(
+                                Icons.person,
+                                size: 40,
+                                color: AppColors.greyDark2,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SpaceWidget(spaceWidth: 8),
+
+                      // Name with null check
+                      Flexible(
+                        child: TextWidget(
+                          text: deliveryMan?.fullName ?? "Not Assigned",
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          fontColor: AppColors.black,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SpaceWidget(spaceWidth: 8),
+                      // Rating calculated from reviews array
+                      if (deliveryMan?.reviews != null &&
+                          deliveryMan!.reviews!.isNotEmpty)
+                        Container(
+                          width: ResponsiveUtils.width(45),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.yellow,
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.star_rounded,
+                                color: AppColors.white,
+                                size: 12,
+                              ),
+                              TextWidget(
+                                text:
+                                " ${_calculateAverageRating(deliveryMan)}",
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                fontColor: AppColors.white,
+                              ),
+                            ],
+                          ),
+                        ),
+                      const SpaceWidget(spaceWidth: 8),
+
+                      // Message button with null check for the onTap function
+                      InkWell(
+                        onTap: deliveryMan?.mobileNumber != null
+                            ? _sendMessage
+                            : null,
+                        borderRadius: BorderRadius.circular(100),
+                        child: const CircleAvatar(
+                          backgroundColor: AppColors.whiteDark,
+                          radius: 15,
+                          child: IconWidget(
+                            icon: AppIconsPath.whatsAppIcon,
+                            color: AppColors.black,
+                            width: 18,
+                            height: 18,
+                          ),
+                        ),
+                      ),
+                      const SpaceWidget(spaceWidth: 8),
+
+                      // Call button with null check for the onTap function
+                      InkWell(
+                        onTap: deliveryMan?.mobileNumber != null
+                            ? _makePhoneCall
+                            : null,
+                        borderRadius: BorderRadius.circular(100),
+                        child: const CircleAvatar(
+                          backgroundColor: AppColors.whiteDark,
+                          radius: 15,
+                          child: Icon(
+                            Icons.call,
+                            color: AppColors.black,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SpaceWidget(spaceHeight: 16),
+                  const Divider(
+                    color: AppColors.grey,
+                    thickness: 1,
+                  ),
+                  const SpaceWidget(spaceHeight: 16),
+                  SummaryInfoRowWidget(
+                    image: AppImagePath.sendParcel,
+                    label: "parcelName".tr,
+                    value: currentParcel?.title ?? "Parcel",
+                  ),
+                  const SpaceWidget(spaceHeight: 8),
+                  SummaryInfoRowWidget(
+                    icon: AppIconsPath.ratingIcon,
+                    label: "ratingsText".tr,
+                    value: deliveryMan?.reviews != null &&
+                        deliveryMan!.reviews!.isNotEmpty
+                        ? _calculateAverageRating(deliveryMan)
+                        : "N/A",
+                  ),
+                  const SpaceWidget(spaceHeight: 8),
+                  SummaryInfoRowWidget(
+                    icon: AppIconsPath.callIcon,
+                    label: "phoneNumber".tr,
+                    value: deliveryMan?.mobileNumber ?? "N/A",
+                  ),
+                  const SpaceWidget(spaceHeight: 8),
+                  // SummaryInfoRowWidget(
+                  //   icon: AppIconsPath.profileIcon,
+                  //   label: "receiversName".tr,
+                  //   value: currentParcel?.name ?? "N/A",
+                  // ),
+                  // const SpaceWidget(spaceHeight: 8),
+                  SummaryInfoRowWidget(
+                    icon: AppIconsPath.deliveryTimeIcon,
+                    label: "deliveryTimeText".tr,
+                    value: _getFormattedDeliveryTime(currentParcel),
+                  ),
+                  const SpaceWidget(spaceHeight: 8),
+                  SummaryInfoRowWidget(
+                    icon: AppIconsPath.destinationIcon,
+                    label: "currentLocationText".tr,
+                    value: pickUpAddress,
+                  ),
+                  const SpaceWidget(spaceHeight: 8),
+                  SummaryInfoRowWidget(
+                    icon: AppIconsPath.currentLocationIcon,
+                    label: "destinationText".tr,
+                    value: address,
+                  ),
+                  const SpaceWidget(spaceHeight: 8),
+                  SummaryInfoRowWidget(
+                    icon: AppIconsPath.priceIcon,
+                    label: "price".tr,
+                    value:
+                    "${AppStrings.currency} ${currentParcel?.price ?? 0}",
+                  ),
+                  const SpaceWidget(spaceHeight: 8),
+                  SummaryInfoRowWidget(
+                    icon: AppIconsPath.descriptionIcon,
+                    label: "descriptionText".tr,
+                    value: currentParcel?.description ?? "No Description",
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      )),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
@@ -669,62 +703,75 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
             ),
             Obx(() => newBookingsController.isCancellingDelivery.value
                 ? Container(
-                    width: 200,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: AppColors.black,
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: Center(
-                      child: LoadingAnimationWidget.progressiveDots(
-                        color: AppColors.white,
-                        size: 40,
-                      ),
-                    ),
-                  )
+              width: 200,
+              height: 50,
+              decoration: BoxDecoration(
+                color: AppColors.black,
+                borderRadius: BorderRadius.circular(50),
+              ),
+              child: Center(
+                child: LoadingAnimationWidget.progressiveDots(
+                  color: AppColors.white,
+                  size: 40,
+                ),
+              ),
+            )
                 : ButtonWidget(
-                    onPressed: () async {
-                      newBookingsController.isCancellingDelivery.value = true;
-                      try {
-                        await newBookingsController.cancelDelivery(
-                            parcelId, deliveryMan?.id);
-                        final controller = Get.find<CurrentOrderController>();
-                        await controller.getCurrentOrder();
-                        controller.update();
-                        Get.back();
+              onPressed: () async {
+                // Check if deliveryMan ID is available
+                if (deliveryMan?.id == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content:
+                      Text('Delivery man information not available'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
 
-                        // Show success message
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Delivery cancelled successfully'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                      } catch (error) {
-                        //!  log('Error cancelling delivery: $error');
+                newBookingsController.isCancellingDelivery.value = true;
+                try {
+                  await newBookingsController.cancelDelivery(
+                      parcelId, deliveryMan!.id!);
 
-                        // Show error message
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Failed to cancel delivery: $error'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      } finally {
-                        newBookingsController.isCancellingDelivery.value =
-                            false;
-                      }
-                    },
-                    label: "cancelDelivery".tr,
-                    textColor: AppColors.white,
-                    buttonWidth: 200,
-                    buttonHeight: 50,
-                    icon: Icons.arrow_forward,
-                    iconColor: AppColors.white,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
-                    iconSize: 20,
-                  )),
+                  // Use the same controller instance that was initialized
+                  await controller.getCurrentOrder();
+                  controller.update();
+                  Get.back();
+
+                  // Show success message
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Delivery cancelled successfully'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } catch (error) {
+                  //!  log('Error cancelling delivery: $error');
+
+                  // Show error message
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to cancel delivery: $error'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                } finally {
+                  newBookingsController.isCancellingDelivery.value =
+                  false;
+                }
+              },
+              label: "cancelDelivery".tr,
+              textColor: AppColors.white,
+              buttonWidth: 200,
+              buttonHeight: 50,
+              icon: Icons.arrow_forward,
+              iconColor: AppColors.white,
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
+              iconSize: 20,
+            )),
           ],
         ),
       ),
