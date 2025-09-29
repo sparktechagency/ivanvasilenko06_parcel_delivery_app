@@ -208,14 +208,14 @@
   "noParcelFound" : "לא נמצאה חבילה",
   "tryDifferentRadius" : "נסה רדיוס אחר",
   "cancelRequest" : "בטל בקשה",
-  "areYouSureYouwantToRemovethisParcel" : " האם אתה בטוח שברצונך להסיר את החבילה הזו?",
+  "areYouSureYouwantToRemovethisParcel" : "האם אתה בטוח שברצונך להסיר את החבילה הזו?",
   "pickupLocation" : "מיקום איסוף",
   "destination" : "יעד",
   "selectStartTime" : "בחר זמן התחלה",
   "cancel" : "בטל",
   "ok" : " אישור",
   "selectEndTime" : "בחר זמן סיום",
-  "checkNewBookingsToaccepts" : "👉 בדוק הזמנות חדשות כדי לאשר 👈",
+  "checkNewBookingsToaccepts" : "👉 תבדוק הזמנות שלי לאישור 👈",
   "rateDriver" : "דרג שליח",
   "parcelName" : "שם החבילה",
   "deliveryRoute" : "מסלול משלוח",
@@ -228,5 +228,9 @@
   "locationTimeout": "בקשת המיקום פגה. אנא נסה שוב.",
   "locationError": "לא ניתן לקבל מיקום. אנא בדוק את הגדרות המיקום שלך ונסה שוב.",
   "openSettings": "פתח הגדרות",
-  "save": "שמור"
+  "save": "שמור",
+  "areYourSureYouwantToCancelThisRequest" : " האם אתה בטוח שברצונך לבטל את הבקשה הזו?",
+  "noCurrentOrdersAvailable" : "אין הזמנות פעילות",
+  "noNewRequests" : "אין בקשות חדשות",
+  "deliveryRequests" : "בקשות משלוח"
 }

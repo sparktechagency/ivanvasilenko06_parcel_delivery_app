@@ -418,7 +418,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SpaceWidget(spaceHeight: 12),
                       TextWidget(
                         text: "earnMoney".tr,
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: FontWeight.w600,
                         fontColor: AppColors.black,
                       ),

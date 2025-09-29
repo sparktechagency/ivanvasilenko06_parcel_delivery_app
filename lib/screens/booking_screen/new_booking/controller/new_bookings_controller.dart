@@ -45,14 +45,14 @@ class NewBookingsController extends GetxController {
     try {
       // Response is now a Map<String, dynamic>
       var response =
-      await ApiPutServices().apiPutServices(url: url, body: body);
+          await ApiPutServices().apiPutServices(url: url, body: body);
 
       // Handle the response based on status field in the Map
       if (response['status'] == 'success') {
         log('Parcel delivery updated successfully');
         try {
           final CurrentOrderController controller =
-          Get.find<CurrentOrderController>(tag: 'booking_screen');
+              Get.find<CurrentOrderController>(tag: 'booking_screen');
           await controller.refreshCurrentOrder();
         } catch (e) {
           log('Controller not found, skipping refresh');
@@ -94,14 +94,14 @@ class NewBookingsController extends GetxController {
     try {
       // Response is now a Map<String, dynamic>
       var response =
-      await ApiPostServices().apiPostServices(url: url, body: body);
+          await ApiPostServices().apiPostServices(url: url, body: body);
 
       // Handle the response based on the 'status' field in the Map
       if (response['status'] == 'success') {
         log('Parcel delivery rejected successfully');
         try {
           final CurrentOrderController controller =
-          Get.find<CurrentOrderController>(tag: 'booking_screen');
+              Get.find<CurrentOrderController>(tag: 'booking_screen');
           await controller.refreshCurrentOrder();
         } catch (e) {
           log('Controller not found, skipping refresh');
@@ -133,14 +133,14 @@ class NewBookingsController extends GetxController {
     try {
       // Constructing the full URL by appending the parcelId
       var response =
-      await ApiDeleteServices().apiDeleteServices(url: '$url$parcelId');
+          await ApiDeleteServices().apiDeleteServices(url: '$url$parcelId');
 
       // Check if response is a Map (could happen if your service returns a Map instead of Response)
       if (response is Map<String, dynamic>) {
         // Handle success case based on your API response structure
         try {
           final CurrentOrderController controller =
-          Get.find<CurrentOrderController>(tag: 'booking_screen');
+              Get.find<CurrentOrderController>(tag: 'booking_screen');
           await controller.getCurrentOrder();
         } catch (e) {
           log('Controller not found, skipping refresh');
@@ -153,7 +153,7 @@ class NewBookingsController extends GetxController {
           // Refresh the data
           try {
             final CurrentOrderController controller =
-            Get.find<CurrentOrderController>(tag: 'booking_screen');
+                Get.find<CurrentOrderController>(tag: 'booking_screen');
             await controller.getCurrentOrder();
           } catch (e) {
             log('Controller not found, skipping refresh');
@@ -181,7 +181,7 @@ class NewBookingsController extends GetxController {
 
     try {
       var response =
-      await ApiPostServices().apiPostServices(url: url, body: body);
+          await ApiPostServices().apiPostServices(url: url, body: body);
 
       // Handle the response based on the response type
       if (response is Map<String, dynamic>) {
@@ -190,7 +190,7 @@ class NewBookingsController extends GetxController {
           log('Delivery cancelled successfully');
           try {
             final CurrentOrderController controller =
-            Get.find<CurrentOrderController>(tag: 'booking_screen');
+                Get.find<CurrentOrderController>(tag: 'booking_screen');
             await controller.getCurrentOrder();
           } catch (e) {
             log('Controller not found, skipping refresh');
@@ -203,7 +203,49 @@ class NewBookingsController extends GetxController {
         // Handle Response object case
         try {
           final CurrentOrderController controller =
-          Get.find<CurrentOrderController>(tag: 'booking_screen');
+              Get.find<CurrentOrderController>(tag: 'booking_screen');
+          await controller.getCurrentOrder();
+        } catch (e) {
+          log('Controller not found, skipping refresh');
+        }
+        update();
+      } else {
+        log('Failed to cancel delivery: ${response?.statusCode ?? 'Unknown error'}');
+      }
+    } catch (error) {
+      log('Error: $error');
+      rethrow;
+    }
+  }
+
+  Future<void> parcelCancelFromDeliveryMan(String parcelId) async {
+    const String url = AppApiUrl.cancelDelivery;
+    final body = {
+      "parcelId": parcelId,
+    };
+    try {
+      var response =
+          await ApiPostServices().apiPostServices(url: url, body: body);
+      if (response is Map<String, dynamic>) {
+        // Handle success case based on your API response structure
+        if (response['status'] == 'success') {
+          log('Delivery cancelled successfully');
+          try {
+            final CurrentOrderController controller =
+                Get.find<CurrentOrderController>(tag: 'booking_screen');
+            await controller.getCurrentOrder();
+          } catch (e) {
+            log('Controller not found, skipping refresh');
+          }
+          update();
+        } else {
+          log('Failed to cancel delivery: ${response['message']}');
+        }
+      } else if (response != null && response.statusCode == 201) {
+        // Handle Response object case
+        try {
+          final CurrentOrderController controller =
+              Get.find<CurrentOrderController>(tag: 'booking_screen');
           await controller.getCurrentOrder();
         } catch (e) {
           log('Controller not found, skipping refresh');

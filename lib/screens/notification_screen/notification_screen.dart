@@ -1184,12 +1184,12 @@ class _NotificationScreenState extends State<NotificationScreen>
             ],
           ),
           type == "Requested-Delivery"
-              ? const Column(
+              ?  Column(
             children: [
-              SpaceWidget(spaceHeight: 8),
+            const  SpaceWidget(spaceHeight: 8),
               Center(
                 child: TextWidget(
-                  text: "👉 Check New Bookings to Accept 👈",
+                  text: "checkNewBookingsToaccepts".tr,
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
                   fontColor: AppColors.green,

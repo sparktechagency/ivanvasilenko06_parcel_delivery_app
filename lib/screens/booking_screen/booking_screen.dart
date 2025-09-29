@@ -56,8 +56,10 @@ class _BookingScreenState extends State<BookingScreen> {
   Future<String> getAddressFromCoordinates(
       double latitude, double longitude) async {
     // Validate coordinates
-    if (latitude.isNaN || longitude.isNaN || 
-        latitude.abs() > 90 || longitude.abs() > 180) {
+    if (latitude.isNaN ||
+        longitude.isNaN ||
+        latitude.abs() > 90 ||
+        longitude.abs() > 180) {
       return 'Invalid coordinates';
     }
 
@@ -68,10 +70,8 @@ class _BookingScreenState extends State<BookingScreen> {
 
     try {
       // Add timeout to prevent hanging
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        latitude, 
-        longitude
-      ).timeout(
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latitude, longitude).timeout(
         const Duration(seconds: 10),
         onTimeout: () {
           throw Exception('Address lookup timeout');
@@ -84,44 +84,53 @@ class _BookingScreenState extends State<BookingScreen> {
         // Get single address property in priority order: locality > subLocality > street > subAdministrativeArea
         String newAddress;
 
-        if (placemark.locality != null && placemark.locality!.trim().isNotEmpty) {
+        if (placemark.locality != null &&
+            placemark.locality!.trim().isNotEmpty) {
           newAddress = placemark.locality!.trim();
-        } else if (placemark.subLocality != null && placemark.subLocality!.trim().isNotEmpty) {
+        } else if (placemark.subLocality != null &&
+            placemark.subLocality!.trim().isNotEmpty) {
           newAddress = placemark.subLocality!.trim();
-        } else if (placemark.street != null && placemark.street!.trim().isNotEmpty) {
+        } else if (placemark.street != null &&
+            placemark.street!.trim().isNotEmpty) {
           newAddress = placemark.street!.trim();
-        } else if (placemark.subAdministrativeArea != null && placemark.subAdministrativeArea!.trim().isNotEmpty) {
+        } else if (placemark.subAdministrativeArea != null &&
+            placemark.subAdministrativeArea!.trim().isNotEmpty) {
           newAddress = placemark.subAdministrativeArea!.trim();
-        } else if (placemark.administrativeArea != null && placemark.administrativeArea!.trim().isNotEmpty) {
+        } else if (placemark.administrativeArea != null &&
+            placemark.administrativeArea!.trim().isNotEmpty) {
           newAddress = placemark.administrativeArea!.trim();
-        } else if (placemark.country != null && placemark.country!.trim().isNotEmpty) {
+        } else if (placemark.country != null &&
+            placemark.country!.trim().isNotEmpty) {
           newAddress = placemark.country!.trim();
         } else {
           // Final fallback with coordinates (formatted nicely)
-          newAddress = '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
+          newAddress =
+              '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
         }
 
         locationToAddressCache[key] = newAddress;
         return newAddress;
       } else {
         // Fallback to coordinates if no placemarks found
-        final coordinateAddress = '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
+        final coordinateAddress =
+            '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
         locationToAddressCache[key] = coordinateAddress;
         return coordinateAddress;
       }
     } catch (e) {
       // Enhanced error handling with specific error types
-      
+
       if (e.toString().contains('timeout')) {
         return 'Address lookup timed out';
-      } else if (e.toString().contains('network') || e.toString().contains('internet')) {
+      } else if (e.toString().contains('network') ||
+          e.toString().contains('internet')) {
         return 'Network error - please check your connection';
       } else if (e.toString().contains('permission')) {
         return 'Location permission required';
       } else {
         return 'Error fetching address: $e';
       }
-      
+
       // // Always provide coordinates as final fallback
       // final coordinateAddress = '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
       // locationToAddressCache[key] = coordinateAddress;
@@ -455,8 +464,8 @@ class _BookingScreenState extends State<BookingScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const TextWidget(
-                    text: 'Are you sure you want to remove this parcel?',
+                  TextWidget(
+                    text: 'areYouSureYouwantToRemovethisParcel'.tr,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     fontColor: AppColors.black,
@@ -469,7 +478,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       ButtonWidget(
                         buttonWidth: 100,
                         buttonHeight: 40,
-                        label: 'No',
+                        label: 'no'.tr,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 10),
                         buttonRadius: BorderRadius.circular(10),
@@ -482,7 +491,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       ButtonWidget(
                         buttonWidth: 100,
                         buttonHeight: 40,
-                        label: 'Yes',
+                        label: 'yes'.tr,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 10),
                         buttonRadius: BorderRadius.circular(10),
@@ -509,6 +518,86 @@ class _BookingScreenState extends State<BookingScreen> {
                             //   'Failed to remove parcel: ${e.toString()}',
                             //   snackPosition: SnackPosition.BOTTOM,
                             // );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void cancelParcelFromDelivery(String parcelId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+          child: Dialog(
+            shape: const RoundedRectangleBorder(
+              borderRadius:
+                  BorderRadius.all(Radius.circular(10)), // Flat corners
+            ),
+            backgroundColor: AppColors.grey,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  TextWidget(
+                    text: 'areYourSureYouwantToCancelThisRequest'.tr,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    fontColor: AppColors.black,
+                    textAlignment: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ButtonWidget(
+                        buttonWidth: 100,
+                        buttonHeight: 40,
+                        label: 'no'.tr,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
+                        buttonRadius: BorderRadius.circular(10),
+                        backgroundColor: AppColors.white,
+                        textColor: AppColors.black,
+                        onPressed: () {
+                          Navigator.pop(context); // Close the dialog
+                        },
+                      ),
+                      ButtonWidget(
+                        buttonWidth: 100,
+                        buttonHeight: 40,
+                        label: 'yes'.tr,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 10),
+                        buttonRadius: BorderRadius.circular(10),
+                        backgroundColor: AppColors.green,
+                        textColor: AppColors.white,
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          try {
+                            //! Get the correct controller instance
+                            final controller =
+                                Get.find<NewBookingsController>();
+                            await controller
+                                .parcelCancelFromDeliveryMan(parcelId);
+                            await currentOrderController.getCurrentOrder();
+                            _currentIndex = 0;
+                            controller.update();
+                            _pageController.jumpToPage(0);
+                            Get.back();
+                          } catch (e) {
+                            Get.back();
                           }
                         },
                       ),
@@ -573,8 +662,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   children: [
                     Stack(
                       children: [
-                        _buildTabItem("newBookings".tr, 1),
-
+                        _buildTabItem("deliveryRequests".tr, 1),
                         // Badge for new bookings
                         Obx(() {
                           final newBookingsController =
@@ -696,7 +784,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
                 const SpaceWidget(spaceHeight: 16),
                 TextWidget(
-                  text: "No current orders available".tr,
+                  text: "noCurrentOrdersAvailable".tr,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   fontColor: AppColors.greyDark2,
@@ -878,9 +966,9 @@ class _BookingScreenState extends State<BookingScreen> {
                                               data[index].status ==
                                                   "REQUESTED" ||
                                               data[index].status == "WAITING"
-                                          ? "Waiting"
+                                          ? "waiting".tr
                                           : data[index].status == "IN_TRANSIT"
-                                              ? "In Transit"
+                                              ? "inTransit".tr
                                               : data[index].status ==
                                                       "DELIVERED"
                                                   ? "Delivered"
@@ -1102,7 +1190,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                           data[index].status == "PENDING" ||
                                           data[index].status == "WAITING") {
                                         String parcelId = data[index].id ?? "";
-                                        removeParcelConfirmation(parcelId);
+                                        cancelParcelFromDelivery(parcelId);
                                         // Cancel Delivery
                                       }
                                     } else if (data[index]
@@ -1320,7 +1408,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   ),
                   const SizedBox(height: 16),
                   TextWidget(
-                    text: "No New Bookings".tr,
+                    text: "noNewRequests".tr,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     fontColor: AppColors.greyDark2,
@@ -1475,17 +1563,6 @@ class _BookingScreenState extends State<BookingScreen> {
                                   );
                                 },
                               ),
-                              // AppImage(
-                              //   url: (newBookingsController.isLoading.value ||
-                              //           deliveryRequest.image == null ||
-                              //           deliveryRequest.image
-                              //               .toString()
-                              //               .isEmpty)
-                              //       ? AppImagePath.dummyProfileImage
-                              //       : deliveryRequest.image!,
-                              //   height: 40,
-                              //   width: 40,
-                              // ),
                             ),
                             const SpaceWidget(spaceWidth: 8),
                             SizedBox(

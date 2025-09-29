@@ -203,8 +203,8 @@
   "noCurrentOrderAvailable" : "No Current Order Available",
   "noNewBookings" : "No New Bookings",
   "areyoursuredeleteyouraccount":"Are you sure you want to delete your account?",
-  "No" : "No",
-  "Yes" : "Yes",
+  "no" : "No",
+  "yes" : "Yes",
   "checkDeliveriesSectiontoSendRequests" :"👉 Check Deliveries Section to Send Request 👈",
   "pickthedistanceYouwantoWork" : "Pick the distance you want to work within. We'll only show you jobs nearby!",
   "noParcelFound": "No Parcel Found",
@@ -230,5 +230,9 @@
   "locationTimeout": "Location request timed out. Please try again.",
   "locationError": "Unable to get location. Please check your location settings and try again.",
   "openSettings": "Open Settings",
-  "save": "Save"
+  "save": "Save",
+  "areYourSureYouwantToCancelThisRequest" : "Are you sure you want to cancel this request?",
+  "noCurrentOrdersAvailable" : "No current orders available",
+  "noNewRequests" : "No New Requests",
+  "deliveryRequests" : "Delivery Requests"
 }
