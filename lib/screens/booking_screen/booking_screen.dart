@@ -111,21 +111,21 @@ class _BookingScreenState extends State<BookingScreen> {
       }
     } catch (e) {
       // Enhanced error handling with specific error types
-      String errorMessage;
+      
       if (e.toString().contains('timeout')) {
-        errorMessage = 'Location lookup timeout';
+        return 'Address lookup timed out';
       } else if (e.toString().contains('network') || e.toString().contains('internet')) {
-        errorMessage = 'Network error';
+        return 'Network error - please check your connection';
       } else if (e.toString().contains('permission')) {
-        errorMessage = 'Location permission denied';
+        return 'Location permission required';
       } else {
-        errorMessage = 'Location service unavailable';
+        return 'Error fetching address: $e';
       }
       
-      // Always provide coordinates as final fallback
-      final coordinateAddress = '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
-      locationToAddressCache[key] = coordinateAddress;
-      return coordinateAddress;
+      // // Always provide coordinates as final fallback
+      // final coordinateAddress = '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
+      // locationToAddressCache[key] = coordinateAddress;
+      // return coordinateAddress;
     }
   }
 

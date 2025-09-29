@@ -68,7 +68,7 @@ class _NotificationScreenState extends State<NotificationScreen>
       if (placemarks.isNotEmpty) {
         final placemark = placemarks[0];
 
-        // Get single address property in priority order: locality > subLocality > street > subAdministrativeArea
+        // Get single address property in priority order: locality > subLocality > street > subAdministrativeArea > administrativeArea > country
         String newAddress;
 
         if (placemark.locality != null && placemark.locality!.trim().isNotEmpty) {
@@ -98,36 +98,42 @@ class _NotificationScreenState extends State<NotificationScreen>
       }
     } catch (e) {
       // Enhanced error handling with specific error types
-      String errorMessage;
       if (e.toString().contains('timeout')) {
-        errorMessage = 'Location lookup timeout';
+        return 'Address lookup timed out';
       } else if (e.toString().contains('network') || e.toString().contains('internet')) {
-        errorMessage = 'Network error';
+        return 'Network error - please check your connection';
       } else if (e.toString().contains('permission')) {
-        errorMessage = 'Location permission denied';
+        return 'Location permission required';
       } else {
-        errorMessage = 'Location service unavailable';
+        // Always provide coordinates as final fallback for any other error
+        final coordinateAddress = '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
+        locationToAddressCache[key] = coordinateAddress;
+        return coordinateAddress;
       }
-      
-      // Always provide coordinates as final fallback
-      final coordinateAddress = '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
-      locationToAddressCache[key] = coordinateAddress;
-      return coordinateAddress;
     }
   }
 
-  //! Store address by parcel ID
+  //! Store address by parcel ID with enhanced error handling
   void cacheAddressForParcel(String parcelId, String addressType,
       double latitude, double longitude) async {
     final cacheKey = '${parcelId}_$addressType';
     if (!addressCache.containsKey(cacheKey)) {
-      String fetchedAddress =
-      await getAddressFromCoordinates(latitude, longitude);
-      // Check if widget is still mounted before calling setState
-      if (mounted) {
-        setState(() {
-          addressCache[cacheKey] = fetchedAddress;
-        });
+      try {
+        String fetchedAddress =
+            await getAddressFromCoordinates(latitude, longitude);
+        // Check if widget is still mounted before calling setState
+        if (mounted) {
+          setState(() {
+            addressCache[cacheKey] = fetchedAddress;
+          });
+        }
+      } catch (e) {
+        // Handle any errors during address fetching
+        if (mounted) {
+          setState(() {
+            addressCache[cacheKey] = 'Address unavailable';
+          });
+        }
       }
     }
   }

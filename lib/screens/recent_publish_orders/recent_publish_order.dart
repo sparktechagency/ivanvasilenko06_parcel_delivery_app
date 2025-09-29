@@ -29,7 +29,7 @@ class RecentPublishOrder extends StatefulWidget {
 class _RecentPublishOrderState extends State<RecentPublishOrder> {
   final ServiceController serviceController = Get.find();
   final DeliveryScreenController deliveryController =
-  Get.put(DeliveryScreenController());
+      Get.put(DeliveryScreenController());
 
   //! Cache for addresses to avoid multiple API calls for the same coordinates
   Map<String, String> addressCache = {};
@@ -101,7 +101,11 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
 
   Future<void> _getAddress(
       String parcelId, double latitude, double longitude, bool isPickup) async {
-    if (latitude == 0.0 && longitude == 0.0) {
+    // Validate coordinates
+    if (latitude.isNaN ||
+        longitude.isNaN ||
+        latitude.abs() > 90 ||
+        longitude.abs() > 180) {
       _handleAddressError(parcelId, isPickup, "Invalid coordinates");
       return;
     }
@@ -115,38 +119,75 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
     }
 
     try {
+      // Add timeout to prevent hanging
       List<Placemark> placemarks =
-      await placemarkFromCoordinates(latitude, longitude);
+          await placemarkFromCoordinates(latitude, longitude).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw Exception('Address lookup timeout');
+        },
+      );
 
       if (placemarks.isNotEmpty) {
-        //! Build a more complete address string
         final placemark = placemarks[0];
 
-        // Build address with sub-locality first, then locality
-        List<String> addressParts = [];
+        // Get single address property in priority order: locality > subLocality > street > subAdministrativeArea
+        String address;
 
-        if (placemark.subLocality != null &&
-            placemark.subLocality!.isNotEmpty) {
-          addressParts.add(placemark.subLocality!);
+        if (placemark.locality != null &&
+            placemark.locality!.trim().isNotEmpty) {
+          address = placemark.locality!.trim();
+        } else if (placemark.subLocality != null &&
+            placemark.subLocality!.trim().isNotEmpty) {
+          address = placemark.subLocality!.trim();
+        } else if (placemark.street != null &&
+            placemark.street!.trim().isNotEmpty) {
+          address = placemark.street!.trim();
+        } else if (placemark.subAdministrativeArea != null &&
+            placemark.subAdministrativeArea!.trim().isNotEmpty) {
+          address = placemark.subAdministrativeArea!.trim();
+        } else if (placemark.administrativeArea != null &&
+            placemark.administrativeArea!.trim().isNotEmpty) {
+          address = placemark.administrativeArea!.trim();
+        } else if (placemark.country != null &&
+            placemark.country!.trim().isNotEmpty) {
+          address = placemark.country!.trim();
+        } else {
+          // Final fallback with coordinates (formatted nicely)
+          address =
+              '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
         }
-
-        if (placemark.locality != null && placemark.locality!.isNotEmpty) {
-          addressParts.add(placemark.locality!);
-        }
-
-        String address = addressParts.isNotEmpty
-            ? addressParts.join(', ')
-            : 'Address not available';
 
         addressCache[key] = address;
-
         _updateAddress(parcelId, address, isPickup);
       } else {
-        _handleAddressError(parcelId, isPickup, "No address found");
+        // Fallback to coordinates if no placemarks found
+        final coordinateAddress =
+            '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
+        addressCache[key] = coordinateAddress;
+        _updateAddress(parcelId, coordinateAddress, isPickup);
       }
     } catch (e) {
-      //! log("Error getting address for parcel $parcelId (${isPickup ? 'pickup' : 'delivery'}): $e");
-      _handleAddressError(parcelId, isPickup, "Error fetching address");
+      // Enhanced error handling with specific error types
+      String errorMessage;
+
+      if (e.toString().contains('timeout')) {
+        errorMessage = 'Address lookup timed out';
+      } else if (e.toString().contains('network') ||
+          e.toString().contains('internet')) {
+        errorMessage = 'Network error - please check your connection';
+      } else if (e.toString().contains('permission')) {
+        errorMessage = 'Location permission required';
+      } else {
+        // Always provide coordinates as final fallback
+        final coordinateAddress =
+            '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
+        addressCache[key] = coordinateAddress;
+        _updateAddress(parcelId, coordinateAddress, isPickup);
+        return;
+      }
+
+      _handleAddressError(parcelId, isPickup, errorMessage);
     }
   }
 
@@ -169,10 +210,26 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
     if (mounted) {
       setState(() {
         if (isPickup) {
-          pickupAddresses[parcelId] = errorMessage;
+          // For error cases, try to provide coordinates as fallback if possible
+          if (errorMessage.contains('Invalid coordinates') ||
+              errorMessage.contains('timeout') ||
+              errorMessage.contains('Network error') ||
+              errorMessage.contains('permission')) {
+            pickupAddresses[parcelId] = errorMessage;
+          } else {
+            pickupAddresses[parcelId] = 'Address unavailable';
+          }
           pickupAddressLoading[parcelId] = false;
         } else {
-          deliveryAddresses[parcelId] = errorMessage;
+          // For error cases, try to provide coordinates as fallback if possible
+          if (errorMessage.contains('Invalid coordinates') ||
+              errorMessage.contains('timeout') ||
+              errorMessage.contains('Network error') ||
+              errorMessage.contains('permission')) {
+            deliveryAddresses[parcelId] = errorMessage;
+          } else {
+            deliveryAddresses[parcelId] = 'Address unavailable';
+          }
           deliveryAddressLoading[parcelId] = false;
         }
       });
@@ -231,9 +288,9 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
                           onPressed: () {
                             controller.refreshParcelList();
                             Future.delayed(const Duration(milliseconds: 500),
-                                    () {
-                                  _initializeAddressStates();
-                                });
+                                () {
+                              _initializeAddressStates();
+                            });
                           },
                           text: "Retry",
                           fontSize: 14,
@@ -247,259 +304,259 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
 
                 return Column(
                   children: List.generate(controller.recentParcelList.length,
-                          (index) {
-                        ServiceScreenModel item =
+                      (index) {
+                    ServiceScreenModel item =
                         controller.recentParcelList[index];
 
-                        // Safely access data or provide default values
-                        String title = "Title not available";
-                        String itemId = "";
-                        String price = "0";
-                        String status = "Status not available";
-                        String receiverName = "Receiver not available";
+                    // Safely access data or provide default values
+                    String title = "Title not available";
+                    String itemId = "";
+                    String price = "0";
+                    String status = "Status not available";
+                    String receiverName = "Receiver not available";
 
-                        if (item.data != null && item.data!.isNotEmpty) {
-                          title = item.data!.first.title ?? "Title not available";
-                          itemId = item.data!.first.id ?? "";
-                          price = item.data!.first.price?.toString() ?? "0";
-                          receiverName =
-                              item.data!.first.name ?? "Receiver not available";
-                        }
+                    if (item.data != null && item.data!.isNotEmpty) {
+                      title = item.data!.first.title ?? "Title not available";
+                      itemId = item.data!.first.id ?? "";
+                      price = item.data!.first.price?.toString() ?? "0";
+                      receiverName =
+                          item.data!.first.name ?? "Receiver not available";
+                    }
 
-                        if (item.status != null) {
-                          status = item.status!;
-                        }
+                    if (item.status != null) {
+                      status = item.status!;
+                    }
 
-                        //! Get address display values
-                        final bool isPickupLoading =
-                            pickupAddressLoading[itemId] ?? true;
-                        final bool isDeliveryLoading =
-                            deliveryAddressLoading[itemId] ?? true;
-                        final String pickupAddress = isPickupLoading
-                            ? "Loading pickup address..."
-                            : pickupAddresses[itemId] ?? "Address unavailable";
-                        final String deliveryAddress = isDeliveryLoading
-                            ? "Loading delivery address..."
-                            : deliveryAddresses[itemId] ?? "Address unavailable";
+                    //! Get address display values
+                    final bool isPickupLoading =
+                        pickupAddressLoading[itemId] ?? true;
+                    final bool isDeliveryLoading =
+                        deliveryAddressLoading[itemId] ?? true;
+                    final String pickupAddress = isPickupLoading
+                        ? "Loading pickup address..."
+                        : pickupAddresses[itemId] ?? "Address unavailable";
+                    final String deliveryAddress = isDeliveryLoading
+                        ? "Loading delivery address..."
+                        : deliveryAddresses[itemId] ?? "Address unavailable";
 
-                        // Check if request has been sent (you'll need to implement this logic based on your controller)
-                        final bool hasRequestSent =
+                    // Check if request has been sent (you'll need to implement this logic based on your controller)
+                    final bool hasRequestSent =
                         deliveryController.isRequestSent(itemId);
 
-                        // Format dates if available
-                        String formattedDate = "N/A";
-                        try {
-                          final startDate = DateTime.parse(
-                              item.data!.first.deliveryStartTime.toString());
-                          final endDate = DateTime.parse(
-                              item.data!.first.deliveryEndTime.toString());
-                          formattedDate =
+                    // Format dates if available
+                    String formattedDate = "N/A";
+                    try {
+                      final startDate = DateTime.parse(
+                          item.data!.first.deliveryStartTime.toString());
+                      final endDate = DateTime.parse(
+                          item.data!.first.deliveryEndTime.toString());
+                      formattedDate =
                           "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
-                        } catch (e) {
-                          //! log("Error parsing dates: $e");
-                        }
+                    } catch (e) {
+                      //! log("Error parsing dates: $e");
+                    }
 
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Row(
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(100),
+                                    child: const ImageWidget(
+                                      imagePath: AppImagePath.sendParcel,
+                                      width: 40,
+                                      height: 40,
+                                    ),
+                                  ),
+                                  const SpaceWidget(spaceWidth: 12),
+                                  SizedBox(
+                                    width: ResponsiveUtils.width(180),
+                                    child: TextWidget(
+                                      text: title,
+                                      fontSize: 15.5,
+                                      fontWeight: FontWeight.w600,
+                                      fontColor: AppColors.black,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlignment: TextAlign.start,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              TextWidget(
+                                text: "${AppStrings.currency} $price",
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                fontColor: AppColors.black,
+                              ),
+                            ],
+                          ),
+                          const SpaceWidget(spaceHeight: 12),
+                          //! Status section
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.location_on_rounded,
+                                color: AppColors.black,
+                                size: 14,
+                              ),
+                              const SpaceWidget(spaceWidth: 8),
+                              TextWidget(
+                                text: "$pickupAddress To $deliveryAddress",
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                fontColor: AppColors.greyDark2,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                          const SpaceWidget(spaceHeight: 8),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.calendar_month,
+                                color: AppColors.black,
+                                size: 12,
+                              ),
+                              const SpaceWidget(spaceWidth: 8),
+                              TextWidget(
+                                text: formattedDate,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                fontColor: AppColors.greyDark2,
+                              ),
+                            ],
+                          ),
+                          if (hasRequestSent) ...[
+                            const SpaceWidget(spaceHeight: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                const Icon(
+                                  Icons.check_circle,
+                                  color: Colors.green,
+                                  size: 12,
+                                ),
+                                const SpaceWidget(spaceWidth: 8),
+                                TextWidget(
+                                  text: "requestSent".tr,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  fontColor: Colors.green,
+                                ),
+                              ],
+                            ),
+                          ],
+                          const SpaceWidget(spaceHeight: 12),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: AppColors.whiteLight,
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                InkWell(
+                                  onTap: hasRequestSent
+                                      ? null
+                                      : () {
+                                          deliveryController
+                                              .sendParcelRequest(itemId);
+                                        },
+                                  splashColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                  child: Row(
                                     children: [
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(100),
-                                        child: const ImageWidget(
-                                          imagePath: AppImagePath.sendParcel,
-                                          width: 40,
-                                          height: 40,
-                                        ),
+                                      IconWidget(
+                                        icon: AppIconsPath.personAddIcon,
+                                        color: hasRequestSent
+                                            ? Colors.grey
+                                            : AppColors.black,
+                                        width: 14,
+                                        height: 14,
                                       ),
-                                      const SpaceWidget(spaceWidth: 12),
-                                      SizedBox(
-                                        width: ResponsiveUtils.width(180),
-                                        child: TextWidget(
-                                          text: title,
-                                          fontSize: 15.5,
-                                          fontWeight: FontWeight.w600,
-                                          fontColor: AppColors.black,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          textAlignment: TextAlign.start,
-                                        ),
+                                      const SpaceWidget(spaceWidth: 8),
+                                      TextWidget(
+                                        text: hasRequestSent
+                                            ? "requestSent".tr
+                                            : "sendRequest".tr,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        fontColor: hasRequestSent
+                                            ? Colors.grey
+                                            : AppColors.black,
                                       ),
                                     ],
                                   ),
-                                  TextWidget(
-                                    text: "${AppStrings.currency} $price",
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    fontColor: AppColors.black,
-                                  ),
-                                ],
-                              ),
-                              const SpaceWidget(spaceHeight: 12),
-                              //! Status section
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Icon(
-                                    Icons.location_on_rounded,
-                                    color: AppColors.black,
-                                    size: 14,
-                                  ),
-                                  const SpaceWidget(spaceWidth: 8),
-                                  TextWidget(
-                                    text: "$pickupAddress To $deliveryAddress",
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.greyDark2,
-                                    maxLines: 3,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
-                              const SpaceWidget(spaceHeight: 8),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.calendar_month,
-                                    color: AppColors.black,
-                                    size: 12,
-                                  ),
-                                  const SpaceWidget(spaceWidth: 8),
-                                  TextWidget(
-                                    text: formattedDate,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    fontColor: AppColors.greyDark2,
-                                  ),
-                                ],
-                              ),
-                              if (hasRequestSent) ...[
-                                const SpaceWidget(spaceHeight: 8),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    const Icon(
-                                      Icons.check_circle,
-                                      color: Colors.green,
-                                      size: 12,
-                                    ),
-                                    const SpaceWidget(spaceWidth: 8),
-                                    TextWidget(
-                                      text: "requestSent".tr,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      fontColor: Colors.green,
-                                    ),
-                                  ],
                                 ),
-                              ],
-                              const SpaceWidget(spaceHeight: 12),
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(14),
-                                decoration: BoxDecoration(
-                                  color: AppColors.whiteLight,
-                                  borderRadius: BorderRadius.circular(100),
+                                Container(
+                                  width: 1,
+                                  height: 18,
+                                  color: AppColors.blackLighter,
                                 ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    InkWell(
-                                      onTap: hasRequestSent
-                                          ? null
-                                          : () {
-                                        deliveryController
-                                            .sendParcelRequest(itemId);
-                                      },
-                                      splashColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                      child: Row(
-                                        children: [
-                                          IconWidget(
-                                            icon: AppIconsPath.personAddIcon,
-                                            color: hasRequestSent
-                                                ? Colors.grey
-                                                : AppColors.black,
-                                            width: 14,
-                                            height: 14,
-                                          ),
-                                          const SpaceWidget(spaceWidth: 8),
-                                          TextWidget(
-                                            text: hasRequestSent
-                                                ? "requestSent".tr
-                                                : "sendRequest".tr,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            fontColor: hasRequestSent
-                                                ? Colors.grey
-                                                : AppColors.black,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      width: 1,
-                                      height: 18,
-                                      color: AppColors.blackLighter,
-                                    ),
-                                    //! Keep original "See Details" functionality
-                                    InkWell(
-                                      onTap: () {
-                                        final dataList = item.data;
-                                        if (dataList != null &&
-                                            dataList.isNotEmpty &&
-                                            dataList.first.id != null) {
-                                          const String routeName = AppRoutes
-                                              .serviceScreenDeliveryDetails;
-                                          if (routeName.isNotEmpty) {
-                                            try {
-                                              Get.toNamed(routeName,
-                                                  arguments: dataList.first.id);
-                                            } catch (e) {
-                                              // AppSnackBar.error(
-                                              //     "Navigation error: ${e.toString()}");
-                                            }
-                                          } else {
-                                            // AppSnackBar.error(
-                                            //     "Route name is not properly defined.");
-                                          }
-                                        } else {
+                                //! Keep original "See Details" functionality
+                                InkWell(
+                                  onTap: () {
+                                    final dataList = item.data;
+                                    if (dataList != null &&
+                                        dataList.isNotEmpty &&
+                                        dataList.first.id != null) {
+                                      const String routeName = AppRoutes
+                                          .serviceScreenDeliveryDetails;
+                                      if (routeName.isNotEmpty) {
+                                        try {
+                                          Get.toNamed(routeName,
+                                              arguments: dataList.first.id);
+                                        } catch (e) {
                                           // AppSnackBar.error(
-                                          //     "Parcel details not available or ID is missing.");
+                                          //     "Navigation error: ${e.toString()}");
                                         }
-                                      },
-                                      splashColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                      child: Row(
-                                        children: [
-                                          const Icon(
-                                            Icons.visibility_outlined,
-                                            color: Colors.black,
-                                            size: 14,
-                                          ),
-                                          const SpaceWidget(spaceWidth: 8),
-                                          TextWidget(
-                                            text: "seeDetails".tr,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            fontColor: AppColors.black,
-                                          ),
-                                        ],
+                                      } else {
+                                        // AppSnackBar.error(
+                                        //     "Route name is not properly defined.");
+                                      }
+                                    } else {
+                                      // AppSnackBar.error(
+                                      //     "Parcel details not available or ID is missing.");
+                                    }
+                                  },
+                                  splashColor: Colors.transparent,
+                                  highlightColor: Colors.transparent,
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.visibility_outlined,
+                                        color: Colors.black,
+                                        size: 14,
                                       ),
-                                    )
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
-                        );
-                      }),
+                                      const SpaceWidget(spaceWidth: 8),
+                                      TextWidget(
+                                        text: "seeDetails".tr,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        fontColor: AppColors.black,
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                  }),
                 );
               }),
             ],
