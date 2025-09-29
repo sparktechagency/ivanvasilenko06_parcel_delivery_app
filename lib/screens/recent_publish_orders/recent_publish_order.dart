@@ -153,19 +153,17 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
             placemark.country!.trim().isNotEmpty) {
           address = placemark.country!.trim();
         } else {
-          // Final fallback with coordinates (formatted nicely)
-          address =
-              '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
+          // Final fallback to generic location text instead of coordinates
+          address = 'Unknown Location';
         }
 
         addressCache[key] = address;
         _updateAddress(parcelId, address, isPickup);
       } else {
-        // Fallback to coordinates if no placemarks found
-        final coordinateAddress =
-            '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
-        addressCache[key] = coordinateAddress;
-        _updateAddress(parcelId, coordinateAddress, isPickup);
+        // Fallback to generic location text instead of coordinates
+        const genericAddress = 'Location Not Found';
+        addressCache[key] = genericAddress;
+        _updateAddress(parcelId, genericAddress, isPickup);
       }
     } catch (e) {
       // Enhanced error handling with specific error types
@@ -179,11 +177,10 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
       } else if (e.toString().contains('permission')) {
         errorMessage = 'Location permission required';
       } else {
-        // Always provide coordinates as final fallback
-        final coordinateAddress =
-            '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
-        addressCache[key] = coordinateAddress;
-        _updateAddress(parcelId, coordinateAddress, isPickup);
+        // Always provide generic location message instead of coordinates
+        const genericErrorMessage = 'Location Unavailable';
+        addressCache[key] = genericErrorMessage;
+        _updateAddress(parcelId, genericErrorMessage, isPickup);
         return;
       }
 
@@ -209,27 +206,26 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
       String parcelId, bool isPickup, String errorMessage) {
     if (mounted) {
       setState(() {
+        String displayMessage;
+        
+        // Provide specific error messages based on error type
+        if (errorMessage.contains('Invalid coordinates')) {
+          displayMessage = 'Invalid Location';
+        } else if (errorMessage.contains('timeout')) {
+          displayMessage = 'Location Timeout';
+        } else if (errorMessage.contains('Network error')) {
+          displayMessage = 'Network Error';
+        } else if (errorMessage.contains('permission')) {
+          displayMessage = 'Permission Required';
+        } else {
+          displayMessage = 'Address Unavailable';
+        }
+        
         if (isPickup) {
-          // For error cases, try to provide coordinates as fallback if possible
-          if (errorMessage.contains('Invalid coordinates') ||
-              errorMessage.contains('timeout') ||
-              errorMessage.contains('Network error') ||
-              errorMessage.contains('permission')) {
-            pickupAddresses[parcelId] = errorMessage;
-          } else {
-            pickupAddresses[parcelId] = 'Address unavailable';
-          }
+          pickupAddresses[parcelId] = displayMessage;
           pickupAddressLoading[parcelId] = false;
         } else {
-          // For error cases, try to provide coordinates as fallback if possible
-          if (errorMessage.contains('Invalid coordinates') ||
-              errorMessage.contains('timeout') ||
-              errorMessage.contains('Network error') ||
-              errorMessage.contains('permission')) {
-            deliveryAddresses[parcelId] = errorMessage;
-          } else {
-            deliveryAddresses[parcelId] = 'Address unavailable';
-          }
+          deliveryAddresses[parcelId] = displayMessage;
           deliveryAddressLoading[parcelId] = false;
         }
       });

@@ -543,28 +543,30 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
                       if (deliveryMan?.reviews != null &&
                           deliveryMan!.reviews!.isNotEmpty)
                         Container(
-                          width: ResponsiveUtils.width(45),
+                          width: ResponsiveUtils.width(55),
                           padding: const EdgeInsets.symmetric(
                               horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: AppColors.yellow,
                             borderRadius: BorderRadius.circular(100),
                           ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.star_rounded,
-                                color: AppColors.white,
-                                size: 12,
-                              ),
-                              TextWidget(
-                                text:
-                                " ${_calculateAverageRating(deliveryMan)}",
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                fontColor: AppColors.white,
-                              ),
-                            ],
+                          child: Expanded(
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.star_rounded,
+                                  color: AppColors.white,
+                                  size: 12,
+                                ),
+                                TextWidget(
+                                  text:
+                                  " ${_calculateAverageRating(deliveryMan)}",
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  fontColor: AppColors.white,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       const SpaceWidget(spaceWidth: 8),

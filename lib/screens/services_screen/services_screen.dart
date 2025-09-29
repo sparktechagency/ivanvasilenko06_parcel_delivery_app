@@ -172,19 +172,17 @@ class _ServicesScreenState extends State<ServicesScreen> {
             placemark.country!.trim().isNotEmpty) {
           address = placemark.country!.trim();
         } else {
-          // Final fallback with coordinates (formatted nicely)
-          address =
-              '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
+          // Final fallback to generic location text instead of coordinates
+          address = 'Unknown Location';
         }
 
         addressCache[key] = address;
         _updateAddress(parcelId, address, isPickup);
       } else {
-        // Fallback to coordinates if no placemarks found
-        final coordinateAddress =
-            '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
-        addressCache[key] = coordinateAddress;
-        _updateAddress(parcelId, coordinateAddress, isPickup);
+        // Fallback to generic location text instead of coordinates
+        const genericAddress = 'Location Not Found';
+        addressCache[key] = genericAddress;
+        _updateAddress(parcelId, genericAddress, isPickup);
       }
     } catch (e) {
       // Enhanced error handling with specific error types
@@ -198,11 +196,10 @@ class _ServicesScreenState extends State<ServicesScreen> {
       } else if (e.toString().contains('permission')) {
         errorMessage = 'Location permission required';
       } else {
-        // Always provide coordinates as final fallback
-        final coordinateAddress =
-            '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
-        addressCache[key] = coordinateAddress;
-        _updateAddress(parcelId, coordinateAddress, isPickup);
+        // Always provide generic fallback instead of coordinates
+        const genericAddress = 'Location Unavailable';
+        addressCache[key] = genericAddress;
+        _updateAddress(parcelId, genericAddress, isPickup);
         return;
       }
 
@@ -229,25 +226,31 @@ class _ServicesScreenState extends State<ServicesScreen> {
     if (mounted) {
       setState(() {
         if (isPickup) {
-          // For error cases, try to provide coordinates as fallback if possible
-          if (errorMessage.contains('Invalid coordinates') ||
-              errorMessage.contains('timeout') ||
-              errorMessage.contains('Network error') ||
-              errorMessage.contains('permission')) {
-            pickupAddresses[parcelId] = errorMessage;
+          // Provide generic error messages instead of coordinates
+          if (errorMessage.contains('Invalid coordinates')) {
+            pickupAddresses[parcelId] = 'Invalid Location';
+          } else if (errorMessage.contains('timeout')) {
+            pickupAddresses[parcelId] = 'Location Timeout';
+          } else if (errorMessage.contains('Network error')) {
+            pickupAddresses[parcelId] = 'Network Error';
+          } else if (errorMessage.contains('permission')) {
+            pickupAddresses[parcelId] = 'Permission Required';
           } else {
-            pickupAddresses[parcelId] = 'Address unavailable';
+            pickupAddresses[parcelId] = 'Address Unavailable';
           }
           pickupAddressLoading[parcelId] = false;
         } else {
-          // For error cases, try to provide coordinates as fallback if possible
-          if (errorMessage.contains('Invalid coordinates') ||
-              errorMessage.contains('timeout') ||
-              errorMessage.contains('Network error') ||
-              errorMessage.contains('permission')) {
-            deliveryAddresses[parcelId] = errorMessage;
+          // Provide generic error messages instead of coordinates
+          if (errorMessage.contains('Invalid coordinates')) {
+            deliveryAddresses[parcelId] = 'Invalid Location';
+          } else if (errorMessage.contains('timeout')) {
+            deliveryAddresses[parcelId] = 'Location Timeout';
+          } else if (errorMessage.contains('Network error')) {
+            deliveryAddresses[parcelId] = 'Network Error';
+          } else if (errorMessage.contains('permission')) {
+            deliveryAddresses[parcelId] = 'Permission Required';
           } else {
-            deliveryAddresses[parcelId] = 'Address unavailable';
+            deliveryAddresses[parcelId] = 'Address Unavailable';
           }
           deliveryAddressLoading[parcelId] = false;
         }

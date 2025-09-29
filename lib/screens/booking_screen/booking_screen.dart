@@ -1588,7 +1588,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                         deliveryRequest.reviews!.length >
                                     0.0))
                               Container(
-                                width: ResponsiveUtils.width(55),
+                                width: ResponsiveUtils.width(58),
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(

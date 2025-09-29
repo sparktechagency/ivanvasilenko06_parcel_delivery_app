@@ -84,17 +84,17 @@ class _NotificationScreenState extends State<NotificationScreen>
         } else if (placemark.country != null && placemark.country!.trim().isNotEmpty) {
           newAddress = placemark.country!.trim();
         } else {
-          // Final fallback with coordinates (formatted nicely)
-          newAddress = '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
+          // Final fallback to generic location text instead of coordinates
+          newAddress = 'Unknown Location';
         }
 
         locationToAddressCache[key] = newAddress;
         return newAddress;
       } else {
-        // Fallback to coordinates if no placemarks found
-        final coordinateAddress = '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
-        locationToAddressCache[key] = coordinateAddress;
-        return coordinateAddress;
+        // Fallback to generic location text instead of coordinates
+        const genericAddress = 'Location Not Found';
+        locationToAddressCache[key] = genericAddress;
+        return genericAddress;
       }
     } catch (e) {
       // Enhanced error handling with specific error types
@@ -105,10 +105,10 @@ class _NotificationScreenState extends State<NotificationScreen>
       } else if (e.toString().contains('permission')) {
         return 'Location permission required';
       } else {
-        // Always provide coordinates as final fallback for any other error
-        final coordinateAddress = '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
-        locationToAddressCache[key] = coordinateAddress;
-        return coordinateAddress;
+        // Always provide generic location message instead of coordinates
+        const genericErrorMessage = 'Location Unavailable';
+        locationToAddressCache[key] = genericErrorMessage;
+        return genericErrorMessage;
       }
     }
   }
@@ -317,14 +317,11 @@ class _NotificationScreenState extends State<NotificationScreen>
         }
 
         if (!success) {
-          // If everything fails, provide helpful error message
-          //!  log('❌ All WhatsApp methods failed');
           _showErrorSnackBar(
               'Unable to open WhatsApp. Please ensure WhatsApp is installed and try again.');
         }
       }
     } catch (e) {
-      //!   log('❌ Critical error in _openWhatsApp: $e');
       _showErrorSnackBar('Error opening WhatsApp: ${e.toString()}');
     }
   }
@@ -670,33 +667,80 @@ class _NotificationScreenState extends State<NotificationScreen>
     final pickupAddress = getParcelAddress(notificationId, 'pickup');
     final deliveryAddress = getParcelAddress(notificationId, 'delivery');
 
-    //! Date and Time Formatting
-    String formattedDate = "N/A";
-    try {
-      if (notification.deliveryStartTime != null &&
-          notification.deliveryEndTime != null) {
-        //! First try parsing with the expected format
-        DateFormat dateFormat = DateFormat("yyyy-MM-dd hh:mm a");
-        final startDate =
-        dateFormat.parse(notification.deliveryStartTime.toString());
-        final endDate =
-        dateFormat.parse(notification.deliveryEndTime.toString());
-
-        formattedDate =
-        "${DateFormat('dd.MM').format(startDate)} to ${DateFormat('dd.MM').format(endDate)}";
-      }
-    } catch (e) {
-      log("Error parsing dates: $e");
+    //! Date and Time Formatting with enhanced error handling
+    String formattedDate = "Date Not Available";
+    
+    if (notification.deliveryStartTime != null && notification.deliveryEndTime != null) {
       try {
-        //! Fallback: try parsing ISO format if the first attempt fails
-        final startDate =
-        DateTime.parse(notification.deliveryStartTime.toString());
-        final endDate = DateTime.parse(notification.deliveryEndTime.toString());
-        formattedDate =
-        "${DateFormat('dd.MM').format(startDate)} to ${DateFormat('dd.MM').format(endDate)}";
+        String startTimeStr = notification.deliveryStartTime.toString().trim();
+        String endTimeStr = notification.deliveryEndTime.toString().trim();
+        
+        // Skip if the values are clearly invalid
+        if (startTimeStr.isEmpty || endTimeStr.isEmpty || 
+            startTimeStr.toLowerCase() == 'null' || endTimeStr.toLowerCase() == 'null') {
+          formattedDate = "Date Not Available";
+        } else {
+          DateTime? startDate;
+          DateTime? endDate;
+          
+          // Try multiple date formats in order of preference
+          List<DateFormat> formats = [
+            DateFormat("yyyy-MM-dd hh:mm a"),
+            DateFormat("yyyy-MM-dd HH:mm:ss"),
+            DateFormat("yyyy-MM-dd HH:mm"),
+            DateFormat("yyyy-MM-dd"),
+            DateFormat("dd/MM/yyyy HH:mm"),
+            DateFormat("dd/MM/yyyy hh:mm a"),
+          ];
+          
+          // Try parsing start date
+          for (DateFormat format in formats) {
+            try {
+              startDate = format.parse(startTimeStr);
+              break;
+            } catch (e) {
+              continue;
+            }
+          }
+          
+          // If format parsing fails, try DateTime.parse as fallback
+          if (startDate == null) {
+            try {
+              startDate = DateTime.parse(startTimeStr);
+            } catch (e) {
+              // Skip this date if parsing completely fails
+            }
+          }
+          
+          // Try parsing end date
+          for (DateFormat format in formats) {
+            try {
+              endDate = format.parse(endTimeStr);
+              break;
+            } catch (e) {
+              continue;
+            }
+          }
+          
+          // If format parsing fails, try DateTime.parse as fallback
+          if (endDate == null) {
+            try {
+              endDate = DateTime.parse(endTimeStr);
+            } catch (e) {
+              // Skip this date if parsing completely fails
+            }
+          }
+          
+          // Format the dates if both were successfully parsed
+          if (startDate != null && endDate != null) {
+            formattedDate = "${DateFormat('dd.MM').format(startDate)} to ${DateFormat('dd.MM').format(endDate)}";
+          } else {
+            formattedDate = "Date Not Available";
+          }
+        }
       } catch (e) {
-        //! log("Error parsing dates (fallback): $e");
-        formattedDate = "N/A";
+        log("Error parsing dates: $e");
+        formattedDate = "Date Not Available";
       }
     }
 
@@ -820,10 +864,10 @@ class _NotificationScreenState extends State<NotificationScreen>
     controller.notificationModel.value!.data!.notifications![index];
 
     String title = notification.title ?? "Notification";
-    String name = notification.name ?? "Unknown";
+    String name = notification.name ?? "Unknown User";
     String image = notification.image ?? "";
-    String avgRating = notification.avgRating?.toString() ?? "N/A";
-    String mobileNumber = notification.mobileNumber ?? "N/A";
+    String avgRating = notification.avgRating?.toString() ?? "No Rating";
+    String mobileNumber = notification.mobileNumber ?? "No Phone Number";
     String type = notification.type ?? "";
     String price = notification.price?.toString() ?? "0";
 
@@ -904,16 +948,81 @@ class _NotificationScreenState extends State<NotificationScreen>
     final pickupAddress = getParcelAddress(notificationId, 'pickup');
     final deliveryAddress = getParcelAddress(notificationId, 'delivery');
 
-    //! Date and Time Formatting
-    String formattedDate = "N/A";
-    try {
-      final startDate =
-      DateTime.parse(notification.deliveryStartTime.toString());
-      final endDate = DateTime.parse(notification.deliveryEndTime.toString());
-      formattedDate =
-      "${DateFormat('dd.MM').format(startDate)} to ${DateFormat('dd.MM').format(endDate)}";
-    } catch (e) {
-      //! log("Error parsing dates: $e");
+    //! Date and Time Formatting with enhanced error handling
+    String formattedDate = "Date Not Available";
+    
+    if (notification.deliveryStartTime != null && notification.deliveryEndTime != null) {
+      try {
+        String startTimeStr = notification.deliveryStartTime.toString().trim();
+        String endTimeStr = notification.deliveryEndTime.toString().trim();
+        
+        // Skip if the values are clearly invalid
+        if (startTimeStr.isEmpty || endTimeStr.isEmpty || 
+            startTimeStr.toLowerCase() == 'null' || endTimeStr.toLowerCase() == 'null') {
+          formattedDate = "Date Not Available";
+        } else {
+          DateTime? startDate;
+          DateTime? endDate;
+          
+          // Try multiple date formats in order of preference
+          List<DateFormat> formats = [
+            DateFormat("yyyy-MM-dd hh:mm a"),
+            DateFormat("yyyy-MM-dd HH:mm:ss"),
+            DateFormat("yyyy-MM-dd HH:mm"),
+            DateFormat("yyyy-MM-dd"),
+            DateFormat("dd/MM/yyyy HH:mm"),
+            DateFormat("dd/MM/yyyy hh:mm a"),
+          ];
+          
+          // Try parsing start date
+          for (DateFormat format in formats) {
+            try {
+              startDate = format.parse(startTimeStr);
+              break;
+            } catch (e) {
+              continue;
+            }
+          }
+          
+          // If format parsing fails, try DateTime.parse as fallback
+          if (startDate == null) {
+            try {
+              startDate = DateTime.parse(startTimeStr);
+            } catch (e) {
+              // Skip this date if parsing completely fails
+            }
+          }
+          
+          // Try parsing end date
+          for (DateFormat format in formats) {
+            try {
+              endDate = format.parse(endTimeStr);
+              break;
+            } catch (e) {
+              continue;
+            }
+          }
+          
+          // If format parsing fails, try DateTime.parse as fallback
+          if (endDate == null) {
+            try {
+              endDate = DateTime.parse(endTimeStr);
+            } catch (e) {
+              // Skip this date if parsing completely fails
+            }
+          }
+          
+          // Format the dates if both were successfully parsed
+          if (startDate != null && endDate != null) {
+            formattedDate = "${DateFormat('dd.MM').format(startDate)} to ${DateFormat('dd.MM').format(endDate)}";
+          } else {
+            formattedDate = "Date Not Available";
+          }
+        }
+      } catch (e) {
+        //! log("Error parsing dates: $e");
+        formattedDate = "Date Not Available";
+      }
     }
     String getProfileImagePath() {
       if (controller.isLoading.value) {
@@ -1068,7 +1177,7 @@ class _NotificationScreenState extends State<NotificationScreen>
               ),
               const SpaceWidget(spaceWidth: 8),
               TextWidget(
-                text: notification.title ?? "N/A",
+                text: notification.title ?? "No Title",
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 fontColor: AppColors.greyDark2,
@@ -1116,7 +1225,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                       ),
                       const SpaceWidget(spaceWidth: 8),
                       TextWidget(
-                        text: notification.mobileNumber ?? "N/A",
+                        text: notification.mobileNumber ?? "No Phone Number",
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                         fontColor: AppColors.greyDark2,
