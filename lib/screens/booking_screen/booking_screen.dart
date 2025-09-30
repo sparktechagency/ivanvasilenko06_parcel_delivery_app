@@ -33,9 +33,11 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen> {
   int _currentIndex = 0;
+  final PageController _pageController = PageController();
   Map<String, String> addressCache = {};
   Map<String, String> locationToAddressCache = {};
-  final PageController _pageController = PageController();
+  Set<String> pendingRequests = {}; // Track ongoing requests
+  bool _isDisposed = false; // Track widget disposal
 
   late final CurrentOrderController currentOrderController;
   late final NewBookingsController newBookingsController;
@@ -43,13 +45,17 @@ class _BookingScreenState extends State<BookingScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize controllers
     currentOrderController =
         Get.put(CurrentOrderController(), tag: 'booking_screen');
     newBookingsController = Get.put(NewBookingsController());
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      currentOrderController.getCurrentOrder();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await currentOrderController.getCurrentOrder();
+      // Prefetch all addresses at once
+      final parcels = currentOrderController.currentOrdersModel.value.data;
+      if (parcels != null) {
+        await prefetchAllAddresses(parcels);
+      }
     });
   }
 
@@ -63,91 +69,135 @@ class _BookingScreenState extends State<BookingScreen> {
       return 'Invalid coordinates';
     }
 
-    final String key = '$latitude,$longitude';
+    final String key =
+        '${latitude.toStringAsFixed(6)},${longitude.toStringAsFixed(6)}';
+
+    // Return cached result if available
     if (locationToAddressCache.containsKey(key)) {
       return locationToAddressCache[key]!;
     }
 
+    // Prevent duplicate requests for the same location
+    if (pendingRequests.contains(key)) {
+      // Wait for the pending request to complete
+      int attempts = 0;
+      while (pendingRequests.contains(key) && attempts < 50) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        attempts++;
+        if (locationToAddressCache.containsKey(key)) {
+          return locationToAddressCache[key]!;
+        }
+      }
+    }
+
+    pendingRequests.add(key);
+
     try {
-      // Add timeout to prevent hanging
       List<Placemark> placemarks =
           await placemarkFromCoordinates(latitude, longitude).timeout(
         const Duration(seconds: 10),
-        onTimeout: () {
-          throw Exception('Address lookup timeout');
-        },
+        onTimeout: () => throw Exception('Timeout'),
       );
 
       if (placemarks.isNotEmpty) {
         final placemark = placemarks[0];
+        String newAddress = _extractBestAddress(placemark, latitude, longitude);
 
-        // Get single address property in priority order: locality > subLocality > street > subAdministrativeArea
-        String newAddress;
-
-        if (placemark.locality != null &&
-            placemark.locality!.trim().isNotEmpty) {
-          newAddress = placemark.locality!.trim();
-        } else if (placemark.subLocality != null &&
-            placemark.subLocality!.trim().isNotEmpty) {
-          newAddress = placemark.subLocality!.trim();
-        } else if (placemark.street != null &&
-            placemark.street!.trim().isNotEmpty) {
-          newAddress = placemark.street!.trim();
-        } else if (placemark.subAdministrativeArea != null &&
-            placemark.subAdministrativeArea!.trim().isNotEmpty) {
-          newAddress = placemark.subAdministrativeArea!.trim();
-        } else if (placemark.administrativeArea != null &&
-            placemark.administrativeArea!.trim().isNotEmpty) {
-          newAddress = placemark.administrativeArea!.trim();
-        } else if (placemark.country != null &&
-            placemark.country!.trim().isNotEmpty) {
-          newAddress = placemark.country!.trim();
-        } else {
-          // Final fallback with coordinates (formatted nicely)
-          newAddress =
-              '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
-        }
-
+        // Cache the result before removing from pending
         locationToAddressCache[key] = newAddress;
+        pendingRequests.remove(key);
+
         return newAddress;
       } else {
-        // Fallback to coordinates if no placemarks found
         final coordinateAddress =
             '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
         locationToAddressCache[key] = coordinateAddress;
+        pendingRequests.remove(key);
         return coordinateAddress;
       }
     } catch (e) {
-      // Enhanced error handling with specific error types
+      pendingRequests.remove(key);
 
-      if (e.toString().contains('timeout')) {
-        return 'Address lookup timed out';
+      // Provide specific error messages
+      String errorMessage;
+      if (e.toString().contains('Timeout') ||
+          e.toString().contains('timeout')) {
+        errorMessage = 'Location loading...';
       } else if (e.toString().contains('network') ||
           e.toString().contains('internet')) {
-        return 'Network error - please check your connection';
+        errorMessage = 'No network';
       } else if (e.toString().contains('permission')) {
-        return 'Location permission required';
+        errorMessage = 'Permission needed';
       } else {
-        return 'Error fetching address: $e';
+        // Fallback to coordinates on any error
+        errorMessage =
+            '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
       }
 
-      // // Always provide coordinates as final fallback
-      // final coordinateAddress = '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
-      // locationToAddressCache[key] = coordinateAddress;
-      // return coordinateAddress;
+      // Don't cache errors (except coordinate fallback)
+      if (errorMessage.contains(',')) {
+        locationToAddressCache[key] = errorMessage;
+      }
+
+      return errorMessage;
     }
+  }
+
+  String _extractBestAddress(Placemark placemark, double lat, double lng) {
+    // Priority order: locality > subLocality > street > subAdministrativeArea > administrativeArea
+    final List<String?> addressParts = [
+      placemark.locality,
+      placemark.subLocality,
+      placemark.street,
+      placemark.subAdministrativeArea,
+      placemark.administrativeArea,
+      placemark.country,
+    ];
+    for (var part in addressParts) {
+      if (part != null &&
+          part.trim().isNotEmpty &&
+          part.toLowerCase() != 'null') {
+        return part.trim();
+      }
+    }
+
+    // Final fallback to coordinates
+    return '${lat.toStringAsFixed(4)}, ${lng.toStringAsFixed(4)}';
   }
 
   //! Store address by parcel ID
   void cacheAddressForParcel(String parcelId, String addressType,
       double latitude, double longitude) async {
+    if (_isDisposed) return;
     final cacheKey = '${parcelId}_$addressType';
-    if (!addressCache.containsKey(cacheKey)) {
+    // Skip if already cached
+    if (addressCache.containsKey(cacheKey)) {
+      return;
+    }
+    // Set loading state immediately
+    if (mounted) {
+      setState(() {
+        addressCache[cacheKey] = 'Loading...';
+      });
+    }
+
+    try {
       String fetchedAddress =
           await getAddressFromCoordinates(latitude, longitude);
-      setState(() {
-        addressCache[cacheKey] = fetchedAddress;
-      });
+
+      // Only update if widget is still mounted and not disposed
+      if (mounted && !_isDisposed) {
+        setState(() {
+          addressCache[cacheKey] = fetchedAddress;
+        });
+      }
+    } catch (e) {
+      if (mounted && !_isDisposed) {
+        setState(() {
+          addressCache[cacheKey] =
+              '${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)}';
+        });
+      }
     }
   }
 
@@ -155,6 +205,44 @@ class _BookingScreenState extends State<BookingScreen> {
   String getParcelAddress(String parcelId, String addressType) {
     final cacheKey = '${parcelId}_$addressType';
     return addressCache[cacheKey] ?? 'Loading...';
+  }
+
+  Future<void> prefetchAllAddresses(List<dynamic> parcels) async {
+    final List<Future<void>> futures = [];
+
+    for (var parcel in parcels) {
+      final parcelId = parcel.id ?? "";
+      final deliveryLocation = parcel.deliveryLocation?.coordinates;
+      final pickupLocation = parcel.pickupLocation?.coordinates;
+
+      if (deliveryLocation != null && deliveryLocation.length == 2) {
+        futures.add(
+            getAddressFromCoordinates(deliveryLocation[1], deliveryLocation[0])
+                .then((address) {
+          if (mounted && !_isDisposed) {
+            setState(() {
+              addressCache['${parcelId}_delivery'] = address;
+            });
+          }
+        }));
+      }
+      if (pickupLocation != null && pickupLocation.length == 2) {
+        futures.add(
+            getAddressFromCoordinates(pickupLocation[1], pickupLocation[0])
+                .then((address) {
+          if (mounted && !_isDisposed) {
+            setState(() {
+              addressCache['${parcelId}_pickup'] = address;
+            });
+          }
+        }));
+      }
+    }
+    // Wait for all requests to complete (with timeout)
+    await Future.wait(futures).timeout(
+      const Duration(seconds: 05),
+      onTimeout: () => [],
+    );
   }
 
   void _openBottomSheet() {
@@ -508,16 +596,10 @@ class _BookingScreenState extends State<BookingScreen> {
                             _currentIndex = 0;
                             controller.update();
                             _pageController.jumpToPage(0);
-
                             Get.back();
                           } catch (e) {
                             // Close loading dialog
                             Get.back();
-                            // Get.snackbar(
-                            //   'Error',
-                            //   'Failed to remove parcel: ${e.toString()}',
-                            //   snackPosition: SnackPosition.BOTTOM,
-                            // );
                           }
                         },
                       ),
@@ -610,6 +692,12 @@ class _BookingScreenState extends State<BookingScreen> {
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
   }
 
   @override

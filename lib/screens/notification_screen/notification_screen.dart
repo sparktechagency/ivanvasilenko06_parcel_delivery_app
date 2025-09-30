@@ -43,73 +43,85 @@ class _NotificationScreenState extends State<NotificationScreen>
   Future<String> getAddressFromCoordinates(
       double latitude, double longitude) async {
     // Validate coordinates
-    if (latitude.isNaN || longitude.isNaN || 
-        latitude.abs() > 90 || longitude.abs() > 180) {
-      return 'Invalid coordinates';
+    if (latitude.isNaN ||
+        longitude.isNaN ||
+        latitude.abs() > 90 ||
+        longitude.abs() > 180) {
+      return 'Invalid Location';
     }
 
-    final String key = '$latitude,$longitude';
+    final String key =
+        '${latitude.toStringAsFixed(6)},${longitude.toStringAsFixed(6)}';
+
+    // Check cache first
     if (locationToAddressCache.containsKey(key)) {
       return locationToAddressCache[key]!;
     }
 
     try {
-      // Add timeout to prevent hanging
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        latitude, 
-        longitude
-      ).timeout(
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(latitude, longitude).timeout(
         const Duration(seconds: 10),
-        onTimeout: () {
-          throw Exception('Address lookup timeout');
-        },
+        onTimeout: () => throw Exception('Timeout'),
       );
 
       if (placemarks.isNotEmpty) {
         final placemark = placemarks[0];
 
-        // Get single address property in priority order: locality > subLocality > street > subAdministrativeArea > administrativeArea > country
-        String newAddress;
+        // Use the same extraction logic as services_screen
+        final List<String?> addressParts = [
+          placemark.locality,
+          placemark.subLocality,
+          placemark.street,
+          placemark.subAdministrativeArea,
+          placemark.administrativeArea,
+          placemark.country,
+        ];
 
-        if (placemark.locality != null && placemark.locality!.trim().isNotEmpty) {
-          newAddress = placemark.locality!.trim();
-        } else if (placemark.subLocality != null && placemark.subLocality!.trim().isNotEmpty) {
-          newAddress = placemark.subLocality!.trim();
-        } else if (placemark.street != null && placemark.street!.trim().isNotEmpty) {
-          newAddress = placemark.street!.trim();
-        } else if (placemark.subAdministrativeArea != null && placemark.subAdministrativeArea!.trim().isNotEmpty) {
-          newAddress = placemark.subAdministrativeArea!.trim();
-        } else if (placemark.administrativeArea != null && placemark.administrativeArea!.trim().isNotEmpty) {
-          newAddress = placemark.administrativeArea!.trim();
-        } else if (placemark.country != null && placemark.country!.trim().isNotEmpty) {
-          newAddress = placemark.country!.trim();
-        } else {
-          // Final fallback to generic location text instead of coordinates
-          newAddress = 'Unknown Location';
+        for (var part in addressParts) {
+          if (part != null &&
+              part.trim().isNotEmpty &&
+              part.toLowerCase() != 'null') {
+            locationToAddressCache[key] = part.trim();
+            return part.trim();
+          }
         }
 
-        locationToAddressCache[key] = newAddress;
-        return newAddress;
+        const fallback = 'Unknown Location';
+        locationToAddressCache[key] = fallback;
+        return fallback;
       } else {
-        // Fallback to generic location text instead of coordinates
         const genericAddress = 'Location Not Found';
         locationToAddressCache[key] = genericAddress;
         return genericAddress;
       }
     } catch (e) {
-      // Enhanced error handling with specific error types
-      if (e.toString().contains('timeout')) {
-        return 'Address lookup timed out';
-      } else if (e.toString().contains('network') || e.toString().contains('internet')) {
-        return 'Network error - please check your connection';
+      // DON'T cache temporary errors - only cache if it's a permanent issue
+      String errorMessage;
+      bool shouldCache = false;
+
+      if (e.toString().contains('Timeout') ||
+          e.toString().contains('timeout')) {
+        errorMessage = 'Location Unavailable'; // Changed from technical message
+        shouldCache = false; // Allow retry
+      } else if (e.toString().contains('network') ||
+          e.toString().contains('internet')) {
+        errorMessage = 'No Network';
+        shouldCache = false; // Allow retry
       } else if (e.toString().contains('permission')) {
-        return 'Location permission required';
+        errorMessage = 'Permission Required';
+        shouldCache = true; // Cache permission errors
       } else {
-        // Always provide generic location message instead of coordinates
-        const genericErrorMessage = 'Location Unavailable';
-        locationToAddressCache[key] = genericErrorMessage;
-        return genericErrorMessage;
+        errorMessage = 'Location Unavailable';
+        shouldCache = true; // Cache unknown errors
       }
+
+      // Only cache permanent errors
+      if (shouldCache) {
+        locationToAddressCache[key] = errorMessage;
+      }
+
+      return errorMessage;
     }
   }
 
@@ -117,23 +129,31 @@ class _NotificationScreenState extends State<NotificationScreen>
   void cacheAddressForParcel(String parcelId, String addressType,
       double latitude, double longitude) async {
     final cacheKey = '${parcelId}_$addressType';
-    if (!addressCache.containsKey(cacheKey)) {
-      try {
-        String fetchedAddress =
-            await getAddressFromCoordinates(latitude, longitude);
-        // Check if widget is still mounted before calling setState
-        if (mounted) {
-          setState(() {
-            addressCache[cacheKey] = fetchedAddress;
-          });
-        }
-      } catch (e) {
-        // Handle any errors during address fetching
-        if (mounted) {
-          setState(() {
-            addressCache[cacheKey] = 'Address unavailable';
-          });
-        }
+
+    // Skip if already successfully loaded (not an error state)
+    if (addressCache.containsKey(cacheKey)) {
+      final existing = addressCache[cacheKey]!;
+      // Only skip if it's not an error that should be retried
+      if (!existing.contains('Unavailable') &&
+          !existing.contains('No Network') &&
+          existing != 'Loading...') {
+        return; // Already have a good address
+      }
+    }
+
+    try {
+      String fetchedAddress =
+          await getAddressFromCoordinates(latitude, longitude);
+      if (mounted) {
+        setState(() {
+          addressCache[cacheKey] = fetchedAddress;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          addressCache[cacheKey] = 'Location Unavailable';
+        });
       }
     }
   }
@@ -155,7 +175,7 @@ class _NotificationScreenState extends State<NotificationScreen>
   //! Method to get the new booking address
   Future<void> newAddress(double latitude, double longitude) async {
     String result =
-    await addressService.getNewBookingAddress(latitude, longitude);
+        await addressService.getNewBookingAddress(latitude, longitude);
     // Check if widget is still mounted before calling setState
     if (mounted) {
       setState(() {
@@ -164,8 +184,8 @@ class _NotificationScreenState extends State<NotificationScreen>
     }
   }
 
-  final DeliveryScreenController _deliveryController =
-  Get.put(DeliveryScreenController());
+  // final DeliveryScreenController _deliveryController =
+  //     Get.put(DeliveryScreenController());
 
   @override
   void initState() {
@@ -245,21 +265,21 @@ class _NotificationScreenState extends State<NotificationScreen>
       List<Map<String, String>> whatsappMethods = [
         {
           'url':
-          "https://wa.me/$numberWithoutPlus?text=${Uri.encodeComponent(message)}",
+              "https://wa.me/$numberWithoutPlus?text=${Uri.encodeComponent(message)}",
           'description': 'WhatsApp universal web link'
         },
 
         // Native WhatsApp schemes
         {
           'url':
-          "whatsapp://send?phone=$numberWithoutPlus&text=${Uri.encodeComponent(message)}",
+              "whatsapp://send?phone=$numberWithoutPlus&text=${Uri.encodeComponent(message)}",
           'description': 'WhatsApp native scheme'
         },
 
         // Alternative API link
         {
           'url':
-          "https://api.whatsapp.com/send?phone=$numberWithoutPlus&text=${Uri.encodeComponent(message)}",
+              "https://api.whatsapp.com/send?phone=$numberWithoutPlus&text=${Uri.encodeComponent(message)}",
           'description': 'WhatsApp API link'
         },
       ];
@@ -459,7 +479,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                       final bool isEmpty =
                           controller.notificationModel.value == null ||
                               controller.notificationModel.value?.data
-                                  ?.notifications ==
+                                      ?.notifications ==
                                   null ||
                               controller.notificationModel.value!.data!
                                   .notifications!.isEmpty;
@@ -498,8 +518,8 @@ class _NotificationScreenState extends State<NotificationScreen>
                           children: [
                             // Regular Notifications Section
                             if (controller.notificationModel.value?.data
-                                ?.notifications !=
-                                null &&
+                                        ?.notifications !=
+                                    null &&
                                 controller.notificationModel.value!.data!
                                     .notifications!.isNotEmpty) ...[
                               Padding(
@@ -516,7 +536,7 @@ class _NotificationScreenState extends State<NotificationScreen>
                               ...List.generate(
                                 controller.notificationModel.value!.data!
                                     .notifications!.length,
-                                    (index) => _buildRegularNotificationCard(index),
+                                (index) => _buildRegularNotificationCard(index),
                               ),
                               if (controller.isLoading.value &&
                                   controller.currentPage.value > 1)
@@ -669,20 +689,23 @@ class _NotificationScreenState extends State<NotificationScreen>
 
     //! Date and Time Formatting with enhanced error handling
     String formattedDate = "Date Not Available";
-    
-    if (notification.deliveryStartTime != null && notification.deliveryEndTime != null) {
+
+    if (notification.deliveryStartTime != null &&
+        notification.deliveryEndTime != null) {
       try {
         String startTimeStr = notification.deliveryStartTime.toString().trim();
         String endTimeStr = notification.deliveryEndTime.toString().trim();
-        
+
         // Skip if the values are clearly invalid
-        if (startTimeStr.isEmpty || endTimeStr.isEmpty || 
-            startTimeStr.toLowerCase() == 'null' || endTimeStr.toLowerCase() == 'null') {
+        if (startTimeStr.isEmpty ||
+            endTimeStr.isEmpty ||
+            startTimeStr.toLowerCase() == 'null' ||
+            endTimeStr.toLowerCase() == 'null') {
           formattedDate = "Date Not Available";
         } else {
           DateTime? startDate;
           DateTime? endDate;
-          
+
           // Try multiple date formats in order of preference
           List<DateFormat> formats = [
             DateFormat("yyyy-MM-dd hh:mm a"),
@@ -692,7 +715,7 @@ class _NotificationScreenState extends State<NotificationScreen>
             DateFormat("dd/MM/yyyy HH:mm"),
             DateFormat("dd/MM/yyyy hh:mm a"),
           ];
-          
+
           // Try parsing start date
           for (DateFormat format in formats) {
             try {
@@ -702,7 +725,7 @@ class _NotificationScreenState extends State<NotificationScreen>
               continue;
             }
           }
-          
+
           // If format parsing fails, try DateTime.parse as fallback
           if (startDate == null) {
             try {
@@ -711,7 +734,7 @@ class _NotificationScreenState extends State<NotificationScreen>
               // Skip this date if parsing completely fails
             }
           }
-          
+
           // Try parsing end date
           for (DateFormat format in formats) {
             try {
@@ -721,7 +744,7 @@ class _NotificationScreenState extends State<NotificationScreen>
               continue;
             }
           }
-          
+
           // If format parsing fails, try DateTime.parse as fallback
           if (endDate == null) {
             try {
@@ -730,10 +753,11 @@ class _NotificationScreenState extends State<NotificationScreen>
               // Skip this date if parsing completely fails
             }
           }
-          
+
           // Format the dates if both were successfully parsed
           if (startDate != null && endDate != null) {
-            formattedDate = "${DateFormat('dd.MM').format(startDate)} to ${DateFormat('dd.MM').format(endDate)}";
+            formattedDate =
+                "${DateFormat('dd.MM').format(startDate)} to ${DateFormat('dd.MM').format(endDate)}";
           } else {
             formattedDate = "Date Not Available";
           }
@@ -861,7 +885,7 @@ class _NotificationScreenState extends State<NotificationScreen>
   Widget _buildRegularNotificationCard(int index) {
     //! Access the notification from the controller directly using the index
     final notification =
-    controller.notificationModel.value!.data!.notifications![index];
+        controller.notificationModel.value!.data!.notifications![index];
 
     String title = notification.title ?? "Notification";
     String name = notification.name ?? "Unknown User";
@@ -899,13 +923,13 @@ class _NotificationScreenState extends State<NotificationScreen>
           timeAgo = "just now";
         } else if (difference.inMinutes < 60) {
           timeAgo =
-          "${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} ago";
+              "${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} ago";
         } else if (difference.inHours < 24) {
           timeAgo =
-          "${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago";
+              "${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago";
         } else if (difference.inDays < 30) {
           timeAgo =
-          "${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago";
+              "${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago";
         } else if (difference.inDays < 365) {
           final months = (difference.inDays / 30).floor();
           timeAgo = "$months month${months == 1 ? '' : 's'} ago";
@@ -950,20 +974,23 @@ class _NotificationScreenState extends State<NotificationScreen>
 
     //! Date and Time Formatting with enhanced error handling
     String formattedDate = "Date Not Available";
-    
-    if (notification.deliveryStartTime != null && notification.deliveryEndTime != null) {
+
+    if (notification.deliveryStartTime != null &&
+        notification.deliveryEndTime != null) {
       try {
         String startTimeStr = notification.deliveryStartTime.toString().trim();
         String endTimeStr = notification.deliveryEndTime.toString().trim();
-        
+
         // Skip if the values are clearly invalid
-        if (startTimeStr.isEmpty || endTimeStr.isEmpty || 
-            startTimeStr.toLowerCase() == 'null' || endTimeStr.toLowerCase() == 'null') {
+        if (startTimeStr.isEmpty ||
+            endTimeStr.isEmpty ||
+            startTimeStr.toLowerCase() == 'null' ||
+            endTimeStr.toLowerCase() == 'null') {
           formattedDate = "Date Not Available";
         } else {
           DateTime? startDate;
           DateTime? endDate;
-          
+
           // Try multiple date formats in order of preference
           List<DateFormat> formats = [
             DateFormat("yyyy-MM-dd hh:mm a"),
@@ -973,7 +1000,7 @@ class _NotificationScreenState extends State<NotificationScreen>
             DateFormat("dd/MM/yyyy HH:mm"),
             DateFormat("dd/MM/yyyy hh:mm a"),
           ];
-          
+
           // Try parsing start date
           for (DateFormat format in formats) {
             try {
@@ -983,7 +1010,7 @@ class _NotificationScreenState extends State<NotificationScreen>
               continue;
             }
           }
-          
+
           // If format parsing fails, try DateTime.parse as fallback
           if (startDate == null) {
             try {
@@ -992,7 +1019,7 @@ class _NotificationScreenState extends State<NotificationScreen>
               // Skip this date if parsing completely fails
             }
           }
-          
+
           // Try parsing end date
           for (DateFormat format in formats) {
             try {
@@ -1002,7 +1029,7 @@ class _NotificationScreenState extends State<NotificationScreen>
               continue;
             }
           }
-          
+
           // If format parsing fails, try DateTime.parse as fallback
           if (endDate == null) {
             try {
@@ -1011,10 +1038,11 @@ class _NotificationScreenState extends State<NotificationScreen>
               // Skip this date if parsing completely fails
             }
           }
-          
+
           // Format the dates if both were successfully parsed
           if (startDate != null && endDate != null) {
-            formattedDate = "${DateFormat('dd.MM').format(startDate)} to ${DateFormat('dd.MM').format(endDate)}";
+            formattedDate =
+                "${DateFormat('dd.MM').format(startDate)} to ${DateFormat('dd.MM').format(endDate)}";
           } else {
             formattedDate = "Date Not Available";
           }
@@ -1077,52 +1105,52 @@ class _NotificationScreenState extends State<NotificationScreen>
             children: [
               type.toString() == "Requested-Delivery"
                   ? ClipRRect(
-                borderRadius: BorderRadius.circular(100),
-                child: Image.network(
-                  getProfileImagePath(),
-                  height: 40,
-                  width: 40,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        color: AppColors.grey.withAlpha(78),
-                        borderRadius: BorderRadius.circular(100),
+                      borderRadius: BorderRadius.circular(100),
+                      child: Image.network(
+                        getProfileImagePath(),
+                        height: 40,
+                        width: 40,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            height: 40,
+                            width: 40,
+                            decoration: BoxDecoration(
+                              color: AppColors.grey.withAlpha(78),
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            child: Center(
+                              child: LoadingAnimationWidget.hexagonDots(
+                                color: AppColors.black,
+                                size: 40,
+                              ),
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          //! log('❌ Error loading image: $error');
+                          return Container(
+                            height: 40,
+                            width: 40,
+                            decoration: BoxDecoration(
+                              color: AppColors.grey.withAlpha(78),
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            child: const Icon(
+                              Icons.person,
+                              size: 40,
+                              color: AppColors.greyDark2,
+                            ),
+                          );
+                        },
                       ),
-                      child: Center(
-                        child: LoadingAnimationWidget.hexagonDots(
-                          color: AppColors.black,
-                          size: 40,
-                        ),
-                      ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    //! log('❌ Error loading image: $error');
-                    return Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        color: AppColors.grey.withAlpha(78),
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      child: const Icon(
-                        Icons.person,
-                        size: 40,
-                        color: AppColors.greyDark2,
-                      ),
-                    );
-                  },
-                ),
-              )
+                    )
                   : const ImageWidget(
-                height: 40,
-                width: 40,
-                imagePath: AppImagePath.sendParcel,
-              ),
+                      height: 40,
+                      width: 40,
+                      imagePath: AppImagePath.sendParcel,
+                    ),
               const SpaceWidget(spaceWidth: 8),
               TextWidget(
                 text: type.toString() == "Requested-Delivery" ? name : title,
@@ -1132,30 +1160,30 @@ class _NotificationScreenState extends State<NotificationScreen>
               ),
               const SpaceWidget(spaceWidth: 12),
               type.toString() == "Requested-Delivery" &&
-                  notification.avgRating! > 0
+                      notification.avgRating! > 0
                   ? Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppColors.yellow,
-                  borderRadius: BorderRadius.circular(100),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.star_rounded,
-                      color: AppColors.white,
-                      size: 12,
-                    ),
-                    TextWidget(
-                      text: avgRating,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      fontColor: AppColors.white,
-                    ),
-                  ],
-                ),
-              )
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.yellow,
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.star_rounded,
+                            color: AppColors.white,
+                            size: 12,
+                          ),
+                          TextWidget(
+                            text: avgRating,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            fontColor: AppColors.white,
+                          ),
+                        ],
+                      ),
+                    )
                   : const SizedBox(),
               const Spacer(),
               TextWidget(
@@ -1169,21 +1197,21 @@ class _NotificationScreenState extends State<NotificationScreen>
           const SpaceWidget(spaceHeight: 8),
           type == "Requested-Delivery"
               ? Row(
-            children: [
-              Image.asset(
-                AppImagePath.sendParcel,
-                width: 16,
-                height: 16,
-              ),
-              const SpaceWidget(spaceWidth: 8),
-              TextWidget(
-                text: notification.title ?? "No Title",
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                fontColor: AppColors.greyDark2,
-              ),
-            ],
-          )
+                  children: [
+                    Image.asset(
+                      AppImagePath.sendParcel,
+                      width: 16,
+                      height: 16,
+                    ),
+                    const SpaceWidget(spaceWidth: 8),
+                    TextWidget(
+                      text: notification.title ?? "No Title",
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      fontColor: AppColors.greyDark2,
+                    ),
+                  ],
+                )
               : const SizedBox(),
           const SpaceWidget(spaceHeight: 8),
           Row(
@@ -1212,67 +1240,68 @@ class _NotificationScreenState extends State<NotificationScreen>
           type.toString() == "Requested-Delivery"
               ? const SizedBox()
               : Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.call,
-                        color: AppColors.black,
-                        size: 12,
-                      ),
-                      const SpaceWidget(spaceWidth: 8),
-                      TextWidget(
-                        text: notification.mobileNumber ?? "No Phone Number",
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        fontColor: AppColors.greyDark2,
-                      ),
-                    ],
-                  ),
-                  type == "Cancelled"
-                      ? const SizedBox()
-                      : Row(
-                    children: [
-                      InkWell(
-                        onTap: () => _openWhatsAppWithCheck(
-                            mobileNumber,
-                            "Hello, regarding your parcel delivery."),
-                        borderRadius: BorderRadius.circular(100),
-                        child: const CircleAvatar(
-                          backgroundColor: AppColors.whiteDark,
-                          radius: 18,
-                          child: IconWidget(
-                            icon: AppIconsPath.whatsAppIcon,
-                            color: AppColors.black,
-                            width: 18,
-                            height: 18,
-                          ),
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.call,
+                              color: AppColors.black,
+                              size: 12,
+                            ),
+                            const SpaceWidget(spaceWidth: 8),
+                            TextWidget(
+                              text: notification.mobileNumber ??
+                                  "No Phone Number",
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              fontColor: AppColors.greyDark2,
+                            ),
+                          ],
                         ),
-                      ),
-                      const SpaceWidget(spaceWidth: 8),
-                      InkWell(
-                        onTap: () => _makePhoneCall(mobileNumber),
-                        borderRadius: BorderRadius.circular(100),
-                        child: const CircleAvatar(
-                          backgroundColor: AppColors.whiteDark,
-                          radius: 18,
-                          child: Icon(
-                            Icons.call,
-                            color: AppColors.black,
-                            size: 18,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SpaceWidget(spaceHeight: 8)
-            ],
-          ),
+                        type == "Cancelled"
+                            ? const SizedBox()
+                            : Row(
+                                children: [
+                                  InkWell(
+                                    onTap: () => _openWhatsAppWithCheck(
+                                        mobileNumber,
+                                        "Hello, regarding your parcel delivery."),
+                                    borderRadius: BorderRadius.circular(100),
+                                    child: const CircleAvatar(
+                                      backgroundColor: AppColors.whiteDark,
+                                      radius: 18,
+                                      child: IconWidget(
+                                        icon: AppIconsPath.whatsAppIcon,
+                                        color: AppColors.black,
+                                        width: 18,
+                                        height: 18,
+                                      ),
+                                    ),
+                                  ),
+                                  const SpaceWidget(spaceWidth: 8),
+                                  InkWell(
+                                    onTap: () => _makePhoneCall(mobileNumber),
+                                    borderRadius: BorderRadius.circular(100),
+                                    child: const CircleAvatar(
+                                      backgroundColor: AppColors.whiteDark,
+                                      radius: 18,
+                                      child: Icon(
+                                        Icons.call,
+                                        color: AppColors.black,
+                                        size: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                      ],
+                    ),
+                    const SpaceWidget(spaceHeight: 8)
+                  ],
+                ),
           // type == "Requested-Delivery"
           //     ? const SpaceWidget(spaceHeight: 8)
           //     : const SizedBox(),
@@ -1293,19 +1322,19 @@ class _NotificationScreenState extends State<NotificationScreen>
             ],
           ),
           type == "Requested-Delivery"
-              ?  Column(
-            children: [
-            const  SpaceWidget(spaceHeight: 8),
-              Center(
-                child: TextWidget(
-                  text: "checkNewBookingsToaccepts".tr,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  fontColor: AppColors.green,
-                ),
-              ),
-            ],
-          )
+              ? Column(
+                  children: [
+                    const SpaceWidget(spaceHeight: 8),
+                    Center(
+                      child: TextWidget(
+                        text: "checkNewBookingsToaccepts".tr,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        fontColor: AppColors.green,
+                      ),
+                    ),
+                  ],
+                )
               : const SizedBox(),
           const SpaceWidget(spaceHeight: 10),
           Align(
@@ -1320,53 +1349,53 @@ class _NotificationScreenState extends State<NotificationScreen>
           const SpaceWidget(spaceHeight: 12),
           type == "Accepted"
               ? Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: AppColors.whiteLight,
-              borderRadius: BorderRadius.circular(50),
-            ),
-            child: TextWidget(
-              text: "accepted".tr,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              fontColor: AppColors.greyDark2,
-            ),
-          )
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: AppColors.whiteLight,
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: TextWidget(
+                    text: "accepted".tr,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    fontColor: AppColors.greyDark2,
+                  ),
+                )
               : type == "Cancelled"
-              ? Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: AppColors.whiteLight,
-              borderRadius: BorderRadius.circular(50),
-            ),
-            child: TextWidget(
-              text: "rejected".tr,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              fontColor: AppColors.red,
-            ),
-          )
-              : type.toString() == "Requested-Delivery"
-              ? Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: AppColors.whiteLight,
-              borderRadius: BorderRadius.circular(50),
-            ),
-            child: TextWidget(
-              text:
-              "${notification.name} Sent Request for Delivery",
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              fontColor: AppColors.greyDark2,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          )
-              : const SizedBox(),
+                  ? Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppColors.whiteLight,
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: TextWidget(
+                        text: "rejected".tr,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        fontColor: AppColors.red,
+                      ),
+                    )
+                  : type.toString() == "Requested-Delivery"
+                      ? Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: AppColors.whiteLight,
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: TextWidget(
+                            text:
+                                "${notification.name} Sent Request for Delivery",
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            fontColor: AppColors.greyDark2,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        )
+                      : const SizedBox(),
         ],
       ),
     );

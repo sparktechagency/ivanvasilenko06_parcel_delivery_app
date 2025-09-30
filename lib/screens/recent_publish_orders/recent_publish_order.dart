@@ -153,27 +153,19 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
             placemark.country!.trim().isNotEmpty) {
           address = placemark.country!.trim();
         } else {
-          // Final fallback to generic location text instead of coordinates
           address = 'Unknown Location';
         }
-
         addressCache[key] = address;
         _updateAddress(parcelId, address, isPickup);
       } else {
-        // Fallback to generic location text instead of coordinates
         const genericAddress = 'Location Not Found';
         addressCache[key] = genericAddress;
         _updateAddress(parcelId, genericAddress, isPickup);
       }
     } catch (e) {
-      // Enhanced error handling with specific error types
       String errorMessage;
-
       if (e.toString().contains('timeout')) {
         errorMessage = 'Address lookup timed out';
-      } else if (e.toString().contains('network') ||
-          e.toString().contains('internet')) {
-        errorMessage = 'Network error - please check your connection';
       } else if (e.toString().contains('permission')) {
         errorMessage = 'Location permission required';
       } else {

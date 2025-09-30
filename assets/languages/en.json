@@ -234,5 +234,6 @@
   "areYourSureYouwantToCancelThisRequest" : "Are you sure you want to cancel this request?",
   "noCurrentOrdersAvailable" : "No current orders available",
   "noNewRequests" : "No New Requests",
-  "deliveryRequests" : "Delivery Requests"
+  "deliveryRequests" : "Delivery Requests",
+  "enterYourEmailOptional" : "Enter Your Email (Optional)"
 }

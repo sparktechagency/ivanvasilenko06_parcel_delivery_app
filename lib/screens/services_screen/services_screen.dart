@@ -37,56 +37,68 @@ class _ServicesScreenState extends State<ServicesScreen> {
   final NotificationController notificationController =
       Get.put(NotificationController());
 
+  //! Cache for addresses to avoid multiple API calls for the same coordinates
+  Map<String, String> addressCache = {};
+
+//! Maps to store addresses for each parcel
+  Map<String, String> pickupAddresses = {};
+  Map<String, String> deliveryAddresses = {};
+
+//! Loading states for addresses
+  Map<String, bool> pickupAddressLoading = {};
+  Map<String, bool> deliveryAddressLoading = {};
+
+//! Track pending requests to prevent duplicates
+  Set<String> pendingRequests = {};
+
+//! Track if widget is disposed
+  bool _isDisposed = false;
+
   @override
   void initState() {
     super.initState();
     profileController.getProfileInfo();
-    // Initialize address states immediately
-    _initializeAddressStates();
-  }
 
-  //! Cache for addresses to avoid multiple API calls for the same coordinates
-  Map<String, String> addressCache = {};
+    // Only listen for future changes
+    ever(controller.recentParcelList, (List<ServiceScreenModel> parcels) {
+      if (parcels.isNotEmpty && !_isDisposed) {
+        _loadAddressesForParcels();
+      }
+    });
 
-  //! Maps to store addresses for each parcel
-  Map<String, String> pickupAddresses = {};
-  Map<String, String> deliveryAddresses = {};
-
-  //! Loading states for addresses
-  Map<String, bool> pickupAddressLoading = {};
-  Map<String, bool> deliveryAddressLoading = {};
-
-  void _initializeAddressStates() {
-    // Check if controller has data, if not, listen for changes
-    if (controller.recentParcelList.isEmpty) {
-      // Listen for changes in the controller
-      ever(controller.recentParcelList, (List<ServiceScreenModel> parcels) {
-        if (parcels.isNotEmpty) {
-          _loadAddressesForParcels();
-        }
-      });
-    } else {
-      _loadAddressesForParcels();
-    }
+    // Load initial data after frame is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (controller.recentParcelList.isNotEmpty && !_isDisposed) {
+        _loadAddressesForParcels();
+      }
+    });
   }
 
   void _loadAddressesForParcels() {
-    if (controller.recentParcelList.isNotEmpty) {
-      for (var serviceModel in controller.recentParcelList) {
-        // Access the Datum objects correctly
-        if (serviceModel.data != null && serviceModel.data!.isNotEmpty) {
-          for (var parcel in serviceModel.data!) {
-            final parcelId = parcel.id;
-            if (parcelId != null) {
-              //! Initialize loading states
+    if (_isDisposed) return;
+
+    for (var serviceModel in controller.recentParcelList) {
+      if (serviceModel.data != null && serviceModel.data!.isNotEmpty) {
+        for (var parcel in serviceModel.data!) {
+          final parcelId = parcel.id;
+          if (parcelId != null && !_isDisposed) {
+            // Skip if already successfully loaded
+            if (pickupAddresses[parcelId] != null &&
+                pickupAddresses[parcelId] != "Loading..." &&
+                !pickupAddresses[parcelId]!.contains('Unavailable')) {
+              continue; // Already have a good address
+            }
+
+            if (mounted) {
               setState(() {
                 pickupAddressLoading[parcelId] = true;
                 deliveryAddressLoading[parcelId] = true;
+                pickupAddresses[parcelId] = "Loading...";
+                deliveryAddresses[parcelId] = "Loading...";
               });
-
-              //! Load addresses
-              _loadParcelAddresses(parcel);
             }
+
+            _loadParcelAddresses(parcel);
           }
         }
       }
@@ -95,15 +107,14 @@ class _ServicesScreenState extends State<ServicesScreen> {
 
   void _loadParcelAddresses(Datum parcel) {
     final parcelId = parcel.id;
-    if (parcelId == null) return;
+    if (parcelId == null || _isDisposed) return;
 
-    //! Safely extract coordinates from Datum object (not map)
     final pickupCoordinates = parcel.pickupLocation?.coordinates;
     final deliveryCoordinates = parcel.deliveryLocation?.coordinates;
 
     if (pickupCoordinates != null && pickupCoordinates.length >= 2) {
-      final pickupLat = pickupCoordinates[1]; // latitude is at index 1
-      final pickupLng = pickupCoordinates[0]; // longitude is at index 0
+      final pickupLat = pickupCoordinates[1];
+      final pickupLng = pickupCoordinates[0];
       _getAddress(parcelId, pickupLat, pickupLng, true);
     } else {
       _handleAddressError(parcelId, true, "Invalid pickup coordinates");
@@ -120,6 +131,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
 
   Future<void> _getAddress(
       String parcelId, double latitude, double longitude, bool isPickup) async {
+    if (_isDisposed) return;
+
     // Validate coordinates
     if (latitude.isNaN ||
         longitude.isNaN ||
@@ -129,7 +142,8 @@ class _ServicesScreenState extends State<ServicesScreen> {
       return;
     }
 
-    final String key = '$latitude,$longitude';
+    final String key =
+        '${latitude.toStringAsFixed(6)},${longitude.toStringAsFixed(6)}';
 
     //! Check cache first
     if (addressCache.containsKey(key)) {
@@ -137,78 +151,98 @@ class _ServicesScreenState extends State<ServicesScreen> {
       return;
     }
 
+    //! Prevent duplicate requests
+    if (pendingRequests.contains(key)) {
+      // Wait for the pending request to complete
+      int attempts = 0;
+      while (pendingRequests.contains(key) && attempts < 50 && !_isDisposed) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        attempts++;
+        if (addressCache.containsKey(key)) {
+          _updateAddress(parcelId, addressCache[key]!, isPickup);
+          return;
+        }
+      }
+      return;
+    }
+
+    pendingRequests.add(key);
+
     try {
-      // Add timeout to prevent hanging
       List<Placemark> placemarks =
           await placemarkFromCoordinates(latitude, longitude).timeout(
         const Duration(seconds: 10),
-        onTimeout: () {
-          throw Exception('Address lookup timeout');
-        },
+        onTimeout: () => throw Exception('Timeout'),
       );
 
-      if (placemarks.isNotEmpty) {
-        final placemark = placemarks[0];
-
-        // Get single address property in priority order: locality > subLocality > street > subAdministrativeArea
-        String address;
-
-        if (placemark.locality != null &&
-            placemark.locality!.trim().isNotEmpty) {
-          address = placemark.locality!.trim();
-        } else if (placemark.subLocality != null &&
-            placemark.subLocality!.trim().isNotEmpty) {
-          address = placemark.subLocality!.trim();
-        } else if (placemark.street != null &&
-            placemark.street!.trim().isNotEmpty) {
-          address = placemark.street!.trim();
-        } else if (placemark.subAdministrativeArea != null &&
-            placemark.subAdministrativeArea!.trim().isNotEmpty) {
-          address = placemark.subAdministrativeArea!.trim();
-        } else if (placemark.administrativeArea != null &&
-            placemark.administrativeArea!.trim().isNotEmpty) {
-          address = placemark.administrativeArea!.trim();
-        } else if (placemark.country != null &&
-            placemark.country!.trim().isNotEmpty) {
-          address = placemark.country!.trim();
-        } else {
-          // Final fallback to generic location text instead of coordinates
-          address = 'Unknown Location';
-        }
-
-        addressCache[key] = address;
-        _updateAddress(parcelId, address, isPickup);
-      } else {
-        // Fallback to generic location text instead of coordinates
-        const genericAddress = 'Location Not Found';
-        addressCache[key] = genericAddress;
-        _updateAddress(parcelId, genericAddress, isPickup);
-      }
-    } catch (e) {
-      // Enhanced error handling with specific error types
-      String errorMessage;
-
-      if (e.toString().contains('timeout')) {
-        errorMessage = 'Address lookup timed out';
-      } else if (e.toString().contains('network') ||
-          e.toString().contains('internet')) {
-        errorMessage = 'Network error - please check your connection';
-      } else if (e.toString().contains('permission')) {
-        errorMessage = 'Location permission required';
-      } else {
-        // Always provide generic fallback instead of coordinates
-        const genericAddress = 'Location Unavailable';
-        addressCache[key] = genericAddress;
-        _updateAddress(parcelId, genericAddress, isPickup);
+      if (_isDisposed) {
+        pendingRequests.remove(key);
         return;
       }
 
-      _handleAddressError(parcelId, isPickup, errorMessage);
+      if (placemarks.isNotEmpty) {
+        final placemark = placemarks[0];
+        String address = _extractBestAddress(placemark);
+
+        addressCache[key] = address;
+        pendingRequests.remove(key);
+        _updateAddress(parcelId, address, isPickup);
+      } else {
+        const genericAddress = 'Location Not Found';
+        addressCache[key] = genericAddress;
+        pendingRequests.remove(key);
+        _updateAddress(parcelId, genericAddress, isPickup);
+      }
+    } catch (e) {
+      pendingRequests.remove(key);
+
+      if (_isDisposed) return;
+
+      String errorMessage;
+      if (e.toString().contains('Timeout') ||
+          e.toString().contains('timeout')) {
+        errorMessage = 'Loading...';
+      } else if (e.toString().contains('network') ||
+          e.toString().contains('internet')) {
+        errorMessage = 'No Network';
+      } else if (e.toString().contains('permission')) {
+        errorMessage = 'Permission Required';
+      } else {
+        errorMessage = 'Location Unavailable';
+      }
+
+      // Don't cache temporary errors
+      if (errorMessage != 'Loading...') {
+        addressCache[key] = errorMessage;
+      }
+
+      _updateAddress(parcelId, errorMessage, isPickup);
     }
   }
 
+  String _extractBestAddress(Placemark placemark) {
+    final List<String?> addressParts = [
+      placemark.locality,
+      placemark.subLocality,
+      placemark.street,
+      placemark.subAdministrativeArea,
+      placemark.administrativeArea,
+      placemark.country,
+    ];
+
+    for (var part in addressParts) {
+      if (part != null &&
+          part.trim().isNotEmpty &&
+          part.toLowerCase() != 'null') {
+        return part.trim();
+      }
+    }
+
+    return 'Unknown Location';
+  }
+
   void _updateAddress(String parcelId, String address, bool isPickup) {
-    if (mounted) {
+    if (mounted && !_isDisposed) {
       setState(() {
         if (isPickup) {
           pickupAddresses[parcelId] = address;
@@ -220,6 +254,171 @@ class _ServicesScreenState extends State<ServicesScreen> {
       });
     }
   }
+
+  void _initializeAddressStates() {
+    // Check if controller has data, if not, listen for changes
+    if (controller.recentParcelList.isEmpty) {
+      // Listen for changes in the controller
+      ever(controller.recentParcelList, (List<ServiceScreenModel> parcels) {
+        if (parcels.isNotEmpty) {
+          _loadAddressesForParcels();
+        }
+      });
+    } else {
+      _loadAddressesForParcels();
+    }
+  }
+
+  // void _loadAddressesForParcels() {
+  //   if (controller.recentParcelList.isNotEmpty) {
+  //     for (var serviceModel in controller.recentParcelList) {
+  //       // Access the Datum objects correctly
+  //       if (serviceModel.data != null && serviceModel.data!.isNotEmpty) {
+  //         for (var parcel in serviceModel.data!) {
+  //           final parcelId = parcel.id;
+  //           if (parcelId != null) {
+  //             //! Initialize loading states
+  //             setState(() {
+  //               pickupAddressLoading[parcelId] = true;
+  //               deliveryAddressLoading[parcelId] = true;
+  //             });
+
+  //             //! Load addresses
+  //             _loadParcelAddresses(parcel);
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
+
+  // void _loadParcelAddresses(Datum parcel) {
+  //   final parcelId = parcel.id;
+  //   if (parcelId == null) return;
+
+  //   //! Safely extract coordinates from Datum object (not map)
+  //   final pickupCoordinates = parcel.pickupLocation?.coordinates;
+  //   final deliveryCoordinates = parcel.deliveryLocation?.coordinates;
+
+  //   if (pickupCoordinates != null && pickupCoordinates.length >= 2) {
+  //     final pickupLat = pickupCoordinates[1]; // latitude is at index 1
+  //     final pickupLng = pickupCoordinates[0]; // longitude is at index 0
+  //     _getAddress(parcelId, pickupLat, pickupLng, true);
+  //   } else {
+  //     _handleAddressError(parcelId, true, "Invalid pickup coordinates");
+  //   }
+
+  //   if (deliveryCoordinates != null && deliveryCoordinates.length >= 2) {
+  //     final deliveryLat = deliveryCoordinates[1];
+  //     final deliveryLng = deliveryCoordinates[0];
+  //     _getAddress(parcelId, deliveryLat, deliveryLng, false);
+  //   } else {
+  //     _handleAddressError(parcelId, false, "Invalid delivery coordinates");
+  //   }
+  // }
+
+  // Future<void> _getAddress(
+  //     String parcelId, double latitude, double longitude, bool isPickup) async {
+  //   // Validate coordinates
+  //   if (latitude.isNaN ||
+  //       longitude.isNaN ||
+  //       latitude.abs() > 90 ||
+  //       longitude.abs() > 180) {
+  //     _handleAddressError(parcelId, isPickup, "Invalid coordinates");
+  //     return;
+  //   }
+
+  //   final String key = '$latitude,$longitude';
+
+  //   //! Check cache first
+  //   if (addressCache.containsKey(key)) {
+  //     _updateAddress(parcelId, addressCache[key]!, isPickup);
+  //     return;
+  //   }
+
+  //   try {
+  //     // Add timeout to prevent hanging
+  //     List<Placemark> placemarks =
+  //         await placemarkFromCoordinates(latitude, longitude).timeout(
+  //       const Duration(seconds: 10),
+  //       onTimeout: () {
+  //         throw Exception('Address lookup timeout');
+  //       },
+  //     );
+
+  //     if (placemarks.isNotEmpty) {
+  //       final placemark = placemarks[0];
+
+  //       // Get single address property in priority order: locality > subLocality > street > subAdministrativeArea
+  //       String address;
+
+  //       if (placemark.locality != null &&
+  //           placemark.locality!.trim().isNotEmpty) {
+  //         address = placemark.locality!.trim();
+  //       } else if (placemark.subLocality != null &&
+  //           placemark.subLocality!.trim().isNotEmpty) {
+  //         address = placemark.subLocality!.trim();
+  //       } else if (placemark.street != null &&
+  //           placemark.street!.trim().isNotEmpty) {
+  //         address = placemark.street!.trim();
+  //       } else if (placemark.subAdministrativeArea != null &&
+  //           placemark.subAdministrativeArea!.trim().isNotEmpty) {
+  //         address = placemark.subAdministrativeArea!.trim();
+  //       } else if (placemark.administrativeArea != null &&
+  //           placemark.administrativeArea!.trim().isNotEmpty) {
+  //         address = placemark.administrativeArea!.trim();
+  //       } else if (placemark.country != null &&
+  //           placemark.country!.trim().isNotEmpty) {
+  //         address = placemark.country!.trim();
+  //       } else {
+  //         // Final fallback to generic location text instead of coordinates
+  //         address = 'Unknown Location';
+  //       }
+
+  //       addressCache[key] = address;
+  //       _updateAddress(parcelId, address, isPickup);
+  //     } else {
+  //       // Fallback to generic location text instead of coordinates
+  //       const genericAddress = 'Location Not Found';
+  //       addressCache[key] = genericAddress;
+  //       _updateAddress(parcelId, genericAddress, isPickup);
+  //     }
+  //   } catch (e) {
+  //     // Enhanced error handling with specific error types
+  //     String errorMessage;
+
+  //     if (e.toString().contains('timeout')) {
+  //       errorMessage = 'Address lookup timed out';
+  //     } else if (e.toString().contains('network') ||
+  //         e.toString().contains('internet')) {
+  //       errorMessage = 'Network error - please check your connection';
+  //     } else if (e.toString().contains('permission')) {
+  //       errorMessage = 'Location permission required';
+  //     } else {
+  //       // Always provide generic fallback instead of coordinates
+  //       const genericAddress = 'Location Unavailable';
+  //       addressCache[key] = genericAddress;
+  //       _updateAddress(parcelId, genericAddress, isPickup);
+  //       return;
+  //     }
+
+  //     _handleAddressError(parcelId, isPickup, errorMessage);
+  //   }
+  // }
+
+  // void _updateAddress(String parcelId, String address, bool isPickup) {
+  //   if (mounted) {
+  //     setState(() {
+  //       if (isPickup) {
+  //         pickupAddresses[parcelId] = address;
+  //         pickupAddressLoading[parcelId] = false;
+  //       } else {
+  //         deliveryAddresses[parcelId] = address;
+  //         deliveryAddressLoading[parcelId] = false;
+  //       }
+  //     });
+  //   }
+  // }
 
   void _handleAddressError(
       String parcelId, bool isPickup, String errorMessage) {
@@ -301,6 +500,18 @@ class _ServicesScreenState extends State<ServicesScreen> {
 
     //!  log('✅ Constructed URL: $fullImageUrl');
     return fullImageUrl;
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    pendingRequests.clear();
+    addressCache.clear();
+    pickupAddresses.clear();
+    deliveryAddresses.clear();
+    pickupAddressLoading.clear();
+    deliveryAddressLoading.clear();
+    super.dispose();
   }
 
   @override

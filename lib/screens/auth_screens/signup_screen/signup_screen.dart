@@ -42,10 +42,10 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     final SignUpScreenController controller = Get.put(SignUpScreenController());
-    
+
     // Check if keyboard is visible
     final bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
-    
+
     return Scaffold(
       backgroundColor: AppColors.white,
       resizeToAvoidBottomInset: true,
@@ -81,7 +81,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     maxLines: 1,
                     onSubmitted: () {
                       // Handle done button tap
-                      FocusScope.of(context).unfocus(); 
+                      FocusScope.of(context).unfocus();
                     },
                   ),
                   const SpaceWidget(spaceHeight: 16),
@@ -102,11 +102,11 @@ class _SignupScreenState extends State<SignupScreen> {
                   // Email Field
                   TextFieldWidget(
                     controller: controller.emailController,
-                    hintText: "Enter Your Email (Optional)".tr,
+                    hintText: "enterYourEmailOptional".tr,
                     maxLines: 1,
                     onSubmitted: () {
                       // Handle done button tap
-                      FocusScope.of(context).unfocus(); 
+                      FocusScope.of(context).unfocus();
                     },
                   ),
                   const SpaceWidget(spaceHeight: 16),
@@ -114,7 +114,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     children: [
                       //! Checkbox
                       Obx(
-                            () => Checkbox(
+                        () => Checkbox(
                           value: controller.isTermsAccepted.value,
                           onChanged: (value) {
                             controller.isTermsAccepted.value = value!;
@@ -152,15 +152,15 @@ class _SignupScreenState extends State<SignupScreen> {
                     ],
                   ),
                   const SpaceWidget(spaceHeight: 16),
-          
+
                   // Loading Indicator
                   Obx(() => controller.isLoading.value
                       ? Center(
-                    child: LoadingAnimationWidget.hexagonDots(
-                      color: AppColors.black,
-                      size: 40,
-                    ),
-                  )
+                          child: LoadingAnimationWidget.hexagonDots(
+                            color: AppColors.black,
+                            size: 40,
+                          ),
+                        )
                       : const SizedBox.shrink()),
                 ],
               ),
@@ -200,20 +200,20 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                   ),
                   Obx(() => ButtonWidget(
-                    onPressed: controller.isTermsAccepted.value
-                        ? () => controller.phoneOtpSignup()
-                        : null,
-                    label: "next".tr,
-                    icon: Icons.arrow_forward,
-                    buttonWidth: 120,
-                    buttonHeight: 50,
-                    backgroundColor: controller.isTermsAccepted.value
-                        ? AppColors.black
-                        : AppColors.greyLight,
-                    textColor: controller.isTermsAccepted.value
-                        ? AppColors.white
-                        : AppColors.grey,
-                  )),
+                        onPressed: controller.isTermsAccepted.value
+                            ? () => controller.phoneOtpSignup()
+                            : null,
+                        label: "next".tr,
+                        icon: Icons.arrow_forward,
+                        buttonWidth: 120,
+                        buttonHeight: 50,
+                        backgroundColor: controller.isTermsAccepted.value
+                            ? AppColors.black
+                            : AppColors.greyLight,
+                        textColor: controller.isTermsAccepted.value
+                            ? AppColors.white
+                            : AppColors.grey,
+                      )),
                 ],
               ),
             ),

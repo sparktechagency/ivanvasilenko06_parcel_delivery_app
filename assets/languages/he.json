@@ -232,5 +232,6 @@
   "areYourSureYouwantToCancelThisRequest" : " האם אתה בטוח שברצונך לבטל את הבקשה הזו?",
   "noCurrentOrdersAvailable" : "אין הזמנות פעילות",
   "noNewRequests" : "אין בקשות חדשות",
-  "deliveryRequests" : "בקשות משלוח"
+  "deliveryRequests" : "בקשות משלוח",
+  "enterYourEmailOptional" : "הזן את כתובת המייל שלך (לא חובה)"
 }
