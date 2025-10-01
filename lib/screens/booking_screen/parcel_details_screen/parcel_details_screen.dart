@@ -41,12 +41,8 @@ class _ParcelDetailsScreenState extends State<ParcelDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize the controller if it doesn't exist, or get the existing one
-    if (Get.isRegistered<CurrentOrderController>(tag: 'booking_screen')) {
-      controller = Get.find<CurrentOrderController>(tag: 'booking_screen');
-    } else {
-      controller = Get.put(CurrentOrderController(), tag: 'booking_screen');
-    }
+    // Get the existing controller instance
+    controller = Get.find<CurrentOrderController>();
 
     // Wait for the controller to load data, then find the current parcel
     WidgetsBinding.instance.addPostFrameCallback((_) {

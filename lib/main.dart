@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:parcel_delivery_app/constants/initails_bindings.dart';
 import 'package:parcel_delivery_app/firebase_options.dart';
 import 'constants/dep.dart' as dep;
 import 'main_app_entry.dart';
@@ -11,6 +12,8 @@ import 'services/location_permission_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Initial Bindings
+  InitialBindings().dependencies();
   // Initialize Firebase
   if (Platform.isIOS) {
 // Initialize Firebase for iOS
@@ -30,10 +33,11 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
-  Position? position = await LocationPermissionService.instance.getCurrentPosition();
+  Position? position =
+      await LocationPermissionService.instance.getCurrentPosition();
 // Set up push notifications just added a commnet
   await NotificationService().setupFCM();
-  
+
   SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
   Map<String, Map<String, String>> languages = await dep.init();

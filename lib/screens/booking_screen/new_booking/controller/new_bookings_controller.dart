@@ -52,7 +52,7 @@ class NewBookingsController extends GetxController {
         log('Parcel delivery updated successfully');
         try {
           final CurrentOrderController controller =
-              Get.find<CurrentOrderController>(tag: 'booking_screen');
+              Get.find<CurrentOrderController>();
           await controller.refreshCurrentOrder();
         } catch (e) {
           log('Controller not found, skipping refresh');
@@ -101,7 +101,7 @@ class NewBookingsController extends GetxController {
         log('Parcel delivery rejected successfully');
         try {
           final CurrentOrderController controller =
-              Get.find<CurrentOrderController>(tag: 'booking_screen');
+              Get.find<CurrentOrderController>();
           await controller.refreshCurrentOrder();
         } catch (e) {
           log('Controller not found, skipping refresh');
@@ -140,7 +140,7 @@ class NewBookingsController extends GetxController {
         // Handle success case based on your API response structure
         try {
           final CurrentOrderController controller =
-              Get.find<CurrentOrderController>(tag: 'booking_screen');
+              Get.find<CurrentOrderController>();
           await controller.getCurrentOrder();
         } catch (e) {
           log('Controller not found, skipping refresh');
@@ -153,7 +153,7 @@ class NewBookingsController extends GetxController {
           // Refresh the data
           try {
             final CurrentOrderController controller =
-                Get.find<CurrentOrderController>(tag: 'booking_screen');
+                Get.find<CurrentOrderController>();
             await controller.getCurrentOrder();
           } catch (e) {
             log('Controller not found, skipping refresh');
@@ -190,7 +190,7 @@ class NewBookingsController extends GetxController {
           log('Delivery cancelled successfully');
           try {
             final CurrentOrderController controller =
-                Get.find<CurrentOrderController>(tag: 'booking_screen');
+                Get.find<CurrentOrderController>();
             await controller.getCurrentOrder();
           } catch (e) {
             log('Controller not found, skipping refresh');
@@ -203,7 +203,7 @@ class NewBookingsController extends GetxController {
         // Handle Response object case
         try {
           final CurrentOrderController controller =
-              Get.find<CurrentOrderController>(tag: 'booking_screen');
+              Get.find<CurrentOrderController>();
           await controller.getCurrentOrder();
         } catch (e) {
           log('Controller not found, skipping refresh');
@@ -232,7 +232,7 @@ class NewBookingsController extends GetxController {
           log('Delivery cancelled successfully');
           try {
             final CurrentOrderController controller =
-                Get.find<CurrentOrderController>(tag: 'booking_screen');
+                Get.find<CurrentOrderController>();
             await controller.getCurrentOrder();
           } catch (e) {
             log('Controller not found, skipping refresh');
@@ -245,7 +245,7 @@ class NewBookingsController extends GetxController {
         // Handle Response object case
         try {
           final CurrentOrderController controller =
-              Get.find<CurrentOrderController>(tag: 'booking_screen');
+              Get.find<CurrentOrderController>();
           await controller.getCurrentOrder();
         } catch (e) {
           log('Controller not found, skipping refresh');

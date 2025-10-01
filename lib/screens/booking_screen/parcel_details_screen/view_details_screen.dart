@@ -131,12 +131,7 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
     super.initState();
 
     // Get the existing controller instance from booking_screen
-    try {
-      controller = Get.find<CurrentOrderController>(tag: 'booking_screen');
-    } catch (e) {
-      // Fallback to default controller if tagged one doesn't exist
-      controller = Get.find<CurrentOrderController>();
-    }
+    controller = Get.find<CurrentOrderController>();
 
     _findCurrentParcel();
   }

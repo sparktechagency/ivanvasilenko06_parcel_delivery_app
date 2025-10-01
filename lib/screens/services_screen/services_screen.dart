@@ -30,12 +30,12 @@ class ServicesScreen extends StatefulWidget {
 }
 
 class _ServicesScreenState extends State<ServicesScreen> {
-  var controller = Get.put(ServiceController());
-  final ProfileController profileController = Get.put(ProfileController());
+  var controller = Get.find<ServiceController>();
+  final ProfileController profileController = Get.find<ProfileController>();
   final DeliveryScreenController deliveryController =
-      Get.put(DeliveryScreenController());
+      Get.find<DeliveryScreenController>();
   final NotificationController notificationController =
-      Get.put(NotificationController());
+      Get.find<NotificationController>();
 
   //! Cache for addresses to avoid multiple API calls for the same coordinates
   Map<String, String> addressCache = {};
@@ -599,18 +599,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
                             );
                           },
                         ),
-                        // AppImage(
-                        //   url: profileController.isLoading.value
-                        //       ? AppImagePath.dummyProfileImage
-                        //       : (profileController.profileData.value.data?.user
-                        //       ?.image?.isNotEmpty ??
-                        //       false)
-                        //       ? profileController
-                        //       .profileData.value.data!.user!.image!
-                        //       : AppImagePath.dummyProfileImage,
-                        //   height: 40,
-                        //   width: 40,
-                        // ),
                       )
                     ],
                   )

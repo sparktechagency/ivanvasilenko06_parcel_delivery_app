@@ -15,7 +15,7 @@ import '../../../widgets/space_widget/space_widget.dart';
 import '../../../widgets/text_widget/text_widgets.dart';
 
 class LoginScreen extends StatelessWidget {
-  final LoginScreenController controller = Get.put(LoginScreenController());
+  final LoginScreenController controller = Get.find<LoginScreenController>();
   
   LoginScreen({super.key});
 

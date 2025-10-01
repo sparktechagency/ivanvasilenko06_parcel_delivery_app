@@ -32,10 +32,10 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final EarnMoneyRadiusController _radiusController =
-      Get.put(EarnMoneyRadiusController());
+      Get.find<EarnMoneyRadiusController>();
   final NotificationController notificationController =
-      Get.put(NotificationController());
-  final ProfileController profileController = Get.put(ProfileController());
+      Get.find<NotificationController>();
+  final ProfileController profileController = Get.find<ProfileController>();
 
   Future<void> _getCurrentLocation() async {
     try {

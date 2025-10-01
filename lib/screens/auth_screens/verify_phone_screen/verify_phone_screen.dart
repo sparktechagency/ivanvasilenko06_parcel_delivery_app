@@ -40,7 +40,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
       if (_isInitialized) return;
       _isInitialized = true;
       // Initialize controller
-      controller = Get.put(VerifyPhoneController());
+      controller = Get.find<VerifyPhoneController>();
       // Extract phone number safely
       _extractPhoneNumber();
       // Request focus after initialization

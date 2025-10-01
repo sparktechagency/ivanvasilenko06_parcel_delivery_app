@@ -45,9 +45,8 @@ class _BookingScreenState extends State<BookingScreen> {
   @override
   void initState() {
     super.initState();
-    currentOrderController =
-        Get.put(CurrentOrderController(), tag: 'booking_screen');
-    newBookingsController = Get.put(NewBookingsController());
+    currentOrderController = Get.find<CurrentOrderController>();
+    newBookingsController = Get.find<NewBookingsController>();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await currentOrderController.getCurrentOrder();
@@ -334,7 +333,7 @@ class _BookingScreenState extends State<BookingScreen> {
                     onPressed: () async {
                       // Set the rating value in the controller
                       final currentOrderController =
-                          Get.find<CurrentOrderController>(tag: 'current');
+                          Get.find<CurrentOrderController>();
                       currentOrderController.rating.value = selectedRating;
                       await currentOrderController.givingReview();
                       Navigator.pop(context);
@@ -507,7 +506,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       onPressed: () async {
                         try {
                           final currentOrderController =
-                              Get.find<CurrentOrderController>(tag: 'current');
+                              Get.find<CurrentOrderController>();
                           // Set the parcel ID to finish
                           currentOrderController.finishedParcelId.value =
                               parcelId;

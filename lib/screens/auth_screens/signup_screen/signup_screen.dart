@@ -41,7 +41,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final SignUpScreenController controller = Get.put(SignUpScreenController());
+    final SignUpScreenController controller = Get.find<SignUpScreenController>();
 
     // Check if keyboard is visible
     final bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
