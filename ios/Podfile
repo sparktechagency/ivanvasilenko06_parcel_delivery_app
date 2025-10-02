@@ -66,7 +66,4 @@ post_install do |installer|
   installer.pods_project.build_configurations.each do |config|
     config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
   end
-
-  # Note: Removed flipper_post_install(installer) as it's not needed for Flutter
-  # and would cause errors since Flipper isn't configured in this Flutter project
 end

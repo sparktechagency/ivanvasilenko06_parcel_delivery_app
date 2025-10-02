@@ -12,6 +12,7 @@ import 'package:parcel_delivery_app/screens/home_screen/widgets/reserve_bottom_s
 import 'package:parcel_delivery_app/screens/home_screen/widgets/suggestionCardWidget.dart';
 import 'package:parcel_delivery_app/screens/services_screen/controller/services_controller.dart';
 import 'package:parcel_delivery_app/screens/services_screen/model/service_screen_model.dart';
+import 'package:parcel_delivery_app/services/appStroage/location_storage.dart';
 import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
@@ -30,12 +31,15 @@ class ServicesScreen extends StatefulWidget {
 }
 
 class _ServicesScreenState extends State<ServicesScreen> {
-  var controller = Get.find<ServiceController>();
+  final ServiceController controller = Get.find<ServiceController>();
   final ProfileController profileController = Get.find<ProfileController>();
   final DeliveryScreenController deliveryController =
       Get.find<DeliveryScreenController>();
   final NotificationController notificationController =
       Get.find<NotificationController>();
+
+  //! LocationStorage instance for persistent address caching
+  late final LocationStorage locationStorage;
 
   //! Cache for addresses to avoid multiple API calls for the same coordinates
   Map<String, String> addressCache = {};
@@ -54,10 +58,37 @@ class _ServicesScreenState extends State<ServicesScreen> {
 //! Track if widget is disposed
   bool _isDisposed = false;
 
+  //! Track previous unread count to detect changes
+  int _previousUnreadCount = 0;
+
   @override
   void initState() {
     super.initState();
-    profileController.getProfileInfo();
+
+    // Initialize LocationStorage
+    locationStorage = LocationStorage.instance;
+
+    // Store initial unread count
+    _previousUnreadCount = notificationController.unreadCount.value.toInt();
+
+    // Listen for unread count changes
+    ever(notificationController.unreadCount, (int newCount) {
+      if (!_isDisposed && mounted) {
+        // Refresh screen only when unread count changes from 0 to non-zero
+        if (_previousUnreadCount == 0 && newCount != 0) {
+          _refreshScreen();
+        }
+        _previousUnreadCount = newCount;
+      }
+    });
+
+    // Initialize LocationStorage after frame is built
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await locationStorage.initialize();
+    });
+
+    // Use cached profile data instead of forcing reload
+    profileController.getProfileInfoWithCache();
 
     // Only listen for future changes
     ever(controller.recentParcelList, (List<ServiceScreenModel> parcels) {
@@ -72,6 +103,40 @@ class _ServicesScreenState extends State<ServicesScreen> {
         _loadAddressesForParcels();
       }
     });
+  }
+
+  // Method to refresh the screen when notifications change
+  Future<void> _refreshScreen() async {
+    if (_isDisposed || !mounted) return;
+
+    try {
+      // Clear all address caches to force fresh data
+      addressCache.clear();
+      pickupAddresses.clear();
+      deliveryAddresses.clear();
+      pickupAddressLoading.clear();
+      deliveryAddressLoading.clear();
+      pendingRequests.clear();
+
+      // Refresh profile data
+      await profileController.getProfileInfo();
+
+      // Refresh recent parcel list using the correct method
+      await controller.fetchParcelList();
+
+      // Reload addresses for parcels
+      if (controller.recentParcelList.isNotEmpty) {
+        _loadAddressesForParcels();
+      }
+
+      // Trigger UI rebuild
+      if (mounted && !_isDisposed) {
+        setState(() {});
+      }
+    } catch (e) {
+      // Handle refresh errors gracefully
+      print('Error refreshing services screen: $e');
+    }
   }
 
   void _loadAddressesForParcels() {
@@ -105,27 +170,47 @@ class _ServicesScreenState extends State<ServicesScreen> {
     }
   }
 
-  void _loadParcelAddresses(Datum parcel) {
+  void _loadParcelAddresses(Datum parcel) async {
     final parcelId = parcel.id;
     if (parcelId == null || _isDisposed) return;
+
+    // Check LocationStorage for existing addresses first
+    final pickupLocationData =
+        await locationStorage.getLocationData(parcelId, 'pickup');
+    final deliveryLocationData =
+        await locationStorage.getLocationData(parcelId, 'delivery');
+
+    if (pickupLocationData != null) {
+      _updateAddress(parcelId, pickupLocationData.address, true);
+    }
+
+    if (deliveryLocationData != null) {
+      _updateAddress(parcelId, deliveryLocationData.address, false);
+    }
 
     final pickupCoordinates = parcel.pickupLocation?.coordinates;
     final deliveryCoordinates = parcel.deliveryLocation?.coordinates;
 
-    if (pickupCoordinates != null && pickupCoordinates.length >= 2) {
+    // Only fetch pickup address if not found in LocationStorage
+    if (pickupLocationData == null &&
+        pickupCoordinates != null &&
+        pickupCoordinates.length >= 2) {
       final pickupLat = pickupCoordinates[1];
       final pickupLng = pickupCoordinates[0];
       _getAddress(parcelId, pickupLat, pickupLng, true);
-    } else {
-      _handleAddressError(parcelId, true, "Invalid pickup coordinates");
+    } else if (pickupLocationData == null) {
+      _handleAddressError(parcelId, true, "Invalid");
     }
 
-    if (deliveryCoordinates != null && deliveryCoordinates.length >= 2) {
+    // Only fetch delivery address if not found in LocationStorage
+    if (deliveryLocationData == null &&
+        deliveryCoordinates != null &&
+        deliveryCoordinates.length >= 2) {
       final deliveryLat = deliveryCoordinates[1];
       final deliveryLng = deliveryCoordinates[0];
       _getAddress(parcelId, deliveryLat, deliveryLng, false);
-    } else {
-      _handleAddressError(parcelId, false, "Invalid delivery coordinates");
+    } else if (deliveryLocationData == null) {
+      _handleAddressError(parcelId, false, "Invalid");
     }
   }
 
@@ -138,14 +223,23 @@ class _ServicesScreenState extends State<ServicesScreen> {
         longitude.isNaN ||
         latitude.abs() > 90 ||
         longitude.abs() > 180) {
-      _handleAddressError(parcelId, isPickup, "Invalid coordinates");
+      _handleAddressError(parcelId, isPickup, "Invalid");
       return;
     }
 
     final String key =
         '${latitude.toStringAsFixed(6)},${longitude.toStringAsFixed(6)}';
 
-    //! Check cache first
+    //! Check LocationStorage coordinate cache first
+    final cachedAddress =
+        await locationStorage.getAddressFromCoordinates(latitude, longitude);
+    if (cachedAddress != null) {
+      addressCache[key] = cachedAddress;
+      _updateAddress(parcelId, cachedAddress, isPickup);
+      return;
+    }
+
+    //! Check in-memory cache
     if (addressCache.containsKey(key)) {
       _updateAddress(parcelId, addressCache[key]!, isPickup);
       return;
@@ -186,6 +280,18 @@ class _ServicesScreenState extends State<ServicesScreen> {
 
         addressCache[key] = address;
         pendingRequests.remove(key);
+
+        // Store in LocationStorage for persistence
+        final locationData = LocationData(
+          parcelId: parcelId,
+          addressType: isPickup ? 'pickup' : 'delivery',
+          latitude: latitude,
+          longitude: longitude,
+          address: address,
+          timestamp: DateTime.now(),
+        );
+        await locationStorage.storeLocationData(locationData);
+
         _updateAddress(parcelId, address, isPickup);
       } else {
         const genericAddress = 'Location Not Found';
@@ -268,157 +374,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
       _loadAddressesForParcels();
     }
   }
-
-  // void _loadAddressesForParcels() {
-  //   if (controller.recentParcelList.isNotEmpty) {
-  //     for (var serviceModel in controller.recentParcelList) {
-  //       // Access the Datum objects correctly
-  //       if (serviceModel.data != null && serviceModel.data!.isNotEmpty) {
-  //         for (var parcel in serviceModel.data!) {
-  //           final parcelId = parcel.id;
-  //           if (parcelId != null) {
-  //             //! Initialize loading states
-  //             setState(() {
-  //               pickupAddressLoading[parcelId] = true;
-  //               deliveryAddressLoading[parcelId] = true;
-  //             });
-
-  //             //! Load addresses
-  //             _loadParcelAddresses(parcel);
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
-
-  // void _loadParcelAddresses(Datum parcel) {
-  //   final parcelId = parcel.id;
-  //   if (parcelId == null) return;
-
-  //   //! Safely extract coordinates from Datum object (not map)
-  //   final pickupCoordinates = parcel.pickupLocation?.coordinates;
-  //   final deliveryCoordinates = parcel.deliveryLocation?.coordinates;
-
-  //   if (pickupCoordinates != null && pickupCoordinates.length >= 2) {
-  //     final pickupLat = pickupCoordinates[1]; // latitude is at index 1
-  //     final pickupLng = pickupCoordinates[0]; // longitude is at index 0
-  //     _getAddress(parcelId, pickupLat, pickupLng, true);
-  //   } else {
-  //     _handleAddressError(parcelId, true, "Invalid pickup coordinates");
-  //   }
-
-  //   if (deliveryCoordinates != null && deliveryCoordinates.length >= 2) {
-  //     final deliveryLat = deliveryCoordinates[1];
-  //     final deliveryLng = deliveryCoordinates[0];
-  //     _getAddress(parcelId, deliveryLat, deliveryLng, false);
-  //   } else {
-  //     _handleAddressError(parcelId, false, "Invalid delivery coordinates");
-  //   }
-  // }
-
-  // Future<void> _getAddress(
-  //     String parcelId, double latitude, double longitude, bool isPickup) async {
-  //   // Validate coordinates
-  //   if (latitude.isNaN ||
-  //       longitude.isNaN ||
-  //       latitude.abs() > 90 ||
-  //       longitude.abs() > 180) {
-  //     _handleAddressError(parcelId, isPickup, "Invalid coordinates");
-  //     return;
-  //   }
-
-  //   final String key = '$latitude,$longitude';
-
-  //   //! Check cache first
-  //   if (addressCache.containsKey(key)) {
-  //     _updateAddress(parcelId, addressCache[key]!, isPickup);
-  //     return;
-  //   }
-
-  //   try {
-  //     // Add timeout to prevent hanging
-  //     List<Placemark> placemarks =
-  //         await placemarkFromCoordinates(latitude, longitude).timeout(
-  //       const Duration(seconds: 10),
-  //       onTimeout: () {
-  //         throw Exception('Address lookup timeout');
-  //       },
-  //     );
-
-  //     if (placemarks.isNotEmpty) {
-  //       final placemark = placemarks[0];
-
-  //       // Get single address property in priority order: locality > subLocality > street > subAdministrativeArea
-  //       String address;
-
-  //       if (placemark.locality != null &&
-  //           placemark.locality!.trim().isNotEmpty) {
-  //         address = placemark.locality!.trim();
-  //       } else if (placemark.subLocality != null &&
-  //           placemark.subLocality!.trim().isNotEmpty) {
-  //         address = placemark.subLocality!.trim();
-  //       } else if (placemark.street != null &&
-  //           placemark.street!.trim().isNotEmpty) {
-  //         address = placemark.street!.trim();
-  //       } else if (placemark.subAdministrativeArea != null &&
-  //           placemark.subAdministrativeArea!.trim().isNotEmpty) {
-  //         address = placemark.subAdministrativeArea!.trim();
-  //       } else if (placemark.administrativeArea != null &&
-  //           placemark.administrativeArea!.trim().isNotEmpty) {
-  //         address = placemark.administrativeArea!.trim();
-  //       } else if (placemark.country != null &&
-  //           placemark.country!.trim().isNotEmpty) {
-  //         address = placemark.country!.trim();
-  //       } else {
-  //         // Final fallback to generic location text instead of coordinates
-  //         address = 'Unknown Location';
-  //       }
-
-  //       addressCache[key] = address;
-  //       _updateAddress(parcelId, address, isPickup);
-  //     } else {
-  //       // Fallback to generic location text instead of coordinates
-  //       const genericAddress = 'Location Not Found';
-  //       addressCache[key] = genericAddress;
-  //       _updateAddress(parcelId, genericAddress, isPickup);
-  //     }
-  //   } catch (e) {
-  //     // Enhanced error handling with specific error types
-  //     String errorMessage;
-
-  //     if (e.toString().contains('timeout')) {
-  //       errorMessage = 'Address lookup timed out';
-  //     } else if (e.toString().contains('network') ||
-  //         e.toString().contains('internet')) {
-  //       errorMessage = 'Network error - please check your connection';
-  //     } else if (e.toString().contains('permission')) {
-  //       errorMessage = 'Location permission required';
-  //     } else {
-  //       // Always provide generic fallback instead of coordinates
-  //       const genericAddress = 'Location Unavailable';
-  //       addressCache[key] = genericAddress;
-  //       _updateAddress(parcelId, genericAddress, isPickup);
-  //       return;
-  //     }
-
-  //     _handleAddressError(parcelId, isPickup, errorMessage);
-  //   }
-  // }
-
-  // void _updateAddress(String parcelId, String address, bool isPickup) {
-  //   if (mounted) {
-  //     setState(() {
-  //       if (isPickup) {
-  //         pickupAddresses[parcelId] = address;
-  //         pickupAddressLoading[parcelId] = false;
-  //       } else {
-  //         deliveryAddresses[parcelId] = address;
-  //         deliveryAddressLoading[parcelId] = false;
-  //       }
-  //     });
-  //   }
-  // }
 
   void _handleAddressError(
       String parcelId, bool isPickup, String errorMessage) {
@@ -770,7 +725,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                           .data!.first.deliveryEndTime
                                           .toString());
                                       formattedDate =
-                                          "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
+                                          "${DateFormat(' dd.MM ').format(startDate)} ${'to'.tr} ${DateFormat(' dd.MM ').format(endDate)}";
                                     } catch (e) {
                                       //! log("Error parsing dates: $e");
                                     }
@@ -829,7 +784,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                             const SpaceWidget(spaceWidth: 8),
                                             TextWidget(
                                               text:
-                                                  "$pickupAddress To $deliveryAddress",
+                                                  "$pickupAddress ${'cityTo'.tr} $deliveryAddress",
                                               fontSize: 12,
                                               fontWeight: FontWeight.w500,
                                               fontColor: AppColors.greyDark2,

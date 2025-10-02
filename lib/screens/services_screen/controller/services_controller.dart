@@ -15,6 +15,38 @@ class ServiceController extends GetxController {
   // For tracking parcel detail fetching
   RxBool detailLoading = false.obs;
   Rx<Datum?> selectedParcel = Rx<Datum?>(null);
+  
+  // Add caching variables
+  RxBool hasDataCached = false.obs;
+  DateTime? lastFetchTime;
+  static const Duration cacheValidDuration = Duration(minutes: 30); // Cache valid for 30 minutes
+
+  @override
+  void onInit() {
+    super.onInit();
+    // Only load data if not cached or cache is expired
+    if (!hasDataCached.value || _isCacheExpired()) {
+      fetchParcelList();
+    }
+  }
+
+  // Check if cache is expired
+  bool _isCacheExpired() {
+    if (lastFetchTime == null) return true;
+    return DateTime.now().difference(lastFetchTime!) > cacheValidDuration;
+  }
+
+  // Method to get cached data or fetch fresh data
+  Future<void> fetchParcelListWithCache({bool forceRefresh = false}) async {
+    // If we have cached data and it's not expired, and not forcing refresh, return cached data
+    if (hasDataCached.value && !_isCacheExpired() && !forceRefresh) {
+      log('📦 Using cached services data');
+      return;
+    }
+    
+    // Otherwise, fetch fresh data
+    await fetchParcelList();
+  }
 
   Future<void> fetchParcelList() async {
     try {
@@ -72,6 +104,11 @@ class ServiceController extends GetxController {
           }
           //! log("Parcel list updated. Total items: ${recentParcelList.length}");
         }
+        
+        // Mark data as cached and update fetch time
+        hasDataCached.value = true;
+        lastFetchTime = DateTime.now();
+        log('📦 Services data cached successfully');
       } else {
         //! log("API Error: ${response["message"] ?? "Unknown error"}");
         // AppSnackBar.error(response["message"] ?? 'Failed to load parcels.');
@@ -156,14 +193,15 @@ class ServiceController extends GetxController {
     }
   }
 
-  @override
-  void onInit() {
-    super.onInit();
+  // Method to manually refresh the list
+  void refreshParcelList() {
     fetchParcelList();
   }
 
-  // Method to manually refresh the list
-  void refreshParcelList() {
+  // Method to clear cache and force refresh
+  void clearCacheAndRefresh() {
+    hasDataCached.value = false;
+    lastFetchTime = null;
     fetchParcelList();
   }
 }

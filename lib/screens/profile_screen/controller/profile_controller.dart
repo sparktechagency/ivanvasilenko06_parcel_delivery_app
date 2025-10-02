@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -19,11 +20,38 @@ class ProfileController extends GetxController {
   var profileData = ProfileModel().obs;
   var isLoading = true.obs;
   var errorMessage = ''.obs;
+  
+  // Add caching variables
+  RxBool hasDataCached = false.obs;
+  DateTime? lastFetchTime;
+  static const Duration cacheValidDuration = Duration(minutes: 30); // Cache valid for 30 minutes
+
   @override
   void onInit() {
     super.onInit();
     //! log('🎯 ProfileController initialized');
-    getProfileInfo();
+    // Only load data if not cached or cache is expired
+    if (!hasDataCached.value || _isCacheExpired()) {
+      getProfileInfo();
+    }
+  }
+
+  // Check if cache is expired
+  bool _isCacheExpired() {
+    if (lastFetchTime == null) return true;
+    return DateTime.now().difference(lastFetchTime!) > cacheValidDuration;
+  }
+
+  // Method to get cached data or fetch fresh data
+  Future<void> getProfileInfoWithCache({bool forceRefresh = false}) async {
+    // If we have cached data and it's not expired, and not forcing refresh, return cached data
+    if (hasDataCached.value && !_isCacheExpired() && !forceRefresh) {
+      log('📦 Using cached profile data');
+      return;
+    }
+    
+    // Otherwise, fetch fresh data
+    await getProfileInfo();
   }
 
   Future<void> getProfileInfo() async {
@@ -104,6 +132,12 @@ class ProfileController extends GetxController {
       //! log('❌ Stack trace: $stackTrace');
     } finally {
       isLoading.value = false;
+      // Mark data as cached and update fetch time on successful load
+      if (errorMessage.value.isEmpty) {
+        hasDataCached.value = true;
+        lastFetchTime = DateTime.now();
+        log('✅ Profile data cached successfully');
+      }
      //!  log('🏁 getProfileInfo completed, isLoading set to false');
     }
   }
@@ -270,6 +304,9 @@ class ProfileController extends GetxController {
   }
 
   Future<void> refreshProfileData() async {
+    // Clear cache and fetch fresh data
+    hasDataCached.value = false;
+    lastFetchTime = null;
     await getProfileInfo();
   }
 }

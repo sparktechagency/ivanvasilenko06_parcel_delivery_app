@@ -9,6 +9,7 @@ import 'package:parcel_delivery_app/constants/app_strings.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
 import 'package:parcel_delivery_app/screens/services_screen/controller/services_controller.dart';
 import 'package:parcel_delivery_app/screens/services_screen/model/service_screen_model.dart';
+import 'package:parcel_delivery_app/services/appStroage/location_storage.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
@@ -31,6 +32,9 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
   final DeliveryScreenController deliveryController =
       Get.put(DeliveryScreenController());
 
+  //! LocationStorage instance for persistent address caching
+  late final LocationStorage locationStorage;
+
   //! Cache for addresses to avoid multiple API calls for the same coordinates
   Map<String, String> addressCache = {};
 
@@ -45,8 +49,12 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
   @override
   void initState() {
     super.initState();
+    // Initialize LocationStorage
+    locationStorage = LocationStorage.instance;
+    
     // Initialize addresses after the widget is built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await locationStorage.initialize();
       _initializeAddressStates();
     });
   }
@@ -74,27 +82,45 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
     }
   }
 
-  void _loadParcelAddresses(Datum parcel) {
+  void _loadParcelAddresses(Datum parcel) async {
     final parcelId = parcel.id;
     if (parcelId == null) return;
+
+    //! Check LocationStorage for existing addresses first
+    final pickupLocationData = await locationStorage.getLocationData(parcelId, 'pickup');
+    final deliveryLocationData = await locationStorage.getLocationData(parcelId, 'delivery');
+
+    if (pickupLocationData != null) {
+      setState(() {
+        pickupAddresses[parcelId] = pickupLocationData.address;
+        pickupAddressLoading[parcelId] = false;
+      });
+    }
+
+    if (deliveryLocationData != null) {
+      setState(() {
+        deliveryAddresses[parcelId] = deliveryLocationData.address;
+        deliveryAddressLoading[parcelId] = false;
+      });
+    }
 
     //! Safely extract coordinates from Datum object (not map)
     final pickupCoordinates = parcel.pickupLocation?.coordinates;
     final deliveryCoordinates = parcel.deliveryLocation?.coordinates;
 
-    if (pickupCoordinates != null && pickupCoordinates.length >= 2) {
+    if (pickupLocationData == null && pickupCoordinates != null && pickupCoordinates.length >= 2) {
       final pickupLat = pickupCoordinates[1]; // latitude is at index 1
       final pickupLng = pickupCoordinates[0]; // longitude is at index 0
       _getAddress(parcelId, pickupLat, pickupLng, true);
-    } else {
+    } else if (pickupLocationData == null) {
       _handleAddressError(parcelId, true, "Invalid pickup coordinates");
     }
 
-    if (deliveryCoordinates != null && deliveryCoordinates.length >= 2) {
+    if (deliveryLocationData == null && deliveryCoordinates != null && deliveryCoordinates.length >= 2) {
       final deliveryLat = deliveryCoordinates[1];
       final deliveryLng = deliveryCoordinates[0];
       _getAddress(parcelId, deliveryLat, deliveryLng, false);
-    } else {
+    } else if (deliveryLocationData == null) {
       _handleAddressError(parcelId, false, "Invalid delivery coordinates");
     }
   }
@@ -112,7 +138,15 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
 
     final String key = '$latitude,$longitude';
 
-    //! Check cache first
+    //! Check LocationStorage coordinate cache first
+    final cachedAddress = await locationStorage.getAddressFromCoordinates(latitude, longitude);
+    if (cachedAddress != null) {
+      addressCache[key] = cachedAddress;
+      _updateAddress(parcelId, cachedAddress, isPickup);
+      return;
+    }
+
+    //! Check in-memory cache
     if (addressCache.containsKey(key)) {
       _updateAddress(parcelId, addressCache[key]!, isPickup);
       return;
@@ -156,6 +190,18 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
           address = 'Unknown Location';
         }
         addressCache[key] = address;
+        
+        // Store in LocationStorage for persistence
+        final locationData = LocationData(
+          parcelId: parcelId,
+          addressType: isPickup ? 'pickup' : 'delivery',
+          latitude: latitude,
+          longitude: longitude,
+          address: address,
+          timestamp: DateTime.now(),
+        );
+        await locationStorage.storeLocationData(locationData);
+        
         _updateAddress(parcelId, address, isPickup);
       } else {
         const genericAddress = 'Location Not Found';

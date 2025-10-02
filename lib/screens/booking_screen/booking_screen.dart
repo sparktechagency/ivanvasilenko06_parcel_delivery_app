@@ -11,6 +11,7 @@ import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/constants/app_strings.dart';
 import 'package:parcel_delivery_app/screens/booking_screen/current_order/controller/current_order_controller.dart';
 import 'package:parcel_delivery_app/screens/booking_screen/new_booking/controller/new_bookings_controller.dart';
+import 'package:parcel_delivery_app/services/appStroage/location_storage.dart';
 import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
@@ -41,15 +42,21 @@ class _BookingScreenState extends State<BookingScreen> {
 
   late final CurrentOrderController currentOrderController;
   late final NewBookingsController newBookingsController;
+  late final LocationStorage locationStorage;
 
   @override
   void initState() {
     super.initState();
     currentOrderController = Get.find<CurrentOrderController>();
     newBookingsController = Get.find<NewBookingsController>();
+    locationStorage = LocationStorage.instance;
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await currentOrderController.getCurrentOrder();
+      // Initialize location storage
+      await locationStorage.initialize();
+
+      // Use cached data instead of forcing reload
+      await currentOrderController.getCurrentOrderWithCache();
       // Prefetch all addresses at once
       final parcels = currentOrderController.currentOrdersModel.value.data;
       if (parcels != null) {
@@ -68,10 +75,17 @@ class _BookingScreenState extends State<BookingScreen> {
       return 'Invalid coordinates';
     }
 
+    // First check LocationStorage for cached address
+    final cachedAddress =
+        await locationStorage.getAddressFromCoordinates(latitude, longitude);
+    if (cachedAddress != null) {
+      return cachedAddress;
+    }
+
     final String key =
         '${latitude.toStringAsFixed(6)},${longitude.toStringAsFixed(6)}';
 
-    // Return cached result if available
+    // Return in-memory cached result if available (fallback)
     if (locationToAddressCache.containsKey(key)) {
       return locationToAddressCache[key]!;
     }
@@ -102,8 +116,19 @@ class _BookingScreenState extends State<BookingScreen> {
         final placemark = placemarks[0];
         String newAddress = _extractBestAddress(placemark, latitude, longitude);
 
-        // Cache the result before removing from pending
+        // Cache the result in both in-memory and persistent storage
         locationToAddressCache[key] = newAddress;
+
+        // Store in LocationStorage for persistence (no need to await)
+        locationStorage.storeLocationData(LocationData(
+          parcelId: 'coordinate_cache',
+          addressType: 'coordinate',
+          latitude: latitude,
+          longitude: longitude,
+          address: newAddress,
+          timestamp: DateTime.now(),
+        ));
+
         pendingRequests.remove(key);
 
         return newAddress;
@@ -147,9 +172,9 @@ class _BookingScreenState extends State<BookingScreen> {
     final List<String?> addressParts = [
       placemark.locality,
       placemark.subLocality,
-      placemark.street,
       placemark.subAdministrativeArea,
       placemark.administrativeArea,
+      placemark.street,
       placemark.country,
     ];
     for (var part in addressParts) {
@@ -164,15 +189,30 @@ class _BookingScreenState extends State<BookingScreen> {
     return '${lat.toStringAsFixed(4)}, ${lng.toStringAsFixed(4)}';
   }
 
-  //! Store address by parcel ID
+  //! Store address by parcel ID using LocationStorage
   void cacheAddressForParcel(String parcelId, String addressType,
       double latitude, double longitude) async {
     if (_isDisposed) return;
+
     final cacheKey = '${parcelId}_$addressType';
-    // Skip if already cached
+
+    // First check LocationStorage for existing data
+    final existingLocationData =
+        await locationStorage.getLocationData(parcelId, addressType);
+    if (existingLocationData != null) {
+      if (mounted && !_isDisposed) {
+        setState(() {
+          addressCache[cacheKey] = existingLocationData.address;
+        });
+      }
+      return;
+    }
+
+    // Skip if already cached in memory
     if (addressCache.containsKey(cacheKey)) {
       return;
     }
+
     // Set loading state immediately
     if (mounted) {
       setState(() {
@@ -183,6 +223,18 @@ class _BookingScreenState extends State<BookingScreen> {
     try {
       String fetchedAddress =
           await getAddressFromCoordinates(latitude, longitude);
+
+      // Store in LocationStorage for persistence
+      final locationData = LocationData(
+        parcelId: parcelId,
+        addressType: addressType,
+        latitude: latitude,
+        longitude: longitude,
+        address: fetchedAddress,
+        timestamp: DateTime.now(),
+      );
+
+      await locationStorage.storeLocationData(locationData);
 
       // Only update if widget is still mounted and not disposed
       if (mounted && !_isDisposed) {
@@ -200,48 +252,126 @@ class _BookingScreenState extends State<BookingScreen> {
     }
   }
 
-  //! Get address for a specific parcel
+  //! Get address for a specific parcel with LocationStorage fallback
   String getParcelAddress(String parcelId, String addressType) {
     final cacheKey = '${parcelId}_$addressType';
-    return addressCache[cacheKey] ?? 'Loading...';
+
+    // Return from memory cache if available
+    if (addressCache.containsKey(cacheKey)) {
+      return addressCache[cacheKey]!;
+    }
+
+    // Try to load from LocationStorage asynchronously
+    _loadAddressFromStorage(parcelId, addressType);
+
+    return 'Loading...';
+  }
+
+  //! Helper method to load address from LocationStorage
+  void _loadAddressFromStorage(String parcelId, String addressType) async {
+    if (_isDisposed) return;
+
+    final locationData =
+        await locationStorage.getLocationData(parcelId, addressType);
+    if (locationData != null && mounted && !_isDisposed) {
+      setState(() {
+        addressCache['${parcelId}_$addressType'] = locationData.address;
+      });
+    }
   }
 
   Future<void> prefetchAllAddresses(List<dynamic> parcels) async {
     final List<Future<void>> futures = [];
+    final List<LocationData> locationDataToStore = [];
 
     for (var parcel in parcels) {
       final parcelId = parcel.id ?? "";
       final deliveryLocation = parcel.deliveryLocation?.coordinates;
       final pickupLocation = parcel.pickupLocation?.coordinates;
 
+      // Check delivery location
       if (deliveryLocation != null && deliveryLocation.length == 2) {
-        futures.add(
-            getAddressFromCoordinates(deliveryLocation[1], deliveryLocation[0])
-                .then((address) {
+        final lat = deliveryLocation[1];
+        final lng = deliveryLocation[0];
+
+        // First check if we have this data in LocationStorage
+        final existingData =
+            await locationStorage.getLocationData(parcelId, 'delivery');
+        if (existingData != null) {
           if (mounted && !_isDisposed) {
             setState(() {
-              addressCache['${parcelId}_delivery'] = address;
+              addressCache['${parcelId}_delivery'] = existingData.address;
             });
           }
-        }));
+        } else {
+          // Fetch address and prepare for storage
+          futures.add(getAddressFromCoordinates(lat, lng).then((address) {
+            if (mounted && !_isDisposed) {
+              setState(() {
+                addressCache['${parcelId}_delivery'] = address;
+              });
+
+              // Prepare location data for batch storage
+              locationDataToStore.add(LocationData(
+                parcelId: parcelId,
+                addressType: 'delivery',
+                latitude: lat,
+                longitude: lng,
+                address: address,
+                timestamp: DateTime.now(),
+              ));
+            }
+          }));
+        }
       }
+
+      // Check pickup location
       if (pickupLocation != null && pickupLocation.length == 2) {
-        futures.add(
-            getAddressFromCoordinates(pickupLocation[1], pickupLocation[0])
-                .then((address) {
+        final lat = pickupLocation[1];
+        final lng = pickupLocation[0];
+
+        // First check if we have this data in LocationStorage
+        final existingData =
+            await locationStorage.getLocationData(parcelId, 'pickup');
+        if (existingData != null) {
           if (mounted && !_isDisposed) {
             setState(() {
-              addressCache['${parcelId}_pickup'] = address;
+              addressCache['${parcelId}_pickup'] = existingData.address;
             });
           }
-        }));
+        } else {
+          // Fetch address and prepare for storage
+          futures.add(getAddressFromCoordinates(lat, lng).then((address) {
+            if (mounted && !_isDisposed) {
+              setState(() {
+                addressCache['${parcelId}_pickup'] = address;
+              });
+
+              // Prepare location data for batch storage
+              locationDataToStore.add(LocationData(
+                parcelId: parcelId,
+                addressType: 'pickup',
+                latitude: lat,
+                longitude: lng,
+                address: address,
+                timestamp: DateTime.now(),
+              ));
+            }
+          }));
+        }
       }
     }
+
     // Wait for all requests to complete (with timeout)
     await Future.wait(futures).timeout(
       const Duration(seconds: 05),
       onTimeout: () => [],
     );
+
+    // Store all new location data in batch
+    if (locationDataToStore.isNotEmpty) {
+      await locationStorage.storeMultipleLocationData(locationDataToStore);
+    }
   }
 
   void _openBottomSheet() {
@@ -470,8 +600,8 @@ class _BookingScreenState extends State<BookingScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const TextWidget(
-                  text: 'Have you completed the delivery?',
+                TextWidget(
+                  text: 'haveYouCompletedTheDelivery'.tr,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   fontColor: AppColors.black,
@@ -484,7 +614,7 @@ class _BookingScreenState extends State<BookingScreen> {
                     ButtonWidget(
                       buttonWidth: 100,
                       buttonHeight: 40,
-                      label: 'No',
+                      label: 'no'.tr,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 10),
                       buttonRadius: BorderRadius.circular(10),
@@ -497,7 +627,7 @@ class _BookingScreenState extends State<BookingScreen> {
                     ButtonWidget(
                       buttonWidth: 100,
                       buttonHeight: 40,
-                      label: 'Yes',
+                      label: 'yes'.tr,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 10),
                       buttonRadius: BorderRadius.circular(10),
@@ -512,10 +642,34 @@ class _BookingScreenState extends State<BookingScreen> {
                               parcelId;
                           currentOrderController.parcelStatus.value = status;
                           // Call the finishedDelivery method
-                          currentOrderController.finishedDelivery();
-                          await currentOrderController.getCurrentOrder();
-                          _currentIndex = 0;
-                          currentOrderController.update();
+                          await currentOrderController.finishedDelivery();
+
+                          // Clear cache and force refresh
+                          currentOrderController.clearCacheAndRefresh();
+
+                          // Clear address caches to ensure fresh data
+                          addressCache.clear();
+                          locationToAddressCache.clear();
+                          await locationStorage.clearAllLocationData();
+
+                          // Force refresh with new data
+                          await currentOrderController.getCurrentOrderWithCache(
+                              forceRefresh: true);
+
+                          // Refresh addresses for remaining parcels
+                          final parcels = currentOrderController
+                              .currentOrdersModel.value.data;
+                          if (parcels != null && parcels.isNotEmpty) {
+                            await prefetchAllAddresses(parcels);
+                          }
+
+                          // Update UI state
+                          if (mounted) {
+                            setState(() {
+                              _currentIndex = 0;
+                            });
+                          }
+
                           _pageController.jumpToPage(0);
                           Navigator.pop(context);
                         } catch (e) {
@@ -591,8 +745,33 @@ class _BookingScreenState extends State<BookingScreen> {
                             final controller =
                                 Get.find<NewBookingsController>();
                             await controller.removeParcelFromMap(parcelId);
-                            await currentOrderController.getCurrentOrder();
-                            _currentIndex = 0;
+
+                            // Clear all caches and refresh data
+                            currentOrderController.clearCacheAndRefresh();
+
+                            // Clear address caches
+                            addressCache.clear();
+                            locationToAddressCache.clear();
+                            await locationStorage.clearAllLocationData();
+
+                            // Force refresh with new data
+                            await currentOrderController
+                                .getCurrentOrderWithCache(forceRefresh: true);
+
+                            // Refresh addresses for remaining parcels
+                            final parcels = currentOrderController
+                                .currentOrdersModel.value.data;
+                            if (parcels != null && parcels.isNotEmpty) {
+                              await prefetchAllAddresses(parcels);
+                            }
+
+                            // Update UI state
+                            if (mounted) {
+                              setState(() {
+                                _currentIndex = 0;
+                              });
+                            }
+
                             controller.update();
                             _pageController.jumpToPage(0);
                             Get.back();
@@ -672,8 +851,33 @@ class _BookingScreenState extends State<BookingScreen> {
                                 Get.find<NewBookingsController>();
                             await controller
                                 .parcelCancelFromDeliveryMan(parcelId);
-                            await currentOrderController.getCurrentOrder();
-                            _currentIndex = 0;
+
+                            // Clear all caches and refresh data
+                            currentOrderController.clearCacheAndRefresh();
+
+                            // Clear address caches
+                            addressCache.clear();
+                            locationToAddressCache.clear();
+                            await locationStorage.clearAllLocationData();
+
+                            // Force refresh with new data
+                            await currentOrderController
+                                .getCurrentOrderWithCache(forceRefresh: true);
+
+                            // Refresh addresses for remaining parcels
+                            final parcels = currentOrderController
+                                .currentOrdersModel.value.data;
+                            if (parcels != null && parcels.isNotEmpty) {
+                              await prefetchAllAddresses(parcels);
+                            }
+
+                            // Update UI state
+                            if (mounted) {
+                              setState(() {
+                                _currentIndex = 0;
+                              });
+                            }
+
                             controller.update();
                             _pageController.jumpToPage(0);
                             Get.back();
@@ -922,7 +1126,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   final endDate =
                       DateTime.parse(data[index].deliveryEndTime.toString());
                   formattedDate =
-                      "${DateFormat(' dd.MM ').format(startDate)} to ${DateFormat(' dd.MM ').format(endDate)}";
+                      "${DateFormat(' dd.MM ').format(startDate)} ${'to'.tr} ${DateFormat(' dd.MM ').format(endDate)}";
                 } catch (e) {
                   log("Error parsing dates: $e");
                 }
@@ -978,7 +1182,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                       const SpaceWidget(spaceWidth: 8),
                                       TextWidget(
                                         text:
-                                            "$pickupAddress to $deliveryAddress",
+                                            "$pickupAddress ${'to'.tr} $deliveryAddress",
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
                                         fontColor: AppColors.greyDark2,
@@ -1395,7 +1599,7 @@ class _BookingScreenState extends State<BookingScreen> {
     } else if (parcel.typeParcel.toString() == "assignedParcel") {
       // For finished Delivery
       if (parcel.status == "IN_TRANSIT") {
-        return "Finish Delivery".tr;
+        return "finishDelivery".tr;
       }
     } else {
       // For sendParcel type
@@ -1404,9 +1608,9 @@ class _BookingScreenState extends State<BookingScreen> {
       } else if (parcel.status == "DELIVERED") {
         // Check if review already exists
         if (hasAlreadyReviewed(parcel.id ?? "", parcel)) {
-          return "Review Given".tr;
+          return "reviewGiven".tr;
         } else {
-          return "Giving Review".tr;
+          return "givingReview".tr;
         }
       } else {
         return "removeFromMap".tr;
@@ -1457,7 +1661,7 @@ class _BookingScreenState extends State<BookingScreen> {
           // Only call getCurrentOrder if not already loading
           if (!currentOrderController.isLoading.value) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              currentOrderController.getCurrentOrder();
+              currentOrderController.getCurrentOrderWithCache();
             });
           }
           return Padding(
@@ -1843,7 +2047,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                       deliveryRequest.id ?? '',
                                     );
                                     await currentOrderController
-                                        .getCurrentOrder();
+                                        .getCurrentOrderWithCache();
                                     final controller =
                                         Get.find<NewBookingsController>();
                                     _currentIndex = 0;

@@ -48,8 +48,8 @@ class AppSnackBar {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const TextWidget(
-              text: "Success!",
+            TextWidget(
+              text: "success".tr,
               fontColor: AppColors.white,
               fontSize: 18,
               fontWeight: FontWeight.w900,

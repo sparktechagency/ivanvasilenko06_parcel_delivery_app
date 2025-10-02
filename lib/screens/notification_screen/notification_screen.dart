@@ -9,6 +9,7 @@ import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/constants/app_strings.dart';
 import 'package:parcel_delivery_app/screens/notification_screen/controller/notification_controller.dart';
 import 'package:parcel_delivery_app/services/reuseable/lat_long_to_address.dart';
+import 'package:parcel_delivery_app/services/appStroage/location_storage.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
@@ -35,6 +36,7 @@ class _NotificationScreenState extends State<NotificationScreen>
   String address = "Loading...";
   String newBookingAddress = "Loading...";
   late NotificationController controller;
+  late LocationStorage locationStorage;
 
   Map<String, String> addressCache = {};
   Map<String, String> locationToAddressCache = {};
@@ -53,7 +55,15 @@ class _NotificationScreenState extends State<NotificationScreen>
     final String key =
         '${latitude.toStringAsFixed(6)},${longitude.toStringAsFixed(6)}';
 
-    // Check cache first
+    // Check LocationStorage first for persistent cache
+    String? storedAddress = await locationStorage.getAddressFromCoordinates(latitude, longitude);
+    if (storedAddress != null && storedAddress.isNotEmpty) {
+      // Also update the in-memory cache for faster subsequent access
+      locationToAddressCache[key] = storedAddress;
+      return storedAddress;
+    }
+
+    // Check in-memory cache second
     if (locationToAddressCache.containsKey(key)) {
       return locationToAddressCache[key]!;
     }
@@ -82,17 +92,22 @@ class _NotificationScreenState extends State<NotificationScreen>
           if (part != null &&
               part.trim().isNotEmpty &&
               part.toLowerCase() != 'null') {
-            locationToAddressCache[key] = part.trim();
-            return part.trim();
+            final address = part.trim();
+            // Store in both caches
+            locationToAddressCache[key] = address;
+            await locationStorage.saveCoordinateAddress(latitude, longitude, address);
+            return address;
           }
         }
 
         const fallback = 'Unknown Location';
         locationToAddressCache[key] = fallback;
+        await locationStorage.saveCoordinateAddress(latitude, longitude, fallback);
         return fallback;
       } else {
         const genericAddress = 'Location Not Found';
         locationToAddressCache[key] = genericAddress;
+        await locationStorage.saveCoordinateAddress(latitude, longitude, genericAddress);
         return genericAddress;
       }
     } catch (e) {
@@ -119,6 +134,7 @@ class _NotificationScreenState extends State<NotificationScreen>
       // Only cache permanent errors
       if (shouldCache) {
         locationToAddressCache[key] = errorMessage;
+        await locationStorage.saveCoordinateAddress(latitude, longitude, errorMessage);
       }
 
       return errorMessage;
@@ -144,6 +160,27 @@ class _NotificationScreenState extends State<NotificationScreen>
     try {
       String fetchedAddress =
           await getAddressFromCoordinates(latitude, longitude);
+      
+      // Store in LocationStorage for persistence across app sessions
+      if (fetchedAddress.isNotEmpty && 
+          !fetchedAddress.contains('Unavailable') && 
+          !fetchedAddress.contains('No Network') &&
+          fetchedAddress != 'Loading...') {
+        
+        // Create LocationData for persistent storage
+        final locationData = LocationData(
+          parcelId: parcelId,
+          addressType: addressType,
+          latitude: latitude,
+          longitude: longitude,
+          address: fetchedAddress,
+          timestamp: DateTime.now(),
+        );
+        
+        // Store in LocationStorage (preserves addresses from other screens)
+        await locationStorage.storeLocationData(locationData);
+      }
+      
       if (mounted) {
         setState(() {
           addressCache[cacheKey] = fetchedAddress;
@@ -191,6 +228,13 @@ class _NotificationScreenState extends State<NotificationScreen>
   void initState() {
     super.initState();
     controller = Get.put(NotificationController());
+    locationStorage = LocationStorage.instance;
+    
+    // Initialize LocationStorage after the first frame is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      locationStorage.initialize();
+    });
+    
     _tabController = TabController(length: 2, vsync: this);
     _setupScrollListener();
     _tabController.addListener(() {

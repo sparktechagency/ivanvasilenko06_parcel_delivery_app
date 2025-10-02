@@ -200,8 +200,8 @@
   "noCurrentOrderAvailable":" אין הזמנות פעילות",
   "noNewBookings":"אין הזמנות חדשות",
   "areyoursuredeleteyouraccount" : "האם אתה בטוח שברצונך למחוק את הפרופיל שלך?",
-  "No" : "לא",
-  "Yes" : "כן",
+  "no" : "לא",
+  "yes" : "כן",
   "avaiableDeliveries": "משלוחים זמינים",
   "checkDeliveriesSectiontoSendRequests" : "👉 בדוק את אזור המשלוחים כדי לשלוח בקשה 👈",
   "pickthedistanceYouwantoWork" : "בחר את המרחק שבו ברצונך לעבוד.נציג לך רק עבודות בקרבת מקום!",
@@ -233,5 +233,14 @@
   "noCurrentOrdersAvailable" : "אין הזמנות פעילות",
   "noNewRequests" : "אין בקשות חדשות",
   "deliveryRequests" : "בקשות משלוח",
-  "enterYourEmailOptional" : "הזן את כתובת המייל שלך (לא חובה)"
+  "enterYourEmailOptional" : "הזן את כתובת המייל שלך (לא חובה)",
+  "haveYouCompletedTheDelivery" : "האם אתה בטוח שברצונך לסמן שהמשלוח הושלם?",
+  "givingReview" : "דרג משלוח",
+  "reviewGiven" : "ביקורת נתונה",
+  "finishDelivery" : "סיים משלוח",
+  "deliveryCancelledSuccessfully" : "המשלוח בוטל בהצלחה",
+  "success" : "צלחה !",
+  "parcelRequestSentSuccessfully" : "בקשה חבילה נשלחה בהצלחה",
+  "to" : "עד",
+  "cityTo" : "ל־"
 }

@@ -150,7 +150,7 @@ class DeliveryScreenController extends GetxController {
       if (response != null && response['status'] == 'success') {
         sentParcelIds.add(parcelId);
         update();
-        AppSnackBar.success("Parcel request sent successfully");
+        AppSnackBar.success("parcelRequestSentSuccessfully".tr);
       } else {
         // AppSnackBar.error("Failed to send parcel request");
       }

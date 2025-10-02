@@ -288,8 +288,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      // Load profile data first
-      await profileController.getProfileInfo();
+      // Load profile data first using cached data
+      await profileController.getProfileInfoWithCache();
       notificationController.isReadNotification();
 
       // Log profile data after it's loaded

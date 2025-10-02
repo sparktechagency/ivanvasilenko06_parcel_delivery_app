@@ -129,10 +129,8 @@ class _ViewDetailsScreenState extends State<ViewDetailsScreen> {
   @override
   void initState() {
     super.initState();
-
     // Get the existing controller instance from booking_screen
     controller = Get.find<CurrentOrderController>();
-
     _findCurrentParcel();
   }
 

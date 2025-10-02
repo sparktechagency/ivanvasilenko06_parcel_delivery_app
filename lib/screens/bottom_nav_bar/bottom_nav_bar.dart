@@ -6,8 +6,15 @@ import 'package:parcel_delivery_app/utils/app_size.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_icons_path.dart';
 import '../booking_screen/booking_screen.dart';
+import '../home_screen/controller/earn_money_radius_controller.dart';
 import '../home_screen/home_screen.dart';
 import '../profile_screen/profile_screen.dart';
+import '../services_screen/controller/services_controller.dart';
+import '../booking_screen/current_order/controller/current_order_controller.dart';
+import '../booking_screen/new_booking/controller/new_bookings_controller.dart';
+import '../delivery_parcel_screens/controller/delivery_screens_controller.dart';
+import '../notification_screen/controller/notification_controller.dart';
+import '../profile_screen/controller/profile_controller.dart';
 
 class BottomNavScreen extends StatefulWidget {
   final int initialIndex;
@@ -25,6 +32,15 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
   @override
   void initState() {
     _currentIndex = widget.initialIndex;
+    
+    // Initialize all controllers to ensure they're available when screens are accessed
+    Get.put(ServiceController());
+    Get.put(CurrentOrderController());
+    Get.put(NewBookingsController());
+    Get.put(DeliveryScreenController());
+    Get.put(NotificationController());
+    Get.put(ProfileController());
+    Get.put(EarnMoneyRadiusController());
     tabs = [
       const HomeScreen(),
       const ServicesScreen(),

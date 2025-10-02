@@ -176,7 +176,6 @@
   "beforeGoogleSignInEnterYourNumber" : "Please Provide Your Number to Continue with Google",
   "continueWithGoogle" : "Continue with Google",
   "optional" : "Enter Your Email (Optional)",
-  "Review Given" : "Review Given",
   "editProfile" : "Edit Profile",
   "logout" : "Logout",
   "deleteAccount" : "Delete Account",
@@ -235,5 +234,14 @@
   "noCurrentOrdersAvailable" : "No current orders available",
   "noNewRequests" : "No New Requests",
   "deliveryRequests" : "Delivery Requests",
-  "enterYourEmailOptional" : "Enter Your Email (Optional)"
+  "enterYourEmailOptional" : "Enter Your Email (Optional)",
+  "haveYouCompletedTheDelivery" : "Have you completed the delivery?",
+  "givingReview" : "Giving Review",
+  "reviewGiven" : "Review Given",
+  "finishDelivery" : "Finish Delivery",
+  "deliveryCancelledSuccessfully" : "Delivery cancelled successfully",
+  "success" : "Success!",
+  "parcelRequestSentSuccessfully" : "Parcel request sent successfully",
+  "to" : "To",
+  "cityTo" : "To"
 }

@@ -9,6 +9,7 @@ import 'package:parcel_delivery_app/constants/app_colors.dart';
 import 'package:parcel_delivery_app/screens/booking_screen/current_order/model/current_order_model.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_get_services.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart';
+import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
 import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 
 class CurrentOrderController extends GetxController {
@@ -21,10 +22,36 @@ class CurrentOrderController extends GetxController {
   var finishedParcelId = "".obs;
   var parcelStatus = "".obs;
 
+  // Add caching variables
+  RxBool hasDataCached = false.obs;
+  DateTime? lastFetchTime;
+  static const Duration cacheValidDuration = Duration(minutes: 15); // Cache valid for 15 minutes
+
   @override
   void onInit() {
     super.onInit();
-    getCurrentOrder();
+    // Only load data if not cached or cache is expired
+    if (!hasDataCached.value || _isCacheExpired()) {
+      getCurrentOrder();
+    }
+  }
+
+  // Check if cache is expired
+  bool _isCacheExpired() {
+    if (lastFetchTime == null) return true;
+    return DateTime.now().difference(lastFetchTime!) > cacheValidDuration;
+  }
+
+  // Method to get cached data or fetch fresh data
+  Future<void> getCurrentOrderWithCache({bool forceRefresh = false}) async {
+    // If we have cached data and it's not expired, and not forcing refresh, return cached data
+    if (hasDataCached.value && !_isCacheExpired() && !forceRefresh) {
+      log('📦 Using cached current order data');
+      return;
+    }
+    
+    // Otherwise, fetch fresh data
+    await getCurrentOrder();
   }
 
   Future<CurrentOrderModel?> getCurrentOrder() async {
@@ -52,6 +79,12 @@ class CurrentOrderController extends GetxController {
           }
 
           log("Current orders model updated: ${currentOrdersModel.value.data?.length ?? 0} orders found");
+          
+          // Mark data as cached and update fetch time
+          hasDataCached.value = true;
+          lastFetchTime = DateTime.now();
+          log('📦 Current order data cached successfully');
+          
           return currentOrdersModel.value;
         } else {
           log("Unexpected response type: ${response.runtimeType}");
@@ -164,5 +197,12 @@ class CurrentOrderController extends GetxController {
   Future<void> refreshCurrentOrder() async {
     isLoading(true);
     await getCurrentOrder();
+  }
+
+  // Method to clear cache and force refresh
+  void clearCacheAndRefresh() {
+    hasDataCached.value = false;
+    lastFetchTime = null;
+    getCurrentOrder();
   }
 }
