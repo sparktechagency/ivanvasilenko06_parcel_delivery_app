@@ -443,7 +443,7 @@ class _RecentPublishOrderState extends State<RecentPublishOrder> {
                               ),
                               const SpaceWidget(spaceWidth: 8),
                               TextWidget(
-                                text: "$pickupAddress To $deliveryAddress",
+                                text: "${'from'.tr} $pickupAddress ${'cityTo'.tr} $deliveryAddress",
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
                                 fontColor: AppColors.greyDark2,

@@ -1182,7 +1182,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                       const SpaceWidget(spaceWidth: 8),
                                       TextWidget(
                                         text:
-                                            "$pickupAddress ${'to'.tr} $deliveryAddress",
+                                            "${'from'.tr} $pickupAddress ${'cityTo'.tr} $deliveryAddress",
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
                                         fontColor: AppColors.greyDark2,
@@ -1953,7 +1953,7 @@ class _BookingScreenState extends State<BookingScreen> {
                             const SpaceWidget(spaceWidth: 8),
                             Flexible(
                               child: TextWidget(
-                                text: "$pickupAddress to $deliveryAddress",
+                                text: "${'from'.tr} $pickupAddress ${'cityTo'.tr} $deliveryAddress",
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
                                 fontColor: AppColors.greyDark2,

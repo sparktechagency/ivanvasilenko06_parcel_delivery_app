@@ -243,5 +243,6 @@
   "success" : "Success!",
   "parcelRequestSentSuccessfully" : "Parcel request sent successfully",
   "to" : "To",
-  "cityTo" : "To"
+  "cityTo" : "To",
+  "from" : "From"
 }

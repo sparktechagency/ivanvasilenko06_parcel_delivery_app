@@ -242,5 +242,6 @@
   "success" : "צלחה !",
   "parcelRequestSentSuccessfully" : "בקשה חבילה נשלחה בהצלחה",
   "to" : "עד",
-  "cityTo" : "ל־"
+  "cityTo" : "ל־",
+  "from" : "מ"
 }

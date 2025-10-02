@@ -258,7 +258,7 @@ class _ParcelForDeliveryScreenState extends State<ParcelForDeliveryScreen> {
                                 const SpaceWidget(spaceWidth: 8),
                                 Flexible(
                                   child: TextWidget(
-                                    text: "$pickupAddress to $deliveryAddress",
+                                    text: "${'from'.tr} $pickupAddress ${'cityTo'.tr} $deliveryAddress",
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                     fontColor: AppColors.greyDark2,

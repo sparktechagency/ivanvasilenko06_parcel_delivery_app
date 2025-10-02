@@ -1269,7 +1269,7 @@ class _NotificationScreenState extends State<NotificationScreen>
               SizedBox(
                 width: ResponsiveUtils.width(180),
                 child: TextWidget(
-                  text: "$pickupAddress to $deliveryAddress",
+                  text: "${'from'.tr} $pickupAddress ${'cityTo'.tr} $deliveryAddress",
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                   fontColor: AppColors.greyDark2,
@@ -1346,9 +1346,6 @@ class _NotificationScreenState extends State<NotificationScreen>
                     const SpaceWidget(spaceHeight: 8)
                   ],
                 ),
-          // type == "Requested-Delivery"
-          //     ? const SpaceWidget(spaceHeight: 8)
-          //     : const SizedBox(),
           Row(
             children: [
               const Icon(

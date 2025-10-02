@@ -784,7 +784,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                                             const SpaceWidget(spaceWidth: 8),
                                             TextWidget(
                                               text:
-                                                  "$pickupAddress ${'cityTo'.tr} $deliveryAddress",
+                                                  "${'from'.tr} $pickupAddress ${'cityTo'.tr} $deliveryAddress",
                                               fontSize: 12,
                                               fontWeight: FontWeight.w500,
                                               fontColor: AppColors.greyDark2,
