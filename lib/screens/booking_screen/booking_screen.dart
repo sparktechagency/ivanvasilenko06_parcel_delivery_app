@@ -47,8 +47,23 @@ class _BookingScreenState extends State<BookingScreen> {
   @override
   void initState() {
     super.initState();
-    currentOrderController = Get.find<CurrentOrderController>();
-    newBookingsController = Get.find<NewBookingsController>();
+
+    // Try to find existing controller, if not found, create and put it
+    try {
+      currentOrderController = Get.find<CurrentOrderController>();
+    } catch (e) {
+      // If controller not found, create and register it
+      currentOrderController =
+          Get.put(CurrentOrderController(), permanent: true);
+    }
+
+    try {
+      newBookingsController = Get.find<NewBookingsController>();
+    } catch (e) {
+      // If controller not found, create and register it
+      newBookingsController = Get.put(NewBookingsController(), permanent: true);
+    }
+
     locationStorage = LocationStorage.instance;
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -57,6 +72,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
       // Use cached data instead of forcing reload
       await currentOrderController.getCurrentOrderWithCache();
+
       // Prefetch all addresses at once
       final parcels = currentOrderController.currentOrdersModel.value.data;
       if (parcels != null) {
@@ -374,15 +390,31 @@ class _BookingScreenState extends State<BookingScreen> {
     }
   }
 
-  void _openBottomSheet() {
+  void _openBottomSheet(String parcelId, dynamic parcel) {
+    // Check if review already exists BEFORE opening the sheet
+    if (hasAlreadyReviewed(parcelId, parcel)) {
+      _showErrorSnackBar("You have already reviewed this delivery");
+      return;
+    }
+
     double selectedRating = 1.0;
+
+    // Safely get the controller - use the instance variable directly
+    // This avoids any GetX lookup issues
+    final controller = currentOrderController;
+
+    // Set parcel ID and user ID before opening the sheet
+    controller.parcelID.value = parcelId;
+    controller.userID.value = parcel.assignedDelivererId?.id ?? "";
 
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      isDismissible: true,
+      enableDrag: true,
       builder: (context) {
         return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
+          builder: (BuildContext context, StateSetter setModalState) {
             return Container(
               decoration: const BoxDecoration(
                 color: AppColors.white,
@@ -426,11 +458,11 @@ class _BookingScreenState extends State<BookingScreen> {
                       itemCount: 5,
                       itemPadding: const EdgeInsets.symmetric(horizontal: 06),
                       itemBuilder: (context, _) => const Icon(
-                        Icons.star_border,
+                        Icons.star,
                         color: Colors.amber,
                       ),
                       onRatingUpdate: (rating) {
-                        setState(() {
+                        setModalState(() {
                           selectedRating = rating;
                         });
                         appLog('Rating: $rating');
@@ -461,12 +493,46 @@ class _BookingScreenState extends State<BookingScreen> {
                   const SpaceWidget(spaceHeight: 32),
                   ButtonWidget(
                     onPressed: () async {
-                      // Set the rating value in the controller
-                      final currentOrderController =
-                          Get.find<CurrentOrderController>();
-                      currentOrderController.rating.value = selectedRating;
-                      await currentOrderController.givingReview();
+                      // Set the rating value
+                      controller.rating.value = selectedRating;
+
+                      // Close the bottom sheet first
                       Navigator.pop(context);
+
+                      // Show loading dialog
+                      Get.dialog(
+                        Center(
+                          child: LoadingAnimationWidget.hexagonDots(
+                            color: AppColors.black,
+                            size: 40,
+                          ),
+                        ),
+                        barrierDismissible: false,
+                      );
+
+                      try {
+                        // Submit the review
+                        await controller.givingReview();
+
+                        // Close loading dialog
+                        Get.back();
+
+                        // Refresh the current orders to update UI
+                        await controller.getCurrentOrderWithCache(
+                            forceRefresh: true);
+
+                        // Update the UI
+                        if (mounted) {
+                          setState(() {});
+                        }
+                      } catch (e) {
+                        // Close loading dialog if still open
+                        if (Get.isDialogOpen == true) {
+                          Get.back();
+                        }
+                        _showErrorSnackBar(
+                            "Failed to submit review: ${e.toString()}");
+                      }
                     },
                     label: "submit".tr,
                     buttonWidth: double.infinity,
@@ -1507,10 +1573,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                           _showErrorSnackBar(
                                               "You have already reviewed this delivery");
                                         } else {
-                                          final currentOrderController =
-                                              Get.find<CurrentOrderController>(
-                                                  tag: 'current');
-                                          // Set parcel ID and user ID for review
+                                          // Set parcel ID and user ID for review using the existing controller instance
                                           currentOrderController.parcelID
                                               .value = data[index].id ?? "";
                                           currentOrderController.userID.value =
@@ -1518,7 +1581,13 @@ class _BookingScreenState extends State<BookingScreen> {
                                                       .assignedDelivererId
                                                       ?.id ??
                                                   "";
-                                          _openBottomSheet();
+                                          _openBottomSheet(
+                                            parcelId,
+                                            data[index]
+                                                    .assignedDelivererId
+                                                    ?.id ??
+                                                "",
+                                          );
                                         }
                                       } else {
                                         // Remove from map option
@@ -1760,8 +1829,9 @@ class _BookingScreenState extends State<BookingScreen> {
               final pickupAddress = getParcelAddress(parcelId, 'pickup');
 
               String getProfileImagePath() {
-                if (currentOrderController.isLoading.value) {
-                  log('⏳ Profile is still loading, returning default image URL');
+                // Check if deliveryRequest.image is null first
+                if (deliveryRequest.image == null) {
+                  log('❌ Image URL is null, using default image URL');
                   return 'https://i.ibb.co/z5YHLV9/profile.png';
                 }
 
@@ -1953,7 +2023,8 @@ class _BookingScreenState extends State<BookingScreen> {
                             const SpaceWidget(spaceWidth: 8),
                             Flexible(
                               child: TextWidget(
-                                text: "${'from'.tr} $pickupAddress ${'cityTo'.tr} $deliveryAddress",
+                                text:
+                                    "${'from'.tr} $pickupAddress ${'cityTo'.tr} $deliveryAddress",
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
                                 fontColor: AppColors.greyDark2,
@@ -2046,13 +2117,6 @@ class _BookingScreenState extends State<BookingScreen> {
                                       parcel.id ?? '',
                                       deliveryRequest.id ?? '',
                                     );
-                                    await currentOrderController
-                                        .getCurrentOrderWithCache();
-                                    final controller =
-                                        Get.find<NewBookingsController>();
-                                    _currentIndex = 0;
-                                    controller.update();
-                                    _pageController.jumpToPage(1);
                                   },
                             splashColor: Colors.transparent,
                             highlightColor: Colors.transparent,
@@ -2101,11 +2165,6 @@ class _BookingScreenState extends State<BookingScreen> {
                                       parcel.id ?? '',
                                       deliveryRequest.id ?? '',
                                     );
-                                    final controller =
-                                        Get.find<NewBookingsController>();
-                                    _currentIndex = 0;
-                                    controller.update();
-                                    _pageController.jumpToPage(1);
                                   },
                             splashColor: Colors.transparent,
                             highlightColor: Colors.transparent,

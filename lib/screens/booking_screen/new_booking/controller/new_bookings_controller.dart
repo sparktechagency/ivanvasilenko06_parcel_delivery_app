@@ -7,6 +7,7 @@ import 'package:parcel_delivery_app/screens/booking_screen/current_order/control
 import 'package:parcel_delivery_app/services/apiServices/api_delete_services.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_put_services.dart';
+import 'package:parcel_delivery_app/services/appStroage/location_storage.dart';
 
 class NewBookingsController extends GetxController {
   RxBool isLoading = false.obs;
@@ -50,13 +51,10 @@ class NewBookingsController extends GetxController {
       // Handle the response based on status field in the Map
       if (response['status'] == 'success') {
         log('Parcel delivery updated successfully');
-        try {
-          final CurrentOrderController controller =
-              Get.find<CurrentOrderController>();
-          await controller.refreshCurrentOrder();
-        } catch (e) {
-          log('Controller not found, skipping refresh');
-        }
+
+        // Comprehensive refresh with storage clearing
+        await _refreshBookingScreenData();
+
         // Reset badge since the booking list has changed
         resetNewBookingsBadge();
         // Get.snackbar('Success', 'Delivery request accepted successfully');
@@ -99,13 +97,10 @@ class NewBookingsController extends GetxController {
       // Handle the response based on the 'status' field in the Map
       if (response['status'] == 'success') {
         log('Parcel delivery rejected successfully');
-        try {
-          final CurrentOrderController controller =
-              Get.find<CurrentOrderController>();
-          await controller.refreshCurrentOrder();
-        } catch (e) {
-          log('Controller not found, skipping refresh');
-        }
+
+        // Comprehensive refresh with storage clearing
+        await _refreshBookingScreenData();
+
         // Reset badge since the booking list has changed
         resetNewBookingsBadge();
         // Get.snackbar('Success', 'Delivery request rejected successfully');
@@ -257,6 +252,47 @@ class NewBookingsController extends GetxController {
     } catch (error) {
       log('Error: $error');
       rethrow;
+    }
+  }
+
+  /// Comprehensive refresh method that clears storage and reloads data
+  Future<void> _refreshBookingScreenData() async {
+    try {
+      // Clear location storage to ensure fresh data
+      final locationStorage = LocationStorage.instance;
+      await locationStorage.clearAllLocationData();
+      log('LocationStorage cleared successfully');
+
+      // Refresh current order controller with force refresh
+      try {
+        final CurrentOrderController controller =
+            Get.find<CurrentOrderController>();
+        await controller.clearCacheAndRefresh();
+        log('CurrentOrderController refreshed successfully');
+      } catch (e) {
+        log('CurrentOrderController not found, attempting alternative refresh: $e');
+        // Alternative: try to get fresh data
+        try {
+          final CurrentOrderController controller =
+              Get.find<CurrentOrderController>();
+          await controller.getCurrentOrderWithCache(forceRefresh: true);
+        } catch (e2) {
+          log('Alternative refresh also failed: $e2');
+        }
+      }
+
+      // Update this controller to trigger UI refresh
+      update();
+
+      // Force a complete UI rebuild by triggering a state change
+      await Future.delayed(const Duration(milliseconds: 100));
+      update();
+
+      log('Booking screen data refresh completed');
+    } catch (error) {
+      log('Error during booking screen data refresh: $error');
+      // Even if there's an error, try to update the UI
+      update();
     }
   }
 }
