@@ -290,7 +290,88 @@ class LocationStorage {
     }
   }
 
-  /// Remove location data for a specific parcel and address type
+  /// Enhanced method to preload addresses for multiple parcels efficiently
+  Future<Map<String, String>> preloadParcelAddresses(List<dynamic> parcels) async {
+    final Map<String, String> addressResults = {};
+    final List<LocationData> newLocationData = [];
+    
+    try {
+      final prefs = await _preferences;
+      final existingDataJson = prefs.getString(_locationDataKey) ?? '{}';
+      final Map<String, dynamic> existingData = json.decode(existingDataJson);
+      
+      // First, check what we already have cached
+      for (var parcel in parcels) {
+        final parcelId = parcel.id ?? "";
+        
+        // Check delivery location
+        final deliveryLocation = parcel.deliveryLocation?.coordinates;
+        if (deliveryLocation != null && deliveryLocation.length == 2) {
+          final deliveryCacheKey = '${parcelId}_delivery';
+          if (existingData.containsKey(deliveryCacheKey)) {
+            try {
+              final locationData = LocationData.fromJson(existingData[deliveryCacheKey]);
+              if (locationData.isValid && !locationData.isExpired && locationData.hasValidCoordinates) {
+                addressResults[deliveryCacheKey] = locationData.address;
+              }
+            } catch (e) {
+              log('LocationStorage: Failed to parse cached delivery data for $parcelId: $e');
+            }
+          }
+        }
+        
+        // Check pickup location
+        final pickupLocation = parcel.pickupLocation?.coordinates;
+        if (pickupLocation != null && pickupLocation.length == 2) {
+          final pickupCacheKey = '${parcelId}_pickup';
+          if (existingData.containsKey(pickupCacheKey)) {
+            try {
+              final locationData = LocationData.fromJson(existingData[pickupCacheKey]);
+              if (locationData.isValid && !locationData.isExpired && locationData.hasValidCoordinates) {
+                addressResults[pickupCacheKey] = locationData.address;
+              }
+            } catch (e) {
+              log('LocationStorage: Failed to parse cached pickup data for $parcelId: $e');
+            }
+          }
+        }
+      }
+      
+      log('LocationStorage: Preloaded ${addressResults.length} cached addresses');
+      return addressResults;
+    } catch (e) {
+      log('LocationStorage: Failed to preload parcel addresses: $e');
+      return {};
+    }
+  }
+
+  /// Enhanced method to get cached addresses with fallback loading states
+  Future<Map<String, String>> getCachedAddressesWithFallback(List<dynamic> parcels) async {
+    final Map<String, String> results = {};
+    
+    try {
+      final cachedAddresses = await preloadParcelAddresses(parcels);
+      
+      for (var parcel in parcels) {
+        final parcelId = parcel.id ?? "";
+        
+        // Set delivery address or loading state
+        final deliveryCacheKey = '${parcelId}_delivery';
+        results[deliveryCacheKey] = cachedAddresses[deliveryCacheKey] ?? 'Loading...';
+        
+        // Set pickup address or loading state
+        final pickupCacheKey = '${parcelId}_pickup';
+        results[pickupCacheKey] = cachedAddresses[pickupCacheKey] ?? 'Loading...';
+      }
+      
+      return results;
+    } catch (e) {
+      log('LocationStorage: Failed to get cached addresses with fallback: $e');
+      return {};
+    }
+  }
+
+      /// Remove location data for a specific parcel and address type
   Future<bool> _removeLocationData(String cacheKey) async {
     try {
       final prefs = await _preferences;

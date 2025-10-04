@@ -88,4 +88,19 @@ class AppSnackBar {
       ),
     );
   }
+
+   static reviewError(String parameterValue) {
+    Get.showSnackbar(
+      GetSnackBar(
+        backgroundColor: AppColors.red,
+        animationDuration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 3),
+        messageText: TextWidget(
+              text: parameterValue,
+              fontColor: AppColors.white,
+            ),
+      ),
+    );
+  }
+
 }

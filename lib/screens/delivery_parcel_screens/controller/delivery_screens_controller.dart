@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
+import 'package:parcel_delivery_app/screens/booking_screen/current_order/controller/current_order_controller.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_get_services.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart';
 import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
@@ -150,6 +151,11 @@ class DeliveryScreenController extends GetxController {
       if (response != null && response['status'] == 'success') {
         sentParcelIds.add(parcelId);
         update();
+        
+        // Force refresh CurrentOrderController with cache clearing
+        final controller = Get.find<CurrentOrderController>();
+        await controller.clearCacheAndRefresh();
+        
         AppSnackBar.success("parcelRequestSentSuccessfully".tr);
       } else {
         // AppSnackBar.error("Failed to send parcel request");

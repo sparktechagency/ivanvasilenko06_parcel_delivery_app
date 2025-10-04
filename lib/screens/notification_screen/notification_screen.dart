@@ -18,7 +18,6 @@ import '../../constants/app_icons_path.dart';
 import '../../constants/app_image_path.dart';
 import '../../widgets/icon_widget/icon_widget.dart';
 import '../../widgets/image_widget/image_widget.dart';
-import '../delivery_parcel_screens/controller/delivery_screens_controller.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});

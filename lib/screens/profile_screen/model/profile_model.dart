@@ -11,21 +11,22 @@ class ProfileModel {
     this.data,
   });
 
-  factory ProfileModel.fromRawJson(String str) => ProfileModel.fromJson(json.decode(str));
+  factory ProfileModel.fromRawJson(String str) =>
+      ProfileModel.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) => ProfileModel(
-    status: json["status"],
-    message: json["message"],
-    data: json["data"] == null ? null : Data.fromJson(json["data"]),
-  );
+        status: json["status"],
+        message: json["message"],
+        data: json["data"] == null ? null : Data.fromJson(json["data"]),
+      );
 
   Map<String, dynamic> toJson() => {
-    "status": status,
-    "message": message,
-    "data": data?.toJson(),
-  };
+        "status": status,
+        "message": message,
+        "data": data?.toJson(),
+      };
 }
 
 class Data {
@@ -46,18 +47,22 @@ class Data {
   String toRawJson() => json.encode(toJson());
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-    user: json["user"] == null ? null : User.fromJson(json["user"]),
-    earnings: json["earnings"] == null ? null : Earnings.fromJson(json["earnings"]),
-    averageRating: json["averageRating"],
-    totalReviews: json["totalReviews"],
-  );
+        user: json["user"] == null ? null : User.fromJson(json["user"]),
+        earnings: json["earnings"] == null
+            ? null
+            : Earnings.fromJson(json["earnings"]),
+        averageRating: json["averageRating"],
+        totalReviews: json["totalReviews"] != null
+            ? (json["totalReviews"] as num).toInt()
+            : null,
+      );
 
   Map<String, dynamic> toJson() => {
-    "user": user?.toJson(),
-    "earnings": earnings?.toJson(),
-    "averageRating": averageRating,
-    "totalReviews": totalReviews,
-  };
+        "user": user?.toJson(),
+        "earnings": earnings?.toJson(),
+        "averageRating": averageRating,
+        "totalReviews": totalReviews,
+      };
 }
 
 class Earnings {
@@ -77,27 +82,40 @@ class Earnings {
     this.tripsCompleted,
   });
 
-  factory Earnings.fromRawJson(String str) => Earnings.fromJson(json.decode(str));
+  factory Earnings.fromRawJson(String str) =>
+      Earnings.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
   factory Earnings.fromJson(Map<String, dynamic> json) => Earnings(
-    totalEarnings: json["totalEarnings"],
-    monthlyEarnings: json["monthlyEarnings"],
-    totalAmountSpent: json["totalAmountSpent"],
-    totalSentParcels: json["totalSentParcels"],
-    totalReceivedParcels: json["totalReceivedParcels"],
-    tripsCompleted: json["tripsCompleted"],
-  );
+        totalEarnings: json["totalEarnings"] != null
+            ? (json["totalEarnings"] as num).toInt()
+            : null,
+        monthlyEarnings: json["monthlyEarnings"] != null
+            ? (json["monthlyEarnings"] as num).toInt()
+            : null,
+        totalAmountSpent: json["totalAmountSpent"] != null
+            ? (json["totalAmountSpent"] as num).toInt()
+            : null,
+        totalSentParcels: json["totalSentParcels"] != null
+            ? (json["totalSentParcels"] as num).toInt()
+            : null,
+        totalReceivedParcels: json["totalReceivedParcels"] != null
+            ? (json["totalReceivedParcels"] as num).toInt()
+            : null,
+        tripsCompleted: json["tripsCompleted"] != null
+            ? (json["tripsCompleted"] as num).toInt()
+            : null,
+      );
 
   Map<String, dynamic> toJson() => {
-    "totalEarnings": totalEarnings,
-    "monthlyEarnings": monthlyEarnings,
-    "totalAmountSpent": totalAmountSpent,
-    "totalSentParcels": totalSentParcels,
-    "totalReceivedParcels": totalReceivedParcels,
-    "tripsCompleted": tripsCompleted,
-  };
+        "totalEarnings": totalEarnings,
+        "monthlyEarnings": monthlyEarnings,
+        "totalAmountSpent": totalAmountSpent,
+        "totalSentParcels": totalSentParcels,
+        "totalReceivedParcels": totalReceivedParcels,
+        "tripsCompleted": tripsCompleted,
+      };
 }
 
 class User {
@@ -184,84 +202,125 @@ class User {
   String toRawJson() => json.encode(toJson());
 
   factory User.fromJson(Map<String, dynamic> json) => User(
-    id: json["_id"],
-    fullName: json["fullName"],
-    country: json["country"],
-    email: json["email"],
-    mobileNumber: json["mobileNumber"],
-    image: json["image"],
-    role: json["role"],
-    isTrial: json["isTrial"],
-    isVerified: json["isVerified"],
-    freeDeliveries: json["freeDeliveries"],
-    totaltripsCompleted: json["TotaltripsCompleted"],
-    totalOrders: json["totalOrders"],
-    totalDelivered: json["totalDelivered"],
-    totalEarning: json["totalEarning"],
-    monthlyEarnings: json["monthlyEarnings"],
-    totalAmountSpent: json["totalAmountSpent"],
-    totalSentParcels: json["totalSentParcels"],
-    totalReceivedParcels: json["totalReceivedParcels"],
-    notificationStatus: json["notificationStatus"],
-    isSubscribed: json["isSubscribed"],
-    isRestricted: json["isRestricted"],
-    subscriptionType: json["subscriptionType"],
-    subscriptionPrice: json["subscriptionPrice"],
-    subscriptionCount: json["subscriptionCount"],
-    avgRating: json["avgRating"],
-    subscriptionStartDate: json["subscriptionStartDate"] == null ? null : DateTime.parse(json["subscriptionStartDate"]),
-    subscriptionExpiryDate: json["subscriptionExpiryDate"] == null ? null : DateTime.parse(json["subscriptionExpiryDate"]),
-    reviews: json["reviews"] == null ? [] : List<Review>.from(json["reviews"]!.map((x) => Review.fromJson(x))),
-    startDate: json["startDate"] == null ? null : DateTime.parse(json["startDate"]),
-    expiryDate: json["expiryDate"] == null ? null : DateTime.parse(json["expiryDate"]),
-    createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
-    updatedAt: json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
-    v: json["__v"],
-    facebook: json["facebook"],
-    instagram: json["instagram"],
-    whatsapp: json["whatsapp"],
-    fcmToken: json["fcmToken"],
-  );
+        id: json["_id"],
+        fullName: json["fullName"],
+        country: json["country"],
+        email: json["email"],
+        mobileNumber: json["mobileNumber"],
+        image: json["image"],
+        role: json["role"],
+        isTrial: json["isTrial"],
+        isVerified: json["isVerified"],
+        freeDeliveries: json["freeDeliveries"] != null
+            ? (json["freeDeliveries"] as num).toInt()
+            : null,
+        totaltripsCompleted: json["TotaltripsCompleted"] != null
+            ? (json["TotaltripsCompleted"] as num).toInt()
+            : null,
+        totalOrders: json["totalOrders"] != null
+            ? (json["totalOrders"] as num).toInt()
+            : null,
+        totalDelivered: json["totalDelivered"] != null
+            ? (json["totalDelivered"] as num).toInt()
+            : null,
+        totalEarning: json["totalEarning"] != null
+            ? (json["totalEarning"] as num).toInt()
+            : null,
+        monthlyEarnings: json["monthlyEarnings"] != null
+            ? (json["monthlyEarnings"] as num).toInt()
+            : null,
+        totalAmountSpent: json["totalAmountSpent"] != null
+            ? (json["totalAmountSpent"] as num).toInt()
+            : null,
+        totalSentParcels: json["totalSentParcels"] != null
+            ? (json["totalSentParcels"] as num).toInt()
+            : null,
+        totalReceivedParcels: json["totalReceivedParcels"] != null
+            ? (json["totalReceivedParcels"] as num).toInt()
+            : null,
+        notificationStatus: json["notificationStatus"],
+        isSubscribed: json["isSubscribed"],
+        isRestricted: json["isRestricted"],
+        subscriptionType: json["subscriptionType"],
+        subscriptionPrice: json["subscriptionPrice"] != null
+            ? (json["subscriptionPrice"] as num).toInt()
+            : null,
+        subscriptionCount: json["subscriptionCount"] != null
+            ? (json["subscriptionCount"] as num).toInt()
+            : null,
+        avgRating: json["avgRating"] != null
+            ? (json["avgRating"] as num).toInt()
+            : null,
+        subscriptionStartDate: json["subscriptionStartDate"] == null
+            ? null
+            : DateTime.parse(json["subscriptionStartDate"]),
+        subscriptionExpiryDate: json["subscriptionExpiryDate"] == null
+            ? null
+            : DateTime.parse(json["subscriptionExpiryDate"]),
+        reviews: json["reviews"] == null
+            ? []
+            : List<Review>.from(
+                json["reviews"]!.map((x) => Review.fromJson(x))),
+        startDate: json["startDate"] == null
+            ? null
+            : DateTime.parse(json["startDate"]),
+        expiryDate: json["expiryDate"] == null
+            ? null
+            : DateTime.parse(json["expiryDate"]),
+        createdAt: json["createdAt"] == null
+            ? null
+            : DateTime.parse(json["createdAt"]),
+        updatedAt: json["updatedAt"] == null
+            ? null
+            : DateTime.parse(json["updatedAt"]),
+        v: json["__v"] != null ? (json["__v"] as num).toInt() : null,
+        facebook: json["facebook"],
+        instagram: json["instagram"],
+        whatsapp: json["whatsapp"],
+        fcmToken: json["fcmToken"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "_id": id,
-    "fullName": fullName,
-    "country": country,
-    "email": email,
-    "mobileNumber": mobileNumber,
-    "image": image,
-    "role": role,
-    "isTrial": isTrial,
-    "isVerified": isVerified,
-    "freeDeliveries": freeDeliveries,
-    "TotaltripsCompleted": totaltripsCompleted,
-    "totalOrders": totalOrders,
-    "totalDelivered": totalDelivered,
-    "totalEarning": totalEarning,
-    "monthlyEarnings": monthlyEarnings,
-    "totalAmountSpent": totalAmountSpent,
-    "totalSentParcels": totalSentParcels,
-    "totalReceivedParcels": totalReceivedParcels,
-    "notificationStatus": notificationStatus,
-    "isSubscribed": isSubscribed,
-    "isRestricted": isRestricted,
-    "subscriptionType": subscriptionType,
-    "subscriptionPrice": subscriptionPrice,
-    "subscriptionCount": subscriptionCount,
-    "avgRating": avgRating,
-    "subscriptionStartDate": subscriptionStartDate?.toIso8601String(),
-    "subscriptionExpiryDate": subscriptionExpiryDate?.toIso8601String(),
-    "reviews": reviews == null ? [] : List<dynamic>.from(reviews!.map((x) => x.toJson())),
-    "startDate": startDate?.toIso8601String(),
-    "expiryDate": expiryDate?.toIso8601String(),
-    "createdAt": createdAt?.toIso8601String(),
-    "updatedAt": updatedAt?.toIso8601String(),
-    "__v": v,
-    "facebook": facebook,
-    "instagram": instagram,
-    "whatsapp": whatsapp,
-    "fcmToken": fcmToken,
-  };
+        "_id": id,
+        "fullName": fullName,
+        "country": country,
+        "email": email,
+        "mobileNumber": mobileNumber,
+        "image": image,
+        "role": role,
+        "isTrial": isTrial,
+        "isVerified": isVerified,
+        "freeDeliveries": freeDeliveries,
+        "TotaltripsCompleted": totaltripsCompleted,
+        "totalOrders": totalOrders,
+        "totalDelivered": totalDelivered,
+        "totalEarning": totalEarning,
+        "monthlyEarnings": monthlyEarnings,
+        "totalAmountSpent": totalAmountSpent,
+        "totalSentParcels": totalSentParcels,
+        "totalReceivedParcels": totalReceivedParcels,
+        "notificationStatus": notificationStatus,
+        "isSubscribed": isSubscribed,
+        "isRestricted": isRestricted,
+        "subscriptionType": subscriptionType,
+        "subscriptionPrice": subscriptionPrice,
+        "subscriptionCount": subscriptionCount,
+        "avgRating": avgRating,
+        "subscriptionStartDate": subscriptionStartDate?.toIso8601String(),
+        "subscriptionExpiryDate": subscriptionExpiryDate?.toIso8601String(),
+        "reviews": reviews == null
+            ? []
+            : List<dynamic>.from(reviews!.map((x) => x.toJson())),
+        "startDate": startDate?.toIso8601String(),
+        "expiryDate": expiryDate?.toIso8601String(),
+        "createdAt": createdAt?.toIso8601String(),
+        "updatedAt": updatedAt?.toIso8601String(),
+        "__v": v,
+        "facebook": facebook,
+        "instagram": instagram,
+        "whatsapp": whatsapp,
+        "fcmToken": fcmToken,
+      };
 }
 
 class Review {
@@ -280,14 +339,14 @@ class Review {
   String toRawJson() => json.encode(toJson());
 
   factory Review.fromJson(Map<String, dynamic> json) => Review(
-    parcelId: json["parcelId"],
-    rating: json["rating"],
-    id: json["_id"],
-  );
+        parcelId: json["parcelId"],
+        rating: json["rating"] != null ? (json["rating"] as num).toInt() : null,
+        id: json["_id"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "parcelId": parcelId,
-    "rating": rating,
-    "_id": id,
-  };
+        "parcelId": parcelId,
+        "rating": rating,
+        "_id": id,
+      };
 }

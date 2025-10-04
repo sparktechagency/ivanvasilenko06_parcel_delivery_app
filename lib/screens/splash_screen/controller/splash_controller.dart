@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:parcel_delivery_app/constants/initails_bindings.dart';
 import 'package:parcel_delivery_app/screens/bottom_nav_bar/bottom_nav_bar.dart';
 import 'package:parcel_delivery_app/services/appStroage/share_helper.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -9,28 +10,30 @@ import '../../../routes/app_routes.dart';
 
 class SplashController extends GetxController {
   @override
-
   void onInit() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(seconds: 1)).then((_) async {
         // Request location permissions for both iOS and Android
         await _requestLocationPermission();
-        
+
         // Get.offAllNamed(AppRoutes.homeScreen);
         var token =
-        await SharePrefsHelper.getString(SharedPreferenceValue.token);
+            await SharePrefsHelper.getString(SharedPreferenceValue.token);
         debugPrint("✅✅✅✅✅ $token ❇️❇️❇️❇️❇️❇️");
 
         if (token.isNotEmpty) {
           Get.offAll(() => const BottomNavScreen());
         } else {
-          Get.offAllNamed(AppRoutes.onboardingScreen);
+          // Initial Bindings
+          InitialBindings().dependencies();
+          Get.toNamed(AppRoutes.onboardingScreen);
         }
         // Get.offAll(() => const BottomNavScreen());
       });
     });
     super.onInit();
   }
+
   /// Request location permission for both iOS and Android devices
   Future<void> _requestLocationPermission() async {
     try {
@@ -50,7 +53,7 @@ class SplashController extends GetxController {
         //await _showPermissionDialog();
         return;
       }
-      
+
       // If permission is granted, check if location services are enabled
       if (status.isGranted) {
         bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -63,7 +66,6 @@ class SplashController extends GetxController {
         }
         debugPrint('✅ Location permission granted and services enabled');
       }
-
     } catch (e) {
       debugPrint('❌ Error requesting location permission: $e');
     }
@@ -117,5 +119,4 @@ class SplashController extends GetxController {
       );
     }
   }
-
 }

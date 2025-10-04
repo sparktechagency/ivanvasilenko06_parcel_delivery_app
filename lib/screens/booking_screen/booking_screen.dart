@@ -14,6 +14,7 @@ import 'package:parcel_delivery_app/screens/booking_screen/new_booking/controlle
 import 'package:parcel_delivery_app/services/appStroage/location_storage.dart';
 import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
+import 'package:parcel_delivery_app/widgets/app_snackbar/custom_snackbar.dart';
 import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -77,6 +78,21 @@ class _BookingScreenState extends State<BookingScreen> {
       final parcels = currentOrderController.currentOrdersModel.value.data;
       if (parcels != null) {
         await prefetchAllAddresses(parcels);
+      }
+    });
+
+    // Listen to controller changes to refresh UI
+    ever(currentOrderController.currentOrdersModel, (_) async {
+      if (mounted && !_isDisposed) {
+        // Refresh addresses for new parcels
+        final parcels = currentOrderController.currentOrdersModel.value.data;
+        if (parcels != null && parcels.isNotEmpty) {
+          await prefetchAllAddresses(parcels);
+        }
+
+        setState(() {
+          // Trigger UI rebuild when data changes
+        });
       }
     });
   }
@@ -393,7 +409,7 @@ class _BookingScreenState extends State<BookingScreen> {
   void _openBottomSheet(String parcelId, dynamic parcel) {
     // Check if review already exists BEFORE opening the sheet
     if (hasAlreadyReviewed(parcelId, parcel)) {
-      _showErrorSnackBar("You have already reviewed this delivery");
+      AppSnackBar.reviewError("You have already reviewed this delivery");
       return;
     }
 
@@ -500,27 +516,34 @@ class _BookingScreenState extends State<BookingScreen> {
                       Navigator.pop(context);
 
                       // Show loading dialog
-                      Get.dialog(
-                        Center(
-                          child: LoadingAnimationWidget.hexagonDots(
-                            color: AppColors.black,
-                            size: 40,
+                      if (!controller.isReviewLoading.value) {
+                        Get.dialog(
+                          Center(
+                            child: LoadingAnimationWidget.hexagonDots(
+                              color: AppColors.black,
+                              size: 40,
+                            ),
                           ),
-                        ),
-                        barrierDismissible: false,
-                      );
-
+                          barrierDismissible: false,
+                        );
+                      }
+                      // Close the dialog when the review call completes (success or error)
+                      try {
+                        await controller.givingReview();
+                      } finally {
+                        if (Get.isDialogOpen == true) {
+                          Get.back();
+                        }
+                      }
                       try {
                         // Submit the review
                         await controller.givingReview();
-
                         // Close loading dialog
                         Get.back();
 
                         // Refresh the current orders to update UI
                         await controller.getCurrentOrderWithCache(
                             forceRefresh: true);
-
                         // Update the UI
                         if (mounted) {
                           setState(() {});
@@ -530,7 +553,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         if (Get.isDialogOpen == true) {
                           Get.back();
                         }
-                        _showErrorSnackBar(
+                        AppSnackBar.error(
                             "Failed to submit review: ${e.toString()}");
                       }
                     },
@@ -550,7 +573,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
   Future<void> _makePhoneCall(String phoneNumber) async {
     if (phoneNumber.isEmpty) {
-      _showErrorSnackBar('No phone number available');
+      AppSnackBar.error('No phone number available');
       return;
     }
 
@@ -582,7 +605,7 @@ class _BookingScreenState extends State<BookingScreen> {
       }
     } catch (e) {
       log('Error launching phone call: $e');
-      _showErrorSnackBar('Error opening dialer: $e');
+      AppSnackBar.error('Error launching phone call: ${e.toString()}');
     }
   }
 
@@ -590,7 +613,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
   Future<void> _openWhatsApp(String phoneNumber, String message) async {
     if (phoneNumber.isEmpty) {
-      _showErrorSnackBar('No phone number available');
+      AppSnackBar.error('No phone number available');
       return;
     }
 
@@ -625,28 +648,21 @@ class _BookingScreenState extends State<BookingScreen> {
 
       // If all methods fail, show error
       log('Could not find any working WhatsApp method');
-      _showErrorSnackBar('WhatsApp not installed or unable to open');
+      AppSnackBar.error('Could not find any working WhatsApp method');
     } catch (e) {
       log('Error opening WhatsApp: $e');
-      _showErrorSnackBar('Error opening WhatsApp: ${e.toString()}');
+      AppSnackBar.error('Error opening WhatsApp: ${e.toString()}');
     }
-  }
-
-  //! Helper method to show error messages
-  void _showErrorSnackBar(String message) {
-    final scaffoldMessenger = ScaffoldMessenger.of(Get.context!);
-    scaffoldMessenger.showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 3),
-      ),
-    );
   }
 
   // Helper method to check if review already exists for a parcel
   bool hasAlreadyReviewed(String parcelId, dynamic parcel) {
+    // Add null safety checks for the parcel object
+    if (parcel == null) return false;
+    if (parcel is String) return false; // Add this check to prevent String type
+    if (parcel.assignedDelivererId == null) return false;
     if (parcel.assignedDelivererId?.reviews == null) return false;
+
     return parcel.assignedDelivererId!.reviews!
         .any((review) => review.parcelId == parcelId);
   }
@@ -707,39 +723,40 @@ class _BookingScreenState extends State<BookingScreen> {
                           currentOrderController.finishedParcelId.value =
                               parcelId;
                           currentOrderController.parcelStatus.value = status;
+
+                          // Close dialog first
+                          Navigator.pop(context);
+
                           // Call the finishedDelivery method
                           await currentOrderController.finishedDelivery();
-
-                          // Clear cache and force refresh
-                          currentOrderController.clearCacheAndRefresh();
-
                           // Clear address caches to ensure fresh data
                           addressCache.clear();
                           locationToAddressCache.clear();
                           await locationStorage.clearAllLocationData();
-
-                          // Force refresh with new data
-                          await currentOrderController.getCurrentOrderWithCache(
-                              forceRefresh: true);
-
                           // Refresh addresses for remaining parcels
                           final parcels = currentOrderController
                               .currentOrdersModel.value.data;
                           if (parcels != null && parcels.isNotEmpty) {
                             await prefetchAllAddresses(parcels);
                           }
-
-                          // Update UI state
+                          // Update UI state and navigate to first tab
                           if (mounted) {
                             setState(() {
                               _currentIndex = 0;
                             });
                           }
-
                           _pageController.jumpToPage(0);
-                          Navigator.pop(context);
+                          // Close loading dialog
+                          if (Get.isDialogOpen == true) {
+                            Get.back();
+                          }
                         } catch (e) {
-                          Get.back();
+                          // Close loading dialog if still open
+                          if (Get.isDialogOpen == true) {
+                            Get.back();
+                          }
+                          AppSnackBar.error(
+                              "Failed to complete delivery: ${e.toString()}");
                         }
                       },
                     ),
@@ -1484,7 +1501,7 @@ class _BookingScreenState extends State<BookingScreen> {
                           const SizedBox(height: 16),
                           Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.all(14),
+                            padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
                               color: AppColors.whiteLight,
                               borderRadius: BorderRadius.circular(8),
@@ -1547,7 +1564,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                           data[index].status == "PENDING" ||
                                           data[index].status == "WAITING") {
                                         String parcelId = data[index].id ?? "";
-                                        cancelParcelFromDelivery(parcelId);
+                                        //cancelParcelFromDelivery(parcelId);
                                         // Cancel Delivery
                                       }
                                     } else if (data[index]
@@ -1570,10 +1587,11 @@ class _BookingScreenState extends State<BookingScreen> {
                                         if (hasAlreadyReviewed(
                                             data[index].id ?? "",
                                             data[index])) {
-                                          _showErrorSnackBar(
-                                              "You have already reviewed this delivery");
+                                          // Pass the full parcel object, not just the ID
+                                          AppSnackBar.reviewError(
+                                              "reviewError".tr);
                                         } else {
-                                          // Set parcel ID and user ID for review using the existing controller instance
+                                          // Set parcel ID and user ID for review
                                           currentOrderController.parcelID
                                               .value = data[index].id ?? "";
                                           currentOrderController.userID.value =
@@ -1582,11 +1600,8 @@ class _BookingScreenState extends State<BookingScreen> {
                                                       ?.id ??
                                                   "";
                                           _openBottomSheet(
-                                            parcelId,
-                                            data[index]
-                                                    .assignedDelivererId
-                                                    ?.id ??
-                                                "",
+                                            data[index].id ?? "",
+                                            data[index],
                                           );
                                         }
                                       } else {
@@ -1663,7 +1678,7 @@ class _BookingScreenState extends State<BookingScreen> {
       } else if (parcel.status == "REQUESTED" ||
           parcel.status == "PENDING" ||
           parcel.status == "WAITING") {
-        return "cancelRequest".tr;
+        return "waitingForApproval".tr;
       }
     } else if (parcel.typeParcel.toString() == "assignedParcel") {
       // For finished Delivery
@@ -1685,7 +1700,7 @@ class _BookingScreenState extends State<BookingScreen> {
         return "removeFromMap".tr;
       }
     }
-    return ""; // Default fallback
+    return "waitingForApproval".tr; // Default fallback
   }
 
   // Helper method to determine the action button color based on parcel type and status
@@ -1697,7 +1712,7 @@ class _BookingScreenState extends State<BookingScreen> {
       } else if (parcel.status == "REQUESTED" ||
           parcel.status == "PENDING" ||
           parcel.status == "WAITING") {
-        return AppColors.red; // Red for cancel delivery
+        return AppColors.green; // Green for waiting for approval
       }
     } else if (parcel.typeParcel.toString() == "assignedParcel") {
       // For finished Delivery
@@ -1719,7 +1734,7 @@ class _BookingScreenState extends State<BookingScreen> {
         return AppColors.red;
       }
     }
-    return AppColors.black; // Default fallback
+    return AppColors.green; // Default fallback
   }
 
   Widget _newBookingWidget() {

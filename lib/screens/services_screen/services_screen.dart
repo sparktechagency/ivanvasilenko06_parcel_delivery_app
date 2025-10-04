@@ -13,6 +13,7 @@ import 'package:parcel_delivery_app/screens/home_screen/widgets/suggestionCardWi
 import 'package:parcel_delivery_app/screens/services_screen/controller/services_controller.dart';
 import 'package:parcel_delivery_app/screens/services_screen/model/service_screen_model.dart';
 import 'package:parcel_delivery_app/services/appStroage/location_storage.dart';
+import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
 import 'package:parcel_delivery_app/widgets/icon_widget/icon_widget.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
@@ -135,7 +136,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
       }
     } catch (e) {
       // Handle refresh errors gracefully
-      print('Error refreshing services screen: $e');
+      appLog('Error refreshing services screen: $e');
     }
   }
 
@@ -361,19 +362,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
     }
   }
 
-  void _initializeAddressStates() {
-    // Check if controller has data, if not, listen for changes
-    if (controller.recentParcelList.isEmpty) {
-      // Listen for changes in the controller
-      ever(controller.recentParcelList, (List<ServiceScreenModel> parcels) {
-        if (parcels.isNotEmpty) {
-          _loadAddressesForParcels();
-        }
-      });
-    } else {
-      _loadAddressesForParcels();
-    }
-  }
 
   void _handleAddressError(
       String parcelId, bool isPickup, String errorMessage) {
@@ -385,10 +373,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
             pickupAddresses[parcelId] = 'Invalid Location';
           } else if (errorMessage.contains('timeout')) {
             pickupAddresses[parcelId] = 'Location Timeout';
-          } else if (errorMessage.contains('Network error')) {
-            pickupAddresses[parcelId] = 'Network Error';
-          } else if (errorMessage.contains('permission')) {
-            pickupAddresses[parcelId] = 'Permission Required';
           } else {
             pickupAddresses[parcelId] = 'Address Unavailable';
           }
@@ -399,11 +383,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
             deliveryAddresses[parcelId] = 'Invalid Location';
           } else if (errorMessage.contains('timeout')) {
             deliveryAddresses[parcelId] = 'Location Timeout';
-          } else if (errorMessage.contains('Network error')) {
-            deliveryAddresses[parcelId] = 'Network Error';
-          } else if (errorMessage.contains('permission')) {
-            deliveryAddresses[parcelId] = 'Permission Required';
-          } else {
+          }  else {
             deliveryAddresses[parcelId] = 'Address Unavailable';
           }
           deliveryAddressLoading[parcelId] = false;

@@ -243,5 +243,7 @@
   "parcelRequestSentSuccessfully" : "בקשה חבילה נשלחה בהצלחה",
   "to" : "עד",
   "cityTo" : "ל־",
-  "from" : "מ"
+  "from" : "מ",
+  "waitingForApproval" : "ממתין לאישור",
+  "reviewError" : "ביקורת זו כבר נתונה"
 }

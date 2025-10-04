@@ -280,10 +280,8 @@ class NewBookingsController extends GetxController {
           log('Alternative refresh also failed: $e2');
         }
       }
-
       // Update this controller to trigger UI refresh
       update();
-
       // Force a complete UI rebuild by triggering a state change
       await Future.delayed(const Duration(milliseconds: 100));
       update();

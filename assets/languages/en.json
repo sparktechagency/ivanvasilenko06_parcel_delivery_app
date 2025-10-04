@@ -244,5 +244,7 @@
   "parcelRequestSentSuccessfully" : "Parcel request sent successfully",
   "to" : "To",
   "cityTo" : "To",
-  "from" : "From"
+  "from" : "From",
+  "waitingForApproval" : "Waiting for Approval",
+  "reviewError" : "You have already reviewed this delivery"
 }
