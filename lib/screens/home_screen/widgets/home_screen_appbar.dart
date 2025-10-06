@@ -107,8 +107,8 @@ class HomeScreenAppBar extends StatelessWidget {
         },
         errorWidget: (context, url, error) {
           //! log('🚨 CachedNetworkImage Error for URL: $url');
-         //!  log('🚨 Error details: $error');
-         //!  log('🚨 Error type: ${error.runtimeType}');
+          //!  log('🚨 Error details: $error');
+          //!  log('🚨 Error type: ${error.runtimeType}');
 
           // Try to determine the type of error
           String errorMessage = 'Network error';
@@ -133,18 +133,18 @@ class HomeScreenAppBar extends StatelessWidget {
 
   Widget _buildFallbackImage() {
     return Container(
-      height: 40,
-      width: 40,
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.grey[400]!, width: 1),
-      ),
-      child: const Icon(
-        Icons.person,
-        size: 14,
-        color: Colors.grey,
-      ),
-    );
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.grey[400]!, width: 1),
+        ),
+        child: Image.network(
+          'https://i.ibb.co/z5YHLV9/profile.png',
+          height: 40,
+          width: 40,
+          fit: BoxFit.cover,
+        ));
   }
 }

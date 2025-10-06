@@ -362,7 +362,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
     }
   }
 
-
   void _handleAddressError(
       String parcelId, bool isPickup, String errorMessage) {
     if (mounted) {
@@ -383,7 +382,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
             deliveryAddresses[parcelId] = 'Invalid Location';
           } else if (errorMessage.contains('timeout')) {
             deliveryAddresses[parcelId] = 'Location Timeout';
-          }  else {
+          } else {
             deliveryAddresses[parcelId] = 'Address Unavailable';
           }
           deliveryAddressLoading[parcelId] = false;
@@ -513,11 +512,38 @@ class _ServicesScreenState extends State<ServicesScreen> {
                           width: 40,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
+                            // First try the network fallback URL
+                            return Image.network(
                               'https://i.ibb.co/z5YHLV9/profile.png',
                               height: 40,
                               width: 40,
                               fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                // If network fallback also fails, use local asset
+                                return Image.asset(
+                                  'assets/images/profileImages.png',
+                                  height: 40,
+                                  width: 40,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    // Final fallback: a simple container with icon
+                                    return Container(
+                                      height: 40,
+                                      width: 40,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.grey,
+                                        borderRadius:
+                                            BorderRadius.circular(100),
+                                      ),
+                                      child: const Icon(
+                                        Icons.person,
+                                        color: AppColors.white,
+                                        size: 24,
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
                             );
                           },
                           loadingBuilder: (context, child, loadingProgress) {

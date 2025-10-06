@@ -1,5 +1,5 @@
 class AppApiUrl {
-  static const String localDomain = "http://10.0.70.208:3000";
+  static const String localDomain = "http://10.10.7.45:3000";
   static const String liveDomain = "https://api.deliverlydashboard.com";
   static const String baseUrl = "$liveDomain/api";
   static const String login = "/auth/login-email";

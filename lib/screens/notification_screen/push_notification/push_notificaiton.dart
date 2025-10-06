@@ -1,249 +1,3 @@
-// import 'package:firebase_messaging/firebase_messaging.dart';
-// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-// import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
-// import 'package:parcel_delivery_app/utils/appLog/error_app_log.dart';
-//
-// @pragma("vm:entry-point")
-// Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-//   try {
-//     await AppPushNotificationService.instance.setupFlutterNotifications();
-//     await AppPushNotificationService.instance.showNotification(message);
-//     appLog("Background message received: ${message.messageId}");
-//   } catch (e) {
-//     errorLog("_firebaseMessagingBackgroundHandler", e);
-//   }
-// }
-//
-// @pragma('vm:entry-point')
-// void onDidReceiveBackgroundNotificationResponse(NotificationResponse details) {
-//   appLog("Background Notification Clicked: ${details.payload}");
-//   AppPushNotificationService.instance.handleNotificationClick(details.payload);
-// }
-//
-// class AppPushNotificationService {
-//   AppPushNotificationService._privateConstructor();
-//
-//   static final AppPushNotificationService _instance =
-//       AppPushNotificationService._privateConstructor();
-//
-//   static AppPushNotificationService get instance => _instance;
-//
-//   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
-//   final FlutterLocalNotificationsPlugin _localNotifications =
-//       FlutterLocalNotificationsPlugin();
-//
-//   bool _isInitialized = false;
-//   bool _isNotificationSetup = false;
-//   String? _lastMessageId;
-//
-//   Future<void> initialize() async {
-//     if (_isInitialized) return;
-//
-//     try {
-//       // Setup background handler
-//       FirebaseMessaging.onBackgroundMessage(
-//           _firebaseMessagingBackgroundHandler);
-//
-//       // Request permissions
-//       await _requestPermission();
-//
-//       // Setup notification channels
-//       await _setupNotificationChannels();
-//
-//       // Setup message handlers
-//       await _setupMessageHandlers();
-//
-//       // Get FCM token
-//       _getFcmToken();
-//
-//       _isInitialized = true;
-//       appLog("Push Notification Service Initialized");
-//     } catch (e) {
-//       errorLog("initialize", e);
-//     }
-//   }
-//
-//   Future<void> _requestPermission() async {
-//     try {
-//       final settings = await _messaging.requestPermission(
-//         alert: true,
-//         badge: true,
-//         sound: true,
-//         provisional: false,
-//       );
-//
-//       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-//         appLog("Notification permission granted");
-//       } else {
-//         appLog(
-//             "Notification permission denied: ${settings.authorizationStatus}");
-//       }
-//     } catch (e) {
-//       errorLog("_requestPermission", e);
-//     }
-//   }
-//
-//   Future<void> _setupNotificationChannels() async {
-//     try {
-//       // Android channel
-//       const androidChannel = AndroidNotificationChannel(
-//         'high_importance_channel',
-//         'High Importance Channel',
-//         description: 'Rent Me Notifications',
-//         importance: Importance.high,
-//       );
-//
-//       await _localNotifications
-//           .resolvePlatformSpecificImplementation<
-//               AndroidFlutterLocalNotificationsPlugin>()
-//           ?.createNotificationChannel(androidChannel);
-//
-//       // iOS permissions
-//       await _localNotifications
-//           .resolvePlatformSpecificImplementation<
-//               IOSFlutterLocalNotificationsPlugin>()
-//           ?.requestPermissions(alert: true, badge: true, sound: true);
-//     } catch (e) {
-//       errorLog("_setupNotificationChannels", e);
-//     }
-//   }
-//
-//   Future<void> setupFlutterNotifications() async {
-//     if (_isNotificationSetup) return;
-//
-//     try {
-//       const androidSettings =
-//           AndroidInitializationSettings('@mipmap/ic_launcher');
-//       const darwinSettings = DarwinInitializationSettings();
-//
-//       const settings = InitializationSettings(
-//         android: androidSettings,
-//         iOS: darwinSettings,
-//       );
-//
-//       await _localNotifications.initialize(
-//         settings,
-//         onDidReceiveNotificationResponse: (details) {
-//           appLog("Notification Clicked: ${details.payload}");
-//           handleNotificationClick(details.payload);
-//         },
-//         onDidReceiveBackgroundNotificationResponse:
-//             onDidReceiveBackgroundNotificationResponse,
-//       );
-//
-//       _isNotificationSetup = true;
-//       appLog("Flutter notifications setup complete");
-//     } catch (e) {
-//       errorLog("setupFlutterNotifications", e);
-//     }
-//   }
-//
-//   Future<void> _setupMessageHandlers() async {
-//     try {
-//       // Foreground messages
-//       FirebaseMessaging.onMessage.listen((message) {
-//         appLog("Foreground message received: ${message.messageId}");
-//         showNotification(message);
-//       });
-//
-//       // When app is opened from terminated state
-//       final initialMessage = await _messaging.getInitialMessage();
-//       if (initialMessage != null) {
-//         appLog("Initial message received: ${initialMessage.messageId}");
-//         _handleMessage(initialMessage);
-//       }
-//
-//       // When app is opened from background
-//       FirebaseMessaging.onMessageOpenedApp.listen((message) {
-//         appLog("App opened from background with message: ${message.messageId}");
-//         _handleMessage(message);
-//       });
-//     } catch (e) {
-//       errorLog("_setupMessageHandlers", e);
-//     }
-//   }
-//
-//   Future<void> showNotification(RemoteMessage message) async {
-//     try {
-//       // Prevent showing duplicate notifications
-//       if (_lastMessageId == message.messageId) return;
-//       _lastMessageId = message.messageId;
-//
-//       final notification = message.notification;
-//       final android = message.notification?.android;
-//       final apple = message.notification?.apple;
-//
-//       if (notification == null || (android == null && apple == null)) return;
-//
-//       await _localNotifications.show(
-//         message.hashCode,
-//         notification.title,
-//         notification.body,
-//         NotificationDetails(
-//           android: android != null
-//               ? AndroidNotificationDetails(
-//                   'high_importance_channel',
-//                   'High Importance Channel',
-//                   channelDescription: 'Rent Me',
-//                   importance: Importance.high,
-//                   priority: Priority.high,
-//                   icon: android.smallIcon,
-//                 )
-//               : null,
-//           iOS: apple != null
-//               ? DarwinNotificationDetails(
-//                   presentAlert: true,
-//                   presentBadge: true,
-//                   presentSound: true,
-//                 )
-//               : null,
-//         ),
-//         payload: message.data.toString(),
-//       );
-//
-//       appLog("Notification shown: ${message.messageId}");
-//     } catch (e) {
-//       errorLog("showNotification", e);
-//     }
-//   }
-//
-//   void _handleMessage(RemoteMessage message) {
-//     try {
-//       // Handle message when app is opened from notification
-//       final data = message.data;
-//       if (data.isNotEmpty) {
-//         appLog("Message data: $data");
-//         // Add your navigation logic here based on message data
-//       }
-//     } catch (e) {
-//       errorLog("_handleMessage", e);
-//     }
-//   }
-//
-//   void handleNotificationClick(String? payload) {
-//     try {
-//       if (payload != null) {
-//         appLog("Handling notification click with payload: $payload");
-//         // Add your navigation logic here based on payload
-//       }
-//     } catch (e) {
-//       errorLog("handleNotificationClick", e);
-//     }
-//   }
-//
-//   Future<void> _getFcmToken() async {
-//     try {
-//       final token = await _messaging.getToken();
-//       appLog("FCM Token: $token");
-//
-//       // Save this token to your server if needed
-//     } catch (e) {
-//       errorLog("_getFcmToken", e);
-//     }
-//   }
-// }
-
-/////////////Testing Perpourse
 library;
 
 
@@ -263,6 +17,7 @@ class NotificationService {
     try {
       // Initialize Firebase
       await Firebase.initializeApp();
+      
       // Request permission for notifications (iOS specific)
       NotificationSettings settings =
           await _firebaseMessaging.requestPermission(
@@ -272,8 +27,20 @@ class NotificationService {
         carPlay: false,
         provisional: false,
         criticalAlert: false,
+        announcement: false,
       );
+      
       //! log('User granted permission: ${settings.authorizationStatus}');
+      
+      // Check if permission is granted
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        //! log('User granted permission');
+      } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+        //! log('User granted provisional permission');
+      } else {
+        //! log('User declined or has not accepted permission');
+      }
+      
       // Get the token for the device
       String? token = await _firebaseMessaging.getToken();
       //! log('🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑🛑 Device Token: $token');
@@ -281,10 +48,18 @@ class NotificationService {
       String savedToken =
           await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
       //! log("Saved FCM Token: $savedToken");
-          // Handle foreground messages
+      
+      // Listen for token refresh
+      _firebaseMessaging.onTokenRefresh.listen((String token) {
+        //! log('FCM Token refreshed: $token');
+        SharePrefsHelper.setString(SharedPreferenceValue.fcmToken, token);
+      });
+      
+      // Handle foreground messages
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         _handleForegroundMessage(message);
       });
+      
       // Handle background messages
       FirebaseMessaging.onBackgroundMessage(
           _firebaseMessagingBackgroundHandler);

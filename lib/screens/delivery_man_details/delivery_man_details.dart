@@ -15,6 +15,7 @@ import 'package:parcel_delivery_app/widgets/button_widget/button_widget.dart';
 import 'package:parcel_delivery_app/widgets/space_widget/space_widget.dart';
 import 'package:parcel_delivery_app/widgets/text_widget/text_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../widgets/app_snackbar/custom_snackbar.dart';
 import '../../widgets/icon_widget/icon_widget.dart';
 import '../booking_parcel_details_screen/widgets/summary_info_row_widget.dart';
 
@@ -59,22 +60,22 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
           controller.currentOrdersModel.value.data!.isEmpty) {
         await controller.getCurrentOrder();
       }
-
       // Now find the current parcel
       _findCurrentParcel();
     } catch (e) {
       // Handle initialization errors
       if (mounted) {
-        _showErrorSnackBar('Error loading delivery details: $e');
+        // _showErrorSnackBar('Error loading delivery details: $e');
+        AppSnackBar.error("Error loading delivery details: $e");
       }
     }
   }
 
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
-  }
+  // void _showErrorSnackBar(String message) {
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(content: Text(message)),
+  //   );
+  // }
 
   Future<void> _makePhoneCall() async {
     final Uri launchUri = Uri(
@@ -86,17 +87,17 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
       if (await canLaunchUrl(launchUri)) {
         await launchUrl(launchUri);
       } else {
-        _showErrorSnackBar('Could not launch phone call');
+        AppSnackBar.error("Could not launch phone call");
       }
     } catch (e) {
-      _showErrorSnackBar('An error occurred: $e');
+      AppSnackBar.error("An error occurred: $e");
     }
   }
 
   // Function to send a WhatsApp message
   Future<void> _sendMessage() async {
     if (deliveryMan?.mobileNumber == null || deliveryMan.mobileNumber.isEmpty) {
-      _showErrorSnackBar('No phone number available');
+      AppSnackBar.error("No phone number available");
       return;
     }
 
@@ -180,7 +181,7 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
               final Uri fallbackUri = Uri.parse(scheme);
               await launchUrl(fallbackUri,
                   mode: LaunchMode.externalApplication);
-              _showErrorSnackBar(
+              AppSnackBar.success(
                   'WhatsApp opened. Please manually navigate to contact: ${deliveryMan.mobileNumber}');
               success = true;
               break;
@@ -204,16 +205,16 @@ class _DeliveryManDetailsState extends State<DeliveryManDetails> {
             if (await canLaunchUrl(smsUri)) {
               await launchUrl(smsUri);
             } else {
-              _showErrorSnackBar('Could not launch messaging app');
+              AppSnackBar.error("Could not launch messaging app");
             }
           } catch (e) {
-            _showErrorSnackBar(
+            AppSnackBar.error(
                 'Unable to open WhatsApp or SMS. Please ensure WhatsApp is installed and try again.');
           }
         }
       }
     } catch (e) {
-      _showErrorSnackBar('An error occurred: $e');
+      AppSnackBar.error("An error occurred: $e");
       //! log('An error occurred: $e');
     }
   }

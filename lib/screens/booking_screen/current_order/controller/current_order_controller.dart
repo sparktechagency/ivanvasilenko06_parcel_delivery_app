@@ -155,6 +155,7 @@ class CurrentOrderController extends GetxController {
         log("Failed to give review");
         AppSnackBar.error("Failed to submit your review. Please try again.");
       }
+      isReviewLoading(false);
     } catch (ex) {
       log("Error in givingReview: ${ex.toString()}");
       AppSnackBar.error("Something went wrong: ${ex.toString()}");

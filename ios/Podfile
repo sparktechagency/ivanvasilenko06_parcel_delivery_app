@@ -29,11 +29,18 @@ flutter_ios_podfile_setup
 
 target 'Runner' do
   use_frameworks!
+  use_modular_headers!
 
   # Add GoogleMaps dependency
   pod 'GoogleMaps'
 
+  # Add Firebase dependencies for notifications
+  pod 'Firebase/Core'
+  pod 'Firebase/Messaging'
+
+  # Install all Flutter plugin dependencies
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+  
   target 'RunnerTests' do
     inherit! :search_paths
   end
@@ -57,7 +64,6 @@ post_install do |installer|
   # Set minimum deployment target for all pods
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
-      # Update this to match your platform version above (15.0)
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
     end
   end

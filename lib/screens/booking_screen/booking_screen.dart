@@ -516,17 +516,17 @@ class _BookingScreenState extends State<BookingScreen> {
                       Navigator.pop(context);
 
                       // Show loading dialog
-                      if (!controller.isReviewLoading.value) {
-                        Get.dialog(
-                          Center(
-                            child: LoadingAnimationWidget.hexagonDots(
-                              color: AppColors.black,
-                              size: 40,
-                            ),
-                          ),
-                          barrierDismissible: false,
-                        );
-                      }
+                      // if (!controller.isReviewLoading.value) {
+                      //   Get.dialog(
+                      //     Center(
+                      //       child: LoadingAnimationWidget.hexagonDots(
+                      //         color: AppColors.black,
+                      //         size: 40,
+                      //       ),
+                      //     ),
+                      //     barrierDismissible: false,
+                      //   );
+                      // }
                       // Close the dialog when the review call completes (success or error)
                       try {
                         await controller.givingReview();
@@ -1223,7 +1223,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       child: Column(
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1345,7 +1345,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                               ? "inTransit".tr
                                               : data[index].status ==
                                                       "DELIVERED"
-                                                  ? "Delivered"
+                                                  ? "delivered".tr
                                                   : "",
                                       fontSize: 13,
                                       fontWeight: FontWeight.w500,
@@ -1917,11 +1917,39 @@ class _BookingScreenState extends State<BookingScreen> {
                                 width: 40,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
+                                  // First try the network fallback URL
+                                  return Image.network(
                                     'https://i.ibb.co/z5YHLV9/profile.png',
                                     height: 40,
                                     width: 40,
                                     fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      // If network fallback also fails, use local asset
+                                      return Image.asset(
+                                        'assets/images/profileImages.png',
+                                        height: 40,
+                                        width: 40,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                          // Final fallback: a simple container with icon
+                                          return Container(
+                                            height: 40,
+                                            width: 40,
+                                            decoration: BoxDecoration(
+                                              color: AppColors.grey,
+                                              borderRadius:
+                                                  BorderRadius.circular(100),
+                                            ),
+                                            child: const Icon(
+                                              Icons.person,
+                                              color: AppColors.white,
+                                              size: 24,
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
                                   );
                                 },
                                 loadingBuilder:

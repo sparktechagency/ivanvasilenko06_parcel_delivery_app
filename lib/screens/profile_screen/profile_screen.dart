@@ -261,7 +261,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ButtonWidget(
                         buttonWidth: 100,
                         buttonHeight: 40,
-                        label: 'No'.tr,
+                        label: 'no'.tr,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 10),
                         buttonRadius: BorderRadius.circular(10),
@@ -274,7 +274,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ButtonWidget(
                         buttonWidth: 100,
                         buttonHeight: 40,
-                        label: 'Yes'.tr,
+                        label: 'yes'.tr,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 10),
                         buttonRadius: BorderRadius.circular(10),
