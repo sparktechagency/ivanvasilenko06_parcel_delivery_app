@@ -94,8 +94,8 @@
 	<!-- Push Notifications Configuration -->
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>fetch</string>
 		<string>remote-notification</string>
-		<string>background-fetch</string>
 	</array>
 
 	<key>io.flutter.embedded_views_preview</key>
