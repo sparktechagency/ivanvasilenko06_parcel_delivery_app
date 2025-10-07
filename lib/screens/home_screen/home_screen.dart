@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
@@ -232,10 +233,16 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: CircleAvatar(
                                 backgroundColor: AppColors.white,
                                 radius: ResponsiveUtils.width(25),
-                                child: const Icon(
-                                  Icons.arrow_back,
-                                  color: AppColors.black,
-                                ),
+                                child: Platform.isIOS==true
+                                    ? const Icon(
+                                      Icons.arrow_back_ios,
+                                      
+                                        color: AppColors.black,
+                                      )
+                                    : const Icon(
+                                         Icons.arrow_back,
+                                        color: AppColors.black,
+                                      ),
                               ),
                             ),
                           ),
@@ -265,7 +272,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             textColor: AppColors.white,
                             buttonWidth: 105,
                             buttonHeight: 50,
-                            icon: Icons.arrow_forward,
+                            icon: Platform.isIOS==true
+                                    ? Icons.arrow_forward_ios
+                                    : Icons.arrow_forward,
                             iconColor: AppColors.white,
                             fontWeight: FontWeight.w500,
                             fontSize: 16,

@@ -147,31 +147,31 @@ class LoginScreen extends StatelessWidget {
                     );
                   }),
                   const SizedBox(height: 16),
-                  const OrWidget(),
-                  const SizedBox(height: 16),
-                  CustomInkWellButton(
-                    onTap: () {
-                      showDialogBoxPhone();
-                    },
-                    icon: AppIconsPath.googleIcon,
-                    text: "continueWithGoogle".tr,
-                  ),
-                  const SizedBox(height: 16),
-                  CustomInkWellButton(
-                    onTap: () {
-                      Get.snackbar(
-                        "Sign with Apple Comming Soon",
-                        "This Feature will be implemented",
-                        backgroundColor: AppColors.green,
-                        colorText: Colors.white,
-                        snackPosition: SnackPosition.TOP,
-                        duration: const Duration(seconds: 2),
-                        margin: const EdgeInsets.all(10),
-                      );
-                    },
-                    icon: AppIconsPath.appleIcon,
-                    text: "continueWithApple".tr,
-                  ),
+                  // const OrWidget(),
+                  // const SizedBox(height: 16),
+                  // CustomInkWellButton(
+                  //   onTap: () {
+                  //     showDialogBoxPhone();
+                  //   },
+                  //   icon: AppIconsPath.googleIcon,
+                  //   text: "continueWithGoogle".tr,
+                  // ),
+                  // const SizedBox(height: 16),
+                  // CustomInkWellButton(
+                  //   onTap: () {
+                  //     Get.snackbar(
+                  //       "Sign with Apple Comming Soon",
+                  //       "This Feature will be implemented",
+                  //       backgroundColor: AppColors.green,
+                  //       colorText: Colors.white,
+                  //       snackPosition: SnackPosition.TOP,
+                  //       duration: const Duration(seconds: 2),
+                  //       margin: const EdgeInsets.all(10),
+                  //     );
+                  //   },
+                  //   icon: AppIconsPath.appleIcon,
+                  //   text: "continueWithApple".tr,
+                  // ),
                   SizedBox(height: MediaQuery.of(context).size.height * 0.15),
                 ],
               ),

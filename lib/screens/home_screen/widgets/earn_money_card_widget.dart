@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -53,7 +55,9 @@ class EarnMoneyCardWidget extends StatelessWidget {
                   buttonWidth: 270,
                   buttonHeight: 50,
                   fontSize: 15.5,
-                  icon: Icons.arrow_forward,
+                  icon: Platform.isIOS==true
+                                      ? Icons.arrow_forward_ios
+                                      : Icons.arrow_forward,
                   iconSize: 18,
                   iconColor: AppColors.white,
                   fontWeight: FontWeight.w600,

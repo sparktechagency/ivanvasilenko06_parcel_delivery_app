@@ -199,6 +199,7 @@ class _RadiusMapScreenState extends State<RadiusMapScreen> {
                   strokeWidth: 1,
                 )
               },
+              myLocationButtonEnabled: false,
               zoomControlsEnabled: false,
             );
           }),
