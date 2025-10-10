@@ -1279,7 +1279,7 @@ class _NotificationScreenState extends State<NotificationScreen>
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SpaceWidget(spaceHeight: 8,),
           type.toString() == "Requested-Delivery"
               ? const SizedBox()
               : Column(

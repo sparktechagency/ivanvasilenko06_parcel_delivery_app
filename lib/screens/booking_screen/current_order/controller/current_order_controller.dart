@@ -26,7 +26,6 @@ class CurrentOrderController extends GetxController {
   DateTime? lastFetchTime;
   static const Duration cacheValidDuration =
       Duration(minutes: 15); // Cache valid for 15 minutes
-
   @override
   void onInit() {
     super.onInit();
@@ -46,24 +45,21 @@ class CurrentOrderController extends GetxController {
   Future<void> getCurrentOrderWithCache({bool forceRefresh = false}) async {
     // If we have cached data and it's not expired, and not forcing refresh, return cached data
     if (hasDataCached.value && !_isCacheExpired() && !forceRefresh) {
-      log('📦 Using cached current order data');
+      log('📦 CurrentOrderController: Using cached current order data');
       return;
     }
-
     // Otherwise, fetch fresh data
+    log('🔄 CurrentOrderController: Fetching fresh data (forceRefresh: $forceRefresh)');
     await getCurrentOrder();
   }
 
   Future<CurrentOrderModel?> getCurrentOrder() async {
     if (isLoading.value) return null; // Prevent multiple simultaneous calls
-
     isLoading(true);
     try {
       final response = await ApiGetServices()
           .apiGetServices(AppApiUrl.getCurrentOrders, statusCode: 200);
-
       log("API response received: ${response.runtimeType}");
-
       try {
         if (response is Map<String, dynamic>) {
           if (response.containsKey("body")) {
@@ -77,17 +73,13 @@ class CurrentOrderController extends GetxController {
           } else {
             currentOrdersModel.value = CurrentOrderModel.fromJson(response);
           }
-
-          log("Current orders model updated: ${currentOrdersModel.value.data?.length ?? 0} orders found");
-
+          log("📦 CurrentOrderController: Current orders model updated: ${currentOrdersModel.value.data?.length ?? 0} orders found");
           // Mark data as cached and update fetch time
           hasDataCached.value = true;
           lastFetchTime = DateTime.now();
-          log('📦 Current order data cached successfully');
-
+          log('📦 CurrentOrderController: Current order data cached successfully');
           // Notify listeners about the update
           update();
-
           return currentOrdersModel.value;
         } else {
           log("Unexpected response type: ${response.runtimeType}");
@@ -121,34 +113,26 @@ class CurrentOrderController extends GetxController {
         //AppSnackBar.error("Parcel information is missing");
         return;
       }
-
       if (userID.value.isEmpty) {
         AppSnackBar.error("Delivery person information is missing");
         return;
       }
-
       isReviewLoading(true);
-
       final Map<String, dynamic> body = {
         "parcelId": parcelID.value,
         "rating": rating.value,
         "targetUserId": userID.value,
       };
-
       log("Submitting review: $body");
-
       final response = await ApiPostServices().apiPostServices(
           url: AppApiUrl.givingReview, body: body, statusCode: 200);
-
       if (response != null) {
         log("Successfully given review");
         AppSnackBar.success("Successfully given review");
-
         // Clear the values after successful submission
         parcelID.value = "";
         userID.value = "";
         rating.value = 1.0;
-
         // Refresh orders to show updated status
         await getCurrentOrderWithCache(forceRefresh: true);
       } else {
@@ -176,10 +160,8 @@ class CurrentOrderController extends GetxController {
       if (response != null) {
         log("Successfully finished delivery");
         AppSnackBar.success("Successfully finished delivery");
-
         // Clear cache and force refresh to get updated data
         await clearCacheAndRefresh();
-
         // Notify all listeners about the change
         update();
       } else {
@@ -199,6 +181,17 @@ class CurrentOrderController extends GetxController {
     await getCurrentOrder();
   }
 
+  // Method to refresh data when called from external sources (like home screen)
+  Future<void> refreshFromExternalTrigger() async {
+    try {
+      log('🔄 CurrentOrderController: External refresh triggered');
+      await getCurrentOrderWithCache(forceRefresh: true);
+      log('✅ CurrentOrderController: External refresh completed');
+    } catch (e) {
+      log('❌ CurrentOrderController: External refresh failed: $e');
+    }
+  }
+
   // Method to clear cache and force refresh
   Future<void> clearCacheAndRefresh() async {
     hasDataCached.value = false;
@@ -215,17 +208,13 @@ class CurrentOrderController extends GetxController {
   Future<void> prefetchAllAddresses(List<dynamic> parcels) async {
     try {
       if (parcels.isEmpty) return;
-
       // Use the enhanced caching system to preload addresses
       final cachedAddresses = await LocationStorage.instance
           .getCachedAddressesWithFallback(parcels);
-
       // Store the cached addresses for immediate UI display
       _cachedAddresses.addAll(cachedAddresses);
-
       // Trigger UI update to show cached addresses immediately
       update();
-
       log('CurrentOrderController: Prefetched ${cachedAddresses.length} addresses with caching');
     } catch (e) {
       log('CurrentOrderController: Failed to prefetch addresses: $e');

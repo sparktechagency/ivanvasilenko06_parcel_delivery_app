@@ -14,14 +14,10 @@ import 'package:parcel_delivery_app/services/reporsitory/image_repository/image_
 class ParcelController extends GetxController {
   // Add disposal tracking
   bool _isDisposed = false;
-  
 
-   RxDouble currentLat=0.0.obs;
+  RxDouble currentLat = 0.0.obs;
 
-    RxDouble currentLong=0.0.obs;
-
-
-
+  RxDouble currentLong = 0.0.obs;
 
   // Observable data
   RxString startingLocation = ''.obs;
@@ -38,6 +34,7 @@ class ParcelController extends GetxController {
   Rx<DateTime> endDateTime = DateTime.now().obs;
   RxList<String> selectedImages = <String>[].obs;
   RxBool isLoading = false.obs;
+  RxBool isSubmitting = false.obs;
 
   //! For storing current location lat/lng as strings
   RxString currentLocationLatitude = ''.obs;
@@ -127,12 +124,12 @@ class ParcelController extends GetxController {
   //! Step navigation with validation and disposal checks
   void goToNextStep() {
     if (_isDisposed) return;
-    
+
     if (!validateCurrentStep()) return;
 
     if (currentStep.value < 5) {
       currentStep.value++;
-      
+
       // Check if pageController is still valid before using it
       if (!_isDisposed && pageController.hasClients) {
         try {
@@ -153,10 +150,10 @@ class ParcelController extends GetxController {
 
   void goToPreviousStep() {
     if (_isDisposed) return;
-    
+
     if (currentStep.value > 0) {
       currentStep.value--;
-      
+
       // Check if pageController is still valid before using it
       if (!_isDisposed && pageController.hasClients) {
         try {
@@ -173,7 +170,7 @@ class ParcelController extends GetxController {
       // Controllers will be disposed in onClose()
       if (!_isDisposed) {
         _resetFieldsSafely();
-        
+
         // Navigate back after clearing fields
         Get.back();
       }
@@ -183,7 +180,7 @@ class ParcelController extends GetxController {
   // Safe field reset method
   void _resetFieldsSafely() {
     if (_isDisposed) return;
-    
+
     try {
       startingLocation.value = '';
       endingLocation.value = '';
@@ -198,7 +195,7 @@ class ParcelController extends GetxController {
 
   bool validateCurrentStep() {
     if (_isDisposed) return false;
-    
+
     switch (currentStep.value) {
       case 1:
         //! Step 1: Location Validation
@@ -211,10 +208,8 @@ class ParcelController extends GetxController {
 
       case 2:
         //! Step 2: Time Validation
-        if (endDateTime.value == null) {
-          // AppSnackBar.error("Please select both delivery start and end time.");
-          return false;
-        }
+        // endDateTime is never null since it's initialized with DateTime.now()
+        // Just validate that it's not the default value or in the past if needed
         return true;
 
       case 3:
@@ -250,7 +245,7 @@ class ParcelController extends GetxController {
   //! Comprehensive validation for final submission
   bool validateAllFields() {
     if (_isDisposed) return false;
-    
+
     //! Step 1: Location Validation
     if (startingLocation.isEmpty || endingLocation.isEmpty) {
       // AppSnackBar.error("Please fill both pickup and destination locations.");
@@ -290,13 +285,13 @@ class ParcelController extends GetxController {
   //! Image logic with disposal checks
   Future<void> pickImages() async {
     if (_isDisposed) return;
-    
+
     try {
       final List<XFile> images = await _picker.pickMultiImage();
-      
+
       // Check disposal after async operation
       if (_isDisposed) return;
-      
+
       if (images.isNotEmpty) {
         selectedImages.addAll(images.map((img) => File(img.path).path));
       } else {
@@ -324,7 +319,12 @@ class ParcelController extends GetxController {
   // Submission with complete validation
   Future<void> submitParcelData() async {
     if (_isDisposed) return;
-    
+
+    // Prevent duplicate submissions
+    if (isLoading.value || isSubmitting.value) {
+      return;
+    }
+
     //! Validate all required fields before submission
     if (!validateAllFields()) {
       return;
@@ -339,8 +339,9 @@ class ParcelController extends GetxController {
     }
 
     if (_isDisposed) return;
-    
+
     isLoading.value = true;
+    isSubmitting.value = true;
     try {
       final parcelData = {
         'senderType': selectedDeliveryType.value,
@@ -356,24 +357,30 @@ class ParcelController extends GetxController {
         'phoneNumber': completePhoneNumber.value,
       };
 
-      await ImageMultipartUpload().imageUploadWithData2(
+      final result = await ImageMultipartUpload().imageUploadWithData2(
         body: parcelData,
         url: AppApiUrl.sendPercel,
         imagePath: selectedImages,
       );
+
+      // If successful, reset the form to prevent resubmission
+      if (result != null || !_isDisposed) {
+        resetAllFields();
+      }
     } catch (e) {
       //! log("⚠️ Error submitting parcel: $e");
       // AppSnackBar.error("Failed to submit parcel data.");
     } finally {
       if (!_isDisposed) {
         isLoading.value = false;
+        isSubmitting.value = false;
       }
     }
   }
 
   void resetAllFields() {
     if (_isDisposed) return;
-    
+
     try {
       selectedDeliveryType.value = 'non-professional';
       selectedVehicleType.value = '';
@@ -384,6 +391,8 @@ class ParcelController extends GetxController {
       startDateTime.value = DateTime.now();
       endDateTime.value = DateTime.now();
       selectedImages.clear();
+      isLoading.value = false;
+      isSubmitting.value = false;
 
       currentLocationController.clear();
       destinationController.clear();
@@ -400,7 +409,7 @@ class ParcelController extends GetxController {
   // Safe navigation method that can be called from UI
   void navigateBack() {
     if (_isDisposed) return;
-    
+
     try {
       // Reset current step to 0
       currentStep.value = 0;
@@ -422,7 +431,7 @@ class ParcelController extends GetxController {
   @override
   void onClose() {
     _isDisposed = true; // Mark as disposed first
-    
+
     // Dispose all controllers safely
     try {
       currentLocationController.dispose();

@@ -11,6 +11,7 @@ import 'package:parcel_delivery_app/constants/app_image_path.dart';
 import 'package:parcel_delivery_app/constants/app_strings.dart';
 import 'package:parcel_delivery_app/screens/booking_screen/current_order/controller/current_order_controller.dart';
 import 'package:parcel_delivery_app/screens/booking_screen/new_booking/controller/new_bookings_controller.dart';
+import 'package:parcel_delivery_app/screens/notification_screen/controller/notification_controller.dart';
 import 'package:parcel_delivery_app/services/appStroage/location_storage.dart';
 import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
 import 'package:parcel_delivery_app/utils/app_size.dart';
@@ -44,43 +45,61 @@ class _BookingScreenState extends State<BookingScreen> {
   late final CurrentOrderController currentOrderController;
   late final NewBookingsController newBookingsController;
   late final LocationStorage locationStorage;
+  late final NotificationController notificationController;
+
+  //! Track previous unread count to detect changes
+  int _previousUnreadCount = 0;
 
   @override
   void initState() {
     super.initState();
 
-    // Try to find existing controller, if not found, create and put it
+    // Initialize controllers
     try {
       currentOrderController = Get.find<CurrentOrderController>();
     } catch (e) {
-      // If controller not found, create and register it
       currentOrderController =
           Get.put(CurrentOrderController(), permanent: true);
     }
-
     try {
       newBookingsController = Get.find<NewBookingsController>();
     } catch (e) {
-      // If controller not found, create and register it
       newBookingsController = Get.put(NewBookingsController(), permanent: true);
+    }
+    try {
+      notificationController = Get.find<NotificationController>();
+    } catch (e) {
+      notificationController =
+          Get.put(NotificationController(), permanent: true);
     }
 
     locationStorage = LocationStorage.instance;
 
+    // Store initial unread count
+    _previousUnreadCount = notificationController.unreadCount.value.toInt();
+
+    // Listen for unread count changes to refresh booking screen
+    ever(notificationController.unreadCount, (int newCount) {
+      if (!_isDisposed && mounted) {
+        // Refresh booking screen when unread count increases
+        if (_previousUnreadCount < newCount) {
+          log('📱 Unread notifications increased from $_previousUnreadCount to $newCount - refreshing booking screen');
+          _refreshBookingScreen();
+        }
+        _previousUnreadCount = newCount;
+      }
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // Initialize location storage
       await locationStorage.initialize();
-
       // Use cached data instead of forcing reload
       await currentOrderController.getCurrentOrderWithCache();
-
       // Prefetch all addresses at once
       final parcels = currentOrderController.currentOrdersModel.value.data;
       if (parcels != null) {
         await prefetchAllAddresses(parcels);
       }
     });
-
     // Listen to controller changes to refresh UI
     ever(currentOrderController.currentOrdersModel, (_) async {
       if (mounted && !_isDisposed) {
@@ -89,7 +108,6 @@ class _BookingScreenState extends State<BookingScreen> {
         if (parcels != null && parcels.isNotEmpty) {
           await prefetchAllAddresses(parcels);
         }
-
         setState(() {
           // Trigger UI rebuild when data changes
         });
@@ -406,23 +424,52 @@ class _BookingScreenState extends State<BookingScreen> {
     }
   }
 
+  // Method to refresh the booking screen when notifications change
+  Future<void> _refreshBookingScreen() async {
+    if (_isDisposed) return;
+
+    try {
+      log('🔄 Booking Screen: Refreshing booking screen data...');
+
+      // Clear address caches to ensure fresh data
+      addressCache.clear();
+      locationToAddressCache.clear();
+
+      // Force refresh current orders
+      await currentOrderController.getCurrentOrderWithCache(forceRefresh: true);
+
+      // Refresh addresses for parcels
+      final parcels = currentOrderController.currentOrdersModel.value.data;
+      if (parcels != null && parcels.isNotEmpty) {
+        await prefetchAllAddresses(parcels);
+      }
+
+      // Trigger UI rebuild
+      if (mounted && !_isDisposed) {
+        setState(() {
+          // Force UI refresh
+        });
+      }
+
+      log('✅ Booking Screen: Booking screen refresh completed');
+    } catch (error) {
+      log('❌ Booking Screen: Error during booking screen refresh: $error');
+    }
+  }
+
   void _openBottomSheet(String parcelId, dynamic parcel) {
     // Check if review already exists BEFORE opening the sheet
     if (hasAlreadyReviewed(parcelId, parcel)) {
       AppSnackBar.reviewError("You have already reviewed this delivery");
       return;
     }
-
     double selectedRating = 1.0;
-
     // Safely get the controller - use the instance variable directly
     // This avoids any GetX lookup issues
     final controller = currentOrderController;
-
     // Set parcel ID and user ID before opening the sheet
     controller.parcelID.value = parcelId;
     controller.userID.value = parcel.assignedDelivererId?.id ?? "";
-
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -511,23 +558,7 @@ class _BookingScreenState extends State<BookingScreen> {
                     onPressed: () async {
                       // Set the rating value
                       controller.rating.value = selectedRating;
-
-                      // Close the bottom sheet first
                       Navigator.pop(context);
-
-                      // Show loading dialog
-                      // if (!controller.isReviewLoading.value) {
-                      //   Get.dialog(
-                      //     Center(
-                      //       child: LoadingAnimationWidget.hexagonDots(
-                      //         color: AppColors.black,
-                      //         size: 40,
-                      //       ),
-                      //     ),
-                      //     barrierDismissible: false,
-                      //   );
-                      // }
-                      // Close the dialog when the review call completes (success or error)
                       try {
                         await controller.givingReview();
                       } finally {
@@ -540,7 +571,6 @@ class _BookingScreenState extends State<BookingScreen> {
                         await controller.givingReview();
                         // Close loading dialog
                         Get.back();
-
                         // Refresh the current orders to update UI
                         await controller.getCurrentOrderWithCache(
                             forceRefresh: true);

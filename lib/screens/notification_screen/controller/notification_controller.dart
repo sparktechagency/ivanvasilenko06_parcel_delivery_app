@@ -1,4 +1,3 @@
-
 import 'package:get/get.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/screens/notification_screen/notification_model/notification_model.dart';
@@ -79,7 +78,7 @@ class NotificationController extends GetxController {
           notificationModel.refresh();
         }
 
-       //!  log("✅✅✅ Fetched notifications, page $page of ${totalPages.value}");
+        //!  log("✅✅✅ Fetched notifications, page $page of ${totalPages.value}");
       } else {
         throw Exception("Failed to load notifications - null response");
       }

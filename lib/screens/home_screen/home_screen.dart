@@ -17,6 +17,7 @@ import 'package:parcel_delivery_app/screens/home_screen/widgets/reserve_bottom_s
 import 'package:parcel_delivery_app/screens/home_screen/widgets/suggestionCardWidget.dart';
 import 'package:parcel_delivery_app/screens/notification_screen/controller/notification_controller.dart';
 import 'package:parcel_delivery_app/screens/profile_screen/controller/profile_controller.dart';
+import 'package:parcel_delivery_app/screens/booking_screen/current_order/controller/current_order_controller.dart';
 import 'package:parcel_delivery_app/utils/appLog/app_log.dart';
 import 'package:parcel_delivery_app/widgets/image_widget/image_widget.dart';
 import '../../utils/app_size.dart';
@@ -37,6 +38,10 @@ class _HomeScreenState extends State<HomeScreen> {
   final NotificationController notificationController =
       Get.find<NotificationController>();
   final ProfileController profileController = Get.find<ProfileController>();
+
+  // Track previous unread count to detect changes
+  int _previousUnreadCount = 0;
+  bool _isDisposed = false;
 
   Future<void> _getCurrentLocation() async {
     try {
@@ -233,14 +238,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: CircleAvatar(
                                 backgroundColor: AppColors.white,
                                 radius: ResponsiveUtils.width(25),
-                                child: Platform.isIOS==true
+                                child: Platform.isIOS == true
                                     ? const Icon(
-                                      Icons.arrow_back_ios,
-                                      
+                                        Icons.arrow_back_ios,
                                         color: AppColors.black,
                                       )
                                     : const Icon(
-                                         Icons.arrow_back,
+                                        Icons.arrow_back,
                                         color: AppColors.black,
                                       ),
                               ),
@@ -272,9 +276,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             textColor: AppColors.white,
                             buttonWidth: 105,
                             buttonHeight: 50,
-                            icon: Platform.isIOS==true
-                                    ? Icons.arrow_forward_ios
-                                    : Icons.arrow_forward,
+                            icon: Platform.isIOS == true
+                                ? Icons.arrow_forward_ios
+                                : Icons.arrow_forward,
                             iconColor: AppColors.white,
                             fontWeight: FontWeight.w500,
                             fontSize: 16,
@@ -296,10 +300,33 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
+    // Store initial unread count
+    _previousUnreadCount = notificationController.unreadCount.value.toInt();
+
+    // Listen for unread count changes to refresh booking screen
+    ever(notificationController.unreadCount, (int newCount) {
+      if (!_isDisposed && mounted) {
+        log('🏠 Home Screen: Notification count changed from $_previousUnreadCount to $newCount');
+        // Refresh booking screen when unread count increases
+        if (_previousUnreadCount < newCount) {
+          log('📱 Home Screen: Unread notifications increased - triggering booking screen refresh');
+          _refreshBookingScreen();
+        }
+        _previousUnreadCount = newCount;
+      }
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       // Load profile data first using cached data
       await profileController.getProfileInfoWithCache();
-      notificationController.isReadNotification();
+
+      // Check for unread notifications
+      await notificationController.isReadNotification();
+
+      // Update the previous count after initial load
+      _previousUnreadCount = notificationController.unreadCount.value.toInt();
+      log('🏠 Home Screen: Initial unread count set to $_previousUnreadCount');
 
       // Log profile data after it's loaded
       //! appLog('🔍 Profile loaded in initState');
@@ -309,9 +336,54 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  // Method to refresh booking screen when notifications increase
+  Future<void> _refreshBookingScreen() async {
+    if (_isDisposed) return;
+
+    try {
+      log('🔄 Home Screen: Triggering booking screen refresh...');
+
+      // Try to find the CurrentOrderController and refresh it
+      try {
+        final currentOrderController = Get.find<CurrentOrderController>();
+        await currentOrderController.refreshFromExternalTrigger();
+        log('✅ Home Screen: Successfully refreshed booking screen data');
+      } catch (e) {
+        log('⚠️ Home Screen: CurrentOrderController not found or refresh failed: $e');
+        // Controller might not be initialized yet, which is fine
+      }
+    } catch (error) {
+      log('❌ Home Screen: Error during booking screen refresh: $error');
+    }
+  }
+
+  // Method to manually check for notification updates
+  Future<void> _checkForNotificationUpdates() async {
+    if (_isDisposed) return;
+
+    try {
+      log('🔍 Home Screen: Manually checking for notification updates...');
+      await notificationController.isReadNotification();
+      log('✅ Home Screen: Notification check completed');
+    } catch (e) {
+      log('❌ Home Screen: Error checking notifications: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    log("🛑 Unread Notification: ${notificationController.unreadCount.value.toString()}");
+    log("🛑 Home Screen: Current unread notifications: ${notificationController.unreadCount.value.toString()}");
+
+    // Check for notification updates when building (helps catch updates when returning to home screen)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForNotificationUpdates();
+    });
 
     return Scaffold(
       backgroundColor: AppColors.white,

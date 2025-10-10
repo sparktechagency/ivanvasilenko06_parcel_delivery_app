@@ -186,27 +186,43 @@ class SenderSummaryOfParcelScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                ButtonWidget(
-                  onPressed: () async {
-                    // Set loading state to true
-                    controller.isLoading.value = true;
-                    controller.update();
-                    // Call the submitParcelData function
-                    await controller.submitParcelData();
-                    // Set loading state to false after completion
-                    controller.isLoading.value = false;
-                    controller.update();
-                  },
-                  label: "finish".tr,
-                  textColor: AppColors.white,
-                  buttonWidth: 112,
-                  buttonHeight: 50,
-                  icon: Icons.arrow_forward,
-                  iconColor: AppColors.white,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 16,
-                  iconSize: 20,
-                ),
+                Obx(() => ButtonWidget(
+                      onPressed: controller.isLoading.value
+                          ? null // Disable button when loading
+                          : () async {
+                              // Prevent multiple submissions
+                              if (controller.isLoading.value) return;
+
+                              // Set loading state to true
+                              controller.isLoading.value = true;
+                              controller.update();
+
+                              try {
+                                // Call the submitParcelData function
+                                await controller.submitParcelData();
+                              } finally {
+                                // Always set loading state to false after completion
+                                controller.isLoading.value = false;
+                                controller.update();
+                              }
+                            },
+                      label: controller.isLoading.value
+                          ? "submitting".tr
+                          : "finish".tr,
+                      textColor: AppColors.white,
+                      backgroundColor: controller.isLoading.value
+                          ? AppColors.greyDark2
+                          : AppColors.black,
+                      buttonWidth: 112,
+                      buttonHeight: 50,
+                      icon: controller.isLoading.value
+                          ? null
+                          : Icons.arrow_forward,
+                      iconColor: AppColors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
+                      iconSize: 20,
+                    )),
               ],
             ),
           ),
