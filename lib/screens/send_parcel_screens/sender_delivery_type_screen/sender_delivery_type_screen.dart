@@ -36,10 +36,10 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
     final position = await locationService.getCurrentPosition(
       requestPermission: true,
     );
-    
+
     if (position != null && mounted) {
       final location = LatLng(position.latitude, position.longitude);
-      
+
       // Store the location in the controller so it's accessible by PageTwo
       parcelController.currentLocationLatitude.value =
           position.latitude.toString();
@@ -165,13 +165,11 @@ class _SenderDeliveryTypeScreenState extends State<SenderDeliveryTypeScreen> {
                       // No need to fetch location again since we already have it
                       // Just move to next step
                       parcelController.goToNextStep();
-                      debugPrint('=======================================Current location: lat=${parcelController.currentLocationLatitude.value}, lng=${parcelController.currentLocationLongitude.value}');
-                     
-                      parcelController.currentLat.value=double.parse(parcelController.currentLocationLatitude.value);
-                      parcelController.currentLong.value=double.parse(parcelController.currentLocationLongitude.value);
-                    
-                    
-                     },
+                      debugPrint(
+                          '=======================================Current location: lat=${parcelController.currentLocationLatitude.value}, lng=${parcelController.currentLocationLongitude.value}');
+                      //parcelController.currentLat.value=double.parse(parcelController.currentLocationLatitude.value);
+                      //parcelController.currentLong.value=double.parse(parcelController.currentLocationLongitude.value);
+                    },
                     label: parcelController.currentStep.value == 5
                         ? "next".tr
                         : "next".tr,

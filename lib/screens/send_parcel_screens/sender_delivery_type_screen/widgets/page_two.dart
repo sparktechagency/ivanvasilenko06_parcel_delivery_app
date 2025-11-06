@@ -54,11 +54,12 @@ class _PageTwoState extends State<PageTwo> {
     }
     // Clear existing polylines and markers when initializing
     _clearPreviousRouteData();
-    
+
     // Use existing location data from parcelController instead of fetching again
     _useExistingLocationData();
-    
-    debugPrint('=======================================Current location: lat=${_parcelController?.currentLocationLatitude.value}, lng=${_parcelController?.currentLocationLongitude.value}');
+
+    debugPrint(
+        '=======================================Current location: lat=${_parcelController?.currentLocationLatitude.value}, lng=${_parcelController?.currentLocationLongitude.value}');
     _startingFocusNode.addListener(() {
       if (_startingFocusNode.hasFocus && mounted && !_isDisposed) {
         setState(() {
@@ -80,15 +81,24 @@ class _PageTwoState extends State<PageTwo> {
   void dispose() {
     _isDisposed = true; // Mark as disposed first
 
+    // Dispose focus nodes first to prevent any callbacks
+    _startingFocusNode.dispose();
+    _endingFocusNode.dispose();
+
+    // Dispose text controllers
+    startingController.dispose();
+    endingController.dispose();
+
     // Clear the polyline and location data when leaving the screen
     _clearPreviousRouteData();
 
-    // Dispose controllers and focus nodes
-    startingController.dispose();
-    endingController.dispose();
-    _mapController?.dispose();
-    _startingFocusNode.dispose();
-    _endingFocusNode.dispose();
+    // Dispose map controller last and set to null
+    // This is critical to prevent platform view conflicts
+    if (_mapController != null) {
+      _mapController!.dispose();
+      _mapController = null;
+    }
+
     super.dispose();
   }
 
@@ -116,17 +126,18 @@ class _PageTwoState extends State<PageTwo> {
 
     try {
       // Check if parcelController has location data
-      if (_parcelController != null && 
+      if (_parcelController != null &&
           _parcelController!.currentLocationLatitude.value.isNotEmpty &&
           _parcelController!.currentLocationLongitude.value.isNotEmpty) {
-        
-        final lat = double.parse(_parcelController!.currentLocationLatitude.value);
-        final lng = double.parse(_parcelController!.currentLocationLongitude.value);
+        final lat =
+            double.parse(_parcelController!.currentLocationLatitude.value);
+        final lng =
+            double.parse(_parcelController!.currentLocationLongitude.value);
         final location = LatLng(lat, lng);
-        
+
         // Set the location in the repository
         _locationRepository.currentLocationCoordinates = location;
-        
+
         // Create marker for current location
         _currentLocationMarker = Marker(
           markerId: const MarkerId('current_location'),
@@ -138,13 +149,20 @@ class _PageTwoState extends State<PageTwo> {
         if (mounted && !_isDisposed) {
           setState(() {
             _markers = {_currentLocationMarker!};
-            _locationLoaded = true; // Mark location as loaded
+            _locationLoaded = true;
           });
         }
 
-        // Get address for current location
+        // Get address for current location with timeout
         try {
-          final address = await _locationRepository.getAddressFromLatLng(lat, lng);
+          final address =
+              await _locationRepository.getAddressFromLatLng(lat, lng).timeout(
+            const Duration(seconds: 5),
+            onTimeout: () {
+              debugPrint('Address fetch timed out');
+              return "Your Current Location";
+            },
+          );
           if (mounted && !_isDisposed) {
             setState(() {
               _currentLocationAddress = address;
@@ -171,7 +189,8 @@ class _PageTwoState extends State<PageTwo> {
         }
       } else {
         // Fallback to getting current location if parcelController doesn't have data
-        debugPrint('No location data in parcelController, falling back to getCurrentLocation');
+        debugPrint(
+            'No location data in parcelController, falling back to getCurrentLocation');
         _getCurrentLocation();
       }
     } catch (e) {
@@ -194,7 +213,7 @@ class _PageTwoState extends State<PageTwo> {
 
       if (position != null && mounted && !_isDisposed) {
         final location = LatLng(position.latitude, position.longitude);
-        
+
         // Create marker for current location
         _currentLocationMarker = Marker(
           markerId: const MarkerId('current_location'),
@@ -210,10 +229,17 @@ class _PageTwoState extends State<PageTwo> {
           });
         }
 
-        // Get address for current location
+        // Get address for current location with timeout
         try {
-          final address = await _locationRepository.getAddressFromLatLng(
-              position.latitude, position.longitude);
+          final address = await _locationRepository
+              .getAddressFromLatLng(position.latitude, position.longitude)
+              .timeout(
+            const Duration(seconds: 5),
+            onTimeout: () {
+              debugPrint('Address fetch timed out');
+              return "Your Current Location";
+            },
+          );
           if (mounted && !_isDisposed) {
             setState(() {
               _currentLocationAddress = address;
@@ -242,7 +268,7 @@ class _PageTwoState extends State<PageTwo> {
         // Handle case where location is null (permission denied, etc.)
         if (mounted && !_isDisposed) {
           setState(() {
-            _locationLoaded = true; // Still mark as loaded to show error state
+            _locationLoaded = true; 
           });
         }
       }
@@ -250,7 +276,7 @@ class _PageTwoState extends State<PageTwo> {
       debugPrint('Error getting current location: $e');
       if (mounted && !_isDisposed) {
         setState(() {
-          _locationLoaded = true; // Mark as loaded to show error state
+          _locationLoaded = true;
         });
       }
     }
@@ -276,7 +302,14 @@ class _PageTwoState extends State<PageTwo> {
     }
 
     try {
-      final predictions = await _locationRepository.placeAutoComplete(query);
+      final predictions =
+          await _locationRepository.placeAutoComplete(query).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          debugPrint('Place autocomplete timed out');
+          return [];
+        },
+      );
       if (_isDisposed) return;
 
       if (mounted && !_isDisposed) {
@@ -386,7 +419,13 @@ class _PageTwoState extends State<PageTwo> {
         if (_locationRepository.endingLocationCoordinates != null &&
             !_isDisposed) {
           try {
-            await _locationRepository.fetchDirections();
+            await _locationRepository.fetchDirections().timeout(
+              const Duration(seconds: 10),
+              onTimeout: () {
+                debugPrint('Fetch directions timed out');
+                return null;
+              },
+            );
             if (mounted && !_isDisposed) {
               setState(() {}); // Trigger rebuild to show polyline
             }
@@ -397,9 +436,16 @@ class _PageTwoState extends State<PageTwo> {
       }
     } else {
       try {
-        // Fetch location details for selected place
-        final location =
-            await _locationRepository.fetchPlaceDetails(placeId, 'starting');
+        // Fetch location details for selected place with timeout
+        final location = await _locationRepository
+            .fetchPlaceDetails(placeId, 'starting')
+            .timeout(
+          const Duration(seconds: 10),
+          onTimeout: () {
+            debugPrint('Fetch place details timed out');
+            return null;
+          },
+        );
 
         if (_isDisposed) return;
 
@@ -431,7 +477,13 @@ class _PageTwoState extends State<PageTwo> {
           if (_locationRepository.endingLocationCoordinates != null &&
               !_isDisposed) {
             try {
-              await _locationRepository.fetchDirections();
+              await _locationRepository.fetchDirections().timeout(
+                const Duration(seconds: 10),
+                onTimeout: () {
+                  debugPrint('Fetch directions timed out');
+                  return null;
+                },
+              );
               if (mounted && !_isDisposed) {
                 setState(() {}); // Ensure UI updates to show polyline
               }
@@ -468,8 +520,15 @@ class _PageTwoState extends State<PageTwo> {
     _parcelController?.setEndingLocation(description);
 
     try {
-      final location =
-          await _locationRepository.fetchPlaceDetails(placeId, 'ending');
+      final location = await _locationRepository
+          .fetchPlaceDetails(placeId, 'ending')
+          .timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          debugPrint('Fetch place details timed out');
+          return null;
+        },
+      );
 
       if (_isDisposed) return;
 
@@ -500,7 +559,13 @@ class _PageTwoState extends State<PageTwo> {
         if (_locationRepository.startingLocationCoordinates != null &&
             !_isDisposed) {
           try {
-            await _locationRepository.fetchDirections();
+            await _locationRepository.fetchDirections().timeout(
+              const Duration(seconds: 10),
+              onTimeout: () {
+                debugPrint('Fetch directions timed out');
+                return null;
+              },
+            );
             if (mounted && !_isDisposed) {
               setState(() {});
             }
@@ -724,7 +789,6 @@ class _PageTwoState extends State<PageTwo> {
 
     // Show error state if location is not available
     if (_locationRepository.currentLocationCoordinates == null) {
-      
       return SizedBox(
         height: MediaQuery.of(context).size.height * 0.65,
         width: double.infinity,
@@ -772,51 +836,50 @@ class _PageTwoState extends State<PageTwo> {
           ),
         ),
       );
-    }else
-
-    {
+    } else {
       return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.65,
-      width: double.infinity,
-      child: GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: _locationRepository.currentLocationCoordinates!,
-          zoom: 15.0,
-        ),
-        onMapCreated: (GoogleMapController controller) {
-          if (mounted && !_isDisposed) {
-            setState(() {
+        height: MediaQuery.of(context).size.height * 0.65,
+        width: double.infinity,
+        child: GoogleMap(
+          key: ValueKey(
+              'page_two_map_${DateTime.now().millisecondsSinceEpoch}'), // Use unique key with timestamp to prevent platform view conflicts
+          initialCameraPosition: CameraPosition(
+            target: _locationRepository.currentLocationCoordinates!,
+            zoom: 15.0,
+          ),
+          onMapCreated: (GoogleMapController controller) {
+            if (mounted && !_isDisposed && _mapController == null) {
+              // Only set controller if it's not already set
               _mapController = controller;
               _mapInitialized = true;
-            });
 
-            // Animate to current location immediately after map creation
-            if (!_isDisposed) {
-              try {
-                _mapController?.animateCamera(
-                  CameraUpdate.newLatLng(
-                      _locationRepository.currentLocationCoordinates!),
-                );
-              } catch (e) {
-                debugPrint('Error animating camera on map creation: $e');
+              // Animate to current location immediately after map creation
+              if (!_isDisposed) {
+                try {
+                  _mapController?.animateCamera(
+                    CameraUpdate.newLatLng(
+                        _locationRepository.currentLocationCoordinates!),
+                  );
+                } catch (e) {
+                  debugPrint('Error animating camera on map creation: $e');
+                }
               }
             }
-          }
-        },
-        mapType: MapType.terrain,
-        markers: _markers,
-        polylines: _locationRepository.polyline != null
-            ? {_locationRepository.polyline!}
-            : {},
-        myLocationButtonEnabled: true,
-        myLocationEnabled: true,
-        scrollGesturesEnabled: true,
-        zoomGesturesEnabled: true,
-        tiltGesturesEnabled: true,
-        rotateGesturesEnabled: true,
-        zoomControlsEnabled: true,
-      ),
-    );
+          },
+          mapType: MapType.terrain,
+          markers: _markers,
+          polylines: _locationRepository.polyline != null
+              ? {_locationRepository.polyline!}
+              : {},
+          myLocationButtonEnabled: true,
+          myLocationEnabled: true,
+          scrollGesturesEnabled: true,
+          zoomGesturesEnabled: true,
+          tiltGesturesEnabled: true,
+          rotateGesturesEnabled: true,
+          zoomControlsEnabled: true,
+        ),
+      );
     }
   }
 
@@ -827,80 +890,95 @@ class _PageTwoState extends State<PageTwo> {
       return const SizedBox.shrink();
     }
 
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        title: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: TextWidget(
-            text: "enterDeliveryLocation".tr,
-            fontSize: 24,
-            fontWeight: FontWeight.w600,
-            fontColor: AppColors.black,
-            textAlignment: TextAlign.start,
-          ),
-        ),
-        automaticallyImplyLeading: false,
-        backgroundColor: AppColors.white,
-        elevation: 0,
-      ),
-      backgroundColor: AppColors.white,
-      body: GestureDetector(
-        onTap: () {
-          //! Close keyboard when tapping outside of text fields
-          if (mounted && !_isDisposed) {
-            FocusScope.of(context).unfocus();
-            setState(() {
-              _placePredictions = [];
-              _activeLocationType = '';
-            });
+    return WillPopScope(
+      onWillPop: () async {
+        // Ensure proper cleanup when navigating back
+        _isDisposed = true;
+        if (_mapController != null) {
+          try {
+            _mapController!.dispose();
+          } catch (e) {
+            debugPrint('Error disposing map controller: $e');
           }
-        },
-        child: SafeArea(
-          child: Stack(
-            children: [
-              // Main content
-              Column(
-                children: [
-                  // Location input fields
-                  _buildLocationInputs(),
-                  // Spacer
-                  const SpaceWidget(spaceHeight: 16),
-                  // Map section
-                  Expanded(child: _buildMap()),
-                ],
-              ),
-              // Position predictions list properly
-              if (_activeLocationType.isNotEmpty &&
-                  _placePredictions.isNotEmpty &&
-                  !_isDisposed)
-                Positioned(
-                  top: _activeLocationType == 'starting' ? 60 : 120,
-                  left: 47,
-                  right: 16,
-                  child: _buildPredictionsList(),
+          _mapController = null;
+        }
+        return true;
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        appBar: AppBar(
+          title: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: TextWidget(
+              text: "enterDeliveryLocation".tr,
+              fontSize: 24,
+              fontWeight: FontWeight.w600,
+              fontColor: AppColors.black,
+              textAlignment: TextAlign.start,
+            ),
+          ),
+          automaticallyImplyLeading: false,
+          backgroundColor: AppColors.white,
+          elevation: 0,
+        ),
+        backgroundColor: AppColors.white,
+        body: GestureDetector(
+          onTap: () {
+            //! Close keyboard when tapping outside of text fields
+            if (mounted && !_isDisposed) {
+              FocusScope.of(context).unfocus();
+              setState(() {
+                _placePredictions = [];
+                _activeLocationType = '';
+              });
+            }
+          },
+          child: SafeArea(
+            child: Stack(
+              children: [
+                // Main content
+                Column(
+                  children: [
+                    // Location input fields
+                    _buildLocationInputs(),
+                    // Spacer
+                    const SpaceWidget(spaceHeight: 16),
+                    // Map section
+                    Expanded(child: _buildMap()),
+                  ],
                 ),
-              // Loading indicator
-              if (_isLoading && !_isDisposed)
-                Positioned(
-                  top: _activeLocationType == 'starting' ? 60 : 120,
-                  left: 47,
-                  right: 16,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Center(
-                      child: LoadingAnimationWidget.hexagonDots(
-                        color: AppColors.black,
-                        size: 40,
+                // Position predictions list properly
+                if (_activeLocationType.isNotEmpty &&
+                    _placePredictions.isNotEmpty &&
+                    !_isDisposed)
+                  Positioned(
+                    top: _activeLocationType == 'starting' ? 60 : 120,
+                    left: 47,
+                    right: 16,
+                    child: _buildPredictionsList(),
+                  ),
+                // Loading indicator
+                if (_isLoading && !_isDisposed)
+                  Positioned(
+                    top: _activeLocationType == 'starting' ? 60 : 120,
+                    left: 47,
+                    right: 16,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Center(
+                        child: LoadingAnimationWidget.hexagonDots(
+                          color: AppColors.black,
+                          size: 40,
+                        ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

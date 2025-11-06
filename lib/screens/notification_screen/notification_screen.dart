@@ -55,7 +55,8 @@ class _NotificationScreenState extends State<NotificationScreen>
         '${latitude.toStringAsFixed(6)},${longitude.toStringAsFixed(6)}';
 
     // Check LocationStorage first for persistent cache
-    String? storedAddress = await locationStorage.getAddressFromCoordinates(latitude, longitude);
+    String? storedAddress =
+        await locationStorage.getAddressFromCoordinates(latitude, longitude);
     if (storedAddress != null && storedAddress.isNotEmpty) {
       // Also update the in-memory cache for faster subsequent access
       locationToAddressCache[key] = storedAddress;
@@ -94,19 +95,22 @@ class _NotificationScreenState extends State<NotificationScreen>
             final address = part.trim();
             // Store in both caches
             locationToAddressCache[key] = address;
-            await locationStorage.saveCoordinateAddress(latitude, longitude, address);
+            await locationStorage.saveCoordinateAddress(
+                latitude, longitude, address);
             return address;
           }
         }
 
         const fallback = 'Unknown Location';
         locationToAddressCache[key] = fallback;
-        await locationStorage.saveCoordinateAddress(latitude, longitude, fallback);
+        await locationStorage.saveCoordinateAddress(
+            latitude, longitude, fallback);
         return fallback;
       } else {
         const genericAddress = 'Location Not Found';
         locationToAddressCache[key] = genericAddress;
-        await locationStorage.saveCoordinateAddress(latitude, longitude, genericAddress);
+        await locationStorage.saveCoordinateAddress(
+            latitude, longitude, genericAddress);
         return genericAddress;
       }
     } catch (e) {
@@ -133,7 +137,8 @@ class _NotificationScreenState extends State<NotificationScreen>
       // Only cache permanent errors
       if (shouldCache) {
         locationToAddressCache[key] = errorMessage;
-        await locationStorage.saveCoordinateAddress(latitude, longitude, errorMessage);
+        await locationStorage.saveCoordinateAddress(
+            latitude, longitude, errorMessage);
       }
 
       return errorMessage;
@@ -159,13 +164,12 @@ class _NotificationScreenState extends State<NotificationScreen>
     try {
       String fetchedAddress =
           await getAddressFromCoordinates(latitude, longitude);
-      
+
       // Store in LocationStorage for persistence across app sessions
-      if (fetchedAddress.isNotEmpty && 
-          !fetchedAddress.contains('Unavailable') && 
+      if (fetchedAddress.isNotEmpty &&
+          !fetchedAddress.contains('Unavailable') &&
           !fetchedAddress.contains('No Network') &&
           fetchedAddress != 'Loading...') {
-        
         // Create LocationData for persistent storage
         final locationData = LocationData(
           parcelId: parcelId,
@@ -175,11 +179,11 @@ class _NotificationScreenState extends State<NotificationScreen>
           address: fetchedAddress,
           timestamp: DateTime.now(),
         );
-        
+
         // Store in LocationStorage (preserves addresses from other screens)
         await locationStorage.storeLocationData(locationData);
       }
-      
+
       if (mounted) {
         setState(() {
           addressCache[cacheKey] = fetchedAddress;
@@ -228,12 +232,12 @@ class _NotificationScreenState extends State<NotificationScreen>
     super.initState();
     controller = Get.put(NotificationController());
     locationStorage = LocationStorage.instance;
-    
+
     // Initialize LocationStorage after the first frame is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       locationStorage.initialize();
     });
-    
+
     _tabController = TabController(length: 2, vsync: this);
     _setupScrollListener();
     _tabController.addListener(() {
@@ -700,7 +704,7 @@ class _NotificationScreenState extends State<NotificationScreen>
       timeAgo = "Unknown time";
     }
     notification.avgRating?.toDouble();
-    int price = notification.price ?? 150;
+    String price = (notification.price ?? 150).toString();
 
     //! Location
     final String notificationId = notification.id;
@@ -842,6 +846,8 @@ class _NotificationScreenState extends State<NotificationScreen>
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           fontColor: AppColors.black,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -936,7 +942,7 @@ class _NotificationScreenState extends State<NotificationScreen>
     String avgRating = notification.avgRating?.toString() ?? "No Rating";
     String mobileNumber = notification.mobileNumber ?? "No Phone Number";
     String type = notification.type ?? "";
-    String price = notification.price?.toString() ?? "0";
+    String price = (notification.price ?? 0).toString();
 
     //! Fixed time parsing for regular notifications
     String timeAgo = "Unknown time";
@@ -1268,7 +1274,8 @@ class _NotificationScreenState extends State<NotificationScreen>
               SizedBox(
                 width: ResponsiveUtils.width(180),
                 child: TextWidget(
-                  text: "${'from'.tr} $pickupAddress ${'cityTo'.tr} $deliveryAddress",
+                  text:
+                      "${'from'.tr} $pickupAddress ${'cityTo'.tr} $deliveryAddress",
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                   fontColor: AppColors.greyDark2,
@@ -1279,7 +1286,9 @@ class _NotificationScreenState extends State<NotificationScreen>
               ),
             ],
           ),
-          const SpaceWidget(spaceHeight: 8,),
+          const SpaceWidget(
+            spaceHeight: 8,
+          ),
           type.toString() == "Requested-Delivery"
               ? const SizedBox()
               : Column(

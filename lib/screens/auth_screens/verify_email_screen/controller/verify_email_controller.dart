@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:parcel_delivery_app/constants/api_url.dart';
 import 'package:parcel_delivery_app/screens/bottom_nav_bar/bottom_nav_bar.dart';
 import 'package:parcel_delivery_app/services/apiServices/api_post_services.dart';
@@ -149,11 +148,11 @@ class VerifyEmailController extends GetxController {
 
         AppSnackBar.success("Account created successfully!");
         final FirebaseAuth auth = FirebaseAuth.instance;
-        final GoogleSignIn googleSignIn = GoogleSignIn();
+        //final GoogleSignIn googleSignIn = GoogleSignIn();
 
         // Signout Call
         await auth.signOut();
-        await googleSignIn.signOut();
+        //await googleSignIn.signOut();
 
         Get.offAll(() => const BottomNavScreen());
       } else {
@@ -194,18 +193,18 @@ class VerifyEmailController extends GetxController {
               SharedPreferenceValue.token, response["token"].toString());
 
           // String token =
-              // await SharePrefsHelper.getString(SharedPreferenceValue.token);
+          // await SharePrefsHelper.getString(SharedPreferenceValue.token);
           //! log("Saved login token: $token");
         }
 
         AppSnackBar.success("Login successful!");
 
         final FirebaseAuth auth = FirebaseAuth.instance;
-        final GoogleSignIn googleSignIn = GoogleSignIn();
+        //final GoogleSignIn googleSignIn = GoogleSignIn();
 
         // Signout Call
         await auth.signOut();
-        await googleSignIn.signOut();
+        //await googleSignIn.signOut();
 
         Get.offAll(() => const BottomNavScreen());
       } else {

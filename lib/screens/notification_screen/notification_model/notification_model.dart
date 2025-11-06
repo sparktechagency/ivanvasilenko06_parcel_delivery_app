@@ -61,8 +61,8 @@ class Notifications {
   String? deliveryStartTime;
   String? deliveryEndTime;
   String? name;
-  int? price;
-  int? avgRating;
+  dynamic? price;
+  dynamic? avgRating;
   String? description;
   bool? isRead;
   String? createdAt;

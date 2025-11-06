@@ -110,131 +110,132 @@ class LoginScreenController extends GetxController {
 
   var isGoogleLoading = false.obs;
 //! Login with Google
-  Future<void> googleSignIn() async {
-    try {
-      isGoogleLoading(true);
-      GoogleSignIn googleSignIn;
-      if (Platform.isIOS) {
-        googleSignIn = GoogleSignIn(
-          scopes: ['email', 'profile'],
-          clientId:
-              '10243427761-cp6rebbhe0a0ugomqabd4n1jtv4qo0ro.apps.googleusercontent.com',
-        );
-      } else {
-        // For Android, use default configuration from google-services.json
-        googleSignIn = GoogleSignIn(
-          scopes: ['email', 'profile'],
-        );
-      }
-      // Ensure clean state before starting
-      try {
-        await googleSignIn.signOut();
-      } catch (e) {
-        debugPrint("Sign out error (ignored): $e");
-      }
+  // Future<void> googleSignIn() async {
+  //   try {
+  //     isGoogleLoading(true);
 
-      await Future.delayed(const Duration(milliseconds: 500));
+  //     GoogleSignIn googleSignIn;
+  //     if (Platform.isIOS) {
+  //       googleSignIn = GoogleSignIn(
+  //         scopes: ['email', 'profile'],
+  //         clientId:
+  //             '10243427761-cp6rebbhe0a0ugomqabd4n1jtv4qo0ro.apps.googleusercontent.com',
+  //       );
+  //     } else {
+  //       // For Android, use default configuration from google-services.json
+  //       googleSignIn = GoogleSignIn(
+  //         scopes: ['email', 'profile'],
+  //       );
+  //     }
+  //     // Ensure clean state before starting
+  //     try {
+  //       await googleSignIn.signOut();
+  //     } catch (e) {
+  //       debugPrint("Sign out error (ignored): $e");
+  //     }
 
-      //! appLog("🔄 Starting Google Sign-In process...");
+  //     await Future.delayed(const Duration(milliseconds: 500));
 
-      final GoogleSignInAccount? acc = await googleSignIn.signIn();
+  //     //! appLog("🔄 Starting Google Sign-In process...");
 
-      if (acc == null) {
-        //! appLog("Google Sign-In cancelled by user");
-        AppSnackBar.error("Sign-in cancelled");
-        return;
-      }
-      if (acc.email.isEmpty) {
-        AppSnackBar.error("Failed to get user email");
-        return;
-      }
+  //     final GoogleSignInAccount? acc = await googleSignIn.signIn();
 
-      final GoogleSignInAuthentication auth = await acc.authentication;
-      final String? idToken = auth.idToken;
+  //     if (acc == null) {
+  //       //! appLog("Google Sign-In cancelled by user");
+  //       AppSnackBar.error("Sign-in cancelled");
+  //       return;
+  //     }
+  //     if (acc.email.isEmpty) {
+  //       AppSnackBar.error("Failed to get user email");
+  //       return;
+  //     }
 
-      if (idToken == null || idToken.isEmpty) {
-        //! appLog("❌ Failed to get ID token");
-        AppSnackBar.error("Failed to get authentication token");
-        return;
-      }
+  //     final GoogleSignInAuthentication auth = await acc.authentication;
+  //     final String? idToken = auth.idToken;
 
-      var fcmToken =
-          await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
+  //     if (idToken == null || idToken.isEmpty) {
+  //       //! appLog("❌ Failed to get ID token");
+  //       AppSnackBar.error("Failed to get authentication token");
+  //       return;
+  //     }
 
-      Map<String, dynamic> body = {
-        "idToken": idToken,
-        "fcmToken": fcmToken.toString(),
-        "mobileNumber": completePhoneNumber.value,
-        // "email": acc.email,
-        // "displayName": acc.displayName ?? "", // Add display name with null safety
-      };
+  //     var fcmToken =
+  //         await SharePrefsHelper.getString(SharedPreferenceValue.fcmToken);
 
-      //! appLog("Google Auth API Request Body: $body");
+  //     Map<String, dynamic> body = {
+  //       "idToken": idToken,
+  //       "fcmToken": fcmToken.toString(),
+  //       "mobileNumber": completePhoneNumber.value,
+  //       // "email": acc.email,
+  //       // "displayName": acc.displayName ?? "", // Add display name with null safety
+  //     };
 
-      // Retry logic with support for both 200 and 201 status codes
-      var data = await _retryApiCall(body, maxRetries: 3);
+  //     //! appLog("Google Auth API Request Body: $body");
 
-      //! appLog("Google Auth API Response: $data");
+  //     // Retry logic with support for both 200 and 201 status codes
+  //     var data = await _retryApiCall(body, maxRetries: 3);
 
-      if (data != null) {
-        if (data["status"] == "success" && data["data"] != null) {
-          String? token = data["data"]["token"]?.toString();
+  //     //! appLog("Google Auth API Response: $data");
 
-          if (token != null && token.isNotEmpty) {
-            await SharePrefsHelper.setString(
-                SharedPreferenceValue.token, token);
+  //     if (data != null) {
+  //       if (data["status"] == "success" && data["data"] != null) {
+  //         String? token = data["data"]["token"]?.toString();
 
-            //! appLog("✅ Token saved successfully: ${savedToken.substring(0, 50)}...");
+  //         if (token != null && token.isNotEmpty) {
+  //           await SharePrefsHelper.setString(
+  //               SharedPreferenceValue.token, token);
 
-            AppSnackBar.success(data["message"] ?? "Login successful");
-            Get.offAll(() => const BottomNavScreen());
-          } else {
-            //! appLog("❌ Empty or null token received");
-            AppSnackBar.error("Authentication failed: Invalid token");
-          }
-        } else {
-          //! appLog("❌ Invalid response structure: $data");
-          AppSnackBar.error(data["message"] ?? "Authentication failed");
-        }
-      } else {
-        //! appLog("❌ All retry attempts failed");
-        AppSnackBar.error(
-            "Server is temporarily unavailable. Please try again later.");
-      }
-    } on PlatformException catch (e) {
-      // Handle iOS-specific platform exceptions
-      debugPrint("Platform Exception: ${e.code} - ${e.message}");
-      if (e.code == 'sign_in_canceled') {
-        AppSnackBar.error("Sign-in was cancelled");
-      } else if (e.code == 'network_error') {
-        AppSnackBar.error("Network error. Please check your connection.");
-      } else if (e.code == 'sign_in_failed') {
-        AppSnackBar.error("Sign-in failed. Please try again.");
-      } else {
-        AppSnackBar.error(
-            "Authentication error: ${e.message ?? 'Unknown error'}");
-      }
-    } catch (e) {
-      //! appLog("❌ Error in Google Sign-In: $e");
-      debugPrint("Google Sign-In Error: $e");
+  //           //! appLog("✅ Token saved successfully: ${savedToken.substring(0, 50)}...");
 
-      // Provide more specific error messages for iOS
-      if (Platform.isIOS) {
-        if (e.toString().contains('network')) {
-          AppSnackBar.error(
-              "Network error. Please check your internet connection.");
-        } else if (e.toString().contains('configuration')) {
-          AppSnackBar.error("Configuration error. Please contact support.");
-        } else {
-          AppSnackBar.error("Sign-in failed. Please try again.");
-        }
-      } else {
-        AppSnackBar.error("Sign-in failed. Please try again.");
-      }
-    } finally {
-      isGoogleLoading(false);
-    }
-  }
+  //           AppSnackBar.success(data["message"] ?? "Login successful");
+  //           Get.offAll(() => const BottomNavScreen());
+  //         } else {
+  //           //! appLog("❌ Empty or null token received");
+  //           AppSnackBar.error("Authentication failed: Invalid token");
+  //         }
+  //       } else {
+  //         //! appLog("❌ Invalid response structure: $data");
+  //         AppSnackBar.error(data["message"] ?? "Authentication failed");
+  //       }
+  //     } else {
+  //       //! appLog("❌ All retry attempts failed");
+  //       AppSnackBar.error(
+  //           "Server is temporarily unavailable. Please try again later.");
+  //     }
+  //   } on PlatformException catch (e) {
+  //     // Handle iOS-specific platform exceptions
+  //     debugPrint("Platform Exception: ${e.code} - ${e.message}");
+  //     if (e.code == 'sign_in_canceled') {
+  //       AppSnackBar.error("Sign-in was cancelled");
+  //     } else if (e.code == 'network_error') {
+  //       AppSnackBar.error("Network error. Please check your connection.");
+  //     } else if (e.code == 'sign_in_failed') {
+  //       AppSnackBar.error("Sign-in failed. Please try again.");
+  //     } else {
+  //       AppSnackBar.error(
+  //           "Authentication error: ${e.message ?? 'Unknown error'}");
+  //     }
+  //   } catch (e) {
+  //     //! appLog("❌ Error in Google Sign-In: $e");
+  //     debugPrint("Google Sign-In Error: $e");
+
+  //     // Provide more specific error messages for iOS
+  //     if (Platform.isIOS) {
+  //       if (e.toString().contains('network')) {
+  //         AppSnackBar.error(
+  //             "Network error. Please check your internet connection.");
+  //       } else if (e.toString().contains('configuration')) {
+  //         AppSnackBar.error("Configuration error. Please contact support.");
+  //       } else {
+  //         AppSnackBar.error("Sign-in failed. Please try again.");
+  //       }
+  //     } else {
+  //       AppSnackBar.error("Sign-in failed. Please try again.");
+  //     }
+  //   } finally {
+  //     isGoogleLoading(false);
+  //   }
+  // }
 
 // Helper method for retry logic with support for both 200 and 201 status codes
   Future<dynamic> _retryApiCall(Map<String, dynamic> body,
