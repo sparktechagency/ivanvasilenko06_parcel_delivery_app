@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parcel_delivery_app/constants/app_icons_path.dart';
 import 'package:parcel_delivery_app/routes/app_routes.dart';
@@ -207,14 +206,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         onPressed: () async {
                           await SharePrefsHelper.remove(
                               SharedPreferenceValue.token);
-                          // Sign out from Google
-                          final GoogleSignIn googleSignIn = GoogleSignIn();
-                          try {
-                            await googleSignIn.signOut();
-                            await googleSignIn.disconnect();
-                          } catch (e) {
-                            // Handle error if needed
-                          }
                           Get.toNamed(AppRoutes.splashScreen);
                         },
                       ),

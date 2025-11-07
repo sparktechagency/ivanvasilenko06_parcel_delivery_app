@@ -66,11 +66,11 @@ class Notification {
   String? phoneNumber;
   String? mobileNumber;
   String? image;
-  int? price;
+  dynamic? price;
   Location? pickupLocation;
   Location? deliveryLocation;
   String? parcelId;
-  int? avgRating;
+  dynamic? avgRating;
   String? description;
   String? deliveryStartTime;
   String? deliveryEndTime;
