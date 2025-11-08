@@ -46,6 +46,7 @@ class ImageMultipartUpload {
       if (data != null) {
         //AppSnackBar.success("Image uploaded successfully");
         GET.Get.toNamed(AppRoutes.hurrahScreen);
+        return data;
       }
     } catch (e) {
       //! log("$e");
