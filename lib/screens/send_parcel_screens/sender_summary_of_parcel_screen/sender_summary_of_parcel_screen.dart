@@ -151,13 +151,14 @@ class SenderSummaryOfParcelScreen extends StatelessWidget {
                 ],
               ),
               // CircularProgressIndicator in the center of the screen
-              if (controller.isLoading.value)
-                Center(
-                  child: LoadingAnimationWidget.hexagonDots(
-                    color: AppColors.black,
-                    size: 40,
-                  ),
-                ),
+              Obx(() => controller.isLoading.value
+                  ? Center(
+                      child: LoadingAnimationWidget.hexagonDots(
+                        color: AppColors.green,
+                        size: 40,
+                      ),
+                    )
+                  : const SizedBox.shrink()),
             ],
           ),
           bottomNavigationBar: Padding(
@@ -187,37 +188,21 @@ class SenderSummaryOfParcelScreen extends StatelessWidget {
                   ),
                 ),
                 Obx(() => ButtonWidget(
-                      onPressed: controller.isLoading.value
-                          ? null // Disable button when loading
-                          : () async {
-                              // Prevent multiple submissions
-                              if (controller.isLoading.value) return;
+                      onPressed: () async {
+                        // Prevent multiple submissions
+                        if (controller.isLoading.value) return;
 
-                              // Set loading state to true
-                              controller.isLoading.value = true;
-                              controller.update();
-
-                              try {
-                                // Call the submitParcelData function
-                                await controller.submitParcelData();
-                              } finally {
-                                // Always set loading state to false after completion
-                                controller.isLoading.value = false;
-                                controller.update();
-                              }
-                            },
-                      label: controller.isLoading.value
-                          ? "submitting".tr
-                          : "finish".tr,
+                        // Call the submitParcelData function
+                        await controller.submitParcelData();
+                      },
+                      label: "finish".tr,
                       textColor: AppColors.white,
                       backgroundColor: controller.isLoading.value
                           ? AppColors.greyDark2
                           : AppColors.black,
                       buttonWidth: 112,
                       buttonHeight: 50,
-                      icon: controller.isLoading.value
-                          ? null
-                          : Icons.arrow_forward,
+                      icon: Icons.arrow_forward,
                       iconColor: AppColors.white,
                       fontWeight: FontWeight.w500,
                       fontSize: 16,

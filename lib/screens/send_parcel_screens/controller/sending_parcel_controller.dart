@@ -318,28 +318,38 @@ class ParcelController extends GetxController {
 
   // Submission with complete validation
   Future<void> submitParcelData() async {
-    if (_isDisposed) return;
+    debugPrint("🚀 submitParcelData called");
+
+    if (_isDisposed) {
+      debugPrint("❌ Controller is disposed");
+      return;
+    }
 
     // Prevent duplicate submissions
     if (isLoading.value || isSubmitting.value) {
+      debugPrint("⏳ Already submitting");
       return;
     }
 
     //! Validate all required fields before submission
     if (!validateAllFields()) {
+      debugPrint("❌ Validation failed");
       return;
     }
 
     var token = await SharePrefsHelper.getString(SharedPreferenceValue.token);
-    //! log("🔑 Authorization Token: $token");
+    debugPrint(
+        "🔑 Authorization Token: ${token.isNotEmpty ? 'Present' : 'Missing'}");
 
     if (token.isEmpty) {
+      debugPrint("❌ Token is empty");
       // AppSnackBar.error("Authorization token is missing.");
       return;
     }
 
     if (_isDisposed) return;
 
+    debugPrint("✅ Starting API call");
     isLoading.value = true;
     isSubmitting.value = true;
     try {
@@ -357,21 +367,28 @@ class ParcelController extends GetxController {
         'phoneNumber': completePhoneNumber.value,
       };
 
+      debugPrint("📤 Sending parcel data: $parcelData");
+
       final result = await ImageMultipartUpload().imageUploadWithData2(
         body: parcelData,
         url: AppApiUrl.sendPercel,
         imagePath: selectedImages,
       );
 
+      debugPrint(
+          "📥 API Response received: ${result != null ? 'Success' : 'Failed'}");
+
       // If successful, reset the form to prevent resubmission
-      if (result != null || !_isDisposed) {
+      if (result != null && !_isDisposed) {
+        debugPrint("✅ Resetting fields after successful submission");
         resetAllFields();
       }
     } catch (e) {
-      //! log("⚠️ Error submitting parcel: $e");
+      debugPrint("⚠️ Error submitting parcel: $e");
       // AppSnackBar.error("Failed to submit parcel data.");
     } finally {
       if (!_isDisposed) {
+        debugPrint("🏁 Submission complete, resetting loading state");
         isLoading.value = false;
         isSubmitting.value = false;
       }
